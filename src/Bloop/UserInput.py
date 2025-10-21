@@ -23,19 +23,18 @@ class UserInput(argparse.ArgumentParser):
     def __init__(self):
         super().__init__()
         self.add_argument(
-            "--config",
+            "--configFile",
             action="store",
             type=str,
             help="Str: Load cmd line args from json",
         )
         
         self.add_argument(
-            "--bCython",
+            "--cython",
             action="store_true",
             default= False,
-            help="Bool: If activated code will use cython to compile Veff EXPERIMENTAL"
+            help="Bool: If activated cython is used to compile parts of the code base"
         )
-
 
         self.add_argument(
             "--loopOrder",
@@ -46,7 +45,6 @@ class UserInput(argparse.ArgumentParser):
             help="Int: Specify the order to compute the effective potential to",
         )
 
-        ## Should probably be made into a int rather than bool to allow for levels of verbosisty
         self.add_argument(
             "--verbose",
             action="store_true",
@@ -58,60 +56,83 @@ class UserInput(argparse.ArgumentParser):
             "--bPool",
             action="store_true",
             default=False,
-            help="Bool: If activated code will run in parallel using number of cores set by --cores",
+            help="Bool: If activated code will run in parallel using number of threads set by --threads",
         )
 
         self.add_argument(
-            "--cores",
+            "--threads",
             action="store",
             default=1,
             choices=list(range(1, multiprocessing.cpu_count() + 1)),
             type=int,
-            help="Int: Specify how many cores pool uses to compute benchmarks",
+            help="Int: Specify how many thread pool uses to compute benchmarks (needs bPool)",
         )
 
         self.add_argument(
             "--bSave",
             action="store_true",
             default=False,
-            help="Bool: If activated the results of the minimisation will be saved",
+            help="Bool: If activated the results of the minimisation will be saved to --results directory",
         )
 
         self.add_argument(
             "--bPlot",
             action="store_true",
             default=False,
-            help="Bool: If activated a plot of the global min of the potential vs T is made",
+            help="Bool: If activated plotting code (--plotDataFile) is imported and used to generate plots ",
+        )
+        
+        self.add_argument(
+            "--plotDataFile",
+            action="store",
+            default="Bloop.PlotData",
+            help="Str: File name of python file to generate plots, invoked by --bPlot (don't include .py extension)"
         )
 
         self.add_argument(
             "--bProcessMin",
             action="store_true",
             default=False,
-            help="Bool: If activated phase transitions are identified from the minimisation results",
+            help="Bool: If activated ProcessMinimization.py is used to try to find phase transitions from the raw data",
         )
 
         self.add_argument(
             "--resultsDirectory",
             action="store",
             default="Results",
-            help="Str: Location to save files",
+            help="Str: Directory to save files to",
         )
 
         self.add_argument(
-            "--absGlobalTolerance", action="store", default=0.5, type=float
+            "--absGlobalTolerance", 
+            action="store", 
+            default=0.5, 
+            type=float,
+            help= "Float: Sets the absolute tolerance for global minimisation routine in NLOPT"
         )
 
         self.add_argument(
-            "--relGlobalTolerance", action="store", default=0.5, type=float
+            "--relGlobalTolerance", 
+            action="store", 
+            default=0.5, 
+            type=float,
+            help= "Float: Sets the relative tolerance for global minimisation routine in NLOPT"
         )
 
         self.add_argument(
-            "--absLocalTolerance", action="store", default=1e-2, type=float
+            "--absLocalTolerance", 
+            action="store", 
+            default=1e-2, 
+            type=float,
+            help= "Float: Sets the absolute tolerance for local minimisation routine in NLOPT"
         )
 
         self.add_argument(
-            "--relLocalTolerance", action="store", default=1e-3, type=float
+            "--relLocalTolerance", 
+            action="store", 
+            default=1e-3, 
+            type=float,
+            help= "Float: Sets the relative tolerance for local minimisation routine in NLOPT"
         )
 
         self.add_argument(
@@ -120,6 +141,7 @@ class UserInput(argparse.ArgumentParser):
             action="store",
             default=[-60, 1e-4, 1e-4],
             type=float,
+            help="List[float]: Sets the lower bound on background fields for NLOPT. Bounds are in the same order as field names"
         )
 
         self.add_argument(
@@ -128,6 +150,7 @@ class UserInput(argparse.ArgumentParser):
             action="store",
             default=[60, 60, 60],
             type=list,
+            help="List[float]: Sets the upper bound on background fields for NLOPT. Bounds are in the same order as field names",
         )
 
         self.add_argument(
@@ -146,26 +169,53 @@ class UserInput(argparse.ArgumentParser):
                 [-59, 59, 59],
             ],
             type=list,
-        )
-
-        self.add_argument("--TRangeStart", action="store", default=50, type=float)
-
-        self.add_argument("--TRangeEnd", action="store", default=200, type=float)
-
-        self.add_argument("--TRangeStepSize", action="store", default=1, type=float)
-
-        self.add_argument(
-            "--firstStage", default="convertMathematica", type=Stages.fromString
+            help="List[List[float]]: Initial values of background fields to be given to local minimisation routine in NLOPT"
         )
 
         self.add_argument(
-            "--lastStage", default="doMinimization", type=Stages.fromString
+            "--TRangeStart", 
+            action="store", 
+            default=50, 
+            type=float,
+            help="Float: Lowest temperature to look for phase transitions"
+        )
+
+        self.add_argument(
+            "--TRangeEnd", 
+            action="store", 
+            default=200, 
+            type=float,
+            help="Float: Highest temperature to look for phase transitions"
+                          
+        )
+
+        self.add_argument(
+            "--TRangeStepSize",  
+            action="store", 
+            default=1, 
+            type=float,
+            help="Float: Temperature step size for looking for phase transitions"
+        )
+
+        self.add_argument(
+            "--firstStage", 
+            default="convertMathematica", 
+            type=Stages.fromString,
+            help="Str: What stage of the code to start from. Useful to skip convertMathematica mostly"
+        )
+
+        self.add_argument(
+            "--lastStage", 
+            default="doMinimization", 
+            type=Stages.fromString,
+            help="Str: What stage of the code to end on"
         )
 
         self.add_argument(
             "--benchmarkFile",
             action="store",
             default="Bloop/Data/Z2_3HDM/Benchmarks/handPicked.json",
+            help="Str: Relative (to src) name to where benchmarks are saved to"
         )
 
         self.add_argument(
@@ -189,26 +239,32 @@ class UserInput(argparse.ArgumentParser):
             help="str: SLoad previous results to do a strong sub set with.",
         )
 
-        self.add_argument("--firstBenchmark", default=0, type=int)
+        self.add_argument(
+            "--firstBenchmark", 
+            default=0, 
+            type=int,
+            help="Int: First benchmark to do computations with"
+        )
 
-        self.add_argument("--lastBenchmark", default=maxsize, type=int)
+        self.add_argument(
+            "--lastBenchmark", 
+            default=maxsize, 
+            type=int,
+            help="Int: Last benchmark to do computations with"
+        )
 
         self.add_argument(
             "--bmGeneratorFile",
             action="store",
             default="Bloop.Z2_ThreeHiggsBmGenerator",
-        )
-        
-        self.add_argument(
-            "--plotDataFile",
-            action="store",
-            default="Bloop.PlotData",
+            help="Str: Name of py file that lives in Bloop which generates benchmarks. Needs a function called generateBenchmarks."
         )
 
         self.add_argument(
             "--boundedConditions",
             action="store",
             default="Data/Z2_3HDM/ModelFiles/Misc/bounded.txt",
+            help="Str: Relative (to bloop) file name to a txt that contains expressions for bounded from below checks."
         )
 
         self.add_argument(
