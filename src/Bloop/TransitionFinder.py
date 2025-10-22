@@ -85,9 +85,9 @@ class TrackVEV:
             return minimizationResults | {"failureReason":  solvedBetaFunction.message}
         
         betaSpline4D = {
-            ele: scipy.interpolate.CubicSpline(muRange, solvedBetaFunction.y[idx])
-            for idx, ele in enumerate(self.allSymbols)
-            if ele != "RGScale"
+            symbol: scipy.interpolate.CubicSpline(muRange, solvedBetaFunction.y[idx])
+            for idx, symbol in enumerate(self.allSymbols)
+            if symbol != "RGScale"
             if np.any(solvedBetaFunction.y[idx] != solvedBetaFunction.y[idx][0])
         }
 
