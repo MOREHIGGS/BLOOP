@@ -161,10 +161,10 @@ class TrackVEV:
         return params
 
     def getTConsts(self, T, params):
-        matchingScale = 4.0 * pi * exp(-np.euler_gamma) * T
-        Lb = 2.0 * log(matchingScale / T) - self.EulerGammaPrime
+        RGScale = 4.0 * pi * exp(-np.euler_gamma) * T
+        Lb = 2.0 * log(RGScale / T) - self.EulerGammaPrime
 
-        params[self.allSymbols.index("RGScale")] = matchingScale
+        params[self.allSymbols.index("RGScale")] = RGScale
         params[self.allSymbols.index("T")] = T
         params[self.allSymbols.index("Lb")] = Lb
         params[self.allSymbols.index("Lf")] = Lb + self.Lfconst
