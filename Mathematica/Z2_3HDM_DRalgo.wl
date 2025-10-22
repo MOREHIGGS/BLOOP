@@ -45,7 +45,7 @@ exportUTF8[misc<>"/chargedMass.txt",ToString[InputForm[{{(vv^2 \[Lambda]31)/2-\[
 {-\[Mu]12sqRe,(vv^2 \[Lambda]23)/2-\[Mu]2sq}}]]];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Model*)
 
 
@@ -159,20 +159,20 @@ YsffC=SparseArray[Simplify[Conjugate[Ysff]//Normal,Assumptions->{yt3>0}]];
 
 
 (* ::Text:: *)
-(*Parametric accuracy goal of the EFT matchings need to be specified already in ImportModelDRalgo[] (Mode option). I will first do a LO matching and export that, then import the model again and repeat with order g^4 matching.*)
+(*Parametric accuracy goal of the EFT matchings need to be specified already in ImportModelDRalgo[] (Mode option). We need mode 2 to do 2 loop/NNLO effective potential*)
 (*Mode -> 0 : Match couplings at tree level and masses at 1-loop (full g^2)*)
 (*Mode -> 1 : Match everything at 1-loop (partial g^4)*)
 (*Mode -> 2 : Match couplings at 1-loop and masses at 2-loop (full g^4) *)
-(**)
-(*However Mode->0 does not really work ATM,  it doesn't give couplings etc...*)
 
 
 (* ::Subsection:: *)
 (*NLO matching, by which I mean Mode -> 2*)
 
 
-(** Normalization4D flag = preserve 4D units so that the EFT path integral weight is e^{-S/T} (didn't work at time of writing)
- utoRG->True means that 3D running is built in to the matching. This is bad for automatization since 
+(** Normalization4D flag = preserve 4D units so that the EFT path integral weight is e^{-S/T} 
+(didn't work at time of writing) 
+TODO?: Should we add an option for this?
+AutoRG->True means that 3D running is built in to the matching. This is bad for automatization since 
 the 3D masses become be functions of other 3D parameters. To dodge this we match with AutoRG->False
 and do the RG running manually in an additional stage. **)
 ImportModelDRalgo[Group,gvvv,gvff,gvss,\[CapitalLambda]1,\[CapitalLambda]3,\[CapitalLambda]4,\[Mu]ij,\[Mu]IJ,\[Mu]IJC,Ysff,YsffC,Verbose->False, Mode->2, Normalization4D->False, AutoRG->False];
@@ -187,7 +187,9 @@ couplingsSoft = PrintCouplings[];
 temporalScalarCouplings = PrintTemporalScalarCouplings[];
 debyeMasses = PrintDebyeMass["LO"]; (** For Debyes we only take LO result, NLO not needed since we integrate these out anyway **)
 scalarMasses = CombineSubstRules[PrintScalarMass["LO"], PrintScalarMass["NLO"]];
-allSoftScaleParams = Join[couplingsSoft, temporalScalarCouplings, debyeMasses, scalarMasses];
+(*Sometimes compute these equations and put the results into a np.zeros, without T->T etc we would lose what T is *)
+(*We need to be careful here as with proper in place updating with cython we may no longer need this*)
+allSoftScaleMatching = Join[couplingsSoft, temporalScalarCouplings, debyeMasses, scalarMasses, {T->T,RGScale->RGScale}];
 
 
 (*DRalgo gives temporal couplings with [] which is a function call which makes things awkward so remove the []*)
@@ -197,10 +199,7 @@ allSoftScaleParams = Join[couplingsSoft, temporalScalarCouplings, debyeMasses, s
 
 (*We want to do in place updating of parameters in the python code i.e. \[Lambda]14D gets updated to \[Lambda]13D which gets updated to \[Lambda]13DUS,
 it's easier to do this if we remove the suffices so its the same variable name throughout*)
-allSoftScaleParamsSqrtSuffixFree = RemoveSuffixes[sqrtSubRules[allSoftScaleParams], {"3d"}];
-(*Sometimes compute these equations and put the results into a np.zeros,
-without T->T etc we would lose what T is *)
-allSoftScaleParamsSqrtSuffixFree = Join[allSoftScaleParamsSqrtSuffixFree, {T->T,RGScale->RGScale}];
+allSoftScaleParamsSqrtSuffixFree = RemoveSuffixes[sqrtSubRules[allSoftScaleMatching], {"3d"}];
 exportUTF8[hardToSoftDirectory<>"/softScaleParams_NLO.txt", allSoftScaleParamsSqrtSuffixFree];
 
 
