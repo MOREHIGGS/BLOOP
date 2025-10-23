@@ -74,8 +74,8 @@ def loopBenchmarks(args):
     trackVEV, fieldNames = setUpTrackVEV(args)
 
     with open(args.benchmarkFile) as benchmarkFile:
-        if args.bPool:
-            with Pool(args.cores) as pool:
+        if args.threads >1:
+            with Pool(args.threads) as pool:
                 ## Apply might be better suited to avoid this lambda function side step
                 def doBenchmarkWrap(benchmark):
                     return doBenchmark(

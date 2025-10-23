@@ -53,19 +53,12 @@ class UserInput(argparse.ArgumentParser):
         )
 
         self.add_argument(
-            "--bPool",
-            action="store_true",
-            default=False,
-            help="Bool: If activated code will run in parallel using number of threads set by --threads",
-        )
-
-        self.add_argument(
             "--threads",
             action="store",
             default=1,
             choices=list(range(1, multiprocessing.cpu_count() + 1)),
             type=int,
-            help="Int: Specify how many thread pool uses to compute benchmarks (needs bPool)",
+            help="Int: Specify how many thread pool uses to compute benchmarks",
         )
 
         self.add_argument(
