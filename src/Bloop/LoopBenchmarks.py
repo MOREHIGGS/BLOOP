@@ -114,7 +114,7 @@ def setUpTrackVEV(args):
         }
     )
     
-    if args.bCython:
+    if args.cython:
         veffArray = None
     else:
         veffArray = ParsedExpressionSystemArray(

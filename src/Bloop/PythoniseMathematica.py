@@ -194,7 +194,7 @@ def pythoniseMathematica(args):
         else getLinesJSON(args.scalarPermutationMatrixFile)
     )
     
-    if args.bCython:
+    if args.cython:
         generate_veff_module(args, allSymbols)
         compile_veff_submodule(args)    
     
