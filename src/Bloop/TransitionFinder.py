@@ -161,6 +161,7 @@ class TrackVEV:
         return params
 
     def getTConsts(self, T, params):
+        ## Should this be moved to DRalgo? Probably
         RGScale = 4.0 * pi * exp(-np.euler_gamma) * T
         Lb = 2.0 * log(RGScale / T) - self.EulerGammaPrime
 
