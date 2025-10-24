@@ -18,11 +18,11 @@ def generate_veff_module(args, allSymbols):
     
     loopOrder = args.loopOrder 
     
-    veffFPs   = [args.loFile, args.nloFile]
+    veffFPs   = [args.loFilePath, args.nloFilePath]
     veffNames = ["lo", "nlo"]
     
     if loopOrder >1:
-        veffFPs.append(args.nnloFile)
+        veffFPs.append(args.nnloFilePath)
         veffNames.append("nnlo")
         
     for idx, name in enumerate(veffNames):

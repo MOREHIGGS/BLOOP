@@ -74,8 +74,8 @@ def loopBenchmarks(args):
     trackVEV, fieldNames = setUpTrackVEV(args)
 
     with open(args.benchmarkFile) as benchmarkFile:
-        if args.threads >1:
-            with Pool(args.threads) as pool:
+        if args.workers >1:
+            with Pool(args.workers) as pool:
                 ## Apply might be better suited to avoid this lambda function side step
                 def doBenchmarkWrap(benchmark):
                     return doBenchmark(
@@ -94,7 +94,7 @@ def loopBenchmarks(args):
 
 
 def setUpTrackVEV(args):
-    with open(args.pythonisedExpressionsFile, "r") as fp:
+    with open(args.pythonisedExpressionsFilePath, "r") as fp:
         pythonisedExpressions = json.load(fp)
 
     scalarRotationMatrix = pythonisedExpressions["scalarRotationMatrix"]["scalarRotationMatrix"]
@@ -120,7 +120,7 @@ def setUpTrackVEV(args):
         veffArray = ParsedExpressionSystemArray(
             pythonisedExpressions["veffArray"]["expressions"],
             allSymbols,
-            pythonisedExpressions["veffArray"]["fileName"],
+            pythonisedExpressions["veffArray"]["filePath"],
         ) 
     
     effectivePotential = EffectivePotential(
@@ -131,17 +131,17 @@ def setUpTrackVEV(args):
         ParsedExpressionSystemArray(
             pythonisedExpressions["vectorMassesSquared"]["expressions"],
             allSymbols,
-            pythonisedExpressions["vectorMassesSquared"]["fileName"],
+            pythonisedExpressions["vectorMassesSquared"]["filePath"],
         ),
         ParsedExpressionSystemArray(
             pythonisedExpressions["vectorShortHands"]["expressions"],
             allSymbols,
-            pythonisedExpressions["vectorShortHands"]["fileName"],
+            pythonisedExpressions["vectorShortHands"]["filePath"],
         ),
         pythonisedExpressions["scalarPermutationMatrix"],
         ParsedExpressionSystem(
             pythonisedExpressions["scalarMassMatrices"]["expressions"], 
-            pythonisedExpressions["scalarMassMatrices"]["fileName"],
+            pythonisedExpressions["scalarMassMatrices"]["filePath"],
         ),
         scalarRotationMatrix,
         allSymbols,
@@ -166,27 +166,27 @@ def setUpTrackVEV(args):
                 "hardToSoft": ParsedExpressionSystemArray(
                     pythonisedExpressions["hardToSoft"]["expressions"],
                     allSymbols,
-                    pythonisedExpressions["hardToSoft"]["fileName"],
+                    pythonisedExpressions["hardToSoft"]["filePath"],
                 ),
                 "softScaleRGE": ParsedExpressionSystemArray(
                     pythonisedExpressions["softScaleRGE"]["expressions"],
                     allSymbols,
-                    pythonisedExpressions["softScaleRGE"]["fileName"],
+                    pythonisedExpressions["softScaleRGE"]["filePath"],
                 ),
                 "softToUltraSoft": ParsedExpressionSystemArray(
                     pythonisedExpressions["softToUltraSoft"]["expressions"],
                     allSymbols,
-                    pythonisedExpressions["softToUltraSoft"]["fileName"],
+                    pythonisedExpressions["softToUltraSoft"]["filePath"],
                 ),
                 "betaFunction4DExpression": ParsedExpressionSystemArray(
                     pythonisedExpressions["betaFunctions4D"]["expressions"],
                     allSymbols,
-                    pythonisedExpressions["betaFunctions4D"]["fileName"],
+                    pythonisedExpressions["betaFunctions4D"]["filePath"],
                 ),
                 "bounded": ParsedExpressionSystemArray(
                     pythonisedExpressions["bounded"]["expressions"],
                     allSymbols,
-                    pythonisedExpressions["bounded"]["fileName"],
+                    pythonisedExpressions["bounded"]["filePath"],
                 ),
                 "TRange": tuple(
                     _drange(args.TRangeStart, args.TRangeEnd, str(args.TRangeStepSize))

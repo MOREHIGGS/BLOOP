@@ -301,7 +301,7 @@ def generateBenchmarks(args):
             "varUpperBounds": [300, 300, 300],
         }
     )
-    with open(args.pythonisedExpressionsFile, "r") as fp:
+    with open(args.pythonisedExpressionsFilePath, "r") as fp:
         parsedExpressions = json.load(fp)
     ## Take the pythonised tree level potential we've generated
     treeLevel = ParsedExpression(parsedExpressions["veff"]["expressions"][0], None)
