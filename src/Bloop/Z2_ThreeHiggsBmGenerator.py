@@ -405,43 +405,7 @@ class BmGeneratorUnitTests(TestCase):
         self.assertEqual(True, bIsBounded(source))
 
     def test_lagranianParamGen(self):
-        reference = {
-            "bmNumber": 0,
-            "RGScale": 91.1876,
-            "bmInput": {
-                "thetaCPV": 3.11308902835221,
-                "ghDM": 0.15520161865427817,
-                "mS1": 89.15641588128479,
-                "delta12": 87.17952518246265,
-                "delta1c": 14.020273320699415,
-                "deltac": 5.129099092707543,
-                "darkHieracy": 1,
-            },
-            "massTerms": {
-                "mu12sqRe": 542.3572917258725,
-                "mu12sqIm": 0,
-                "mu2sq": -9572.921254799061,
-                "mu3sq": 7837.46120740695,
-                "mu1sq": -9572.921254799061,
-            },
-            "couplingValues": {
-                "lamda1Re": 0.1,
-                "lamda1Im": 0,
-                "lamda2Re": -0.08646892283299933,
-                "lamda2Im": 0.0024653454694036642,
-                "lamda11": 0.11,
-                "lamda22": 0.12,
-                "lamda12": 0.13,
-                "lamda12p": 0.14,
-                "lamda23": 0.05327468098550607,
-                "lamda23p": 0.2749344421058253,
-                "lamda3Re": -0.08646892283299933,
-                "lamda3Im": 0.0024653454694036642,
-                "lamda31": 0.05327468098550607,
-                "lamda31p": 0.2749344421058253,
-                "lamda33": 0.12927959478844356,
-            },
-        }
+        reference = {'bmNumber': 0, 'RGScale': 91.1876, 'bmInput': {'thetaCPV': 3.11308902835221, 'ghDM': 0.15520161865427817, 'mS1': 89.15641588128479, 'delta12': 87.17952518246265, 'delta1c': 14.020273320699415, 'deltac': 5.129099092707543, 'darkHieracy': 1}, 'massTerms': {'mu12sqRe': 542.3572917258725, 'mu12sqIm': 0, 'mu2sq': -9572.921254799061, 'mu3sq': 7837.461207406938, 'mu1sq': -9572.921254799061}, 'couplingValues': {'lamda1Re': 0.1, 'lamda1Im': 0, 'lamda2Re': -0.08646892283299933, 'lamda2Im': 0.0024653454694036642, 'lamda11': 0.11, 'lamda22': 0.12, 'lamda12': 0.13, 'lamda12p': 0.14, 'lamda23': 0.05327468098550607, 'lamda23p': 0.2749344421058253, 'lamda3Re': -0.08646892283299933, 'lamda3Im': 0.0024653454694036642, 'lamda31': 0.05327468098550607, 'lamda31p': 0.2749344421058253, 'lamda33': 0.12927959478844336}}
         source = (
             89.15641588128479,
             87.17952518246265,
