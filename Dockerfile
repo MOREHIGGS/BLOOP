@@ -1,10 +1,10 @@
-FROM python:3
+FROM python:3.13.5
 
 ENV PIP_ROOT_USER_ACTION=ignore
 
 RUN pip install --upgrade pip
 
-RUN pip install --no-cache-dir pdg 
+RUN pip install --no-cache-dir pdg
 RUN pip install --no-cache-dir numba 
 RUN pip install --no-cache-dir nlopt 
 RUN pip install --no-cache-dir numpy 
