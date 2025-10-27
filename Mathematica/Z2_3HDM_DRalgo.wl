@@ -45,7 +45,7 @@ exportUTF8[misc<>"/chargedMass.txt",ToString[InputForm[{{(vv^2 \[Lambda]31)/2-\[
 {-\[Mu]12sqRe,(vv^2 \[Lambda]23)/2-\[Mu]2sq}}]]];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Model*)
 
 
@@ -203,8 +203,10 @@ allSoftScaleParamsSqrtSuffixFree = RemoveSuffixes[sqrtSubRules[allSoftScaleMatch
 exportUTF8[hardToSoftDirectory<>"/softScaleParams_NLO.txt", allSoftScaleParamsSqrtSuffixFree];
 
 
-(* 3D RG equations can be solved exactly, so do that here. We will export subst rules analogous to the matching relations:
-	msq -> msq + \[Beta][msq] Log[\[Mu]3/\[Mu]] where RHS msq is the 3D mass at scale \[Mu] and LHS msq is the mass at scale \[Mu]3 *)
+(* 3D RG equations can be solved exactly, so do that here. 
+msq -> msq + \[Beta][msq] Log[\[Mu]3/\[Mu]] where RHS msq is the 3D mass at scale \[Mu] and LHS msq is the mass at scale \[Mu]3
+We have chosen \[Mu]3 to be T and \[Mu] to be 4.0 * pi * exp(-euler_gamma) * T*)
+(* TODO move 4.0 * pi * exp(-euler_gamma) * T to here*)
 	
 SolveRunning3D[betaFunctions_] := Block[{exprList},
 	(* Extracting lhs and beta for each list element *)
