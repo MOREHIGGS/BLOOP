@@ -19,11 +19,11 @@ Get["MathematicaToPythonHelper.m"]
 (*Specify file paths for exporting*)
 
 
-hardToSoftDirectory = "DRalgoOutput/Z2_3HDM/HardToSoft";
-softToUltrasoftDirectory = "DRalgoOutput/Z2_3HDM/SoftToUltraSoft";
-effectivePotentialDirectory = "DRalgoOutput/Z2_3HDM/EffectivePotential";
-variables = "DRalgoOutput/Z2_3HDM/Variables";
-misc = "DRalgoOutput/Z2_3HDM/Misc";
+hardToSoftDirectory = "DRalgoOutput/Z2_3HDM/ModelFiles";
+softToUltrasoftDirectory = "DRalgoOutput/Z2_3HDM/ModelFiles/SoftToUltraSoft";
+effectivePotentialDirectory = "DRalgoOutput/Z2_3HDM/ModelFiles/EffectivePotential";
+variables = "DRalgoOutput/Z2_3HDM/ModelFiles/Variables";
+misc = "DRalgoOutput/Z2_3HDM/ModelFiles/Misc";
 
 
 exportUTF8[misc<>"/bounded.txt",
