@@ -1,5 +1,8 @@
 (* ::Package:: *)
 
+2+2
+
+
 (* ::Subsection:: *)
 (*Import DRalgo and Group Math*)
 
@@ -19,7 +22,7 @@ Get["MathematicaToPythonHelper.m"]
 (*Specify file paths for exporting*)
 
 
-hardToSoftDirectory = "DRalgoOutput/Z2_3HDM/ModelFiles";
+hardToSoftDirectory = "DRalgoOutput/Z2_3HDM/ModelFiles/hardToSoft";
 softToUltrasoftDirectory = "DRalgoOutput/Z2_3HDM/ModelFiles/SoftToUltraSoft";
 effectivePotentialDirectory = "DRalgoOutput/Z2_3HDM/ModelFiles/EffectivePotential";
 variables = "DRalgoOutput/Z2_3HDM/ModelFiles/Variables";
@@ -389,13 +392,27 @@ exportUTF8[variables<>"/ScalarMassNames.json", extractSymbols[ScalarMassDiag]];
 (*This is because its slower than than the symbolically diagonalised case and just not needed in our research. We could add a mode to handle numerically diagonalising the gauge sector like we do the scalar sector should there be demand. *)
 
 
+(*vectorN = 12; (* SU3 x SU2 x U1 *)
+VectorMassMatrix = PrintTensorsVEV[2]//Normal;
+
+(** Take the only nontrivial 2x2 submatrix and diagonalize that **) 
+VectorMassMatrixNontrivial = VectorMassMatrix[[11;;12,11;;12]];
+{VectorEigenvalues, VectorEigenvectors} = Eigensystem[VectorMassMatrixNontrivial];
+
+VectorEigenvectorsSimp = Simplify[ Normalize /@ VectorEigenvectors, Assumptions -> {g3>0, g2>0, g1>0}];
+VectorEigenvaluesSimp = Simplify[ VectorEigenvalues, Assumptions -> {g3>0, g2>0, g1>0}];
+
+(** Diagonalizing rotation and resulting eigenvalues: **)
+DVRot = Normal[BlockDiagonalMatrix[{IdentityMatrix[10],VectorEigenvectorsSimp}]];
+VectorMassDiag=Normal[BlockDiagonalMatrix[{ConstantArray[0,{8,8}],{{VectorMassMatrix[[9,9]]}},{{VectorMassMatrix[[10,10]]}}, DiagonalMatrix[VectorEigenvalues]}]];*)
 vectorN = 12; (* SU3 x SU2 x U1 *)
 VectorMassMatrix = PrintTensorsVEV[2]//Normal;
 
 (** Take the only nontrivial 4x4 submatrix and diagonalize that **) 
 VectorMassMatrixNontrivial = VectorMassMatrix[[9;;12,9;;12]];
 {VectorEigenvalues, VectorEigenvectors} = Eigensystem[VectorMassMatrixNontrivial];
-
+(*This is to match how DRalgo works internally based on SM example*)
+(*VectorEigenvectors = Transpose[VectorEigenvectors];*)
 VectorEigenvectorsSimp = Simplify[ Normalize /@ VectorEigenvectors, Assumptions -> {g3>0, g2>0, g1>0}];
 VectorEigenvaluesSimp = Simplify[ VectorEigenvalues, Assumptions -> {g3>0, g2>0, g1>0}];
 
@@ -405,7 +422,10 @@ DVRot = Normal[BlockDiagonalMatrix[{IdentityMatrix[8],VectorEigenvectorsSimp}]];
 VectorMassDiag=Normal[BlockDiagonalMatrix[{ConstantArray[0,{8,8}], DiagonalMatrix[VectorEigenvalues]}]];
 
 Print["Diagonalized vector mass matrix:"];
-VectorMassDiag // MatrixForm
+VectorMassDiag // MatrixForm;
+
+
+MatrixForm[DVRot . VectorMassMatrix . Transpose[DVRot]]//Simplify;
 
 
 (** Simplify with easier symbols **)
@@ -426,12 +446,20 @@ exportUTF8[effectivePotentialDirectory<>"/vectorShorthands.txt", vectorShorthand
 
 
 (** NB! RotateTensorsCustomMass[] is very very slow, this can run for hours!
-It's because our scalar rotation matrix is so large. **)
-AbsoluteTiming[
-	(** Tell DRalgo to rotate the fields to mass diagonal basis **)
-	RotateTensorsCustomMass[DSRot,DVRotSimp,ScalarMassDiag,VectorMassDiagSimple, FastRotation-> True];
-	CalculatePotentialUS[]
-]
+FastRotate does something to speed it up. Comes at the cost of accuracy **)
+RotateTensorsCustomMass[DSRot,DVRotSimp,ScalarMassDiag,VectorMassDiagSimple, FastRotation-> True];
+CalculatePotentialUS[]
+
+
+(* ::Text:: *)
+(*##############       BUG     #################*)
+(*For reasons beyond me a SM term in the NNLO is wrong.  *)
+(*We get (ctW^2*g2^2*Sqrt[mVsq0]*Sqrt[mVsq1])/(12*Pi^2) = g2^5 v^2/(48\[Pi]^2 \[Sqrt]g1^2+g2^2)*)
+(*In the SM example it is g2^6 v^2/(48\[Pi]^2(g1^2+g2^2))*)
+(* The difference can be explained if you cube ctW instead of square.*)
+(* Based on integration tests this has a minor impact on numerics which is somewhat expected since the gauge couplings are small. *)
+(* Note this bug is not present in the version used for the Z2 3HDM paper*)
+(*Until I fix the bug I would suggest just manually changing the NNLO txt file*)
 
 
 veffLO = PrintEffectivePotential["LO"]//Simplify; (* Simplify to get rid of possible imaginaryDetailed units *)
