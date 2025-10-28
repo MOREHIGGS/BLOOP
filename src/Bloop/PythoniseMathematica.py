@@ -102,109 +102,107 @@ def pythoniseMatrix(lines):
 
 
 def pythoniseMathematica(args):
-    veffLines = getLines(args.loFile)
-    veffLines += getLines(args.nloFile)
+    veffLines = getLines(args.loFilePath)
+    veffLines += getLines(args.nloFilePath)
     if args.loopOrder >= 2:
-        veffLines += getLines(args.nnloFile)
+        veffLines += getLines(args.nnloFilePath)
     
-    scalarRotationMatrix = getLinesJSON(args.scalarRotationMatrixFile)
-    allSymbols = getLinesJSON(args.allSymbolsFile) + ["missing"]
-    allSymbols = sorted(
-        [replaceGreekSymbols(symbol) for symbol in allSymbols], reverse=True
-    )
+    allSymbols = getLinesJSON(args.allSymbolsFilePath) + ["missing"]
+    ## Reverse needed so that strings aren't replaced by substrings
+    ## e.g. lam2 should not replace lam22
+    allSymbols = sorted([replaceGreekSymbols(symbol) for symbol in allSymbols], reverse=True)
 
     ## Move get lines to the functions? -- Would need to rework veffLines in this case
-    ## Not ideal to have nested dicts but is future proof for when we move to arrays
+    ## filePath useful for debugging 
     expressionDict = {
         "bounded": {
             "expressions": pythoniseExpressionSystemArray(
-                getLines(args.boundedConditions), allSymbols
+                getLines(args.boundedConditionsFilePath), allSymbols
             ),
-            "fileName": "bounded",
+            "filePath": args.boundedConditionsFilePath,
         },
         "betaFunctions4D": {
             "expressions": pythoniseExpressionSystemArray(
-                getLines(args.betaFunctions4DFile), allSymbols
+                getLines(args.betaFunctions4DFilePath), allSymbols
             ),
-            "fileName": args.betaFunctions4DFile,
+            "filePath": args.betaFunctions4DFilePath,
         },
         "hardToSoft": {
             "expressions": pythoniseExpressionSystemArray(
-                getLines(args.hardToSoftFile), allSymbols
+                getLines(args.hardToSoftFilePath), allSymbols
             ),
-            "fileName": args.hardToSoftFile,
+            "filePath": args.hardToSoftFilePath,
         },
         "softScaleRGE": {
             "expressions": pythoniseExpressionSystemArray(
-                getLines(args.softScaleRGEFile), allSymbols
+                getLines(args.softScaleRGEFilePath), allSymbols
             ),
-            "fileName": args.softScaleRGEFile,
+            "filePath": args.softScaleRGEFilePath,
         },
         "softToUltraSoft": {
             "expressions": pythoniseExpressionSystemArray(
-                getLines(args.softToUltraSoftFile), allSymbols
+                getLines(args.softToUltraSoftFilePath), allSymbols
             ),
-            "fileName": args.softToUltraSoftFile,
+            "filePath": args.softToUltraSoftFilePath,
         },
         "vectorMassesSquared": {
             "expressions": pythoniseExpressionSystemArray(
-                getLines(args.vectorMassesSquaredFile), allSymbols
+                getLines(args.vectorMassesSquaredFilePath), allSymbols
             ),
-            "fileName": args.vectorMassesSquaredFile,
+            "filePath": args.vectorMassesSquaredFilePath,
         },
         "vectorShortHands": {
             "expressions": pythoniseExpressionSystemArray(
-                getLines(args.vectorShortHandsFile), allSymbols
+                getLines(args.vectorShortHandsFilePath), allSymbols
             ),
-            "fileName": args.vectorShortHandsFile,
+            "filePath": args.vectorShortHandsFilePath,
         },
         "veff": {
             "expressions": pythoniseExpressionSystem(veffLines),
-            "fileName": "Combined Veff files",
+            "filePath": "Combined Veff files",
         },
         
         "scalarMassMatrices": {
-            "expressions":pythoniseExpressionSystem(getLines(args.scalarMassMatrixFile)),
-            "fileName": args.scalarMassMatrixFile
+            "expressions":pythoniseExpressionSystem(
+                getLines(args.scalarMassMatrixFilePath)),
+            "filePath": args.scalarMassMatrixFilePath
         },
         
-        
-        
         "scalarRotationMatrix": {
-            "scalarRotationMatrix": scalarRotationMatrix,
-            "fileName": args.scalarRotationMatrixFile,
+            "scalarRotationMatrix": getLinesJSON(args.scalarRotationMatrixFilePath),
+            "fileName": args.scalarRotationMatrixFilePath,
         },
         "allSymbols": {
             "allSymbols": allSymbols,
-            "fileName": args.allSymbolsFile,
+            "fileName": args.allSymbolsFilePath,
         },
         "lagranianVariables": {
-            "lagranianVariables": getLinesJSON(args.lagranianVariablesFile),
-            "fileName": args.lagranianVariablesFile 
+            "lagranianVariables": getLinesJSON(args.lagranianVariablesFilePath),
+            "fileName": args.lagranianVariablesFilePath 
         },
         "scalarMassNames": {
-            "scalarMassNames": getLinesJSON(args.scalarMassNamesFile),
-            "fileName": args.scalarMassNamesFile 
+            "scalarMassNames": getLinesJSON(args.scalarMassNamesFilePath),
+            "fileName": args.scalarMassNamesFilePath
         },
     }
 
     expressionDict["scalarPermutationMatrix"] = (
         []
-        if args.scalarPermutationMatrixFile.lower() == "none"
-        else getLinesJSON(args.scalarPermutationMatrixFile)
+        if args.scalarPermutationMatrixFilePath.lower() == "none"
+        else getLinesJSON(args.scalarPermutationMatrixFilePath)
     )
     
-    if args.bCython:
+    if args.cython:
         generate_veff_module(args, allSymbols)
         compile_veff_submodule(args)    
     
     else:
         expressionDict["veffArray"] = {
             "expressions": pythoniseExpressionSystemArray(veffLines, allSymbols),
-            "fileName": "Combined Veff files",
+            "filePath": "Combined Veff files",
         }
 
-    (outputFile := Path(args.pythonisedExpressionsFile)).parent.mkdir(
+    (outputFile := Path(args.pythonisedExpressionsFilePath)).parent.mkdir(
         exist_ok=True, parents=True
     )   
     with open(outputFile, "w") as fp:

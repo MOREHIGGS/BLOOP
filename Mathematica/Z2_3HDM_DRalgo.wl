@@ -1,5 +1,8 @@
 (* ::Package:: *)
 
+2+2
+
+
 (* ::Subsection:: *)
 (*Import DRalgo and Group Math*)
 
@@ -19,11 +22,11 @@ Get["MathematicaToPythonHelper.m"]
 (*Specify file paths for exporting*)
 
 
-hardToSoftDirectory = "DRalgoOutput/Z2_3HDM/HardToSoft";
-softToUltrasoftDirectory = "DRalgoOutput/Z2_3HDM/SoftToUltraSoft";
-effectivePotentialDirectory = "DRalgoOutput/Z2_3HDM/EffectivePotential";
-variables = "DRalgoOutput/Z2_3HDM/Variables";
-misc = "DRalgoOutput/Z2_3HDM/Misc";
+hardToSoftDirectory = "DRalgoOutput/Z2_3HDM/ModelFiles/hardToSoft";
+softToUltrasoftDirectory = "DRalgoOutput/Z2_3HDM/ModelFiles/SoftToUltraSoft";
+effectivePotentialDirectory = "DRalgoOutput/Z2_3HDM/ModelFiles/EffectivePotential";
+variables = "DRalgoOutput/Z2_3HDM/ModelFiles/Variables";
+misc = "DRalgoOutput/Z2_3HDM/ModelFiles/Misc";
 
 
 exportUTF8[misc<>"/bounded.txt",
@@ -33,8 +36,8 @@ exportUTF8[misc<>"/bounded.txt",
 \[Lambda]12 + min[0, \[Lambda]12p - 2*Sqrt[\[Lambda]1Re^2 + \[Lambda]1Im^2] ] > -2*sqrt[\[Lambda]11*\[Lambda]22],
 \[Lambda]31 + min[0, \[Lambda]31p - 2*Sqrt[\[Lambda]3Re^2 + \[Lambda]3Im^2] ] > -2*sqrt[\[Lambda]11*\[Lambda]33],
 \[Lambda]23 + min[0, \[Lambda]23p - 2*Sqrt[\[Lambda]2Re^2 + \[Lambda]2Im^2] ] > -2*sqrt[\[Lambda]22*\[Lambda]33],
-sqrt[lam33]*(\[Lambda]12 + min[0, \[Lambda]12p - 2*Sqrt[\[Lambda]1Re^2 + \[Lambda]1Im^2] ]) + sqrt[lam11]*(\[Lambda]23 + min[0, \[Lambda]23p - 2*Sqrt[\[Lambda]2Re^2 + \[Lambda]2Im^2] ]) + sqrt[lam22]*(\[Lambda]31 + min[0, \[Lambda]31p - 2*Sqrt[\[Lambda]3Re^2 + \[Lambda]3Im^2] ]) >= 0 ||
-lam33*(\[Lambda]12 + min[0, \[Lambda]12p - 2*Sqrt[\[Lambda]1Re^2 + \[Lambda]1Im^2] ])^2 + lam11*(\[Lambda]23 + min[0, \[Lambda]23p - 2*Sqrt[\[Lambda]2Re^2 + \[Lambda]2Im^2] ])^2 + lam22*(\[Lambda]31 + min[0, \[Lambda]31p - 2*Sqrt[\[Lambda]3Re^2 + \[Lambda]3Im^2] ])^2 - lam11*lam22*lam33 - 2*(\[Lambda]12 + min[0, \[Lambda]12p - 2*Sqrt[\[Lambda]1Re^2 + \[Lambda]1Im^2] ])*(\[Lambda]31 + min[0, \[Lambda]31p - 2*Sqrt[\[Lambda]3Re^2 + \[Lambda]3Im^2] ])*(\[Lambda]23 + min[0, \[Lambda]23p - 2*Sqrt[\[Lambda]2Re^2 + \[Lambda]2Im^2] ]) < 0
+sqrt[\[Lambda]33]*(\[Lambda]12 + min[0, \[Lambda]12p - 2*Sqrt[\[Lambda]1Re^2 + \[Lambda]1Im^2] ]) + sqrt[\[Lambda]11]*(\[Lambda]23 + min[0, \[Lambda]23p - 2*Sqrt[\[Lambda]2Re^2 + \[Lambda]2Im^2] ]) + sqrt[\[Lambda]22]*(\[Lambda]31 + min[0, \[Lambda]31p - 2*Sqrt[\[Lambda]3Re^2 + \[Lambda]3Im^2] ]) >= 0 ||
+\[Lambda]33*(\[Lambda]12 + min[0, \[Lambda]12p - 2*Sqrt[\[Lambda]1Re^2 + \[Lambda]1Im^2] ])^2 + \[Lambda]11*(\[Lambda]23 + min[0, \[Lambda]23p - 2*Sqrt[\[Lambda]2Re^2 + \[Lambda]2Im^2] ])^2 + \[Lambda]22*(\[Lambda]31 + min[0, \[Lambda]31p - 2*Sqrt[\[Lambda]3Re^2 + \[Lambda]3Im^2] ])^2 - \[Lambda]11*\[Lambda]22*\[Lambda]33 - 2*(\[Lambda]12 + min[0, \[Lambda]12p - 2*Sqrt[\[Lambda]1Re^2 + \[Lambda]1Im^2] ])*(\[Lambda]31 + min[0, \[Lambda]31p - 2*Sqrt[\[Lambda]3Re^2 + \[Lambda]3Im^2] ])*(\[Lambda]23 + min[0, \[Lambda]23p - 2*Sqrt[\[Lambda]2Re^2 + \[Lambda]2Im^2] ]) < 0
 }];
 exportUTF8[misc<>"/neutralMass.txt",ToString[InputForm[{{1/2 v3^2 (\[Lambda]23+\[Lambda]23p+2 \[Lambda]2Re)-\[Mu]2sq,v3^2 \[Lambda]2Im,-\[Mu]12sqIm,0,-\[Mu]12sqRe,0},
 {v3^2 \[Lambda]2Im,1/2 v3^2 (\[Lambda]23+\[Lambda]23p-2 \[Lambda]2Re)-\[Mu]2sq,-\[Mu]12sqRe,0,\[Mu]12sqIm,0},
@@ -159,20 +162,20 @@ YsffC=SparseArray[Simplify[Conjugate[Ysff]//Normal,Assumptions->{yt3>0}]];
 
 
 (* ::Text:: *)
-(*Parametric accuracy goal of the EFT matchings need to be specified already in ImportModelDRalgo[] (Mode option). I will first do a LO matching and export that, then import the model again and repeat with order g^4 matching.*)
+(*Parametric accuracy goal of the EFT matchings need to be specified already in ImportModelDRalgo[] (Mode option). We need mode 2 to do 2 loop/NNLO effective potential*)
 (*Mode -> 0 : Match couplings at tree level and masses at 1-loop (full g^2)*)
 (*Mode -> 1 : Match everything at 1-loop (partial g^4)*)
 (*Mode -> 2 : Match couplings at 1-loop and masses at 2-loop (full g^4) *)
-(**)
-(*However Mode->0 does not really work ATM,  it doesn't give couplings etc...*)
 
 
 (* ::Subsection:: *)
 (*NLO matching, by which I mean Mode -> 2*)
 
 
-(** Normalization4D flag = preserve 4D units so that the EFT path integral weight is e^{-S/T} (didn't work at time of writing)
- utoRG->True means that 3D running is built in to the matching. This is bad for automatization since 
+(** Normalization4D flag = preserve 4D units so that the EFT path integral weight is e^{-S/T} 
+(didn't work at time of writing) 
+TODO?: Should we add an option for this?
+AutoRG->True means that 3D running is built in to the matching. This is bad for automatization since 
 the 3D masses become be functions of other 3D parameters. To dodge this we match with AutoRG->False
 and do the RG running manually in an additional stage. **)
 ImportModelDRalgo[Group,gvvv,gvff,gvss,\[CapitalLambda]1,\[CapitalLambda]3,\[CapitalLambda]4,\[Mu]ij,\[Mu]IJ,\[Mu]IJC,Ysff,YsffC,Verbose->False, Mode->2, Normalization4D->False, AutoRG->False];
@@ -187,7 +190,9 @@ couplingsSoft = PrintCouplings[];
 temporalScalarCouplings = PrintTemporalScalarCouplings[];
 debyeMasses = PrintDebyeMass["LO"]; (** For Debyes we only take LO result, NLO not needed since we integrate these out anyway **)
 scalarMasses = CombineSubstRules[PrintScalarMass["LO"], PrintScalarMass["NLO"]];
-allSoftScaleParams = Join[couplingsSoft, temporalScalarCouplings, debyeMasses, scalarMasses];
+(*Sometimes compute these equations and put the results into a np.zeros, without T->T etc we would lose what T is *)
+(*We need to be careful here as with proper in place updating with cython we may no longer need this*)
+allSoftScaleMatching = Join[couplingsSoft, temporalScalarCouplings, debyeMasses, scalarMasses, {T->T,RGScale->RGScale}];
 
 
 (*DRalgo gives temporal couplings with [] which is a function call which makes things awkward so remove the []*)
@@ -197,15 +202,14 @@ allSoftScaleParams = Join[couplingsSoft, temporalScalarCouplings, debyeMasses, s
 
 (*We want to do in place updating of parameters in the python code i.e. \[Lambda]14D gets updated to \[Lambda]13D which gets updated to \[Lambda]13DUS,
 it's easier to do this if we remove the suffices so its the same variable name throughout*)
-allSoftScaleParamsSqrtSuffixFree = RemoveSuffixes[sqrtSubRules[allSoftScaleParams], {"3d"}];
-(*Sometimes compute these equations and put the results into a np.zeros,
-without T->T etc we would lose what T is *)
-allSoftScaleParamsSqrtSuffixFree = Join[allSoftScaleParamsSqrtSuffixFree, {T->T,RGScale->RGScale}];
+allSoftScaleParamsSqrtSuffixFree = RemoveSuffixes[sqrtSubRules[allSoftScaleMatching], {"3d"}];
 exportUTF8[hardToSoftDirectory<>"/softScaleParams_NLO.txt", allSoftScaleParamsSqrtSuffixFree];
 
 
-(* 3D RG equations can be solved exactly, so do that here. We will export subst rules analogous to the matching relations:
-	msq -> msq + \[Beta][msq] Log[\[Mu]3/\[Mu]] where RHS msq is the 3D mass at scale \[Mu] and LHS msq is the mass at scale \[Mu]3 *)
+(* 3D RG equations can be solved exactly, so do that here. 
+msq -> msq + \[Beta][msq] Log[\[Mu]3/\[Mu]] where RHS msq is the 3D mass at scale \[Mu] and LHS msq is the mass at scale \[Mu]3
+We have chosen \[Mu]3 to be T and \[Mu] to be 4.0 * pi * exp(-euler_gamma) * T*)
+(* TODO move 4.0 * pi * exp(-euler_gamma) * T to here*)
 	
 SolveRunning3D[betaFunctions_] := Block[{exprList},
 	(* Extracting lhs and beta for each list element *)
@@ -388,13 +392,27 @@ exportUTF8[variables<>"/ScalarMassNames.json", extractSymbols[ScalarMassDiag]];
 (*This is because its slower than than the symbolically diagonalised case and just not needed in our research. We could add a mode to handle numerically diagonalising the gauge sector like we do the scalar sector should there be demand. *)
 
 
+(*vectorN = 12; (* SU3 x SU2 x U1 *)
+VectorMassMatrix = PrintTensorsVEV[2]//Normal;
+
+(** Take the only nontrivial 2x2 submatrix and diagonalize that **) 
+VectorMassMatrixNontrivial = VectorMassMatrix[[11;;12,11;;12]];
+{VectorEigenvalues, VectorEigenvectors} = Eigensystem[VectorMassMatrixNontrivial];
+
+VectorEigenvectorsSimp = Simplify[ Normalize /@ VectorEigenvectors, Assumptions -> {g3>0, g2>0, g1>0}];
+VectorEigenvaluesSimp = Simplify[ VectorEigenvalues, Assumptions -> {g3>0, g2>0, g1>0}];
+
+(** Diagonalizing rotation and resulting eigenvalues: **)
+DVRot = Normal[BlockDiagonalMatrix[{IdentityMatrix[10],VectorEigenvectorsSimp}]];
+VectorMassDiag=Normal[BlockDiagonalMatrix[{ConstantArray[0,{8,8}],{{VectorMassMatrix[[9,9]]}},{{VectorMassMatrix[[10,10]]}}, DiagonalMatrix[VectorEigenvalues]}]];*)
 vectorN = 12; (* SU3 x SU2 x U1 *)
 VectorMassMatrix = PrintTensorsVEV[2]//Normal;
 
 (** Take the only nontrivial 4x4 submatrix and diagonalize that **) 
 VectorMassMatrixNontrivial = VectorMassMatrix[[9;;12,9;;12]];
 {VectorEigenvalues, VectorEigenvectors} = Eigensystem[VectorMassMatrixNontrivial];
-
+(*This is to match how DRalgo works internally based on SM example*)
+(*VectorEigenvectors = Transpose[VectorEigenvectors];*)
 VectorEigenvectorsSimp = Simplify[ Normalize /@ VectorEigenvectors, Assumptions -> {g3>0, g2>0, g1>0}];
 VectorEigenvaluesSimp = Simplify[ VectorEigenvalues, Assumptions -> {g3>0, g2>0, g1>0}];
 
@@ -404,7 +422,10 @@ DVRot = Normal[BlockDiagonalMatrix[{IdentityMatrix[8],VectorEigenvectorsSimp}]];
 VectorMassDiag=Normal[BlockDiagonalMatrix[{ConstantArray[0,{8,8}], DiagonalMatrix[VectorEigenvalues]}]];
 
 Print["Diagonalized vector mass matrix:"];
-VectorMassDiag // MatrixForm
+VectorMassDiag // MatrixForm;
+
+
+MatrixForm[DVRot . VectorMassMatrix . Transpose[DVRot]]//Simplify;
 
 
 (** Simplify with easier symbols **)
@@ -425,12 +446,20 @@ exportUTF8[effectivePotentialDirectory<>"/vectorShorthands.txt", vectorShorthand
 
 
 (** NB! RotateTensorsCustomMass[] is very very slow, this can run for hours!
-It's because our scalar rotation matrix is so large. **)
-AbsoluteTiming[
-	(** Tell DRalgo to rotate the fields to mass diagonal basis **)
-	RotateTensorsCustomMass[DSRot,DVRotSimp,ScalarMassDiag,VectorMassDiagSimple, FastRotation-> True];
-	CalculatePotentialUS[]
-]
+FastRotate does something to speed it up. Comes at the cost of accuracy **)
+RotateTensorsCustomMass[DSRot,DVRotSimp,ScalarMassDiag,VectorMassDiagSimple, FastRotation-> True];
+CalculatePotentialUS[]
+
+
+(* ::Text:: *)
+(*##############       BUG     #################*)
+(*For reasons beyond me a SM term in the NNLO is wrong.  *)
+(*We get (ctW^2*g2^2*Sqrt[mVsq0]*Sqrt[mVsq1])/(12*Pi^2) = g2^5 v^2/(48\[Pi]^2 \[Sqrt]g1^2+g2^2)*)
+(*In the SM example it is g2^6 v^2/(48\[Pi]^2(g1^2+g2^2))*)
+(* The difference can be explained if you cube ctW instead of square.*)
+(* Based on integration tests this has a minor impact on numerics which is somewhat expected since the gauge couplings are small. *)
+(* Note this bug is not present in the version used for the Z2 3HDM paper*)
+(*Until I fix the bug I would suggest just manually changing the NNLO txt file*)
 
 
 veffLO = PrintEffectivePotential["LO"]//Simplify; (* Simplify to get rid of possible imaginaryDetailed units *)
