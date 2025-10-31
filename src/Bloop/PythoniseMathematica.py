@@ -131,18 +131,7 @@ def pythoniseMathematica(args):
             ),
             "filePath": args.softToUltraSoftFilePath,
         },
-        "vectorMassesSquared": {
-            "expressions": pythoniseExpressionSystemArray(
-                getLines(args.vectorMassesSquaredFilePath), allSymbols
-            ),
-            "filePath": args.vectorMassesSquaredFilePath,
-        },
-        "vectorShortHands": {
-            "expressions": pythoniseExpressionSystemArray(
-                getLines(args.vectorShortHandsFilePath), allSymbols
-            ),
-            "filePath": args.vectorShortHandsFilePath,
-        },
+
         "veff": {
             "expressions": pythoniseExpression(getLines(args.loFilePath)[0]),
             "fileName": args.loFilePath,
