@@ -39,7 +39,6 @@ class UserInput(argparse.ArgumentParser):
            default=[],
            help="List[str]: Flags to pass to gcc, mainly O1 to reduce compile time and memory use. Don't include the - for flags"
        )
-
        configGroup.add_argument(
            "--verbose",
            action="store_true",
