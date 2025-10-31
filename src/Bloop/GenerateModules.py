@@ -3,10 +3,11 @@ from textwrap import dedent
 from jinja2 import Environment
 import numpy as np
 import json
-
+## Cannot import things from this module as gives cicular import
 import Bloop.PythoniseMathematica as PythoniseMathematica
 
-def generate_veff_module(
+
+def generateModules(
     args, 
     allSymbols, 
     scalarMassMatrixFile,
@@ -29,18 +30,17 @@ def generate_veff_module(
     
     loopOrder = args.loopOrder 
     
-    veffFPs   = [args.loFilePath, args.nloFilePath]
+    veffFilePaths   = [args.loFilePath, args.nloFilePath]
     veffNames = ["lo", "nlo"]
-    
     if loopOrder >1:
-        veffFPs.append(args.nnloFilePath)
+        veffFilePaths.append(args.nnloFilePath)
         veffNames.append("nnlo")
         
     for idx, name in enumerate(veffNames):
         generateVeffSubModule(
             name, 
             os.path.join(module_dir, f"{name}.pyx"), 
-            os.path.join(data_dir, veffFPs[idx]), 
+            os.path.join(data_dir, veffFilePaths[idx]), 
             allSymbols
         )
 
@@ -177,10 +177,13 @@ def generateDiagonalizeSubModule(
 ):
     with open(scalarMassMatrixFile) as file:
         scalarMassMatrices = [convertMatrixToCythonSyntax(line) for line in file.readlines()]
-
-    with open(scalarPermutationMatrixFile) as file:
-        scalarPermutationMatrix = convertMatrixToCythonSyntax(file.read())
-
+        
+    if not scalarPermutationMatrixFile.lower() == "none":
+        with open(scalarPermutationMatrixFile) as file:
+            scalarPermutationMatrix = convertMatrixToCythonSyntax(file.read())
+    else:
+        scalarPermutationMatrixFile = scalarPermutationMatrixFile.lower()
+        
     with open(scalarRotationMatrixFile) as file:
         scalarRotationMatrix = json.loads(file.read())
 
@@ -235,11 +238,13 @@ def generateDiagonalizeSubModule(
                     eigenVectors{{ loop.index0 }},
             {%- endfor %}
                 )
-
-                permutedMatrix = dgemm(1, scalarPermutationMatrix, eigenVectors)
-
+                
+                
+            {%- if not {{scalarPermutationMatrix}} == none %}
+                eigenVectors = dgemm(1, scalarPermutationMatrix, eigenVectors)
+                
             {%- for symbol, indices in scalarRotationMatrix.items() %}
-                _{{ symbol }}[0] = permutedMatrix[{{ indices[0] }}][{{ indices[1] }}]
+                _{{ symbol }}[0] = eigenVectors[{{ indices[0] }}][{{ indices[1] }}]
             {%- endfor %}
 
             {% set scalarMassMatrixLength = (scalarMassNames | length) / (scalarMassMatrices | length) | int %}

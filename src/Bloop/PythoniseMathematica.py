@@ -6,7 +6,7 @@ from importlib.resources import files
 import unicodedata
 import re
 
-from Bloop.GenerateModules import generate_veff_module
+from Bloop.GenerateModules import generateModules
 from Bloop.CompileModules import compile_veff_submodule
 
 def getLines(relativePathToResource):
@@ -153,7 +153,7 @@ def pythoniseMathematica(args):
         },
     }
     
-    generate_veff_module(
+    generateModules(
         args, 
         allSymbols, 
         args.scalarMassMatrixFilePath, 
