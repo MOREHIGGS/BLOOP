@@ -77,7 +77,7 @@ def generate_veff_module(
             extensions.append(Extension("nlo", ["nlo.pyx"]))
             {% endif %}
             {% if args.loopOrder >= 2 %}
-            extensions.append(Extension("nnlo", ["nnlo.pyx"]))
+            extensions.append(Extension("nnlo", ["nnlo.pyx"], extra_compile_args=['-O1']))
             {% endif %}
             extensions.append(Extension("eigen", ["eigen.pyx"]))
 
