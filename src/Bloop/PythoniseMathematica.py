@@ -95,7 +95,7 @@ def pythoniseExpressionSystem(lines):
 
 
 def pythoniseMathematica(args):
-    allSymbols = getLinesJSON(args.allSymbolsFile) + ["missing"]
+    allSymbols = getLinesJSON(args.allSymbolsFilePath) + ["missing"]
     allSymbols = sorted(
         [replaceGreekSymbols(symbol) for symbol in allSymbols], reverse=True
     )
@@ -150,7 +150,7 @@ def pythoniseMathematica(args):
         
         "scalarMassMatrices": {
             "expressions": pythoniseExpressionSystem(getLines(args.scalarMassMatrixFilePath)),
-            "fileName": args.scalarMassMatrixFile
+            "fileName": args.scalarMassMatrixFilePath
         },
         
         "allSymbols": {
@@ -176,7 +176,7 @@ def pythoniseMathematica(args):
 
     compile_veff_submodule(args)    
     
-    (outputFile := Path(args.pythonisedExpressionsFile)).parent.mkdir(
+    (outputFile := Path(args.pythonisedExpressionsFilePath)).parent.mkdir(
         exist_ok=True, parents=True
     )   
     with open(outputFile, "w") as fp:
