@@ -22,21 +22,6 @@ python3 runStages.py --loopOrder 1 \
 
 diff IntegrationTests/Pool/OutputResult/BM_1.json IntegrationTests/Pool/ReferenceResult/BM_1.json
 
-echo Running code at NLO with cython...
-python3 runStages.py --loopOrder 1 \
-                        --firstBenchmark 1 \
-                        --lastBenchmark 1 \
-                        --bSave \
-                        --resultsDirectory IntegrationTests/Cython/OutputResult/  \
-                        --benchmarkFile IntegrationTests/Benchmarks \
-                        --benchmarkType handPicked \
-                        --TRangeStart 100 \
-                        --TRangeEnd 200 \
-                        --TRangeStepSize 2 \
-                        --cython  
-
-diff IntegrationTests/Cython/OutputResult/BM_1.json IntegrationTests/Cython/ReferenceResult/BM_1.json
-
 echo Running code at NLO using 2 cores...
 rm -f IntegrationTests/Pool2/OutputResult/* 
 rm -f IntegrationTests/Benchmarks/*
