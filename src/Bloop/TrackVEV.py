@@ -198,6 +198,7 @@ class TrackVEV:
     def evaluatePotential(self, fields, params):
         for i, value in enumerate(fields):
             params[self.allSymbols.index(self.fieldNames[i])] = value
+
         eigen(params)
 
         return sum(Veff(*params))
@@ -247,8 +248,6 @@ class TrackVEV:
 
 
 from unittest import TestCase
-
-
 class TransitionFinderUnitTests(TestCase):
     def test_bIsPerturbativeTrue(self):
         reference = True

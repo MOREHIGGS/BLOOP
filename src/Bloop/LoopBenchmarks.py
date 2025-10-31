@@ -5,7 +5,7 @@ from pathos.multiprocessing import Pool
 from ijson import items
 from importlib import import_module
 
-from Bloop.TransitionFinder import TrackVEV, cNlopt
+from Bloop.TrackVEV import TrackVEV, cNlopt
 from Bloop.ProcessMinimization import interpretData
 from Bloop.PythoniseMathematica import replaceGreekSymbols
 from Bloop.ParsedExpression import ParsedExpressionSystemArray

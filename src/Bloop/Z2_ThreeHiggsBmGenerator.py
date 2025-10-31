@@ -11,7 +11,7 @@ from os.path import join
 from glob import glob
 
 from Bloop.ParsedExpression import ParsedExpression
-from Bloop.TransitionFinder import cNlopt
+from Bloop.TrackVEV import cNlopt
 from Bloop.PDGData import mHiggs, higgsVEV
 
 
