@@ -95,24 +95,17 @@ def pythoniseExpressionSystem(lines):
 
 
 def pythoniseMathematica(args):
-    veffLines = getLines(args.loFile)
-    veffLines += getLines(args.nloFile)
-    if args.loopOrder >= 2:
-        veffLines += getLines(args.nnloFile)
-    
     allSymbols = getLinesJSON(args.allSymbolsFile) + ["missing"]
     allSymbols = sorted(
         [replaceGreekSymbols(symbol) for symbol in allSymbols], reverse=True
     )
 
-    ## Move get lines to the functions? -- Would need to rework veffLines in this case
-    ## Not ideal to have nested dicts but is future proof for when we move to arrays
     expressionDict = {
         "bounded": {
             "expressions": pythoniseExpressionSystemArray(
                 getLines(args.boundedConditions), allSymbols
             ),
-            "fileName": "bounded",
+            "fileName": args.boundedConditions,
         },
         "betaFunctions4D": {
             "expressions": pythoniseExpressionSystemArray(
@@ -151,15 +144,14 @@ def pythoniseMathematica(args):
             "fileName": args.vectorShortHandsFile,
         },
         "veff": {
-            "expressions": pythoniseExpressionSystem(veffLines),
-            "fileName": "Combined Veff files",
+            "expressions": pythoniseExpression(getLines(args.loFile)[0]),
+            "fileName": args.loFile,
         },
         
         "scalarMassMatrices": {
             "expressions": pythoniseExpressionSystem(getLines(args.scalarMassMatrixFile)),
             "fileName": args.scalarMassMatrixFile
         },
-        
         
         "allSymbols": {
             "allSymbols": allSymbols,

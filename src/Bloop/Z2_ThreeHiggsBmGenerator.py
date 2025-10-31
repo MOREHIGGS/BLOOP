@@ -304,7 +304,7 @@ def generateBenchmarks(args):
     with open(args.pythonisedExpressionsFile, "r") as fp:
         parsedExpressions = json.load(fp)
     ## Take the pythonised tree level potential we've generated
-    treeLevel = ParsedExpression(parsedExpressions["veff"]["expressions"][0], None)
+    treeLevel = ParsedExpression(parsedExpressions["veff"]["expressions"], None)
     chargedMassMatrix = ParsedExpression(
         parsedExpressions["scalarMassMatrices"]["expressions"][0], None
     )

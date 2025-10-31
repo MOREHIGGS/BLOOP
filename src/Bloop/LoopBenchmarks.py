@@ -97,10 +97,8 @@ def setUpTrackVEV(args):
     with open(args.pythonisedExpressionsFile, "r") as fp:
         pythonisedExpressions = json.load(fp)
 
-    scalarRotationMatrix = pythonisedExpressions["scalarRotationMatrix"]["scalarRotationMatrix"]
     allSymbols = pythonisedExpressions["allSymbols"]["allSymbols"]
     lagranianVariables = pythonisedExpressions["lagranianVariables"]["lagranianVariables"]
-    scalarMassNames = pythonisedExpressions["scalarMassNames"]["scalarMassNames"]
 
     nloptInst = cNlopt(
         config={
@@ -114,39 +112,12 @@ def setUpTrackVEV(args):
         }
     )
     
-    if args.bCython:
-        veffArray = None
-    else:
-        veffArray = ParsedExpressionSystemArray(
-            pythonisedExpressions["veffArray"]["expressions"],
-            allSymbols,
-            pythonisedExpressions["veffArray"]["fileName"],
-        ) 
-    
     effectivePotential = EffectivePotential(
         lagranianVariables["fieldSymbols"],
         args.loopOrder,
         args.verbose,
         nloptInst,
-        ParsedExpressionSystemArray(
-            pythonisedExpressions["vectorMassesSquared"]["expressions"],
-            allSymbols,
-            pythonisedExpressions["vectorMassesSquared"]["fileName"],
-        ),
-        ParsedExpressionSystemArray(
-            pythonisedExpressions["vectorShorthands"]["expressions"],
-            allSymbols,
-            pythonisedExpressions["vectorShorthands"]["fileName"],
-        ),
-        pythonisedExpressions["scalarPermutationMatrix"],
-        ParsedExpressionSystem(
-            pythonisedExpressions["scalarMassMatrices"]["expressions"], 
-            pythonisedExpressions["scalarMassMatrices"]["fileName"],
-        ),
-        scalarRotationMatrix,
         allSymbols,
-        veffArray,
-        scalarMassNames,
     )
 
     fourPointSymbols = [
