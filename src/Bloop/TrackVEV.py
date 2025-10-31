@@ -248,7 +248,7 @@ class TrackVEV:
 
 
 from unittest import TestCase
-class TransitionFinderUnitTests(TestCase):
+class TrackVEVUnitTests(TestCase):
     def test_bIsPerturbativeTrue(self):
         reference = True
         source = [0.7, -0.8, 0]
