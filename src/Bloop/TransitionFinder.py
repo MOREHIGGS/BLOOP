@@ -1,10 +1,46 @@
 from math import sqrt, pi, log, exp
 import numpy as np
 import scipy
-
+import nlopt
 from dataclasses import dataclass, InitVar, field
 
 from Bloop.PDGData import mTop, mW, mZ, higgsVEV
+from .Veff import Veff, eigen
+
+@dataclass(frozen=True)
+class cNlopt:
+    nbrVars: int = 0
+    varLowerBounds: tuple[float] = (0,)
+    varUpperBounds: tuple[float] = (0,)
+    absLocalTol: float = 0
+    relLocalTol: float = 0
+    absGlobalTol: float = 0
+    relGlobalTol: float = 0
+    config: InitVar[dict] = None
+
+    ##Regular init method doesn't work with frozen data classes,
+    ##Need to manually init by passing the class a dict i.e. class(config = dict)
+    def __post_init__(self, config: dict):
+        if config:
+            self.__init__(**config)
+
+    def nloptGlobal(self, func: callable, initialGuess: list[float]):
+        opt = nlopt.opt(nlopt.GN_DIRECT_NOSCAL, self.nbrVars)
+        opt.set_min_objective(func)
+        opt.set_lower_bounds(self.varLowerBounds)
+        opt.set_upper_bounds(self.varUpperBounds)
+        opt.set_xtol_abs(self.absGlobalTol)
+        opt.set_xtol_rel(self.relGlobalTol)
+        return self.nloptLocal(func, opt.optimize(initialGuess))
+
+    def nloptLocal(self, func: callable, initialGuess: list[float]):
+        opt = nlopt.opt(nlopt.LN_BOBYQA, self.nbrVars)
+        opt.set_min_objective(func)
+        opt.set_lower_bounds(self.varLowerBounds)
+        opt.set_upper_bounds(self.varUpperBounds)
+        opt.set_xtol_abs(self.absLocalTol)
+        opt.set_xtol_rel(self.relLocalTol)
+        return opt.optimize(initialGuess), opt.last_optimum_value()
 
 
 def bIsPerturbative(params, pertSymbols, allSymbols):
@@ -17,13 +53,15 @@ def bIsPerturbative(params, pertSymbols, allSymbols):
 @dataclass(frozen=True)
 class TrackVEV:
     TRange: tuple = (0,)
+    fieldNames: list = field(default_factory=list)
 
     pertSymbols: frozenset = frozenset({1})
 
     initialGuesses: tuple = (0,)
 
     ## idk how to type hint this correctly
-    effectivePotential: str = "effectivePotentialInstance"
+    nloptInst: str = "nloptInstance"
+    
     hardToSoft: callable = 0
     softScaleRGE: callable = 0
     softToUltraSoft: callable = 0
@@ -114,8 +152,8 @@ class TrackVEV:
 
             ## Round needed because nlopt result sometimes fp out of bounds
             ## See https://github.com/stevengj/nlopt/issues/625
-            vevLocation, vevDepth = self.effectivePotential.findGlobalMinimum(
-                T, params, self.initialGuesses + [np.round(vevLocation, 8)]
+            vevLocation, vevDepth = self.findGlobalMinimum(
+                params, self.initialGuesses + [np.round(vevLocation, 8)]
             )
            
             minimizationResults["T"].append(T)
@@ -138,6 +176,31 @@ class TrackVEV:
         ).tolist()
 
         return minimizationResults
+    
+    def findGlobalMinimum(self, params3D, minimumCandidates):
+        """For physics reasons we only minimise the real part,
+        for nlopt reasons we need to give a redunant grad arg"""
+        def VeffWrapper(fields, grad):
+            return np.real(
+                    self.evaluatePotential(fields, params3D)
+                )
+
+        bestResult = self.nloptInst.nloptGlobal(VeffWrapper, minimumCandidates[0])
+
+        for candidate in minimumCandidates:
+            result = self.nloptInst.nloptLocal(VeffWrapper, candidate)
+            if result[1] < bestResult[1]:
+                bestResult = result
+
+        ## Potential computed again in case its complex
+        return bestResult[0], self.evaluatePotential(bestResult[0], params3D)
+    
+    def evaluatePotential(self, fields, params):
+        for i, value in enumerate(fields):
+            params[self.allSymbols.index(self.fieldNames[i])] = value
+        eigen(params)
+
+        return sum(Veff(*params))
 
     def getLagranianParams4D(self, paramsDict):
         ## --- SM fermion and gauge boson masses---

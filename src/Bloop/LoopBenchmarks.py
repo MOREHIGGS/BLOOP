@@ -5,8 +5,8 @@ from pathos.multiprocessing import Pool
 from ijson import items
 from importlib import import_module
 
-from Bloop.TransitionFinder import TrackVEV
-from Bloop.EffectivePotential import EffectivePotential, cNlopt
+from Bloop.TransitionFinder import TrackVEV, cNlopt
+# from Bloop.EffectivePotential import EffectivePotential
 from Bloop.ProcessMinimization import interpretData
 from Bloop.PythoniseMathematica import replaceGreekSymbols
 from Bloop.ParsedExpression import (
@@ -112,13 +112,13 @@ def setUpTrackVEV(args):
         }
     )
     
-    effectivePotential = EffectivePotential(
-        lagranianVariables["fieldSymbols"],
-        args.loopOrder,
-        args.verbose,
-        nloptInst,
-        allSymbols,
-    )
+    # effectivePotential = EffectivePotential(
+    #     lagranianVariables["fieldSymbols"],
+    #     args.loopOrder,
+    #     args.verbose,
+    #     nloptInst,
+    #     allSymbols,
+    # )
 
     fourPointSymbols = [
         replaceGreekSymbols(item) for item in lagranianVariables["fourPointSymbols"]
@@ -133,7 +133,8 @@ def setUpTrackVEV(args):
     return (
         TrackVEV(
             config={
-                "effectivePotential": effectivePotential,
+                "nloptInst": nloptInst,
+                "fieldNames": lagranianVariables["fieldSymbols"],
                 "hardToSoft": ParsedExpressionSystemArray(
                     pythonisedExpressions["hardToSoft"]["expressions"],
                     allSymbols,
