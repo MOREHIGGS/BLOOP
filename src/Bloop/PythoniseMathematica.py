@@ -6,7 +6,8 @@ from importlib.resources import files
 import unicodedata
 import re
 
-from Veff_generation import generate_veff_module, compile_veff_submodule
+from Bloop.GenerateModules import generate_veff_module
+from Bloop.CompileModules import compile_veff_submodule
 
 def getLines(relativePathToResource):
     with open(files(__package__) / relativePathToResource, "r", encoding="utf-8") as fp:
