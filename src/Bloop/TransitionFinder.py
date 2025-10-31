@@ -244,54 +244,6 @@ class TrackVEV:
 
         return params
     
-    ############################
-    def plotPotential(self, benchmark: dict[str:float]):
-        ## This is just a trimmed version of trace free energy minimum Jasmine uses for plotting
-        lagranianParams4DArray = self.populateLagranianParams4D(benchmark)
-
-        muRange = np.linspace(
-            lagranianParams4DArray[self.allSymbols.index("RGScale")],
-            7.3 * self.TRange[-1],
-            len(self.TRange) * 10,
-        )
-
-        betaSpline4D = constructSplineDictArray(
-            self.betaFunction4DExpression,
-            muRange,
-            lagranianParams4DArray,
-            self.allSymbols,
-        )
-
-        vevLocation = np.array(self.initialGuesses[0])
-
-        for idx, T in enumerate(self.TRange):
-            (
-                vevLocation,
-                vevDepthReal,
-                vevDepthImag,
-                status,
-                isPert,
-                isBounded,
-                params3D,
-            ) = self.executeMinimisation(T, tuple(vevLocation.round(5)), betaSpline4D)
-            # print(vevLocation)
-            # v3Max = vevLocation[2] if vevLocation[2] > v3Max else v3Max
-            # yMinMax = self.effectivePotential.plotPot(T, params3D, linestyle[idx], vevLocation[2], vevDepthReal, v3Max)
-            self.effectivePotential.plotPot3D(T, params3D)
-            # yMin = yMinMax[0] if yMinMax[0]< yMin else yMin
-            # yMax = yMinMax[1] if yMinMax[1]> yMax else yMax
-
-        # import matplotlib.pylab as plt
-        # plt.legend(loc = 2)
-        # plt.rcParams['text.usetex'] = True
-        # plt.xlabel(r"$v_3$ ($\text{GeV}^{\: \frac{1}{2}})$", labelpad=-4)
-        # plt.ylabel(r"$\dfrac{\Delta V}{T^3}$", rotation=0, labelpad = +12)
-        # plt.hlines(0, 0, v3Max*1.1, colors = 'black')
-        # plt.vlines(0, yMin*1.01, yMax*1.01,  colors = 'black')
-        # plt.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
-        # plt.savefig("Results/StrongPot.png")
-        # plt.show()
-        return None
 
 
 from unittest import TestCase
