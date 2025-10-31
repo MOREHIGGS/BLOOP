@@ -187,12 +187,6 @@ def pythoniseMathematica(args):
             "fileName": args.scalarMassNamesFile 
         },
     }
-
-    expressionDict["scalarPermutationMatrix"] = (
-        []
-        if args.scalarPermutationMatrixFile.lower() == "none"
-        else getLinesJSON(args.scalarPermutationMatrixFile)
-    )
     
     generate_veff_module(
         args, 
