@@ -5,7 +5,8 @@ import nlopt
 from dataclasses import dataclass, InitVar, field
 
 from Bloop.PDGData import mTop, mW, mZ, higgsVEV
-from .Veff import Veff, eigen
+from Bloop.CythonModules.VeffTotal  import veffTotal
+from Bloop.CythonModules.eigen  import eigen
 
 @dataclass(frozen=True)
 class cNlopt:
@@ -198,10 +199,9 @@ class TrackVEV:
     def evaluatePotential(self, fields, params):
         for i, value in enumerate(fields):
             params[self.allSymbols.index(self.fieldNames[i])] = value
-
+        
         eigen(params)
-
-        return sum(Veff(*params))
+        return sum(veffTotal(*params))
 
     def getLagranianParams4D(self, paramsDict):
         ## --- SM fermion and gauge boson masses---

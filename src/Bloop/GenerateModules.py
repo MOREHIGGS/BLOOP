@@ -20,7 +20,7 @@ def generate_veff_module(
     
     parent_dir = os.path.dirname(os.getcwd())
     data_dir   = os.path.join(parent_dir, 'src', 'Bloop')
-    module_dir = os.path.join(parent_dir, 'src', 'Bloop', 'CythonMdoules')
+    module_dir = os.path.join(parent_dir, 'src', 'Bloop', 'CythonModules')
     
     if not os.path.exists(module_dir):
         os.mkdir(module_dir)
@@ -43,7 +43,7 @@ def generate_veff_module(
             os.path.join(data_dir, veffFPs[idx]), 
             allSymbols
         )
-    
+
     generateDiagonalizeSubModule(
         os.path.join(module_dir, "eigen.pyx"), 
         allSymbols,
@@ -56,17 +56,13 @@ def generate_veff_module(
     )
 
     generateVeffModule(
-        os.path.join(module_dir, 'veff.py'), 
+        os.path.join(module_dir, 'VeffTotal.py'), 
         loopOrder, 
         allSymbols
     )
-
-    # #================================ init file ==============================#
-    # with open(os.path.join(module_dir, '__init__.py'), 'w') as file:
-    #     file.write("from .veff import *")
     
     #=============================== setup file ==============================#
-    with open(os.path.join(module_dir, 'setup.py'), 'w') as file:
+    with open(os.path.join(module_dir, 'Setup.py'), 'w') as file:
         file.writelines(Environment().from_string(dedent("""\
             #!/usr/bin/env python3
             # -*- coding: utf-8 -*-
@@ -98,18 +94,13 @@ def generateVeffModule(filename, loopOrder, allSymbols):
     with open(filename, 'w') as file:
         file.write(Environment().from_string(dedent(
         """\
-        from Bloop.CythonModules import lo
-        from Bloop.CythonModulesimport nlo
+        from Bloop.CythonModules.lo import lo 
+        from Bloop.CythonModules.nlo import nlo 
         {%- if loopOrder > 1 %}
-        from Bloop.CythonModules import nnlo
+        from Bloop.CythonModules import nnlo 
         {%- endif %}
-        from Bloop.CythonModules import eigen as _eigen
-        import numpy
 
-        def eigen(args):
-            return _eigen(args)
-        
-        def Veff(
+        def veffTotal(
         {%- for symbol in allSymbols %}
             {{ symbol }} = 1,
         {%- endfor %}

@@ -5,8 +5,8 @@ import subprocess
 
 def compile_veff_submodule(args):
     parent_dir = os.path.dirname(os.getcwd())
-    module_dir = os.path.join(parent_dir, 'src', 'Bloop', 'Veff')
-    setup_path = os.path.join(module_dir, "setup.py")
+    module_dir = os.path.join(parent_dir, 'src', 'Bloop', 'CythonModules')
+    setup_path = os.path.join(module_dir, "Setup.py")
     
     if not os.path.isfile(setup_path):
         raise FileNotFoundError(f"No setup.py found in {module_dir}")
