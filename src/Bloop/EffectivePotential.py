@@ -1,18 +1,7 @@
 import numpy as np
-from scipy import linalg
-from numba import njit
-from itertools import chain
 import nlopt
 from dataclasses import dataclass, InitVar
 from .Veff import eigen
-
-@njit
-def diagonalizeNumba(matrices, matrixNumber, matrixSize, T):
-    subEigenValues = np.empty((matrixNumber, matrixSize))
-    subRotationMatrix = np.empty((matrixNumber, matrixSize, matrixSize))
-    for idx, matrix in enumerate(matrices):
-        subEigenValues[idx], subRotationMatrix[idx] = np.linalg.eigh(matrix)
-    return subEigenValues * T**2, subRotationMatrix
 
 
 @dataclass(frozen=True)
@@ -119,53 +108,23 @@ class EffectivePotential:
         ## Potential computed again in case its complex
         return bestResult[0], self.evaluatePotential(bestResult[0], T, params3D)
 
-    def evaluatePotential(self, fields, T, params3D):
-        params = self.computeMasses(fields, T, params3D)
-        #params = [paramsDict[key] if key in paramsDict else 0 for key in self.allSymbols]
+    def evaluatePotential(self, fields, T, params):
+        for i, value in enumerate(fields):
+            params[self.allSymbols.index(self.fieldNames[i])] = value
+        eigen(params)
 
         if self.veffArray:
             return sum(self.veffArray.evaluateUnordered(params))
         else:
             return sum(self.Veff(*params))
 
-    def computeMasses(self, fields, T, params3D):
-        for i, value in enumerate(fields):
-            params3D[self.allSymbols.index(self.fieldNames[i])] = value
 
-        #params3D = self.vectorShorthands.evaluate(params3D)
-        #params3D = self.vectorMassesSquared.evaluate(params3D)
-        eigen(params3D)
-        
-        return params3D
-    
-    def diagonalizeScalars(self, params3D, T):
-        """Finds a rotation matrix that diagonalizes the scalar mass matrix
-        and returns a dict with diagonalization-specific params"""
-        #subMassMatrix = np.array(self.scalarMassMatrices.evaluate(params3D)).real / T**2
 
-        #subEigenValues, subRotationMatrix = diagonalizeNumba(
-        #    subMassMatrix, subMassMatrix.shape[0], subMassMatrix.shape[1], T
-        #)
 
-        ### If the user permutted the mass matrix in DRalgo we have to unpermute it
-        #if len(self.scalarPermutationMatrix) > 0:
-        #    subRotationMatrix = self.scalarPermutationMatrix @ linalg.block_diag(
-        #        *subRotationMatrix
-        #    )
-        #else:
-        #    subRotationMatrix=subRotationMatrix[0]
-        #    
-        #params3D |= {
-        #    symbol: subRotationMatrix[indices[0], indices[1]]
-        #    for symbol, indices in self.scalarRotationMatrix.items()
-        #}
 
-        params3D = np.array([params3D[key] for key in self.allSymbols])
-        eigen(params3D)
-        return params3D
-        #return params3D | {
-        #    name: float(msq) for name, msq in zip(self.scalarMassNames, chain(*subEigenValues))
-        #}
+
+
+
 
     ##Jasmine plotting tools
     def plotPot(self, T, params3D, linestyle, v3Min, potMin, v3Max):
