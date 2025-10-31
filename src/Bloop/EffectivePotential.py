@@ -54,14 +54,7 @@ class EffectivePotential:
         loopOrder,
         verbose,
         nloptInst,
-        vectorMassesSquared,
-        vectorShorthands,
-        scalarPermutationMatrix,
-        scalarMassMatrices,
-        scalarRotationMatrix,
         allSymbols,
-        veffArray,
-        scalarMassNames
     ):
         self.fieldNames = fieldNames
 
@@ -70,25 +63,12 @@ class EffectivePotential:
 
         self.nloptInst = nloptInst
 
-        self.scalarPermutationMatrix = (
-            []
-            if len(scalarPermutationMatrix) == 0
-            else np.asarray(scalarPermutationMatrix, dtype=bool)
-        )
-
-        self.vectorMassesSquared = vectorMassesSquared
-        self.vectorShorthands = vectorShorthands
-        self.scalarMassMatrices = scalarMassMatrices
-        self.scalarRotationMatrix = scalarRotationMatrix
 
         self.allSymbols = allSymbols
-        self.veffArray = veffArray
         
-        if not veffArray:
-            from .Veff import Veff
-            self.Veff = Veff
+        from .Veff import Veff
+        self.Veff = Veff
         
-        self.scalarMassNames = scalarMassNames
         
     def findGlobalMinimum(self, T, params3D, minimumCandidates):
         """For physics reasons we only minimise the real part,
@@ -113,10 +93,7 @@ class EffectivePotential:
             params[self.allSymbols.index(self.fieldNames[i])] = value
         eigen(params)
 
-        if self.veffArray:
-            return sum(self.veffArray.evaluateUnordered(params))
-        else:
-            return sum(self.Veff(*params))
+        return sum(self.Veff(*params))
 
 
 

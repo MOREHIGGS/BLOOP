@@ -194,26 +194,19 @@ def pythoniseMathematica(args):
         else getLinesJSON(args.scalarPermutationMatrixFile)
     )
     
-    if args.bCython:
-        generate_veff_module(
-            args, 
-            allSymbols, 
-            args.scalarMassMatrixFile, 
-            expressionDict["scalarMassNames"]["scalarMassNames"],
-            args.scalarPermutationMatrixFile, 
-            args.scalarRotationMatrixFile, 
-            expressionDict["vectorMassesSquared"]["expressions"],
-            expressionDict["vectorShorthands"]["expressions"],
-        )
+    generate_veff_module(
+        args, 
+        allSymbols, 
+        args.scalarMassMatrixFile, 
+        expressionDict["scalarMassNames"]["scalarMassNames"],
+        args.scalarPermutationMatrixFile, 
+        args.scalarRotationMatrixFile, 
+        expressionDict["vectorMassesSquared"]["expressions"],
+        expressionDict["vectorShorthands"]["expressions"],
+    )
 
-        compile_veff_submodule(args)    
+    compile_veff_submodule(args)    
     
-    else:
-        expressionDict["veffArray"] = {
-            "expressions": pythoniseExpressionSystemArray(veffLines, allSymbols),
-            "fileName": "Combined Veff files",
-        }
-
     (outputFile := Path(args.pythonisedExpressionsFile)).parent.mkdir(
         exist_ok=True, parents=True
     )   
