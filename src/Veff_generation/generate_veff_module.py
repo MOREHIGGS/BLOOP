@@ -15,6 +15,7 @@ def generate_veff_module(
     scalarRotationMatrixFile,
     vectorMasses,
     vectorShorthands,
+    gccFlags
 ):
     
     parent_dir = os.path.dirname(os.getcwd())
@@ -59,12 +60,13 @@ def generate_veff_module(
         loopOrder, 
         allSymbols
     )
-    
+
     #================================ init file ==============================#
     with open(os.path.join(module_dir, '__init__.py'), 'w') as file:
         file.write("from .veff import *")
     
     #=============================== setup file ==============================#
+    _gccFlags = [f"-{flag}" for flag in gccFlags] 
     with open(os.path.join(module_dir, 'setup.py'), 'w') as file:
         file.writelines(Environment().from_string(dedent("""\
             #!/usr/bin/env python3
@@ -72,14 +74,14 @@ def generate_veff_module(
             from setuptools import setup, Extension
             from Cython.Build import cythonize
             
-            extensions = [Extension("lo", ["lo.pyx"])]
+            extensions = [Extension("lo", ["lo.pyx"], extra_compile_args = {{gccFlags}})]
             {% if args.loopOrder >= 1 %}
-            extensions.append(Extension("nlo", ["nlo.pyx"]))
+            extensions.append(Extension("nlo", ["nlo.pyx"], extra_compile_args = {{gccFlags}})))
             {% endif %}
             {% if args.loopOrder >= 2 %}
-            extensions.append(Extension("nnlo", ["nnlo.pyx"], extra_compile_args=['-O1']))
+            extensions.append(Extension("nnlo", ["nnlo.pyx"], extra_compile_args = {{gccFlags}}))
             {% endif %}
-            extensions.append(Extension("eigen", ["eigen.pyx"]))
+            extensions.append(Extension("eigen", ["eigen.pyx"], extra_compile_args = {{gccFlags}})))
 
             setup(
                 name="Veff_cython",
@@ -88,7 +90,7 @@ def generate_veff_module(
                 ),
             )
             """
-        )).render(args = args))
+        )).render(args = args, gccFlags = _gccFlags))
         
 def generateVeffModule(filename, loopOrder, allSymbols):
     """Write a  function that imports veff submodules based on loopOrder,
