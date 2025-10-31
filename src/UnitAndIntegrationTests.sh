@@ -19,10 +19,10 @@ python3 runStages.py --loopOrder 1 \
                         --TRangeStart 100 \
                         --TRangeEnd 200 \
                         --TRangeStepSize 2 \
-
+                        --gccFlags O1
 diff IntegrationTests/Pool/OutputResult/BM_1.json IntegrationTests/Pool/ReferenceResult/BM_1.json
 
-echo Running code at NLO using 2 cores...
+echo Running code at NLO using 2 workers...
 rm -f IntegrationTests/Pool2/OutputResult/* 
 rm -f IntegrationTests/Benchmarks/*
 python3 runStages.py --loopOrder 1 \
@@ -36,7 +36,7 @@ python3 runStages.py --loopOrder 1 \
                         --TRangeEnd 200 \
                         --TRangeStepSize 2 \
                         --workers 2
-
+                        --gccFlags O1
 diff IntegrationTests/Pool2/OutputResult/BM_0.json IntegrationTests/Pool2/ReferenceResult/BM_0.json
 diff IntegrationTests/Pool2/OutputResult/BM_1.json IntegrationTests/Pool2/ReferenceResult/BM_1.json
 diff IntegrationTests/Pool2/OutputResult/BM_2.json IntegrationTests/Pool2/ReferenceResult/BM_2.json
@@ -55,7 +55,8 @@ python3 runStages.py --loopOrder 2 \
                         --TRangeStart 50 \
                         --TRangeEnd 100 \
                         --TRangeStepSize 10 \
-                        --bProcessMin
+                        --bProcessMin \
+                        --gccFlags O1
 diff IntegrationTests/NNLO/OutputResult/BM_1.json IntegrationTests/NNLO/ReferenceResult/BM_1.json
 diff IntegrationTests/NNLO/OutputResult/BM_1_interp.json IntegrationTests/NNLO/ReferenceResult/BM_1_interp.json
 
