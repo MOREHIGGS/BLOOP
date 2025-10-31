@@ -244,7 +244,7 @@ def generateDiagonalizeSubModule(
             {%- endfor %}
                 )
 
-                permutedMatrix = dgemm(1, eigenVectors, scalarPermutationMatrix)
+                permutedMatrix = dgemm(1, scalarPermutationMatrix, eigenVectors)
 
             {%- for symbol, indices in scalarRotationMatrix.items() %}
                 _{{ symbol }}[0] = permutedMatrix[{{ indices[0] }}][{{ indices[1] }}]
