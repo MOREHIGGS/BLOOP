@@ -20,7 +20,7 @@ def generate_veff_module(
     
     parent_dir = os.path.dirname(os.getcwd())
     data_dir   = os.path.join(parent_dir, 'src', 'Bloop')
-    module_dir = os.path.join(parent_dir, 'src', 'Bloop', 'Veff')
+    module_dir = os.path.join(parent_dir, 'src', 'Bloop', 'CythonMdoules')
     
     if not os.path.exists(module_dir):
         os.mkdir(module_dir)
@@ -61,12 +61,11 @@ def generate_veff_module(
         allSymbols
     )
 
-    #================================ init file ==============================#
-    with open(os.path.join(module_dir, '__init__.py'), 'w') as file:
-        file.write("from .veff import *")
+    # #================================ init file ==============================#
+    # with open(os.path.join(module_dir, '__init__.py'), 'w') as file:
+    #     file.write("from .veff import *")
     
     #=============================== setup file ==============================#
-    _gccFlags = [f"-{flag}" for flag in gccFlags] 
     with open(os.path.join(module_dir, 'setup.py'), 'w') as file:
         file.writelines(Environment().from_string(dedent("""\
             #!/usr/bin/env python3
@@ -90,7 +89,7 @@ def generate_veff_module(
                 ),
             )
             """
-        )).render(args = args, gccFlags = _gccFlags))
+        )).render(args = args, gccFlags = [f"-{flag}" for flag in gccFlags] ))
         
 def generateVeffModule(filename, loopOrder, allSymbols):
     """Write a  function that imports veff submodules based on loopOrder,
@@ -99,12 +98,12 @@ def generateVeffModule(filename, loopOrder, allSymbols):
     with open(filename, 'w') as file:
         file.write(Environment().from_string(dedent(
         """\
-        from .lo import lo
-        from .nlo import nlo
+        from Bloop.CythonModules import lo
+        from Bloop.CythonModulesimport nlo
         {%- if loopOrder > 1 %}
-        from .nnlo import nnlo
+        from Bloop.CythonModules import nnlo
         {%- endif %}
-        from .eigen import eigen as _eigen
+        from Bloop.CythonModules import eigen as _eigen
         import numpy
 
         def eigen(args):
