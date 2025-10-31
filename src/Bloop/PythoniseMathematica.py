@@ -161,6 +161,7 @@ def pythoniseMathematica(args):
         args.scalarRotationMatrixFilePath, 
         pythoniseExpressionSystem(getLines(args.vectorMassesSquaredFilePath)),
         pythoniseExpressionSystem(getLines(args.vectorShortHandsFilePath)),
+        args.gccFlags,
     )
 
     compile_veff_submodule(args)    

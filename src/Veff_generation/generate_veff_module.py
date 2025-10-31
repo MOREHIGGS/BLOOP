@@ -76,12 +76,12 @@ def generate_veff_module(
             
             extensions = [Extension("lo", ["lo.pyx"], extra_compile_args = {{gccFlags}})]
             {% if args.loopOrder >= 1 %}
-            extensions.append(Extension("nlo", ["nlo.pyx"], extra_compile_args = {{gccFlags}})))
+            extensions.append(Extension("nlo", ["nlo.pyx"], extra_compile_args = {{gccFlags}}))
             {% endif %}
             {% if args.loopOrder >= 2 %}
             extensions.append(Extension("nnlo", ["nnlo.pyx"], extra_compile_args = {{gccFlags}}))
             {% endif %}
-            extensions.append(Extension("eigen", ["eigen.pyx"], extra_compile_args = {{gccFlags}})))
+            extensions.append(Extension("eigen", ["eigen.pyx"], extra_compile_args = {{gccFlags}}))
 
             setup(
                 name="Veff_cython",
