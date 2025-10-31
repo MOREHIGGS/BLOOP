@@ -85,9 +85,9 @@ class TrackVEV:
             return minimizationResults | {"failureReason":  solvedBetaFunction.message}
         
         betaSpline4D = {
-            ele: scipy.interpolate.CubicSpline(muRange, solvedBetaFunction.y[idx])
-            for idx, ele in enumerate(self.allSymbols)
-            if ele != "RGScale"
+            symbol: scipy.interpolate.CubicSpline(muRange, solvedBetaFunction.y[idx])
+            for idx, symbol in enumerate(self.allSymbols)
+            if symbol != "RGScale"
             if np.any(solvedBetaFunction.y[idx] != solvedBetaFunction.y[idx][0])
         }
 
@@ -161,10 +161,11 @@ class TrackVEV:
         return params
 
     def getTConsts(self, T, params):
-        matchingScale = 4.0 * pi * exp(-np.euler_gamma) * T
-        Lb = 2.0 * log(matchingScale / T) - self.EulerGammaPrime
+        ## Should this be moved to DRalgo? Probably
+        RGScale = 4.0 * pi * exp(-np.euler_gamma) * T
+        Lb = 2.0 * log(RGScale / T) - self.EulerGammaPrime
 
-        params[self.allSymbols.index("RGScale")] = matchingScale
+        params[self.allSymbols.index("RGScale")] = RGScale
         params[self.allSymbols.index("T")] = T
         params[self.allSymbols.index("Lb")] = Lb
         params[self.allSymbols.index("Lf")] = Lb + self.Lfconst

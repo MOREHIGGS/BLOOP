@@ -29,13 +29,13 @@ from unittest import TestCase
 
 class PDGUnitTests(TestCase):
     def test_HiggsMass(self):
-        self.assertEqual(125.199530409718, mHiggs)
+        self.assertEqual(125.1995304097179, mHiggs)
 
     def test_TopMass(self):
-        self.assertEqual(172.559088345398, mTop)
+        self.assertEqual(172.5590883453979, mTop)
 
     def test_ZMass(self):
-        self.assertEqual(91.1879780919373, mZ)
+        self.assertEqual(91.18797809193725, mZ)
 
     def test_WMass(self):
         self.assertEqual(80.377, mW)

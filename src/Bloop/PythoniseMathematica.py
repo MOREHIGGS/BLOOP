@@ -103,75 +103,75 @@ def pythoniseMathematica(args):
     expressionDict = {
         "bounded": {
             "expressions": pythoniseExpressionSystemArray(
-                getLines(args.boundedConditions), allSymbols
+                getLines(args.boundedConditionsFilePath), allSymbols
             ),
-            "fileName": args.boundedConditions,
+            "filePath": args.boundedConditionsFilePath,
         },
         "betaFunctions4D": {
             "expressions": pythoniseExpressionSystemArray(
-                getLines(args.betaFunctions4DFile), allSymbols
+                getLines(args.betaFunctions4DFilePath), allSymbols
             ),
-            "fileName": args.betaFunctions4DFile,
+            "filePath": args.betaFunctions4DFilePath,
         },
         "hardToSoft": {
             "expressions": pythoniseExpressionSystemArray(
-                getLines(args.hardToSoftFile), allSymbols
+                getLines(args.hardToSoftFilePath), allSymbols
             ),
-            "fileName": args.hardToSoftFile,
+            "filePath": args.hardToSoftFilePath,
         },
         "softScaleRGE": {
             "expressions": pythoniseExpressionSystemArray(
-                getLines(args.softScaleRGEFile), allSymbols
+                getLines(args.softScaleRGEFilePath), allSymbols
             ),
-            "fileName": args.softScaleRGEFile,
+            "filePath": args.softScaleRGEFilePath,
         },
         "softToUltraSoft": {
             "expressions": pythoniseExpressionSystemArray(
-                getLines(args.softToUltraSoftFile), allSymbols
+                getLines(args.softToUltraSoftFilePath), allSymbols
             ),
-            "fileName": args.softToUltraSoftFile,
+            "filePath": args.softToUltraSoftFilePath,
         },
         "vectorMassesSquared": {
-            "expressions": pythoniseExpressionSystem(
-                getLines(args.vectorMassesSquaredFile)
+            "expressions": pythoniseExpressionSystemArray(
+                getLines(args.vectorMassesSquaredFilePath), allSymbols
             ),
-            "fileName": args.vectorMassesSquaredFile,
+            "filePath": args.vectorMassesSquaredFilePath,
         },
-        "vectorShorthands": {
-            "expressions": pythoniseExpressionSystem(
-                getLines(args.vectorShortHandsFile)
+        "vectorShortHands": {
+            "expressions": pythoniseExpressionSystemArray(
+                getLines(args.vectorShortHandsFilePath), allSymbols
             ),
-            "fileName": args.vectorShortHandsFile,
+            "filePath": args.vectorShortHandsFilePath,
         },
         "veff": {
-            "expressions": pythoniseExpression(getLines(args.loFile)[0]),
-            "fileName": args.loFile,
+            "expressions": pythoniseExpression(getLines(args.loFilePath)[0]),
+            "fileName": args.loFilePath,
         },
         
         "scalarMassMatrices": {
-            "expressions": pythoniseExpressionSystem(getLines(args.scalarMassMatrixFile)),
+            "expressions": pythoniseExpressionSystem(getLines(args.scalarMassMatrixFilePath)),
             "fileName": args.scalarMassMatrixFile
         },
         
         "allSymbols": {
             "allSymbols": allSymbols,
-            "fileName": args.allSymbolsFile,
+            "fileName": args.allSymbolsFilePath,
         },
         "lagranianVariables": {
-            "lagranianVariables": getLinesJSON(args.lagranianVariablesFile),
-            "fileName": args.lagranianVariablesFile 
+            "lagranianVariables": getLinesJSON(args.lagranianVariablesFilePath),
+            "fileName": args.lagranianVariablesFilePath 
         },
     }
     
     generate_veff_module(
         args, 
         allSymbols, 
-        args.scalarMassMatrixFile, 
-        getLinesJSON(args.scalarMassNamesFile),
-        args.scalarPermutationMatrixFile, 
-        args.scalarRotationMatrixFile, 
-        pythoniseExpressionSystem(getLines(args.vectorMassesSquaredFile)),
-        pythoniseExpressionSystem(getLines(args.vectorShortHandsFile)),
+        args.scalarMassMatrixFilePath, 
+        getLinesJSON(args.scalarMassNamesFilePath),
+        args.scalarPermutationMatrixFilePath, 
+        args.scalarRotationMatrixFilePath, 
+        pythoniseExpressionSystem(getLines(args.vectorMassesSquaredFilePath)),
+        pythoniseExpressionSystem(getLines(args.vectorShortHandsFilePath)),
     )
 
     compile_veff_submodule(args)    
@@ -189,7 +189,7 @@ from unittest import TestCase
 
 class PythoniseMathematicaUnitTests(TestCase):
     def test_replaceGreekSymbols(self):
-        reference = ["lam", "lam lam", "mu", "mu mu", "lam mu", "mu lam"]
+        reference = ["lamda", "lamda lamda", "mu", "mu mu", "lamda mu", "mu lamda"]
         source = ["λ", "λ λ", "μ", "μ μ", "λ μ", "μ λ"]
 
         self.assertEqual(
@@ -207,9 +207,9 @@ class PythoniseMathematicaUnitTests(TestCase):
 
     def test_pythoniseExpression(self):
         reference = {
-            "expression": "0.07957747154594767*sqrt(lam) + log(mssq)",
+            "expression": "0.07957747154594767*sqrt(lamda) + log(mssq)",
             "identifier": "Identifier",
-            "symbols": ["lam", "mssq"],
+            "symbols": ["lamda", "mssq"],
         }
 
         source = "Identifier -> Sqrt[λ] / (4 * Pi) + Log[mssq]"
@@ -219,19 +219,19 @@ class PythoniseMathematicaUnitTests(TestCase):
     def test_paseExpressionSystem(self):
         reference = [
             {
-                "expression": "0.07957747154594767*sqrt(lam) + log(mssq)",
+                "expression": "0.07957747154594767*sqrt(lamda) + log(mssq)",
                 "identifier": "Identifier",
-                "symbols": ["lam", "mssq"],
+                "symbols": ["lamda", "mssq"],
             },
             {
-                "expression": "0.07957747154594767*sqrt(lam) + log(mssq)",
+                "expression": "0.07957747154594767*sqrt(lamda) + log(mssq)",
                 "identifier": "Identifier",
-                "symbols": ["lam", "mssq"],
+                "symbols": ["lamda", "mssq"],
             },
             {
-                "expression": "0.07957747154594767*sqrt(lam) + log(mssq)",
+                "expression": "0.07957747154594767*sqrt(lamda) + log(mssq)",
                 "identifier": "Identifier",
-                "symbols": ["lam", "mssq"],
+                "symbols": ["lamda", "mssq"],
             },
         ]
 
