@@ -357,12 +357,12 @@ This does mean that symbollicaly our effective potential is not in the mass basi
 We note here that the model does not violate CP (explicitly or spontaneously) then the mass matrix can be further block diagonalised for further perfomance gains**)
 
 blockSize = 6;
-rotUpperLeft = Table[ toIndexedSymbol[ "RUL", {i, j}, IntegerLength[blockSize] ], {i, 1, blockSize}, {j, 1, blockSize}];
-rotBottomRight = Table[ toIndexedSymbol[ "RBR", {i, j}, IntegerLength[blockSize] ], {i, 1, blockSize}, {j, 1, blockSize}];
+rotUpperLeft = toIndexedSymbols[ "RUL", {0, blockSize-1}, {0, blockSize-1}];
+rotBottomRight = toIndexedSymbols[ "RBR", {0, blockSize-1}, {0, blockSize-1}];
 DSRotBlock = Normal[BlockDiagonalMatrix[{rotUpperLeft,rotBottomRight}]];
 
 (** Make a diagonalMatrix with elements "str<idx>" to represent eigenvalues of mass matrix**)
-ScalarMassDiag =Normal[DiagonalMatrix[ Table[toIndexedSymbol["MSsq", {i}, IntegerLength[blockSize*2]], {i, 1, blockSize*2}] ]];
+ScalarMassDiag =Normal[DiagonalMatrix[toIndexedSymbols["MSsq", {0, blockSize*2-1}]]];
 
 (* V = \[Phi]^T.M.\[Phi] 
 	 = \[Phi]^T.P.P^T.M.P.P^T.\[Phi] = \[Phi]^T.P.B.P^T.\[Phi], make the mass matrix block diagonal, with some permutation matrix P: P^T.M.P = B
@@ -378,7 +378,7 @@ We compute D' and S in BLOOP numerically
 DSRot = scalarPermutationMatrix . DSRotBlock;
 
 
-exportUTF8[effectivePotentialDirectory<>"/scalarRotationMatrix.json", matrixToJSON[DSRot]]
+exportUTF8[effectivePotentialDirectory<>"/scalarRotationMatrix.json", matrixToJSON[DSRot]];
 exportUTF8[variables<>"/ScalarMassNames.json", extractSymbols[ScalarMassDiag]];
 
 
@@ -501,5 +501,5 @@ extractSymbols[allSoftScaleParamsSqrtSuffixFree]["RHS"],
 extractSymbols[allSoftScaleParamsSqrtSuffixFree]["LHS"],
 extractSymbols[betaFunctions4DUnsquared]["RHS"],
 extractSymbols[betaFunctions4DUnsquared]["LHS"]
-]]
+]];
 exportUTF8[variables<>"/allSymbols.json",allSymbols];

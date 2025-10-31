@@ -2,10 +2,20 @@ import os
 from textwrap import dedent
 from jinja2 import Environment
 import numpy as np
+import json
 
 import Bloop.PythoniseMathematica as PythoniseMathematica
 
-def generate_veff_module(args, allSymbols):
+def generate_veff_module(
+    args, 
+    allSymbols, 
+    scalarMassMatrixFile,
+    scalarMassNames,
+    scalarPermutationMatrixFile,
+    scalarRotationMatrixFile,
+    vectorMasses,
+    vectorShorthands,
+):
     
     parent_dir = os.path.dirname(os.getcwd())
     data_dir   = os.path.join(parent_dir, 'src', 'Bloop')
@@ -33,6 +43,17 @@ def generate_veff_module(args, allSymbols):
             allSymbols
         )
     
+    generateDiagonalizeSubModule(
+        os.path.join(module_dir, "eigen.pyx"), 
+        allSymbols,
+        os.path.join(data_dir, scalarMassMatrixFile),
+        scalarMassNames,
+        os.path.join(data_dir, scalarPermutationMatrixFile),
+        os.path.join(data_dir, scalarRotationMatrixFile),
+        vectorMasses,
+        vectorShorthands,
+    )
+
     generateVeffModule(
         os.path.join(module_dir, 'veff.py'), 
         loopOrder, 
@@ -56,9 +77,10 @@ def generate_veff_module(args, allSymbols):
             extensions.append(Extension("nlo", ["nlo.pyx"]))
             {% endif %}
             {% if args.loopOrder >= 2 %}
-            extensions.append(Extension("nnlo", ["nnlo.pyx"]))
+            extensions.append(Extension("nnlo", ["nnlo.pyx"], extra_compile_args=['-O1']))
             {% endif %}
-            
+            extensions.append(Extension("eigen", ["eigen.pyx"]))
+
             setup(
                 name="Veff_cython",
                 ext_modules=cythonize(
@@ -80,6 +102,11 @@ def generateVeffModule(filename, loopOrder, allSymbols):
         {%- if loopOrder > 1 %}
         from .nnlo import nnlo
         {%- endif %}
+        from .eigen import eigen as _eigen
+        import numpy
+
+        def eigen(args):
+            return _eigen(args)
         
         def Veff(
         {%- for symbol in allSymbols %}
@@ -111,6 +138,7 @@ def generateVeffModule(filename, loopOrder, allSymbols):
         {%- endif %}
         """)).render(loopOrder=loopOrder, allSymbols=allSymbols))
      
+
 def generateVeffSubModule(name, moduleName, veffFp, allSymbols):
     # Creates a cython module with that computes an order of Veff
     with open(moduleName, 'w') as file:
@@ -145,6 +173,96 @@ def generateVeffSubModule(name, moduleName, veffFp, allSymbols):
             """)).render(name=name, allSymbols=allSymbols, opsAndExpressions=np.transpose(mutliLineExpression(veffFp))))
 
 
+def generateDiagonalizeSubModule(
+    moduleName, 
+    allSymbols, 
+    scalarMassMatrixFile, 
+    scalarMassNames,
+    scalarPermutationMatrixFile,
+    scalarRotationMatrixFile,
+    vectorMasses,
+    vectorShorthands,
+):
+    with open(scalarMassMatrixFile) as file:
+        scalarMassMatrices = [convertMatrixToCythonSyntax(line) for line in file.readlines()]
+
+    with open(scalarPermutationMatrixFile) as file:
+        scalarPermutationMatrix = convertMatrixToCythonSyntax(file.read())
+
+    with open(scalarRotationMatrixFile) as file:
+        scalarRotationMatrix = json.loads(file.read())
+
+    # Creates a cython module with that computes an order of Veff
+    with open(moduleName, 'w') as file:
+        file.write(Environment().from_string(dedent("""\
+            from scipy.linalg import lapack
+            from scipy.linalg import block_diag
+            from scipy.linalg.blas import dgemm
+            from numpy import divide 
+            from numpy import sqrt
+
+            cpdef void eigen(complex [:] parameters):
+            {%- for symbol in allSymbols %}
+                cdef double complex * {{ symbol }} = &parameters[{{ loop.index0 }}]
+            {%- endfor %}
+
+                _eigen(
+            {%- for symbol in allSymbols %}
+                    {{ symbol }},
+            {%- endfor %}
+                )
+
+            cdef void _eigen(
+            {%- for symbol in allSymbols %}
+                double complex * _{{ symbol }},
+            {%- endfor %}
+            ):
+            {%- for symbol in allSymbols %}
+                cdef double {{ symbol }} = _{{ symbol }}[0].real
+            {%- endfor %}
+
+            {%- for expression in vectorMasses %}
+                {{ expression.identifier }} = {{ expression.expression }}
+                _{{ expression.identifier }}[0] = {{ expression.identifier }}
+            {%- endfor %}
+
+            {%- for expression in vectorShorthands %}
+                {{ expression.identifier }} = {{ expression.expression }}
+                _{{ expression.identifier }}[0] = {{ expression.identifier }}
+            {%- endfor %}
+
+            {%- for scalarMassMatrix in scalarMassMatrices %}
+                scalarMassMatrix{{ loop.index0 }} = divide({{ scalarMassMatrix -}}, (T ** 2))
+                eigenValues{{ loop.index0 }}, eigenVectors{{ loop.index0 }}, _ = lapack.dsyevd(scalarMassMatrix{{ loop.index0 }}, compute_v = 1)
+                eigenValues{{ loop.index0 }} *= (T ** 2)
+            {%- endfor %}
+            
+                scalarPermutationMatrix = {{ scalarPermutationMatrix }}
+                eigenVectors = block_diag(
+            {%- for scalarMassMatrix in scalarMassMatrices %}
+                    eigenVectors{{ loop.index0 }},
+            {%- endfor %}
+                )
+
+                permutedMatrix = dgemm(1, scalarPermutationMatrix, eigenVectors)
+
+            {%- for symbol, indices in scalarRotationMatrix.items() %}
+                _{{ symbol }}[0] = permutedMatrix[{{ indices[0] }}][{{ indices[1] }}]
+            {%- endfor %}
+
+            {% set scalarMassMatrixLength = (scalarMassNames | length) / (scalarMassMatrices | length) | int %}
+            {%- for massSymbol in scalarMassNames %}
+                _{{ massSymbol }}[0] = eigenValues{{ (loop.index0 / scalarMassMatrixLength) | int }}[{{ (loop.index0 % scalarMassMatrixLength) | int }}]
+            {%- endfor %}
+            """)).render(
+                allSymbols=allSymbols, 
+                scalarMassMatrices = scalarMassMatrices,
+                scalarMassNames = scalarMassNames,
+                scalarPermutationMatrix = scalarPermutationMatrix,
+                scalarRotationMatrix = scalarRotationMatrix,
+                vectorMasses = vectorMasses,
+                vectorShorthands = vectorShorthands,
+            ))
 
 def mutliLineExpression(filePointer):
     ## Takes an expressions and breaks it down into a mutli line expression
@@ -170,16 +288,21 @@ def mutliLineExpression(filePointer):
             if line in ["+ ", "- "]:
                 operations.append("+=" if line == "+ " else "-=")
             else:
-                expressions.append(convert_to_cython_syntax(line))
+                expressions.append(convertToCythonSyntax(line))
             start = i + 1
     
     # Any remaining characters should just be expressions
     if start < len(veff):
         line = veff[start:]
-        expressions.append(convert_to_cython_syntax(line))
+        expressions.append(convertToCythonSyntax(line))
     return operations, expressions
+
+def convertMatrixToCythonSyntax(term):
+    term = convertToCythonSyntax(term)
+    term = term.replace('{', '[')
+    return term.replace('}', ']')
     
-def convert_to_cython_syntax(term):
+def convertToCythonSyntax(term):
     term = term.replace('Sqrt', 'csqrt')
     term = term.replace('Log', 'clog')
     term = term.replace('[', '(')

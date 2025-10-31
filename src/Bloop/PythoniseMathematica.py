@@ -94,26 +94,12 @@ def pythoniseExpressionSystem(lines):
     return [pythoniseExpression(line) for line in lines]
 
 
-def pythoniseMatrix(lines):
-    return [
-        [symbol.strip() for symbol in line.strip().strip("}").strip("{").split(",")]
-        for line in lines
-    ]
-
-
 def pythoniseMathematica(args):
-    veffLines = getLines(args.loFilePath)
-    veffLines += getLines(args.nloFilePath)
-    if args.loopOrder >= 2:
-        veffLines += getLines(args.nnloFilePath)
-    
-    allSymbols = getLinesJSON(args.allSymbolsFilePath) + ["missing"]
-    ## Reverse needed so that strings aren't replaced by substrings
-    ## e.g. lam2 should not replace lam22
-    allSymbols = sorted([replaceGreekSymbols(symbol) for symbol in allSymbols], reverse=True)
+    allSymbols = getLinesJSON(args.allSymbolsFile) + ["missing"]
+    allSymbols = sorted(
+        [replaceGreekSymbols(symbol) for symbol in allSymbols], reverse=True
+    )
 
-    ## Move get lines to the functions? -- Would need to rework veffLines in this case
-    ## filePath useful for debugging 
     expressionDict = {
         "bounded": {
             "expressions": pythoniseExpressionSystemArray(
@@ -158,20 +144,15 @@ def pythoniseMathematica(args):
             "filePath": args.vectorShortHandsFilePath,
         },
         "veff": {
-            "expressions": pythoniseExpressionSystem(veffLines),
-            "filePath": "Combined Veff files",
+            "expressions": pythoniseExpression(getLines(args.loFilePath)[0]),
+            "fileName": args.loFilePath,
         },
         
         "scalarMassMatrices": {
-            "expressions":pythoniseExpressionSystem(
-                getLines(args.scalarMassMatrixFilePath)),
-            "filePath": args.scalarMassMatrixFilePath
+            "expressions": pythoniseExpressionSystem(getLines(args.scalarMassMatrixFilePath)),
+            "fileName": args.scalarMassMatrixFile
         },
         
-        "scalarRotationMatrix": {
-            "scalarRotationMatrix": getLinesJSON(args.scalarRotationMatrixFilePath),
-            "fileName": args.scalarRotationMatrixFilePath,
-        },
         "allSymbols": {
             "allSymbols": allSymbols,
             "fileName": args.allSymbolsFilePath,
@@ -180,29 +161,22 @@ def pythoniseMathematica(args):
             "lagranianVariables": getLinesJSON(args.lagranianVariablesFilePath),
             "fileName": args.lagranianVariablesFilePath 
         },
-        "scalarMassNames": {
-            "scalarMassNames": getLinesJSON(args.scalarMassNamesFilePath),
-            "fileName": args.scalarMassNamesFilePath
-        },
     }
-
-    expressionDict["scalarPermutationMatrix"] = (
-        []
-        if args.scalarPermutationMatrixFilePath.lower() == "none"
-        else getLinesJSON(args.scalarPermutationMatrixFilePath)
+    
+    generate_veff_module(
+        args, 
+        allSymbols, 
+        args.scalarMassMatrixFilePath, 
+        getLinesJSON(args.scalarMassNamesFilePath),
+        args.scalarPermutationMatrixFilePath, 
+        args.scalarRotationMatrixFilePath, 
+        pythoniseExpressionSystem(getLines(args.vectorMassesSquaredFilePath)),
+        pythoniseExpressionSystem(getLines(args.vectorShortHandsFilePath)),
     )
-    
-    if args.cython:
-        generate_veff_module(args, allSymbols)
-        compile_veff_submodule(args)    
-    
-    else:
-        expressionDict["veffArray"] = {
-            "expressions": pythoniseExpressionSystemArray(veffLines, allSymbols),
-            "filePath": "Combined Veff files",
-        }
 
-    (outputFile := Path(args.pythonisedExpressionsFilePath)).parent.mkdir(
+    compile_veff_submodule(args)    
+    
+    (outputFile := Path(args.pythonisedExpressionsFile)).parent.mkdir(
         exist_ok=True, parents=True
     )   
     with open(outputFile, "w") as fp:
@@ -268,10 +242,4 @@ class PythoniseMathematicaUnitTests(TestCase):
         ]
 
         self.assertEqual(reference, pythoniseExpressionSystem(source))
-
-    def test_pythoniseMatrix(self):
-        reference = [["1", "0"], ["0", "0"]]
-        source = ["{1, 0}", "{0, 0}"]
-
-        self.assertEqual(reference, pythoniseMatrix(source))
 
