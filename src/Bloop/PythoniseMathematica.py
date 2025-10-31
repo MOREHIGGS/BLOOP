@@ -94,20 +94,12 @@ def pythoniseExpressionSystem(lines):
     return [pythoniseExpression(line) for line in lines]
 
 
-def pythoniseMatrix(lines):
-    return [
-        [symbol.strip() for symbol in line.strip().strip("}").strip("{").split(",")]
-        for line in lines
-    ]
-
-
 def pythoniseMathematica(args):
     veffLines = getLines(args.loFile)
     veffLines += getLines(args.nloFile)
     if args.loopOrder >= 2:
         veffLines += getLines(args.nnloFile)
     
-    scalarRotationMatrix = getLinesJSON(args.scalarRotationMatrixFile)
     allSymbols = getLinesJSON(args.allSymbolsFile) + ["missing"]
     allSymbols = sorted(
         [replaceGreekSymbols(symbol) for symbol in allSymbols], reverse=True
@@ -169,11 +161,6 @@ def pythoniseMathematica(args):
         },
         
         
-        
-        "scalarRotationMatrix": {
-            "scalarRotationMatrix": scalarRotationMatrix,
-            "fileName": args.scalarRotationMatrixFile,
-        },
         "allSymbols": {
             "allSymbols": allSymbols,
             "fileName": args.allSymbolsFile,
@@ -182,21 +169,17 @@ def pythoniseMathematica(args):
             "lagranianVariables": getLinesJSON(args.lagranianVariablesFile),
             "fileName": args.lagranianVariablesFile 
         },
-        "scalarMassNames": {
-            "scalarMassNames": getLinesJSON(args.scalarMassNamesFile),
-            "fileName": args.scalarMassNamesFile 
-        },
     }
     
     generate_veff_module(
         args, 
         allSymbols, 
         args.scalarMassMatrixFile, 
-        expressionDict["scalarMassNames"]["scalarMassNames"],
+        getLinesJSON(args.scalarMassNamesFile),
         args.scalarPermutationMatrixFile, 
         args.scalarRotationMatrixFile, 
-        expressionDict["vectorMassesSquared"]["expressions"],
-        expressionDict["vectorShorthands"]["expressions"],
+        pythoniseExpressionSystem(getLines(args.vectorMassesSquaredFile)),
+        pythoniseExpressionSystem(getLines(args.vectorShortHandsFile)),
     )
 
     compile_veff_submodule(args)    
@@ -267,10 +250,4 @@ class PythoniseMathematicaUnitTests(TestCase):
         ]
 
         self.assertEqual(reference, pythoniseExpressionSystem(source))
-
-    def test_pythoniseMatrix(self):
-        reference = [["1", "0"], ["0", "0"]]
-        source = ["{1, 0}", "{0, 0}"]
-
-        self.assertEqual(reference, pythoniseMatrix(source))
 
