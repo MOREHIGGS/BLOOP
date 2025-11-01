@@ -3,10 +3,11 @@ from textwrap import dedent
 from jinja2 import Environment
 import numpy as np
 import json
-
+## Cannot import things from this module as gives cicular import
 import Bloop.PythoniseMathematica as PythoniseMathematica
 
-def generate_veff_module(
+
+def generateModules(
     args, 
     allSymbols, 
     scalarMassMatrixFile,
@@ -15,36 +16,36 @@ def generate_veff_module(
     scalarRotationMatrixFile,
     vectorMasses,
     vectorShorthands,
+    gccFlags
 ):
     
     parent_dir = os.path.dirname(os.getcwd())
     data_dir   = os.path.join(parent_dir, 'src', 'Bloop')
-    module_dir = os.path.join(parent_dir, 'src', 'Bloop', 'Veff')
+    module_dir = os.path.join(parent_dir, 'src', 'Bloop', 'CythonModules')
     
     if not os.path.exists(module_dir):
         os.mkdir(module_dir)
     if args.verbose:
-        print("Generating Veff submodule")
+        print("Generating cython modules")
     
     loopOrder = args.loopOrder 
     
-    veffFPs   = [args.loFilePath, args.nloFilePath]
+    veffFilePaths   = [args.loFilePath, args.nloFilePath]
     veffNames = ["lo", "nlo"]
-    
     if loopOrder >1:
-        veffFPs.append(args.nnloFilePath)
+        veffFilePaths.append(args.nnloFilePath)
         veffNames.append("nnlo")
         
     for idx, name in enumerate(veffNames):
         generateVeffSubModule(
             name, 
             os.path.join(module_dir, f"{name}.pyx"), 
-            os.path.join(data_dir, veffFPs[idx]), 
+            os.path.join(data_dir, veffFilePaths[idx]), 
             allSymbols
         )
-    
-    generateDiagonalizeSubModule(
-        os.path.join(module_dir, "eigen.pyx"), 
+
+    generateComputeMassesSubModule(
+        os.path.join(module_dir, "computeMasses.pyx"), 
         allSymbols,
         os.path.join(data_dir, scalarMassMatrixFile),
         scalarMassNames,
@@ -55,31 +56,25 @@ def generate_veff_module(
     )
 
     generateVeffModule(
-        os.path.join(module_dir, 'veff.py'), 
+        os.path.join(module_dir, 'VeffTotal.py'), 
         loopOrder, 
         allSymbols
     )
     
-    #================================ init file ==============================#
-    with open(os.path.join(module_dir, '__init__.py'), 'w') as file:
-        file.write("from .veff import *")
-    
     #=============================== setup file ==============================#
-    with open(os.path.join(module_dir, 'setup.py'), 'w') as file:
+    with open(os.path.join(module_dir, 'Setup.py'), 'w') as file:
         file.writelines(Environment().from_string(dedent("""\
             #!/usr/bin/env python3
             # -*- coding: utf-8 -*-
             from setuptools import setup, Extension
             from Cython.Build import cythonize
             
-            extensions = [Extension("lo", ["lo.pyx"])]
-            {% if args.loopOrder >= 1 %}
-            extensions.append(Extension("nlo", ["nlo.pyx"]))
+            extensions = [Extension("lo", ["lo.pyx"], extra_compile_args = {{gccFlags}})]
+            extensions.append(Extension("nlo", ["nlo.pyx"], extra_compile_args = {{gccFlags}}))
+            {% if args.loopOrder > 1 %}
+            extensions.append(Extension("nnlo", ["nnlo.pyx"], extra_compile_args = {{gccFlags}}))
             {% endif %}
-            {% if args.loopOrder >= 2 %}
-            extensions.append(Extension("nnlo", ["nnlo.pyx"], extra_compile_args=['-O1']))
-            {% endif %}
-            extensions.append(Extension("eigen", ["eigen.pyx"]))
+            extensions.append(Extension("computeMasses", ["computeMasses.pyx"], extra_compile_args = {{gccFlags}}))
 
             setup(
                 name="Veff_cython",
@@ -88,7 +83,7 @@ def generate_veff_module(
                 ),
             )
             """
-        )).render(args = args))
+        )).render(args = args, gccFlags = [f"-{flag}" for flag in gccFlags] ))
         
 def generateVeffModule(filename, loopOrder, allSymbols):
     """Write a  function that imports veff submodules based on loopOrder,
@@ -97,18 +92,13 @@ def generateVeffModule(filename, loopOrder, allSymbols):
     with open(filename, 'w') as file:
         file.write(Environment().from_string(dedent(
         """\
-        from .lo import lo
-        from .nlo import nlo
+        from Bloop.CythonModules.lo import lo 
+        from Bloop.CythonModules.nlo import nlo 
         {%- if loopOrder > 1 %}
-        from .nnlo import nnlo
+        from Bloop.CythonModules.nnlo import nnlo 
         {%- endif %}
-        from .eigen import eigen as _eigen
-        import numpy
 
-        def eigen(args):
-            return _eigen(args)
-        
-        def Veff(
+        def veffTotal(
         {%- for symbol in allSymbols %}
             {{ symbol }} = 1,
         {%- endfor %}
@@ -173,7 +163,7 @@ def generateVeffSubModule(name, moduleName, veffFp, allSymbols):
             """)).render(name=name, allSymbols=allSymbols, opsAndExpressions=np.transpose(mutliLineExpression(veffFp))))
 
 
-def generateDiagonalizeSubModule(
+def generateComputeMassesSubModule(
     moduleName, 
     allSymbols, 
     scalarMassMatrixFile, 
@@ -185,34 +175,34 @@ def generateDiagonalizeSubModule(
 ):
     with open(scalarMassMatrixFile) as file:
         scalarMassMatrices = [convertMatrixToCythonSyntax(line) for line in file.readlines()]
-
-    with open(scalarPermutationMatrixFile) as file:
-        scalarPermutationMatrix = convertMatrixToCythonSyntax(file.read())
+    if "none" in scalarPermutationMatrixFile.lower():
+        scalarPermutationMatrix = None
+    else:
+        with open(scalarPermutationMatrixFile) as file:
+            scalarPermutationMatrix = convertMatrixToCythonSyntax(file.read())
 
     with open(scalarRotationMatrixFile) as file:
         scalarRotationMatrix = json.loads(file.read())
+        
 
-    # Creates a cython module with that computes an order of Veff
     with open(moduleName, 'w') as file:
         file.write(Environment().from_string(dedent("""\
-            from scipy.linalg import lapack
-            from scipy.linalg import block_diag
+            from scipy.linalg import lapack, block_diag
             from scipy.linalg.blas import dgemm
-            from numpy import divide 
-            from numpy import sqrt
+            from numpy import divide, sqrt
 
-            cpdef void eigen(complex [:] parameters):
+            cpdef void computeMasses(complex [:] parameters):
             {%- for symbol in allSymbols %}
                 cdef double complex * {{ symbol }} = &parameters[{{ loop.index0 }}]
             {%- endfor %}
 
-                _eigen(
+                _computeMasses(
             {%- for symbol in allSymbols %}
                     {{ symbol }},
             {%- endfor %}
                 )
 
-            cdef void _eigen(
+            cdef void _computeMasses(
             {%- for symbol in allSymbols %}
                 double complex * _{{ symbol }},
             {%- endfor %}
@@ -237,17 +227,20 @@ def generateDiagonalizeSubModule(
                 eigenValues{{ loop.index0 }} *= (T ** 2)
             {%- endfor %}
             
-                scalarPermutationMatrix = {{ scalarPermutationMatrix }}
                 eigenVectors = block_diag(
             {%- for scalarMassMatrix in scalarMassMatrices %}
                     eigenVectors{{ loop.index0 }},
             {%- endfor %}
                 )
-
-                permutedMatrix = dgemm(1, scalarPermutationMatrix, eigenVectors)
+                
+                {%- if not scalarPermutationMatrix == none %}
+                scalarPermutationMatrix = {{ scalarPermutationMatrix }}
+                eigenVectors = dgemm(1,  scalarPermutationMatrix, eigenVectors)
+                {%- endif %}
+                
 
             {%- for symbol, indices in scalarRotationMatrix.items() %}
-                _{{ symbol }}[0] = permutedMatrix[{{ indices[0] }}][{{ indices[1] }}]
+                _{{ symbol }}[0] = eigenVectors[{{ indices[0] }}][{{ indices[1] }}]
             {%- endfor %}
 
             {% set scalarMassMatrixLength = (scalarMassNames | length) / (scalarMassMatrices | length) | int %}

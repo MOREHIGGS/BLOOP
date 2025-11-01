@@ -1,11 +1,10 @@
-FROM python:3.13.5
+FROM python
 
 ENV PIP_ROOT_USER_ACTION=ignore
 
 RUN pip install --upgrade pip
 
 RUN pip install --no-cache-dir pdg
-RUN pip install --no-cache-dir numba 
 RUN pip install --no-cache-dir nlopt 
 RUN pip install --no-cache-dir numpy 
 RUN pip install --no-cache-dir scipy 
@@ -18,5 +17,3 @@ RUN pip install --no-cache-dir Cython
 RUN pip install --no-cache-dir Setuptools
 RUN pip install --no-cache-dir jinja2
 RUN pip install --no-cache-dir line_profiler
-RUN apt update
-RUN apt install clang -y 

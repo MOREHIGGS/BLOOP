@@ -23,28 +23,29 @@ class UserInput(argparse.ArgumentParser):
     def __init__(self):
        super().__init__()
 
-       config_group = self.add_argument_group('Configuration options')
-       config_group.add_argument = self.addArgumentNoMetaVar(config_group)
+       configGroup = self.add_argument_group('Configuration options')
+       configGroup.add_argument = self.addArgumentNoMetaVar(configGroup)
        
-       config_group.add_argument(
+       configGroup.add_argument(
            "--configFilePath",
            action="store",
            type=str,
            help="Str: Load cmd line args from json",
        )
-       config_group.add_argument(
-           "--cython",
-           action="store_true",
-           default=False,
-           help="Bool: If activated cython is used to compile parts of the code base"
+       configGroup.add_argument(
+           "--gccFlags",
+           nargs="*",
+           action="store",
+           default=[],
+           help="List[str]: Flags to pass to gcc, mainly O1 to reduce compile time and memory use. Don't include the - for flags"
        )
-       config_group.add_argument(
+       configGroup.add_argument(
            "--verbose",
            action="store_true",
            default=False,
            help="Bool: If activated code will print as it progresses",
        )
-       config_group.add_argument(
+       configGroup.add_argument(
            "--workers",
            action="store",
            default=1,
@@ -52,7 +53,7 @@ class UserInput(argparse.ArgumentParser):
            type=int,
            help="Int: Specify how many workers pool uses to compute benchmarks (needs to be >1 for pool to be invoked)",
        )
-       config_group.add_argument(
+       configGroup.add_argument(
            "--loopOrder",
            action="store",
            default=1,
@@ -62,16 +63,16 @@ class UserInput(argparse.ArgumentParser):
        )
        
        ########################################################################
-       exec_group = self.add_argument_group('Stage control', 'Str:')
-       exec_group.add_argument = self.addArgumentNoMetaVar(exec_group)
+       stageGroup = self.add_argument_group('Stage control', 'Str:')
+       stageGroup.add_argument = self.addArgumentNoMetaVar(stageGroup)
        
-       exec_group.add_argument(
+       stageGroup.add_argument(
            "--firstStage", 
            default="convertMathematica", 
            type=Stages.fromString,
-           help="What stage of the code to start from (mostly just used to skip convertMathematica)"
+           help="What stage of the code to start from"
        )
-       exec_group.add_argument(
+       stageGroup.add_argument(
            "--lastStage", 
            default="doMinimization", 
            type=Stages.fromString,
@@ -79,84 +80,84 @@ class UserInput(argparse.ArgumentParser):
        )
        
        ########################################################################
-       benchmark_group = self.add_argument_group('Benchmark Options')
-       benchmark_group.add_argument = self.addArgumentNoMetaVar(benchmark_group)
+       benchmarkGroup = self.add_argument_group('Benchmark Options')
+       benchmarkGroup.add_argument = self.addArgumentNoMetaVar(benchmarkGroup)
        
-       benchmark_group.add_argument(
+       benchmarkGroup.add_argument(
            "--benchmarkFile",
            action="store",
            default="Bloop/Data/Z2_3HDM/Benchmarks/handPicked.json",
            help="Str: Relative (to src) name to where benchmarks are saved to"
        )
-       benchmark_group.add_argument(
+       benchmarkGroup.add_argument(
            "--benchmarkType",
            action="store",
            default="handPicked",
            choices=["load", "handPicked", "random", "randomSSS"],
            help="Str: Specify the mode to generate bm with.",
        )
-       benchmark_group.add_argument(
+       benchmarkGroup.add_argument(
            "--randomNum",
            type=int,
            action="store",
            help="Int: Specify how many random bm to generate.",
        )
-       benchmark_group.add_argument(
+       benchmarkGroup.add_argument(
            "--firstBenchmark", 
            default=0, 
            type=int,
            help="Int: First benchmark to do computations with"
        )
-       benchmark_group.add_argument(
+       benchmarkGroup.add_argument(
            "--lastBenchmark", 
            default=maxsize, 
            type=int,
            help="Int: Last benchmark to do computations with"
        )
-       benchmark_group.add_argument(
+       benchmarkGroup.add_argument(
            "--bmGeneratorModule",
            action="store",
            default="Bloop.Z2_ThreeHiggsBmGenerator",
            help="Str: Module name to generate benchmarks with. Needs a function called generateBenchmarks."
        )
-       benchmark_group.add_argument(
+       benchmarkGroup.add_argument(
            "--previousResultDirectory",
            action="store",
            help="str: Load previous results to do a strong sub set with.",
        )
        
        ########################################################################
-       min_group = self.add_argument_group('NLOPT controls')
-       min_group.add_argument = self.addArgumentNoMetaVar(min_group)
-       min_group.add_argument(
+       nloptGroup = self.add_argument_group('NLOPT controls')
+       nloptGroup.add_argument = self.addArgumentNoMetaVar(nloptGroup)
+       nloptGroup.add_argument(
            "--absGlobalTolerance", 
            action="store", 
            default=0.5, 
            type=float,
            help="Float: Sets the absolute tolerance for global minimisation routine in NLOPT"
        )
-       min_group.add_argument(
+       nloptGroup.add_argument(
            "--relGlobalTolerance", 
            action="store", 
            default=0.5, 
            type=float,
            help="Float: Sets the relative tolerance for global minimisation routine in NLOPT"
        )
-       min_group.add_argument(
+       nloptGroup.add_argument(
            "--absLocalTolerance", 
            action="store", 
            default=1e-2, 
            type=float,
            help="Float: Sets the absolute tolerance for local minimisation routine in NLOPT"
        )
-       min_group.add_argument(
+       nloptGroup.add_argument(
            "--relLocalTolerance", 
            action="store", 
            default=1e-3, 
            type=float,
            help="Float: Sets the relative tolerance for local minimisation routine in NLOPT"
        )
-       min_group.add_argument(
+       nloptGroup.add_argument(
            "--varLowerBounds",
            nargs="*",
            action="store",
@@ -164,7 +165,7 @@ class UserInput(argparse.ArgumentParser):
            type=float,
            help="List[float]: Sets the lower bound on background fields for NLOPT. Bounds are in the same order as field names"
        )
-       min_group.add_argument(
+       nloptGroup.add_argument(
            "--varUpperBounds",
            nargs="*",
            action="store",
@@ -172,7 +173,7 @@ class UserInput(argparse.ArgumentParser):
            type=list,
            help="List[float]: Sets the upper bound on background fields for NLOPT. Bounds are in the same order as field names",
        )
-       min_group.add_argument(
+       nloptGroup.add_argument(
            "--initialGuesses",
            nargs="*",
            action="store",
@@ -192,23 +193,23 @@ class UserInput(argparse.ArgumentParser):
        )
        
        ########################################################################
-       temp_group = self.add_argument_group('Temperature Range')
-       temp_group.add_argument = self.addArgumentNoMetaVar(temp_group)
-       temp_group.add_argument(
+       tempGroup = self.add_argument_group('Temperature Range')
+       tempGroup.add_argument = self.addArgumentNoMetaVar(tempGroup)
+       tempGroup.add_argument(
            "--TRangeStart", 
            action="store", 
            default=50, 
            type=float,
            help="Float: Lowest temperature to look for phase transitions"
        )
-       temp_group.add_argument(
+       tempGroup.add_argument(
            "--TRangeEnd", 
            action="store", 
            default=200, 
            type=float,
            help="Float: Highest temperature to look for phase transitions"
        )
-       temp_group.add_argument(
+       tempGroup.add_argument(
            "--TRangeStepSize",  
            action="store", 
            default=1, 
@@ -217,124 +218,124 @@ class UserInput(argparse.ArgumentParser):
        )
        
        ########################################################################
-       output_group = self.add_argument_group('Output Options')
-       output_group.add_argument = self.addArgumentNoMetaVar(output_group)
+       outputGroup = self.add_argument_group('Output Options')
+       outputGroup.add_argument = self.addArgumentNoMetaVar(outputGroup)
        
-       output_group.add_argument(
+       outputGroup.add_argument(
            "--bSave",
            action="store_true",
            default=False,
            help="Bool: If activated the results of the minimisation will be saved to --results directory",
        )
-       output_group.add_argument(
+       outputGroup.add_argument(
            "--bPlot",
            action="store_true",
            default=False,
            help="Bool: If activated plotting code (--plotDataModule) is imported and used to generate plots ",
        )
-       output_group.add_argument(
+       outputGroup.add_argument(
            "--plotDataModule",
            action="store",
            default="Bloop.PlotData",
            help="Str: Module name of python module to generate plots, invoked by --bPlot (don't include the .py extension here)"
        )
-       output_group.add_argument(
+       outputGroup.add_argument(
            "--bProcessMin",
            action="store_true",
            default=False,
            help="Bool: If activated ProcessMinimization.py is used to try to find phase transitions from the raw data",
        )
-       output_group.add_argument(
+       outputGroup.add_argument(
            "--resultsDirectory",
            action="store",
            default="Results",
            help="Str: Directory to save files to",
        )
        ########################################################################
-       files_group = self.add_argument_group('Model File Paths', 'These paths are all relative to bloop/src/bloop')
-       files_group.add_argument = self.addArgumentNoMetaVar(files_group)
+       filesGroup = self.add_argument_group('Model File Paths', 'These paths are all relative to bloop/src/bloop')
+       filesGroup.add_argument = self.addArgumentNoMetaVar(filesGroup)
        
-       files_group.add_argument(
+       filesGroup.add_argument(
            "--boundedConditionsFilePath",
            action="store",
            default="Data/Z2_3HDM/ModelFiles/Misc/bounded.txt",
        )
-       files_group.add_argument(
+       filesGroup.add_argument(
            "--allSymbolsFilePath",
            action="store",
            default="Data/Z2_3HDM/ModelFiles/Variables/allSymbols.json",
        )
-       files_group.add_argument(
+       filesGroup.add_argument(
            "--loFilePath",
            action="store",
            default="Data/Z2_3HDM/ModelFiles/EffectivePotential/Veff_LO.txt",
        )
-       files_group.add_argument(
+       filesGroup.add_argument(
            "--nloFilePath",
            action="store",
            default="Data/Z2_3HDM/ModelFiles/EffectivePotential/Veff_NLO.txt",
        )
-       files_group.add_argument(
+       filesGroup.add_argument(
            "--nnloFilePath",
            action="store",
            default="Data/Z2_3HDM/ModelFiles/EffectivePotential/Veff_NNLO.txt",
        )
-       files_group.add_argument(
+       filesGroup.add_argument(
            "--betaFunctions4DFilePath",
            action="store",
            default="Data/Z2_3HDM/ModelFiles/HardToSoft/BetaFunctions4D.txt",
        )
-       files_group.add_argument(
+       filesGroup.add_argument(
            "--vectorMassesSquaredFilePath",
            action="store",
            default="Data/Z2_3HDM/ModelFiles/EffectivePotential/vectorMasses.txt",
        )
-       files_group.add_argument(
+       filesGroup.add_argument(
            "--vectorShortHandsFilePath",
            action="store",
            default="Data/Z2_3HDM/ModelFiles/EffectivePotential/vectorShorthands.txt",
        )
-       files_group.add_argument(
+       filesGroup.add_argument(
            "--hardToSoftFilePath",
            action="store",
            default="Data/Z2_3HDM/ModelFiles/HardToSoft/softScaleParams_NLO.txt",
        )
-       files_group.add_argument(
+       filesGroup.add_argument(
            "--softScaleRGEFilePath",
            action="store",
            default="Data/Z2_3HDM/ModelFiles/HardToSoft/softScaleRGE.txt",
        )
-       files_group.add_argument(
+       filesGroup.add_argument(
            "--softToUltraSoftFilePath",
            action="store",
            default="Data/Z2_3HDM/ModelFiles/SoftToUltraSoft/ultrasoftScaleParams_NLO.txt",
        )
-       files_group.add_argument(
+       filesGroup.add_argument(
            "--scalarPermutationMatrixFilePath",
            action="store",
            default="Data/Z2_3HDM/ModelFiles/EffectivePotential/scalarPermutationMatrix.txt",
        )
-       files_group.add_argument(
+       filesGroup.add_argument(
            "--scalarRotationMatrixFilePath",
            action="store",
            default="Data/Z2_3HDM/ModelFiles/EffectivePotential/scalarRotationMatrix.json",
        )
-       files_group.add_argument(
+       filesGroup.add_argument(
            "--scalarMassMatrixFilePath",
            action="store",
            default="Data/Z2_3HDM/ModelFiles/EffectivePotential/scalarMassMatrix.txt",
        )
-       files_group.add_argument(
+       filesGroup.add_argument(
            "--lagranianVariablesFilePath",
            action="store",
            default="Data/Z2_3HDM/ModelFiles/Variables/LagranianSymbols.json",
        )
-       files_group.add_argument(
+       filesGroup.add_argument(
            "--scalarMassNamesFilePath",
            action="store",
            default="Data/Z2_3HDM/ModelFiles/Variables/ScalarMassNames.json",
        )
-       files_group.add_argument(
+       filesGroup.add_argument(
            "--pythonisedExpressionsFilePath",
            action="store",
            default="Bloop/Data/Z2_3HDM/pythonisedExpressionsFile.json",

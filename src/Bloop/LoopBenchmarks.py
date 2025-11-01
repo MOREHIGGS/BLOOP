@@ -5,14 +5,10 @@ from pathos.multiprocessing import Pool
 from ijson import items
 from importlib import import_module
 
-from Bloop.TransitionFinder import TrackVEV
-from Bloop.EffectivePotential import EffectivePotential, cNlopt
+from Bloop.TrackVEV import TrackVEV, cNlopt
 from Bloop.ProcessMinimization import interpretData
 from Bloop.PythoniseMathematica import replaceGreekSymbols
-from Bloop.ParsedExpression import (
-    ParsedExpressionSystem,
-    ParsedExpressionSystemArray,
-)
+from Bloop.ParsedExpression import ParsedExpressionSystemArray
 
 
 ## This (sometimes) avoids floating point error in T gotten by np.arange or linspace
@@ -31,11 +27,6 @@ def doBenchmark(trackVEV, args, benchmark, fieldNames):
     if args.verbose:
         print(f"Starting benchmark: {benchmark['bmNumber']}")
 
-    if False:
-        ##THIS IS FOR JASMINE TO MAKE PLOTS - IGNORE
-        trackVEV.plotPotential(benchmark)
-        exit()
-        
     minimizationResult = trackVEV.trackVEV(benchmark)
 
     filename = f"{args.resultsDirectory}/BM_{benchmark['bmNumber']}"
@@ -111,14 +102,6 @@ def setUpTrackVEV(args):
             "varUpperBounds": args.varUpperBounds,
         }
     )
-    
-    effectivePotential = EffectivePotential(
-        lagranianVariables["fieldSymbols"],
-        args.loopOrder,
-        args.verbose,
-        nloptInst,
-        allSymbols,
-    )
 
     fourPointSymbols = [
         replaceGreekSymbols(item) for item in lagranianVariables["fourPointSymbols"]
@@ -129,11 +112,13 @@ def setUpTrackVEV(args):
     gaugeSymbols = [
         replaceGreekSymbols(item) for item in lagranianVariables["gaugeSymbols"]
     ]
-
+    ##Saves loading parsed expression a second time
+    fieldNames = lagranianVariables["fieldSymbols"] 
     return (
         TrackVEV(
             config={
-                "effectivePotential": effectivePotential,
+                "nloptInst": nloptInst,
+                "fieldNames": fieldNames,
                 "hardToSoft": ParsedExpressionSystemArray(
                     pythonisedExpressions["hardToSoft"]["expressions"],
                     allSymbols,
@@ -170,5 +155,5 @@ def setUpTrackVEV(args):
                 "allSymbols": allSymbols,
             }
         ),
-        lagranianVariables["fieldSymbols"],
+        fieldNames,
     )

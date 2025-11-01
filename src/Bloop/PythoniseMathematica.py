@@ -6,7 +6,8 @@ from importlib.resources import files
 import unicodedata
 import re
 
-from Veff_generation import generate_veff_module, compile_veff_submodule
+from Bloop.GenerateModules import generateModules
+from Bloop.CompileModules import compile_veff_submodule
 
 def getLines(relativePathToResource):
     with open(files(__package__) / relativePathToResource, "r", encoding="utf-8") as fp:
@@ -131,18 +132,7 @@ def pythoniseMathematica(args):
             ),
             "filePath": args.softToUltraSoftFilePath,
         },
-        "vectorMassesSquared": {
-            "expressions": pythoniseExpressionSystemArray(
-                getLines(args.vectorMassesSquaredFilePath), allSymbols
-            ),
-            "filePath": args.vectorMassesSquaredFilePath,
-        },
-        "vectorShortHands": {
-            "expressions": pythoniseExpressionSystemArray(
-                getLines(args.vectorShortHandsFilePath), allSymbols
-            ),
-            "filePath": args.vectorShortHandsFilePath,
-        },
+
         "veff": {
             "expressions": pythoniseExpression(getLines(args.loFilePath)[0]),
             "fileName": args.loFilePath,
@@ -163,7 +153,7 @@ def pythoniseMathematica(args):
         },
     }
     
-    generate_veff_module(
+    generateModules(
         args, 
         allSymbols, 
         args.scalarMassMatrixFilePath, 
@@ -172,10 +162,10 @@ def pythoniseMathematica(args):
         args.scalarRotationMatrixFilePath, 
         pythoniseExpressionSystem(getLines(args.vectorMassesSquaredFilePath)),
         pythoniseExpressionSystem(getLines(args.vectorShortHandsFilePath)),
+        args.gccFlags,
     )
 
     compile_veff_submodule(args)    
-    
     (outputFile := Path(args.pythonisedExpressionsFilePath)).parent.mkdir(
         exist_ok=True, parents=True
     )   
