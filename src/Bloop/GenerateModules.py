@@ -44,8 +44,8 @@ def generateModules(
             allSymbols
         )
 
-    generateDiagonalizeSubModule(
-        os.path.join(module_dir, "eigen.pyx"), 
+    generateComputeMassesSubModule(
+        os.path.join(module_dir, "computeMasses.pyx"), 
         allSymbols,
         os.path.join(data_dir, scalarMassMatrixFile),
         scalarMassNames,
@@ -74,7 +74,7 @@ def generateModules(
             {% if args.loopOrder > 1 %}
             extensions.append(Extension("nnlo", ["nnlo.pyx"], extra_compile_args = {{gccFlags}}))
             {% endif %}
-            extensions.append(Extension("eigen", ["eigen.pyx"], extra_compile_args = {{gccFlags}}))
+            extensions.append(Extension("computeMasses", ["computeMasses.pyx"], extra_compile_args = {{gccFlags}}))
 
             setup(
                 name="Veff_cython",
@@ -163,7 +163,7 @@ def generateVeffSubModule(name, moduleName, veffFp, allSymbols):
             """)).render(name=name, allSymbols=allSymbols, opsAndExpressions=np.transpose(mutliLineExpression(veffFp))))
 
 
-def generateDiagonalizeSubModule(
+def generateComputeMassesSubModule(
     moduleName, 
     allSymbols, 
     scalarMassMatrixFile, 
@@ -185,25 +185,24 @@ def generateDiagonalizeSubModule(
         scalarRotationMatrix = json.loads(file.read())
         
 
-    # Creates a cython module with that computes an order of Veff
     with open(moduleName, 'w') as file:
         file.write(Environment().from_string(dedent("""\
             from scipy.linalg import lapack, block_diag
             from scipy.linalg.blas import dgemm
             from numpy import divide, sqrt
 
-            cpdef void eigen(complex [:] parameters):
+            cpdef void computeMasses(complex [:] parameters):
             {%- for symbol in allSymbols %}
                 cdef double complex * {{ symbol }} = &parameters[{{ loop.index0 }}]
             {%- endfor %}
 
-                _eigen(
+                _computeMasses(
             {%- for symbol in allSymbols %}
                     {{ symbol }},
             {%- endfor %}
                 )
 
-            cdef void _eigen(
+            cdef void _computeMasses(
             {%- for symbol in allSymbols %}
                 double complex * _{{ symbol }},
             {%- endfor %}

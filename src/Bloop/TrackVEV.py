@@ -6,7 +6,7 @@ from dataclasses import dataclass, InitVar, field
 
 from Bloop.PDGData import mTop, mW, mZ, higgsVEV
 from Bloop.CythonModules.VeffTotal  import veffTotal
-from Bloop.CythonModules.eigen  import eigen
+from Bloop.CythonModules.computeMasses  import computeMasses
 
 @dataclass(frozen=True)
 class cNlopt:
@@ -200,7 +200,7 @@ class TrackVEV:
         for i, value in enumerate(fields):
             params[self.allSymbols.index(self.fieldNames[i])] = value
         
-        eigen(params)
+        computeMasses(params)
         return sum(veffTotal(*params))
 
     def getLagranianParams4D(self, paramsDict):
