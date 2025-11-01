@@ -26,7 +26,7 @@ def generateModules(
     if not os.path.exists(module_dir):
         os.mkdir(module_dir)
     if args.verbose:
-        print("Generating Veff submodule")
+        print("Generating cython modules")
     
     loopOrder = args.loopOrder 
     

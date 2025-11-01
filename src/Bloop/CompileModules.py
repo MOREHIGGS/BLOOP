@@ -9,10 +9,10 @@ def compile_veff_submodule(args):
     setup_path = os.path.join(module_dir, "Setup.py")
     
     if not os.path.isfile(setup_path):
-        raise FileNotFoundError(f"No setup.py found in {module_dir}")
+        raise FileNotFoundError(f"No Setup.py found in {module_dir}")
     
     if args.verbose:
-        print("Compiling Veff submodule")
+        print("Compiling cython modules")
     
     ti = time.time()
     result = subprocess.run(
