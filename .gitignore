@@ -10,7 +10,8 @@ Mathematica/*
 Testing
 Results
 src/Benchmarks/**
-src/Bloop/Veff/**
+src/Bloop/CythonModules/**
+src/Bloop/Data/**
 
 *.swp
 *.png
@@ -18,3 +19,4 @@ src/Bloop/Veff/**
 **/*.json
 *.egg-info/
 *.pyc
+*.svg
