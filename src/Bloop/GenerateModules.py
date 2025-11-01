@@ -175,23 +175,22 @@ def generateDiagonalizeSubModule(
 ):
     with open(scalarMassMatrixFile) as file:
         scalarMassMatrices = [convertMatrixToCythonSyntax(line) for line in file.readlines()]
-    if scalarPermutationMatrixFile.lower() == "none":
-        scalarPermutationMatrixFile = scalarPermutationMatrixFile.lower()
+    if "none" in scalarPermutationMatrixFile.lower():
+        scalarPermutationMatrix = None
     else:
         with open(scalarPermutationMatrixFile) as file:
             scalarPermutationMatrix = convertMatrixToCythonSyntax(file.read())
 
     with open(scalarRotationMatrixFile) as file:
         scalarRotationMatrix = json.loads(file.read())
+        
 
     # Creates a cython module with that computes an order of Veff
     with open(moduleName, 'w') as file:
         file.write(Environment().from_string(dedent("""\
-            from scipy.linalg import lapack
-            from scipy.linalg import block_diag
+            from scipy.linalg import lapack, block_diag
             from scipy.linalg.blas import dgemm
-            from numpy import divide 
-            from numpy import sqrt
+            from numpy import divide, sqrt
 
             cpdef void eigen(complex [:] parameters):
             {%- for symbol in allSymbols %}
@@ -229,15 +228,15 @@ def generateDiagonalizeSubModule(
                 eigenValues{{ loop.index0 }} *= (T ** 2)
             {%- endfor %}
             
-                scalarPermutationMatrix = {{ scalarPermutationMatrix }}
                 eigenVectors = block_diag(
             {%- for scalarMassMatrix in scalarMassMatrices %}
                     eigenVectors{{ loop.index0 }},
             {%- endfor %}
                 )
                 
-                {%- if not scalarPermutationMatrixFile == none %}
-                eigenVectors = dgemm(1, scalarPermutationMatrix, eigenVectors)
+                {%- if not scalarPermutationMatrix == none %}
+                scalarPermutationMatrix = {{ scalarPermutationMatrix }}
+                eigenVectors = dgemm(1,  scalarPermutationMatrix, eigenVectors)
                 {%- endif %}
                 
 
@@ -257,7 +256,6 @@ def generateDiagonalizeSubModule(
                 scalarRotationMatrix = scalarRotationMatrix,
                 vectorMasses = vectorMasses,
                 vectorShorthands = vectorShorthands,
-                scalarPermutationMatrixFile = scalarPermutationMatrixFile
             ))
 
 def mutliLineExpression(filePointer):
