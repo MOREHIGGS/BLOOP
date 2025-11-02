@@ -6,7 +6,6 @@ from dataclasses import dataclass, InitVar, field
 
 from Bloop.PDGData import mTop, mW, mZ, higgsVEV
 from Bloop.CythonModules.evaluatePotential  import evaluatePotential
-from Bloop.CythonModules.computeMasses  import computeMasses
 
 @dataclass(frozen=True)
 class cNlopt:
