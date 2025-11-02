@@ -54,15 +54,22 @@ def generateModules(
         vectorMasses,
         vectorShorthands,
     )
-
-    generateVeffModule(
-        os.path.join(module_dir, 'VeffTotal.py'), 
+    
+    generateEvaluatePotentialModule(
+        os.path.join(module_dir, 'evaluatePotential.pyx'), 
+        loopOrder,
+        allSymbols, 
+        ["v1","v2","v3"]
+        )
+    
+    generateSetupFile(
+        os.path.join(module_dir, 'Setup.py'), 
         loopOrder, 
-        allSymbols
+        gccFlags
     )
     
-    #=============================== setup file ==============================#
-    with open(os.path.join(module_dir, 'Setup.py'), 'w') as file:
+def generateSetupFile(fileName, loopOrder, gccFlags):
+    with open(fileName, 'w') as file:
         file.writelines(Environment().from_string(dedent("""\
             #!/usr/bin/env python3
             # -*- coding: utf-8 -*-
@@ -71,10 +78,11 @@ def generateModules(
             
             extensions = [Extension("lo", ["lo.pyx"], extra_compile_args = {{gccFlags}})]
             extensions.append(Extension("nlo", ["nlo.pyx"], extra_compile_args = {{gccFlags}}))
-            {% if args.loopOrder > 1 %}
+            {% if loopOrder > 1 %}
             extensions.append(Extension("nnlo", ["nnlo.pyx"], extra_compile_args = {{gccFlags}}))
             {% endif %}
             extensions.append(Extension("computeMasses", ["computeMasses.pyx"], extra_compile_args = {{gccFlags}}))
+            extensions.append(Extension("evaluatePotential", ["evaluatePotential.pyx"], extra_compile_args = {{gccFlags}}))
 
             setup(
                 name="Veff_cython",
@@ -88,51 +96,53 @@ def generateModules(
                 ),
             )
             """
-        )).render(args = args, gccFlags = [f"-{flag}" for flag in gccFlags] ))
-            
-def generateVeffModule(filename, loopOrder, allSymbols):
-    """Write a  function that imports veff submodules based on loopOrder,
-    returns the evaluated submodules as a tuple.
-    """
+        )).render(loopOrder = loopOrder, gccFlags = [f"-{flag}" for flag in gccFlags] ))
+    
+def generateEvaluatePotentialModule(filename, loopOrder, allSymbols, fieldNames):
     with open(filename, 'w') as file:
         file.write(Environment().from_string(dedent(
-        """\
+        """
         from Bloop.CythonModules.lo import lo 
         from Bloop.CythonModules.nlo import nlo 
         {%- if loopOrder > 1 %}
-        from Bloop.CythonModules.nnlo import nnlo 
+        from Bloop.CythonModules.nnlo import nnlo  
         {%- endif %}
+        from Bloop.CythonModules.computeMasses import computeMasses
 
-        def veffTotal(
-        {%- for symbol in allSymbols %}
-            {{ symbol }} = 1,
-        {%- endfor %}
-            ):
-            val_lo = lo(
-        {%- for symbol in allSymbols %}
-                {{ symbol }},
-        {%- endfor %}
-            )
-            
-            val_nlo = nlo(
-        {%- for symbol in allSymbols %}
-                {{ symbol }},
-        {%- endfor %}
-            )
-            
-        {%- if loopOrder > 1 %}
-            val_nnlo = nnlo(
-        {%- for symbol in allSymbols %}
-                {{ symbol }},
-        {%- endfor %}
-            )
-            return (val_lo, val_nlo, val_nnlo)
+        cpdef evaluatePotential(fields, complex [:] parameters):
         
+        {% for name in fieldNames %}
+            parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
+         {%- endfor %}
+        
+            computeMasses(parameters)
+            
+        {%- for symbol in allSymbols %}
+            cdef double complex {{ symbol }} = parameters[{{ loop.index0 }}]
+        {%- endfor %}
+            valueLO = lo(
+        {%- for symbol in allSymbols %}
+            {{ symbol }},
+        {%- endfor %}
+            )
+            valueNLO = nlo(
+        {%- for symbol in allSymbols %}
+            {{ symbol }},
+        {%- endfor %}
+            )
+        {%- if loopOrder > 1 %}
+            valueNNLO = nnlo(
+        {%- for symbol in allSymbols %}
+            {{ symbol }},
+        {%- endfor %}
+                )
+            return valueLO + valueNLO + valueNNLO
+            
         {%- else %}
-            return (val_lo, val_nlo)
+            return valueLO + valueNLO
         {%- endif %}
-        """)).render(loopOrder=loopOrder, allSymbols=allSymbols))
-     
+                
+        """)).render(loopOrder=loopOrder, allSymbols=allSymbols, fieldNames=fieldNames))
 
 def generateVeffSubModule(name, moduleName, veffFp, allSymbols):
     # Creates a cython module with that computes an order of Veff
