@@ -33,10 +33,10 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-echo "Compiling modules"
+echo "Compiling modules at loop order $LOOPORDER"
 python3 runStages.py --lastStage generateBenchmark --loopOrder $LOOPORDER || exit -1
 echo "Profiling code"
 python3 -m cProfile -o $OUTPUTFILE.pstats runStages.py --firstStage doMinimization || exit -1
 gprof2dot --colour-nodes-by-selftime -f pstats $OUTPUTFILE.pstats | \dot -Tsvg -o $OUTPUTFILE.svg || exit -1
-echo "Profile success"
+echo "Profile success, results stored in $OUTPUTFILE.svg"
 rm $OUTPUTFILE.pstats || exit -1
