@@ -16,7 +16,8 @@ def generateModules(
     scalarRotationMatrixFile,
     vectorMasses,
     vectorShorthands,
-    gccFlags
+    gccFlags,
+    fieldNames
 ):
     
     parent_dir = os.path.dirname(os.getcwd())
@@ -59,7 +60,7 @@ def generateModules(
         os.path.join(module_dir, 'evaluatePotential.pyx'), 
         loopOrder,
         allSymbols, 
-        ["v1","v2","v3"]
+        fieldNames
         )
     
     generateSetupFile(

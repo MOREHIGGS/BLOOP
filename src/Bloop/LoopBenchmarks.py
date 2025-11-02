@@ -112,13 +112,10 @@ def setUpTrackVEV(args):
     gaugeSymbols = [
         replaceGreekSymbols(item) for item in lagranianVariables["gaugeSymbols"]
     ]
-    ##Saves loading parsed expression a second time
-    fieldNames = lagranianVariables["fieldSymbols"] 
     return (
         TrackVEV(
             config={
                 "nloptInst": nloptInst,
-                "fieldNames": fieldNames,
                 "hardToSoft": ParsedExpressionSystemArray(
                     pythonisedExpressions["hardToSoft"]["expressions"],
                     allSymbols,
@@ -155,5 +152,6 @@ def setUpTrackVEV(args):
                 "allSymbols": allSymbols,
             }
         ),
-        fieldNames,
+        ##Saves loading parsed expression a second time
+        lagranianVariables["fieldSymbols"],
     )

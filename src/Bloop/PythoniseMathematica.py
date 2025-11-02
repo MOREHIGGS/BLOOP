@@ -163,6 +163,7 @@ def pythoniseMathematica(args):
         pythoniseExpressionSystem(getLines(args.vectorMassesSquaredFilePath)),
         pythoniseExpressionSystem(getLines(args.vectorShortHandsFilePath)),
         args.gccFlags,
+        getLinesJSON(args.lagranianVariablesFilePath)["fieldSymbols"]
     )
 
     compile_veff_submodule(args)    

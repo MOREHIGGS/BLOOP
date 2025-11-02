@@ -54,7 +54,6 @@ def bIsPerturbative(params, pertSymbols, allSymbols):
 @dataclass(frozen=True)
 class TrackVEV:
     TRange: tuple = (0,)
-    fieldNames: list = field(default_factory=list)
 
     pertSymbols: frozenset = frozenset({1})
 
