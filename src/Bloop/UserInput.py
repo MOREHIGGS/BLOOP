@@ -37,7 +37,7 @@ class UserInput(argparse.ArgumentParser):
            nargs="*",
            action="store",
            default=[],
-           help="List[str]: Flags to pass to gcc, mainly O1 to reduce compile time and memory use. Don't include the - for flags"
+           help="List[str]: Flags to pass to gcc. Recommended flags for perfomance 'O3 march=native'. Note native compiles it for your cpu and so the excutable is non-transferable.  To reduce memory 'O1'. Don't include the - or flags"
        )
        configGroup.add_argument(
            "--verbose",
