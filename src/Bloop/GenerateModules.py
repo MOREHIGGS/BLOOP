@@ -78,13 +78,18 @@ def generateModules(
 
             setup(
                 name="Veff_cython",
-                ext_modules=cythonize(
-                    extensions, compiler_directives={"language_level": "3"}
+                ext_modules = cythonize(
+                        extensions, 
+                        compiler_directives={
+                            "language_level": "3", 
+                            "boundscheck": False,
+                            "wraparound": False,
+                            }
                 ),
             )
             """
         )).render(args = args, gccFlags = [f"-{flag}" for flag in gccFlags] ))
-        
+            
 def generateVeffModule(filename, loopOrder, allSymbols):
     """Write a  function that imports veff submodules based on loopOrder,
     returns the evaluated submodules as a tuple.
@@ -134,7 +139,6 @@ def generateVeffSubModule(name, moduleName, veffFp, allSymbols):
     with open(moduleName, 'w') as file:
     
         file.write(Environment().from_string(dedent("""\
-            #cython: cdivision=False
             from libc.complex cimport csqrt
             from libc.complex cimport clog
             
