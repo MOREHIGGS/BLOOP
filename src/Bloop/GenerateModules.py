@@ -16,7 +16,8 @@ def generateModules(
     scalarRotationMatrixFile,
     vectorMasses,
     vectorShorthands,
-    gccFlags
+    gccFlags,
+    fieldNames
 ):
     
     parent_dir = os.path.dirname(os.getcwd())
@@ -36,15 +37,16 @@ def generateModules(
         veffFilePaths.append(args.nnloFilePath)
         veffNames.append("nnlo")
         
+    veffSubModules = []
     for idx, name in enumerate(veffNames):
-        generateVeffSubModule(
+        veffSubModules.append(generateVeffSubModule(
             name, 
             os.path.join(module_dir, f"{name}.pyx"), 
             os.path.join(data_dir, veffFilePaths[idx]), 
             allSymbols
-        )
+        ))
 
-    generateComputeMassesSubModule(
+    computeMassesModule =generateComputeMassesModule(
         os.path.join(module_dir, "computeMasses.pyx"), 
         allSymbols,
         os.path.join(data_dir, scalarMassMatrixFile),
@@ -54,15 +56,24 @@ def generateModules(
         vectorMasses,
         vectorShorthands,
     )
-
-    generateVeffModule(
-        os.path.join(module_dir, 'VeffTotal.py'), 
+    
+    generateEvaluatePotentialModule(
+        os.path.join(module_dir, 'evaluatePotential.pyx'), 
+        loopOrder,
+        allSymbols, 
+        fieldNames,
+        veffSubModules,
+        computeMassesModule,
+        )
+    
+    generateSetupFile(
+        os.path.join(module_dir, 'Setup.py'), 
         loopOrder, 
-        allSymbols
+        gccFlags
     )
     
-    #=============================== setup file ==============================#
-    with open(os.path.join(module_dir, 'Setup.py'), 'w') as file:
+def generateSetupFile(fileName, loopOrder, gccFlags):
+    with open(fileName, 'w') as file:
         file.writelines(Environment().from_string(dedent("""\
             #!/usr/bin/env python3
             # -*- coding: utf-8 -*-
@@ -71,85 +82,90 @@ def generateModules(
             
             extensions = [Extension("lo", ["lo.pyx"], extra_compile_args = {{gccFlags}})]
             extensions.append(Extension("nlo", ["nlo.pyx"], extra_compile_args = {{gccFlags}}))
-            {% if args.loopOrder > 1 %}
+            {% if loopOrder > 1 %}
             extensions.append(Extension("nnlo", ["nnlo.pyx"], extra_compile_args = {{gccFlags}}))
             {% endif %}
             extensions.append(Extension("computeMasses", ["computeMasses.pyx"], extra_compile_args = {{gccFlags}}))
+            extensions.append(Extension("evaluatePotential", ["evaluatePotential.pyx"], extra_compile_args = {{gccFlags}}))
 
             setup(
                 name="Veff_cython",
-                ext_modules=cythonize(
-                    extensions, compiler_directives={"language_level": "3"}
+                ext_modules = cythonize(
+                        extensions, 
+                        compiler_directives={
+                            "language_level": "3", 
+                            "boundscheck": False,
+                            "wraparound": False,
+                            }
                 ),
             )
             """
-        )).render(args = args, gccFlags = [f"-{flag}" for flag in gccFlags] ))
-        
-def generateVeffModule(filename, loopOrder, allSymbols):
-    """Write a  function that imports veff submodules based on loopOrder,
-    returns the evaluated submodules as a tuple.
-    """
+        )).render(loopOrder = loopOrder, gccFlags = [f"-{flag}" for flag in gccFlags] ))
+    
+def generateEvaluatePotentialModule(
+    filename, 
+    loopOrder, 
+    allSymbols, 
+    fieldNames, 
+    veffSubModules, 
+    computeMassesModule
+):
     with open(filename, 'w') as file:
         file.write(Environment().from_string(dedent(
-        """\
-        from Bloop.CythonModules.lo import lo 
-        from Bloop.CythonModules.nlo import nlo 
-        {%- if loopOrder > 1 %}
-        from Bloop.CythonModules.nnlo import nnlo 
-        {%- endif %}
+        """
+        from libc.complex cimport csqrt
+        from libc.complex cimport clog
 
-        def veffTotal(
-        {%- for symbol in allSymbols %}
-            {{ symbol }} = 1,
-        {%- endfor %}
-            ):
-            val_lo = lo(
-        {%- for symbol in allSymbols %}
-                {{ symbol }},
-        {%- endfor %}
-            )
-            
-            val_nlo = nlo(
-        {%- for symbol in allSymbols %}
-                {{ symbol }},
-        {%- endfor %}
-            )
-            
-        {%- if loopOrder > 1 %}
-            val_nnlo = nnlo(
-        {%- for symbol in allSymbols %}
-                {{ symbol }},
-        {%- endfor %}
-            )
-            return (val_lo, val_nlo, val_nnlo)
+        cpdef evaluatePotential(fields, complex [:] parameters):
         
+        {% for name in fieldNames %}
+            parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
+         {%- endfor %}
+        
+            computeMasses(parameters)
+            
+        {%- for symbol in allSymbols %}
+            cdef double complex {{ symbol }} = parameters[{{ loop.index0 }}]
+        {%- endfor %}
+            valueLO = _lo(
+        {%- for symbol in allSymbols %}
+            {{ symbol }},
+        {%- endfor %}
+            )
+            valueNLO = _nlo(
+        {%- for symbol in allSymbols %}
+            {{ symbol }},
+        {%- endfor %}
+            )
+        {%- if loopOrder > 1 %}
+            valueNNLO = _nnlo(
+        {%- for symbol in allSymbols %}
+            {{ symbol }},
+        {%- endfor %}
+                )
+            return valueLO + valueNLO + valueNNLO
+            
         {%- else %}
-            return (val_lo, val_nlo)
+            return valueLO + valueNLO
         {%- endif %}
-        """)).render(loopOrder=loopOrder, allSymbols=allSymbols))
-     
-
+        
+        {%- for veffSubModule in veffSubModules %}
+        {{ veffSubModule }}
+        {%- endfor %}
+        
+        {{computeMassesModule}}
+        
+        """)).render(
+        loopOrder=loopOrder, 
+        allSymbols=allSymbols, 
+        fieldNames=fieldNames, 
+        veffSubModules = veffSubModules, 
+        computeMassesModule = computeMassesModule
+        )
+        )
 def generateVeffSubModule(name, moduleName, veffFp, allSymbols):
     # Creates a cython module with that computes an order of Veff
-    with open(moduleName, 'w') as file:
-    
-        file.write(Environment().from_string(dedent("""\
-            #cython: cdivision=False
-            from libc.complex cimport csqrt
-            from libc.complex cimport clog
-            
-            cpdef double complex {{ name }}(
-            {%- for symbol in allSymbols %}
-                double complex {{ symbol }},
-            {%- endfor %}
-                ):
-                ## Calling _name decreases compile time, maybe increases perfomance
-                return _{{ name }}(
-            {%- for symbol in allSymbols %}
-                    {{ symbol }},
-            {%- endfor %}
-                )
-            
+    return Environment().from_string(dedent("""\
             cdef double complex _{{ name }}(
             {%- for symbol in allSymbols %}
                 double complex {{ symbol }},
@@ -160,10 +176,10 @@ def generateVeffSubModule(name, moduleName, veffFp, allSymbols):
                 a {{ op }} {{ term }}
             {%- endfor %}
                 return a
-            """)).render(name=name, allSymbols=allSymbols, opsAndExpressions=np.transpose(mutliLineExpression(veffFp))))
+            """)).render(name=name, allSymbols=allSymbols, opsAndExpressions=np.transpose(mutliLineExpression(veffFp)))
 
 
-def generateComputeMassesSubModule(
+def generateComputeMassesModule(
     moduleName, 
     allSymbols, 
     scalarMassMatrixFile, 
@@ -185,77 +201,76 @@ def generateComputeMassesSubModule(
         scalarRotationMatrix = json.loads(file.read())
         
 
-    with open(moduleName, 'w') as file:
-        file.write(Environment().from_string(dedent("""\
-            from scipy.linalg import lapack, block_diag
-            from scipy.linalg.blas import dgemm
-            from numpy import divide, sqrt
+    return Environment().from_string(dedent("""\
+        from scipy.linalg import lapack, block_diag
+        from scipy.linalg.blas import dgemm
+        from numpy import divide, sqrt
 
-            cpdef void computeMasses(complex [:] parameters):
-            {%- for symbol in allSymbols %}
-                cdef double complex * {{ symbol }} = &parameters[{{ loop.index0 }}]
-            {%- endfor %}
+        cpdef void computeMasses(complex [:] parameters):
+        {%- for symbol in allSymbols %}
+            cdef double complex * {{ symbol }} = &parameters[{{ loop.index0 }}]
+        {%- endfor %}
 
-                _computeMasses(
-            {%- for symbol in allSymbols %}
-                    {{ symbol }},
-            {%- endfor %}
-                )
+            _computeMasses(
+        {%- for symbol in allSymbols %}
+                {{ symbol }},
+        {%- endfor %}
+            )
 
-            cdef void _computeMasses(
-            {%- for symbol in allSymbols %}
-                double complex * _{{ symbol }},
-            {%- endfor %}
-            ):
-            {%- for symbol in allSymbols %}
-                cdef double {{ symbol }} = _{{ symbol }}[0].real
-            {%- endfor %}
+        cdef void _computeMasses(
+        {%- for symbol in allSymbols %}
+            double complex * _{{ symbol }},
+        {%- endfor %}
+        ):
+        {%- for symbol in allSymbols %}
+            cdef double {{ symbol }} = _{{ symbol }}[0].real
+        {%- endfor %}
 
-            {%- for expression in vectorMasses %}
-                {{ expression.identifier }} = {{ expression.expression }}
-                _{{ expression.identifier }}[0] = {{ expression.identifier }}
-            {%- endfor %}
+        {%- for expression in vectorMasses %}
+            {{ expression.identifier }} = {{ expression.expression }}
+            _{{ expression.identifier }}[0] = {{ expression.identifier }}
+        {%- endfor %}
 
-            {%- for expression in vectorShorthands %}
-                {{ expression.identifier }} = {{ expression.expression }}
-                _{{ expression.identifier }}[0] = {{ expression.identifier }}
-            {%- endfor %}
+        {%- for expression in vectorShorthands %}
+            {{ expression.identifier }} = {{ expression.expression }}
+            _{{ expression.identifier }}[0] = {{ expression.identifier }}
+        {%- endfor %}
 
-            {%- for scalarMassMatrix in scalarMassMatrices %}
-                scalarMassMatrix{{ loop.index0 }} = divide({{ scalarMassMatrix -}}, (T ** 2))
-                eigenValues{{ loop.index0 }}, eigenVectors{{ loop.index0 }}, _ = lapack.dsyevd(scalarMassMatrix{{ loop.index0 }}, compute_v = 1)
-                eigenValues{{ loop.index0 }} *= (T ** 2)
-            {%- endfor %}
+        {%- for scalarMassMatrix in scalarMassMatrices %}
+            scalarMassMatrix{{ loop.index0 }} = divide({{ scalarMassMatrix -}}, (T ** 2))
+            eigenValues{{ loop.index0 }}, eigenVectors{{ loop.index0 }}, _ = lapack.dsyevd(scalarMassMatrix{{ loop.index0 }}, compute_v = 1)
+            eigenValues{{ loop.index0 }} *= (T ** 2)
+        {%- endfor %}
+        
+            eigenVectors = block_diag(
+        {%- for scalarMassMatrix in scalarMassMatrices %}
+                eigenVectors{{ loop.index0 }},
+        {%- endfor %}
+            )
             
-                eigenVectors = block_diag(
-            {%- for scalarMassMatrix in scalarMassMatrices %}
-                    eigenVectors{{ loop.index0 }},
-            {%- endfor %}
-                )
-                
-                {%- if not scalarPermutationMatrix == none %}
-                scalarPermutationMatrix = {{ scalarPermutationMatrix }}
-                eigenVectors = dgemm(1,  scalarPermutationMatrix, eigenVectors)
-                {%- endif %}
-                
+            {%- if not scalarPermutationMatrix == none %}
+            scalarPermutationMatrix = {{ scalarPermutationMatrix }}
+            eigenVectors = dgemm(1,  scalarPermutationMatrix, eigenVectors)
+            {%- endif %}
+            
 
-            {%- for symbol, indices in scalarRotationMatrix.items() %}
-                _{{ symbol }}[0] = eigenVectors[{{ indices[0] }}][{{ indices[1] }}]
-            {%- endfor %}
+        {%- for symbol, indices in scalarRotationMatrix.items() %}
+            _{{ symbol }}[0] = eigenVectors[{{ indices[0] }}][{{ indices[1] }}]
+        {%- endfor %}
 
-            {% set scalarMassMatrixLength = (scalarMassNames | length) / (scalarMassMatrices | length) | int %}
-            {%- for massSymbol in scalarMassNames %}
-                _{{ massSymbol }}[0] = eigenValues{{ (loop.index0 / scalarMassMatrixLength) | int }}[{{ (loop.index0 % scalarMassMatrixLength) | int }}]
-            {%- endfor %}
-            """)).render(
-                allSymbols=allSymbols, 
-                scalarMassMatrices = scalarMassMatrices,
-                scalarMassNames = scalarMassNames,
-                scalarPermutationMatrix = scalarPermutationMatrix,
-                scalarRotationMatrix = scalarRotationMatrix,
-                vectorMasses = vectorMasses,
-                vectorShorthands = vectorShorthands,
-            ))
+        {% set scalarMassMatrixLength = (scalarMassNames | length) / (scalarMassMatrices | length) | int %}
+        {%- for massSymbol in scalarMassNames %}
+            _{{ massSymbol }}[0] = eigenValues{{ (loop.index0 / scalarMassMatrixLength) | int }}[{{ (loop.index0 % scalarMassMatrixLength) | int }}]
+        {%- endfor %}
+        """)).render(
+            allSymbols=allSymbols, 
+            scalarMassMatrices = scalarMassMatrices,
+            scalarMassNames = scalarMassNames,
+            scalarPermutationMatrix = scalarPermutationMatrix,
+            scalarRotationMatrix = scalarRotationMatrix,
+            vectorMasses = vectorMasses,
+            vectorShorthands = vectorShorthands,
+        )
 
 def mutliLineExpression(filePointer):
     ## Takes an expressions and breaks it down into a mutli line expression

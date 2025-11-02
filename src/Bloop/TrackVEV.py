@@ -5,8 +5,7 @@ import nlopt
 from dataclasses import dataclass, InitVar, field
 
 from Bloop.PDGData import mTop, mW, mZ, higgsVEV
-from Bloop.CythonModules.VeffTotal  import veffTotal
-from Bloop.CythonModules.computeMasses  import computeMasses
+from Bloop.CythonModules.evaluatePotential  import evaluatePotential
 
 @dataclass(frozen=True)
 class cNlopt:
@@ -54,7 +53,6 @@ def bIsPerturbative(params, pertSymbols, allSymbols):
 @dataclass(frozen=True)
 class TrackVEV:
     TRange: tuple = (0,)
-    fieldNames: list = field(default_factory=list)
 
     pertSymbols: frozenset = frozenset({1})
 
@@ -183,7 +181,7 @@ class TrackVEV:
         for nlopt reasons we need to give a redunant grad arg"""
         def VeffWrapper(fields, grad):
             return np.real(
-                    self.evaluatePotential(fields, params3D)
+                    evaluatePotential(fields, params3D)
                 )
 
         bestResult = self.nloptInst.nloptGlobal(VeffWrapper, minimumCandidates[0])
@@ -194,14 +192,7 @@ class TrackVEV:
                 bestResult = result
 
         ## Potential computed again in case its complex
-        return bestResult[0], self.evaluatePotential(bestResult[0], params3D)
-    
-    def evaluatePotential(self, fields, params):
-        for i, value in enumerate(fields):
-            params[self.allSymbols.index(self.fieldNames[i])] = value
-        
-        computeMasses(params)
-        return sum(veffTotal(*params))
+        return bestResult[0], evaluatePotential(bestResult[0], params3D)
 
     def getLagranianParams4D(self, paramsDict):
         ## --- SM fermion and gauge boson masses---
