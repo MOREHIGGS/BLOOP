@@ -23,10 +23,6 @@ while [[ $# -gt 0 ]]; do
             OUTPUTFILE="$2"
             shift 2
             ;;
-        --email)
-            EMAIL="$2"
-            shift 2
-            ;;
         -h|--help)
             usage
             ;;
@@ -37,16 +33,10 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-
-echo "Parsed Arguments:"
-echo "=================="
-echo "loopOrder: $LOOPORDER"
-echo "outputFile: $OUTPUTFILE"
-echo 
 echo "Compiling modules"
-python3 runStages.py --lastStage generateBenchmark --loopOrder $LOOPORDER
+python3 runStages.py --lastStage generateBenchmark --loopOrder $LOOPORDER || exit -1
 echo "Profiling code"
-python3 -m cProfile -o $OUTPUTFILE.pstats runStages.py --firstStage doMinimization
-gprof2dot --colour-nodes-by-selftime -f pstats $OUTPUTFILE.pstats | \dot -Tsvg -o $OUTPUTFILE.svg
+python3 -m cProfile -o $OUTPUTFILE.pstats runStages.py --firstStage doMinimization || exit -1
+gprof2dot --colour-nodes-by-selftime -f pstats $OUTPUTFILE.pstats | \dot -Tsvg -o $OUTPUTFILE.svg || exit -1
 echo "Profile success"
-rm $OUTPUTFILE.pstats
+rm $OUTPUTFILE.pstats || exit -1
