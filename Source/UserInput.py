@@ -86,7 +86,7 @@ class UserInput(argparse.ArgumentParser):
        benchmarkGroup.add_argument(
            "--benchmarkFile",
            action="store",
-           default="Bloop/Data/Z2_3HDM/Benchmarks/handPicked.json",
+           default="../Build/Z2_3HDM/handPickedBenchmarks.json",
            help="Str: Relative (to src) name to where benchmarks are saved to"
        )
        benchmarkGroup.add_argument(
@@ -236,7 +236,7 @@ class UserInput(argparse.ArgumentParser):
        outputGroup.add_argument(
            "--plotDataModule",
            action="store",
-           default="Bloop.PlotData",
+           default="PlotData",
            help="Str: Module name of python module to generate plots, invoked by --bPlot (don't include the .py extension here)"
        )
        outputGroup.add_argument(
@@ -252,7 +252,7 @@ class UserInput(argparse.ArgumentParser):
            help="Str: Directory to save files to",
        )
        ########################################################################
-       filesGroup = self.add_argument_group('Model File Paths', 'These paths are all relative to bloop/src/bloop')
+       filesGroup = self.add_argument_group('Model File Paths', 'These paths are all relative to Source (See config for example path)')
        filesGroup.add_argument = self.addArgumentNoMetaVar(filesGroup)
        
        filesGroup.add_argument(
