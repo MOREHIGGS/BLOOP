@@ -6,7 +6,6 @@ import unicodedata
 import re
 
 from GenerateModules import generateModules
-from CompileModules import compile_veff_submodule
 
 def getLines(relativePathToResource):
     with open(relativePathToResource, "r", encoding="utf-8") as fp:
@@ -163,11 +162,10 @@ def pythoniseMathematica(args):
         args.gccFlags,
         getLinesJSON(args.lagranianVariablesFilePath)["fieldSymbols"]
     )
-    compile_veff_submodule(args)    
+    exit()
     (outputFile := Path(args.pythonisedExpressionsFilePath)).parent.mkdir(
         exist_ok=True, parents=True
     )   
-    exit()
     with open(outputFile, "w") as fp:
         json.dump(expressionDict, fp, indent=4)
     

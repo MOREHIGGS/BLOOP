@@ -3,8 +3,13 @@ from jinja2 import Environment
 import numpy as np
 import json
 from pathlib import Path
+import os
+import sys
+import time
+import subprocess
 ## Cannot import things from this module as gives cicular import
 import PythoniseMathematica as PythoniseMathematica
+
 
 
 def generateModules(
@@ -68,6 +73,7 @@ def generateModules(
         loopOrder, 
         gccFlags
     )
+    compileCythonModules(args.verbose, CythonModulesDir)
     
 def generateSetupFile(fileName, loopOrder, gccFlags):
     with open(fileName, 'w') as file:
@@ -77,13 +83,7 @@ def generateSetupFile(fileName, loopOrder, gccFlags):
             from setuptools import setup, Extension
             from Cython.Build import cythonize
             
-            extensions = [Extension("lo", ["lo.pyx"], extra_compile_args = {{gccFlags}})]
-            extensions.append(Extension("nlo", ["nlo.pyx"], extra_compile_args = {{gccFlags}}))
-            {% if loopOrder > 1 %}
-            extensions.append(Extension("nnlo", ["nnlo.pyx"], extra_compile_args = {{gccFlags}}))
-            {% endif %}
-            extensions.append(Extension("computeMasses", ["computeMasses.pyx"], extra_compile_args = {{gccFlags}}))
-            extensions.append(Extension("evaluatePotential", ["evaluatePotential.pyx"], extra_compile_args = {{gccFlags}}))
+            extensions = [Extension("evaluatePotential", ["evaluatePotential.pyx"], extra_compile_args = {{gccFlags}})]
 
             setup(
                 name="Veff_cython",
@@ -314,3 +314,31 @@ def convertToCythonSyntax(term):
     term = term.replace('^', '**')
     term = PythoniseMathematica.replaceSymbolsConst(term)
     return PythoniseMathematica.replaceGreekSymbols(term)
+
+def compileCythonModules(verbose, cythonModuleDir):
+    if not os.path.isfile(cythonModuleDir / "Setup.py"):
+        raise FileNotFoundError(f"No Setup.py found in {cythonModuleDir}")
+    
+    if verbose:
+        print("Compiling cython modules")
+    
+    ti = time.time()
+    result = subprocess.run(
+        [sys.executable, "Setup.py", "build_ext", "--inplace"],
+        cwd=cythonModuleDir,
+        capture_output=True,
+        text=True,
+    )
+    tf = time.time()
+
+    if result.returncode != 0:
+        print("Compilation failed:")
+        print(result.stderr)
+        raise RuntimeError("Cython build failed")
+    else:
+        if verbose:        
+            print("Cython compilation succeeded:")
+            print(result.stdout)
+            print(f'Compilation took {tf - ti} seconds.')
+        
+    # TODO: Add a clean up step to remove any compilation artifacts.
