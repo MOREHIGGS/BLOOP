@@ -258,82 +258,82 @@ class UserInput(argparse.ArgumentParser):
        filesGroup.add_argument(
            "--boundedConditionsFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/Misc/bounded.txt",
+           default="Data/Z2_3HDM/ModelFiles/BoundedConditions.txt",
        )
        filesGroup.add_argument(
            "--allSymbolsFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/Variables/allSymbols.json",
+           default="Data/Z2_3HDM/ModelFiles/allSymbols.json",
        )
        filesGroup.add_argument(
            "--loFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/EffectivePotential/Veff_LO.txt",
+           default="Data/Z2_3HDM/ModelFiles/Veff_LO.txt",
        )
        filesGroup.add_argument(
            "--nloFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/EffectivePotential/Veff_NLO.txt",
+           default="Data/Z2_3HDM/ModelFiles/Veff_NLO.txt",
        )
        filesGroup.add_argument(
            "--nnloFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/EffectivePotential/Veff_NNLO.txt",
+           default="Data/Z2_3HDM/ModelFiles/Veff_NNLO.txt",
        )
        filesGroup.add_argument(
            "--betaFunctions4DFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/HardToSoft/BetaFunctions4D.txt",
+           default="Data/Z2_3HDM/ModelFiles/BetaFunctions4D.txt",
        )
        filesGroup.add_argument(
            "--vectorMassesSquaredFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/EffectivePotential/vectorMasses.txt",
+           default="Data/Z2_3HDM/ModelFiles/vectorMasses.txt",
        )
        filesGroup.add_argument(
            "--vectorShortHandsFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/EffectivePotential/vectorShorthands.txt",
+           default="Data/Z2_3HDM/ModelFiles/vectorShorthands.txt",
        )
        filesGroup.add_argument(
            "--hardToSoftFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/HardToSoft/softScaleParams_NLO.txt",
+           default="Data/Z2_3HDM/ModelFiles/softScaleParams_NLO.txt",
        )
        filesGroup.add_argument(
            "--softScaleRGEFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/HardToSoft/softScaleRGE.txt",
+           default="Data/Z2_3HDM/ModelFiles/softScaleRGE.txt",
        )
        filesGroup.add_argument(
            "--softToUltraSoftFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/SoftToUltraSoft/ultrasoftScaleParams_NLO.txt",
+           default="Data/Z2_3HDM/ModelFiles/ultrasoftScaleParams_NLO.txt",
        )
        filesGroup.add_argument(
            "--scalarPermutationMatrixFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/EffectivePotential/scalarPermutationMatrix.txt",
+           default="Data/Z2_3HDM/ModelFiles/scalarPermutationMatrix.txt",
        )
        filesGroup.add_argument(
            "--scalarRotationMatrixFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/EffectivePotential/scalarRotationMatrix.json",
+           default="Data/Z2_3HDM/ModelFiles/scalarRotationMatrix.json",
        )
        filesGroup.add_argument(
            "--scalarMassMatrixFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/EffectivePotential/scalarMassMatrix.txt",
+           default="Data/Z2_3HDM/ModelFiles/scalarMassMatrix.txt",
        )
        filesGroup.add_argument(
            "--lagranianVariablesFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/Variables/LagranianSymbols.json",
+           default="Data/Z2_3HDM/ModelFiles/LagranianSymbols.json",
        )
        filesGroup.add_argument(
            "--scalarMassNamesFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/Variables/ScalarMassNames.json",
+           default="Data/Z2_3HDM/ModelFiles/ScalarMassNames.json",
        )
        filesGroup.add_argument(
            "--pythonisedExpressionsFilePath",
