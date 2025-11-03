@@ -162,7 +162,6 @@ def pythoniseMathematica(args):
         args.gccFlags,
         getLinesJSON(args.lagranianVariablesFilePath)["fieldSymbols"]
     )
-    exit()
     (outputFile := Path(args.pythonisedExpressionsFilePath)).parent.mkdir(
         exist_ok=True, parents=True
     )   

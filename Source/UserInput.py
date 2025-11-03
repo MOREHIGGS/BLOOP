@@ -117,7 +117,7 @@ class UserInput(argparse.ArgumentParser):
        benchmarkGroup.add_argument(
            "--bmGeneratorModule",
            action="store",
-           default="Bloop.Z2_ThreeHiggsBmGenerator",
+           default="Z2_ThreeHiggsBmGenerator",
            help="Str: Module name to generate benchmarks with. Needs a function called generateBenchmarks."
        )
        benchmarkGroup.add_argument(
@@ -338,7 +338,7 @@ class UserInput(argparse.ArgumentParser):
        filesGroup.add_argument(
            "--pythonisedExpressionsFilePath",
            action="store",
-           default="Bloop/Data/Z2_3HDM/pythonisedExpressionsFile.json",
+           default="../Build/DRalgoOutputFiles/Z2_3HDM/pythonisedExpressionsFile.json",
        )
 
     noMetaVar = {"store_true", "store_false", "help", "version"}
