@@ -258,82 +258,82 @@ class UserInput(argparse.ArgumentParser):
        filesGroup.add_argument(
            "--boundedConditionsFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/BoundedConditions.txt",
+           default="../Build/DRalgoOutputFiles/Z2_3HDM/BoundedConditions.txt",
        )
        filesGroup.add_argument(
            "--allSymbolsFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/allSymbols.json",
+           default="../Build/DRalgoOutputFiles/Z2_3HDM/allSymbols.json",
        )
        filesGroup.add_argument(
            "--loFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/Veff_LO.txt",
+           default="../Build/DRalgoOutputFiles/Z2_3HDM/Veff_LO.txt",
        )
        filesGroup.add_argument(
            "--nloFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/Veff_NLO.txt",
+           default="../Build/DRalgoOutputFiles/Z2_3HDM/Veff_NLO.txt",
        )
        filesGroup.add_argument(
            "--nnloFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/Veff_NNLO.txt",
+           default="../Build/DRalgoOutputFiles/Z2_3HDM/Veff_NNLO.txt",
        )
        filesGroup.add_argument(
            "--betaFunctions4DFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/BetaFunctions4D.txt",
+           default="../Build/DRalgoOutputFiles/Z2_3HDM/BetaFunctions4D.txt",
        )
        filesGroup.add_argument(
            "--vectorMassesSquaredFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/vectorMasses.txt",
+           default="../Build/DRalgoOutputFiles/Z2_3HDM/vectorMasses.txt",
        )
        filesGroup.add_argument(
            "--vectorShortHandsFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/vectorShorthands.txt",
+           default="../Build/DRalgoOutputFiles/Z2_3HDM/vectorShorthands.txt",
        )
        filesGroup.add_argument(
            "--hardToSoftFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/softScaleParams_NLO.txt",
+           default="../Build/DRalgoOutputFiles/Z2_3HDM/softScaleParams_NLO.txt",
        )
        filesGroup.add_argument(
            "--softScaleRGEFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/softScaleRGE.txt",
+           default="../Build/DRalgoOutputFiles/Z2_3HDM/softScaleRGE.txt",
        )
        filesGroup.add_argument(
            "--softToUltraSoftFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/ultrasoftScaleParams_NLO.txt",
+           default="../Build/DRalgoOutputFiles/Z2_3HDM/ultrasoftScaleParams_NLO.txt",
        )
        filesGroup.add_argument(
            "--scalarPermutationMatrixFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/scalarPermutationMatrix.txt",
+           default="../Build/DRalgoOutputFiles/Z2_3HDM/scalarPermutationMatrix.txt",
        )
        filesGroup.add_argument(
            "--scalarRotationMatrixFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/scalarRotationMatrix.json",
+           default="../Build/DRalgoOutputFiles/Z2_3HDM/scalarRotationMatrix.json",
        )
        filesGroup.add_argument(
            "--scalarMassMatrixFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/scalarMassMatrix.txt",
+           default="../Build/DRalgoOutputFiles/Z2_3HDM/scalarMassMatrix.txt",
        )
        filesGroup.add_argument(
            "--lagranianVariablesFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/LagranianSymbols.json",
+           default="../Build/DRalgoOutputFiles/Z2_3HDM/LagranianSymbols.json",
        )
        filesGroup.add_argument(
            "--scalarMassNamesFilePath",
            action="store",
-           default="Data/Z2_3HDM/ModelFiles/ScalarMassNames.json",
+           default="../Build/DRalgoOutputFiles/Z2_3HDM/ScalarMassNames.json",
        )
        filesGroup.add_argument(
            "--pythonisedExpressionsFilePath",

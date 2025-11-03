@@ -1,17 +1,13 @@
 from importlib import import_module
+from UserInput import UserInput, Stages
 
-import sys
-sys.path.append("../src/")
-
-
-from Bloop.UserInput import UserInput, Stages
 args = UserInput().parse()
 
 if args.firstStage <= Stages.convertMathematica <= args.lastStage:
     if args.verbose:
         print("Convert Mathematica stage started")
 
-    from Bloop.PythoniseMathematica import pythoniseMathematica
+    from PythoniseMathematica import pythoniseMathematica
 
     pythoniseMathematica(args)
 
@@ -24,6 +20,6 @@ if args.firstStage <= Stages.doMinimization <= args.lastStage:
     if args.verbose:
         print("Minimization stage started")
 
-    from Bloop.LoopBenchmarks import loopBenchmarks
+    from LoopBenchmarks import loopBenchmarks
 
     loopBenchmarks(args)
