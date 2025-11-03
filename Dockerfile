@@ -19,3 +19,7 @@ RUN pip install --no-cache-dir jinja2
 RUN pip install --no-cache-dir line_profiler
 RUN pip install --no-cache-dir gprof2dot
 RUN apt-get update && apt-get install -y graphviz && rm -rf /var/lib/apt/lists/*
+
+
+ENV PYTHONPATH "/Bloop/Source"
+
