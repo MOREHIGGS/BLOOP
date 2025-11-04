@@ -10,9 +10,9 @@ from pathlib import Path
 from os.path import join
 from glob import glob
 
-from Bloop.ParsedExpression import ParsedExpression
-from Bloop.TrackVEV import cNlopt
-from Bloop.PDGData import mHiggs, higgsVEV
+from ParsedExpression import ParsedExpression
+from TrackVEV import cNlopt
+from PDGData import mHiggs, higgsVEV
 
 
 def bIsBounded(params):

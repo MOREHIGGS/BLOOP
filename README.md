@@ -5,8 +5,8 @@
 
 Download the code base with a git clone. From this point forward all commands are to be run from inside the Bloop directory
 
-For easy OS compatibility we run the code inside a container from the command line. This will require podman or docker to be installed on your system. We use podman.
-podman can be installed via:
+For easy OS compatibility we run the code inside a container from the command line. This will require podman (or docker) to be installed on your system. 
+Podman can be installed via:
 
 - Linux (ubuntu)
 ```sudo apt install podman```
@@ -24,23 +24,26 @@ On first installisation you will need to do:
 
 With the container built we can enter the container with:
 
-```podman run --mount type=bind,src=$PWD,target=/Bloop -it bloop /bin/bash -c "cd /Bloop/src && exec /bin/bash"```
+```podman run --mount type=bind,src=$PWD,target=/Bloop -it bloop /bin/bash -c "cd /Bloop/Run && exec /bin/bash"```
 
-This will put you in the src directory inside Bloop for convience. In the event of a future release using a new package you will need to rebuild the container.
+This will put you in the Run directory inside Bloop for convience. The container only needs to be built once, unless we add a new dependency or a dependency needs updating.
 
-From this point forward all commands are to be run from inside the Bloop/src directory
+From this point forward all commands are to be run from inside the Run directory
 
 ## Running unit and integration tests:
 Ensure the code has been installed successfully via
 
-```./UnitAndIntegrationTests.sh```
+```UnitAndIntegrationTests.sh```
 
 ## Implementing new models:
-Before we can get started with this code you need to first implement your own model in DRalgo following our examples laid out in the Mathematica directory. Store the generated txt files somewhere sensible.
+Before we can get started with this code you need to first implement your own model in DRalgo following our examples laid out in the Mathematica directory. 
+Store the generated txt files inside build.
 
-Now we need to point the code to these generated text files this can be done via the command line (python3 runStages --help to see all the command line options). However, **we strongly recommend the use of a bash script or config file** for easily excuting the code in a repeatable manner. As an example we have a config file for the default Z2 case which can be found in src. 
+Now we need to point the code to these generated text files this can be done via the command line (python3 -m RunStages --help to see all the command line options). 
+However, **we strongly recommend the use of a bash script or config file** for easily excuting the code in a repeatable manner. As an example we have a config file for the default Z2 case which can be found in src. 
+
 The flags that control model dependent behaviour are: 
-- Data files: --loFile etc 
+- Data files: --loFilePath etc 
 - Minimisation control: --initialGuesses, --var<Upper/Lower>Bounds, --absLocalTolerance etc 
 - Generate benchmarks: --benchmarkFile (this should be a .py)
   
@@ -48,13 +51,11 @@ We have an example benchmark generating code in src. The only thing we require f
 ## Executing the code:
 The code is excuted via
 
-```python3 runStages.py ```
+```python3 -m runStages ```
 
 Generally useful flags:
 - --loopOrder
 - --verbose
--  --bCython
 
-Cython is an experimental (read not unit tested) feature which compiles the parsed expressions (currently only the veff) into c code for minor perfomance gain/loss at 1 loop and major perfomance gain at two loop. Note that compiling the 2 loop expression uses a large amount of memory (~8GB).
 
-**THIS CODE HAS BEEN MOVED TO https://github.com/BLOOP-JTC/BLOOP**
+**THIS CODE WILL BE MOVED TO https://github.com/BLOOP-JTC/BLOOP**

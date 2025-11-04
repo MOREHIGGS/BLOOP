@@ -1,31 +1,35 @@
-import os
 from textwrap import dedent
 from jinja2 import Environment
 import numpy as np
 import json
+from pathlib import Path
+import os
+import sys
+import time
+import subprocess
 ## Cannot import things from this module as gives cicular import
-import Bloop.PythoniseMathematica as PythoniseMathematica
+import PythoniseMathematica as PythoniseMathematica
+
 
 
 def generateModules(
     args, 
     allSymbols, 
-    scalarMassMatrixFile,
+    scalarMassMatrixFilePath,
     scalarMassNames,
-    scalarPermutationMatrixFile,
-    scalarRotationMatrixFile,
+    scalarPermutationMatrixFilePath,
+    scalarRotationMatrixFilePath,
     vectorMasses,
     vectorShorthands,
     gccFlags,
     fieldNames
 ):
     
-    parent_dir = os.path.dirname(os.getcwd())
-    data_dir   = os.path.join(parent_dir, 'src', 'Bloop')
-    module_dir = os.path.join(parent_dir, 'src', 'Bloop', 'CythonModules')
+    (CythonModulesDir := Path("../Build/CythonModules")).mkdir(
+        exist_ok=True, 
+        parents=True
+    )   
     
-    if not os.path.exists(module_dir):
-        os.mkdir(module_dir)
     if args.verbose:
         print("Generating cython modules")
     
@@ -41,36 +45,35 @@ def generateModules(
     for idx, name in enumerate(veffNames):
         veffSubModules.append(generateVeffSubModule(
             name, 
-            os.path.join(module_dir, f"{name}.pyx"), 
-            os.path.join(data_dir, veffFilePaths[idx]), 
+            veffFilePaths[idx], 
             allSymbols
         ))
-
-    computeMassesModule =generateComputeMassesModule(
-        os.path.join(module_dir, "computeMasses.pyx"), 
+        
+    computeMassesModule = generateComputeMassesModule(
         allSymbols,
-        os.path.join(data_dir, scalarMassMatrixFile),
+        scalarMassMatrixFilePath,
         scalarMassNames,
-        os.path.join(data_dir, scalarPermutationMatrixFile),
-        os.path.join(data_dir, scalarRotationMatrixFile),
+        scalarPermutationMatrixFilePath,
+        scalarRotationMatrixFilePath,
         vectorMasses,
         vectorShorthands,
     )
     
     generateEvaluatePotentialModule(
-        os.path.join(module_dir, 'evaluatePotential.pyx'), 
+        CythonModulesDir / "evaluatePotential.pyx", 
         loopOrder,
         allSymbols, 
         fieldNames,
         veffSubModules,
         computeMassesModule,
-        )
+    )
     
     generateSetupFile(
-        os.path.join(module_dir, 'Setup.py'), 
+        CythonModulesDir / "Setup.py",
         loopOrder, 
         gccFlags
     )
+    compileCythonModules(args.verbose, CythonModulesDir)
     
 def generateSetupFile(fileName, loopOrder, gccFlags):
     with open(fileName, 'w') as file:
@@ -156,7 +159,7 @@ def generateEvaluatePotentialModule(
         computeMassesModule = computeMassesModule
         )
         )
-def generateVeffSubModule(name, moduleName, veffFp, allSymbols):
+def generateVeffSubModule(name, veffFp, allSymbols):
     # Creates a cython module with that computes an order of Veff
     return Environment().from_string(dedent("""\
             cdef double complex _{{ name }}(
@@ -173,7 +176,6 @@ def generateVeffSubModule(name, moduleName, veffFp, allSymbols):
 
 
 def generateComputeMassesModule(
-    moduleName, 
     allSymbols, 
     scalarMassMatrixFile, 
     scalarMassNames,
@@ -311,3 +313,31 @@ def convertToCythonSyntax(term):
     term = term.replace('^', '**')
     term = PythoniseMathematica.replaceSymbolsConst(term)
     return PythoniseMathematica.replaceGreekSymbols(term)
+
+def compileCythonModules(verbose, cythonModuleDir):
+    if not os.path.isfile(cythonModuleDir / "Setup.py"):
+        raise FileNotFoundError(f"No Setup.py found in {cythonModuleDir}")
+    
+    if verbose:
+        print("Compiling cython modules")
+    
+    ti = time.time()
+    result = subprocess.run(
+        [sys.executable, "Setup.py", "build_ext", "--inplace"],
+        cwd=cythonModuleDir,
+        capture_output=True,
+        text=True,
+    )
+    tf = time.time()
+
+    if result.returncode != 0:
+        print("Compilation failed:")
+        print(result.stderr)
+        raise RuntimeError("Cython build failed")
+    else:
+        if verbose:        
+            print("Cython compilation succeeded:")
+            print(result.stdout)
+            print(f'Compilation took {tf - ti} seconds.')
+        
+    # TODO: Add a clean up step to remove any compilation artifacts.

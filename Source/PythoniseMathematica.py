@@ -2,19 +2,17 @@ import json
 from sympy.parsing.mathematica import parse_mathematica
 from numpy import euler_gamma, pi
 from pathlib import Path
-from importlib.resources import files
 import unicodedata
 import re
 
-from Bloop.GenerateModules import generateModules
-from Bloop.CompileModules import compile_veff_submodule
+from GenerateModules import generateModules
 
 def getLines(relativePathToResource):
-    with open(files(__package__) / relativePathToResource, "r", encoding="utf-8") as fp:
+    with open(relativePathToResource, "r", encoding="utf-8") as fp:
         return fp.readlines()
 
 def getLinesJSON(relativePathToResource):
-    with open(files(__package__) / relativePathToResource, "r") as fp:
+    with open(relativePathToResource, "r") as fp:
         return json.load(fp)
 
 
@@ -152,7 +150,6 @@ def pythoniseMathematica(args):
             "fileName": args.lagranianVariablesFilePath 
         },
     }
-    
     generateModules(
         args, 
         allSymbols, 
@@ -165,8 +162,6 @@ def pythoniseMathematica(args):
         args.gccFlags,
         getLinesJSON(args.lagranianVariablesFilePath)["fieldSymbols"]
     )
-
-    compile_veff_submodule(args)    
     (outputFile := Path(args.pythonisedExpressionsFilePath)).parent.mkdir(
         exist_ok=True, parents=True
     )   

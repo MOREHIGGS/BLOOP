@@ -5,10 +5,10 @@ from pathos.multiprocessing import Pool
 from ijson import items
 from importlib import import_module
 
-from Bloop.TrackVEV import TrackVEV, cNlopt
-from Bloop.ProcessMinimization import interpretData
-from Bloop.PythoniseMathematica import replaceGreekSymbols
-from Bloop.ParsedExpression import ParsedExpressionSystemArray
+from TrackVEV import TrackVEV, cNlopt
+from ProcessMinimization import interpretData
+from PythoniseMathematica import replaceGreekSymbols
+from ParsedExpression import ParsedExpressionSystemArray
 
 
 ## This (sometimes) avoids floating point error in T gotten by np.arange or linspace
