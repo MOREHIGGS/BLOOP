@@ -82,7 +82,6 @@ def generateSetupFile(fileName, loopOrder, gccFlags):
             # -*- coding: utf-8 -*-
             from setuptools import setup, Extension
             from Cython.Build import cythonize
-            
             extensions = [Extension("evaluatePotential", ["evaluatePotential.pyx"], extra_compile_args = {{gccFlags}})]
 
             setup(

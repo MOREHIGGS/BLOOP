@@ -84,7 +84,7 @@ class UserInput(argparse.ArgumentParser):
        benchmarkGroup.add_argument = self.addArgumentNoMetaVar(benchmarkGroup)
        
        benchmarkGroup.add_argument(
-           "--benchmarkFile",
+           "--benchmarkFilePath",
            action="store",
            default="../Build/Z2_3HDM/handPickedBenchmarks.json",
            help="Str: Relative (to src) name to where benchmarks are saved to"
@@ -355,7 +355,7 @@ class UserInput(argparse.ArgumentParser):
     def parse(self):
         userArg = super().parse_args()
         if userArg.configFilePath:
-            with open(super().parse_args().configFilepath, "r") as fp:
+            with open(super().parse_args().configFilePath, "r") as fp:
                 userConfig = json.load(fp)
             unexpectedKeys = [
                 userKey
