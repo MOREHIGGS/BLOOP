@@ -10,33 +10,33 @@ echo Running code at NLO...
 #rm -f IntegrationTests/Pool/OutputResult/* 
 #rm -f IntegrationTests/Benchmarks/*
 python3 -m RunStages --loopOrder 1 \
-                        --firstBenchmark 1 \
-                        --lastBenchmark 1 \
-                        --bSave \
-                        --resultsDirectory IntegrationTests/Pool/OutputResult/  \
-                        --benchmarkFile IntegrationTests/Benchmarks \
-                        --benchmarkType handPicked \
-                        --TRangeStart 100 \
-                        --TRangeEnd 200 \
-                        --TRangeStepSize 2 \
-                        --gccFlags O1
+                     --firstBenchmark 1 \
+                     --lastBenchmark 1 \
+                     --bSave \
+                     --resultsDirectory IntegrationTests/Pool/OutputResult/  \
+                     --benchmarkFile IntegrationTests/Benchmarks \
+                     --benchmarkType handPicked \
+                     --TRangeStart 100 \
+                     --TRangeEnd 200 \
+                     --TRangeStepSize 2 \
+                     --gccFlags O1
 #diff IntegrationTests/Pool/OutputResult/BM_1.json IntegrationTests/Pool/ReferenceResult/BM_1.json
 
 echo Running code at NLO using 2 workers...
 #rm -f IntegrationTests/Pool2/OutputResult/* 
 #rm -f IntegrationTests/Benchmarks/*
 python3 -m RunStages --loopOrder 1 \
-                        --firstBenchmark 0 \
-                        --lastBenchmark 3 \
-                        --bSave \
-                        --resultsDirectory IntegrationTests/Pool2/OutputResult/  \
-                        --benchmarkFile IntegrationTests/Benchmarks \
-                        --benchmarkType handPicked \
-                        --TRangeStart 100 \
-                        --TRangeEnd 200 \
-                        --TRangeStepSize 2 \
-                        --workers 2 \
-                        --gccFlags O1
+                     --firstBenchmark 0 \
+                     --lastBenchmark 3 \
+                     --bSave \
+                     --resultsDirectory IntegrationTests/Pool2/OutputResult/  \
+                     --benchmarkFile IntegrationTests/Benchmarks \
+                     --benchmarkType handPicked \
+                     --TRangeStart 100 \
+                     --TRangeEnd 200 \
+                     --TRangeStepSize 2 \
+                     --workers 2 \
+                     --gccFlags O1
 #diff IntegrationTests/Pool2/OutputResult/BM_0.json IntegrationTests/Pool2/ReferenceResult/BM_0.json
 #diff IntegrationTests/Pool2/OutputResult/BM_1.json IntegrationTests/Pool2/ReferenceResult/BM_1.json
 #diff IntegrationTests/Pool2/OutputResult/BM_2.json IntegrationTests/Pool2/ReferenceResult/BM_2.json
@@ -46,17 +46,17 @@ echo Running code at NNLO...
 #rm -f IntegrationTests/NNLO/OutputResult/* 
 #rm -f IntegrationTests/Benchmarks/*
 python3 -m RunStages --loopOrder 2 \
-                        --firstBenchmark 1 \
-                        --lastBenchmark 1 \
-                        --bSave \
-                        --resultsDirectory IntegrationTests/NNLO/OutputResult/ \
-                        --benchmarkFile IntegrationTests/Benchmarks \
-                        --benchmarkType handPicked \
-                        --TRangeStart 50 \
-                        --TRangeEnd 100 \
-                        --TRangeStepSize 10 \
-                        --bProcessMin \
-                        --gccFlags O1
+                     --firstBenchmark 1 \
+                     --lastBenchmark 1 \
+                     --bSave \
+                     --resultsDirectory IntegrationTests/NNLO/OutputResult/ \
+                     --benchmarkFile IntegrationTests/Benchmarks \
+                     --benchmarkType handPicked \
+                     --TRangeStart 50 \
+                     --TRangeEnd 100 \
+                     --TRangeStepSize 10 \
+                     --bProcessMin \
+                     --gccFlags O1
 #diff IntegrationTests/NNLO/OutputResult/BM_1.json IntegrationTests/NNLO/ReferenceResult/BM_1.json
 #diff IntegrationTests/NNLO/OutputResult/BM_1_interp.json IntegrationTests/NNLO/ReferenceResult/BM_1_interp.json
 
