@@ -6,12 +6,8 @@ build/
 *.spyproject
 
 **/OutputResult/*
-Mathematica/*
+Build/*
 Testing
-Results
-src/Benchmarks/**
-src/Bloop/CythonModules/**
-src/Bloop/Data/**
 
 *.swp
 *.png
