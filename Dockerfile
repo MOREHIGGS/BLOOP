@@ -1,4 +1,4 @@
-FROM python
+FROM python:3.13.5
 
 ENV PIP_ROOT_USER_ACTION=ignore
 

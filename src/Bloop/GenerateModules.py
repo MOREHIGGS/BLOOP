@@ -79,14 +79,7 @@ def generateSetupFile(fileName, loopOrder, gccFlags):
             # -*- coding: utf-8 -*-
             from setuptools import setup, Extension
             from Cython.Build import cythonize
-            
-            extensions = [Extension("lo", ["lo.pyx"], extra_compile_args = {{gccFlags}})]
-            extensions.append(Extension("nlo", ["nlo.pyx"], extra_compile_args = {{gccFlags}}))
-            {% if loopOrder > 1 %}
-            extensions.append(Extension("nnlo", ["nnlo.pyx"], extra_compile_args = {{gccFlags}}))
-            {% endif %}
-            extensions.append(Extension("computeMasses", ["computeMasses.pyx"], extra_compile_args = {{gccFlags}}))
-            extensions.append(Extension("evaluatePotential", ["evaluatePotential.pyx"], extra_compile_args = {{gccFlags}}))
+            extensions = [Extension("evaluatePotential", ["evaluatePotential.pyx"], extra_compile_args = {{gccFlags}})]
 
             setup(
                 name="Veff_cython",
