@@ -1,0 +1,36 @@
+{
+"boundedConditionsFilePath": "../Build/DRalgoOutputFiles/Z2_3HDM/BoundedConditions.txt",
+"allSymbolsFilePath": "../Build/DRalgoOutputFiles/Z2_3HDM/allSymbols.json",
+"loFilePath":"../Build/DRalgoOutputFiles/Z2_3HDM/Veff_LO.txt",
+"nloFilePath":"../Build/DRalgoOutputFiles/Z2_3HDM/Veff_NLO.txt",
+"nnloFilePath":"../Build/DRalgoOutputFiles/Z2_3HDM/Veff_NNLO.txt",
+"betaFunctions4DFilePath":"../Build/DRalgoOutputFiles/Z2_3HDM/BetaFunctions4D.txt",
+"vectorMassesSquaredFilePath":"../Build/DRalgoOutputFiles/Z2_3HDM/vectorMasses.txt",
+"vectorShortHandsFilePath":"../Build/DRalgoOutputFiles/Z2_3HDM/vectorShorthands.txt",
+"hardToSoftFilePath":"../Build/DRalgoOutputFiles/Z2_3HDM/softScaleParams_NLO.txt",
+"softScaleRGEFilePath":"../Build/DRalgoOutputFiles/Z2_3HDM/softScaleRGE.txt",
+"softToUltraSoftFilePath":"../Build/DRalgoOutputFiles/Z2_3HDM/ultrasoftScaleParams_NLO.txt",
+"scalarPermutationMatrixFilePath":"../Build/DRalgoOutputFiles/Z2_3HDM/scalarPermutationMatrix.txt",
+"scalarRotationMatrixFilePath":"../Build/DRalgoOutputFiles/Z2_3HDM/scalarRotationMatrix.json",
+"scalarMassMatrixFilePath":"../Build/DRalgoOutputFiles/Z2_3HDM/scalarMassMatrix.txt",
+"lagranianVariablesFilePath":"../Build/DRalgoOutputFiles/Z2_3HDM/LagranianSymbols.json",
+"scalarMassNamesFilePath":"../Build/DRalgoOutputFiles/Z2_3HDM/ScalarMassNames.json",
+"pythonisedExpressionsFilePath":"../Build/Z2_3HDM/pythonisedExpressionsFile",
+"relLocalTolerance":"1e-4",
+"absLocalTolerance":"1e-4",
+"bmGeneratorModule": "Z2_ThreeHiggsBmGenerator",
+"varLowerBounds": [-60, 1e-4, 1e-4],
+"varUpperBounds": [60, 60, 60],
+"initialGuesses":[
+    [1e-4,1e-4,1e-4],
+    [-5, 5,5],
+    [5, 5,5],
+    [-30,30,30],
+    [30,30,30],
+    [-59,  59, 59],
+    [59,59,59]
+    ]
+}
+
+
+
