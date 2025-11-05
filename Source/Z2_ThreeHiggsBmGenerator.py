@@ -287,7 +287,7 @@ def _strongSubSet(prevResultDir):
 
 
 def generateBenchmarks(args):
-    (output_file := Path(args.benchmarkFile)).parent.mkdir(exist_ok=True, parents=True)
+    (output_file := Path(args.benchmarkFilePath)).parent.mkdir(exist_ok=True, parents=True)
 
     ## Need to take these from args
     nloptInst = cNlopt(

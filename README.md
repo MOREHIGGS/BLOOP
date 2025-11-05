@@ -47,11 +47,11 @@ The flags that control model dependent behaviour are:
 - Minimisation control: --initialGuesses, --var<Upper/Lower>Bounds, --absLocalTolerance etc 
 - Generate benchmarks: --benchmarkFile (this should be a .py)
   
-We have an example benchmark generating code in src. The only thing we require from the user is the benchmark generator produces a json which we then load in benchmarkLooping.py.
+We have an example benchmark generating code in Source. The only thing we require from the user is the benchmark generator produces a json which we then load in benchmarkLooping.py.
 ## Executing the code:
 The code is excuted via
 
-```python3 -m runStages ```
+```python3 -m RunStages ```
 
 Generally useful flags:
 - --loopOrder

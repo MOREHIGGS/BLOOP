@@ -64,7 +64,7 @@ def doBenchmark(trackVEV, args, benchmark, fieldNames):
 def loopBenchmarks(args):
     trackVEV, fieldNames = setUpTrackVEV(args)
 
-    with open(args.benchmarkFile) as benchmarkFile:
+    with open(args.benchmarkFilePath) as benchmarkFile:
         if args.workers >1:
             with Pool(args.workers) as pool:
                 ## Apply might be better suited to avoid this lambda function side step
