@@ -40,7 +40,7 @@ Before we can get started with this code you need to first implement your own mo
 Store the generated txt files inside build.
 
 Now we need to point the code to these generated text files this can be done via the command line (python3 -m RunStages --help to see all the command line options). 
-However, **we strongly recommend the use of a bash script or config file** for easily excuting the code in a repeatable manner. As an example we have a config file for the default Z2 case which can be found in src. 
+However, **we strongly recommend the use of a bash script or config file** for easily excuting the code in a repeatable manner. As an example we have a config file for the default Z2 case which can be found in Run. 
 
 The flags that control model dependent behaviour are: 
 - Data files: --loFilePath etc 
