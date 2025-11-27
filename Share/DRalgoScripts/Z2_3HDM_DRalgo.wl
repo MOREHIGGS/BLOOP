@@ -13,14 +13,15 @@ SetDirectory[NotebookDirectory[]];
 
 
 Get["MathematicaToPythonHelper.m"]
-exportPath = "../../Build/Z2_3HDM/DRalgoOutputFiles";
+(*Fresh added so it doesn't overwrite the old expression files*)
+exportPath = "../../Build/Z2_3HDM/DRalgoOutputFilesFresh";
 
 
 (* ::Text:: *)
 (*These are extra things needed for the Z2 3HDM not given by DRalgo (mass matrices not needed yet, boundedConditions are)*)
 
 
-exportUTF8[exportPath<>"/bounded.txt",
+exportUTF8[exportPath<>"/BoundedConditions.txt",
 {\[Lambda]11>0,
 \[Lambda]22>0,
 \[Lambda]33>0,
@@ -30,12 +31,12 @@ exportUTF8[exportPath<>"/bounded.txt",
 sqrt[\[Lambda]33]*(\[Lambda]12 + min[0, \[Lambda]12p - 2*Sqrt[\[Lambda]1Re^2 + \[Lambda]1Im^2] ]) + sqrt[\[Lambda]11]*(\[Lambda]23 + min[0, \[Lambda]23p - 2*Sqrt[\[Lambda]2Re^2 + \[Lambda]2Im^2] ]) + sqrt[\[Lambda]22]*(\[Lambda]31 + min[0, \[Lambda]31p - 2*Sqrt[\[Lambda]3Re^2 + \[Lambda]3Im^2] ]) >= 0 ||
 \[Lambda]33*(\[Lambda]12 + min[0, \[Lambda]12p - 2*Sqrt[\[Lambda]1Re^2 + \[Lambda]1Im^2] ])^2 + \[Lambda]11*(\[Lambda]23 + min[0, \[Lambda]23p - 2*Sqrt[\[Lambda]2Re^2 + \[Lambda]2Im^2] ])^2 + \[Lambda]22*(\[Lambda]31 + min[0, \[Lambda]31p - 2*Sqrt[\[Lambda]3Re^2 + \[Lambda]3Im^2] ])^2 - \[Lambda]11*\[Lambda]22*\[Lambda]33 - 2*(\[Lambda]12 + min[0, \[Lambda]12p - 2*Sqrt[\[Lambda]1Re^2 + \[Lambda]1Im^2] ])*(\[Lambda]31 + min[0, \[Lambda]31p - 2*Sqrt[\[Lambda]3Re^2 + \[Lambda]3Im^2] ])*(\[Lambda]23 + min[0, \[Lambda]23p - 2*Sqrt[\[Lambda]2Re^2 + \[Lambda]2Im^2] ]) < 0
 }];
-exportUTF8[exportPath<>"/neutralMass.txt",ToString[InputForm[{{1/2 v3^2 (\[Lambda]23+\[Lambda]23p+2 \[Lambda]2Re)-\[Mu]2sq,v3^2 \[Lambda]2Im,-\[Mu]12sqIm,0,-\[Mu]12sqRe,0},
+exportUTF8[exportPath<>"/NeutralMass.txt",ToString[InputForm[{{1/2 v3^2 (\[Lambda]23+\[Lambda]23p+2 \[Lambda]2Re)-\[Mu]2sq,v3^2 \[Lambda]2Im,-\[Mu]12sqIm,0,-\[Mu]12sqRe,0},
 {v3^2 \[Lambda]2Im,1/2 v3^2 (\[Lambda]23+\[Lambda]23p-2 \[Lambda]2Re)-\[Mu]2sq,-\[Mu]12sqRe,0,\[Mu]12sqIm,0},
 {-\[Mu]12sqIm,-\[Mu]12sqRe,1/2 v3^2 (\[Lambda]31+\[Lambda]31p-2 \[Lambda]3Re)-\[Mu]1sq,0,-v3^2 \[Lambda]3Im,0},
 {0,0,0,3 v3^2 \[Lambda]33-\[Mu]3sq,0,0},{-\[Mu]12sqRe,\[Mu]12sqIm,-v3^2 \[Lambda]3Im,0,1/2 v3^2 (\[Lambda]31+\[Lambda]31p+2 \[Lambda]3Re)-\[Mu]1sq,0},
 {0,0,0,0,0,v3^2 \[Lambda]33-\[Mu]3sq}}]]];
-exportUTF8[exportPath<>"/chargedMass.txt",ToString[InputForm[{{(vv^2 \[Lambda]31)/2-\[Mu]1sq,-\[Mu]12sqRe},
+exportUTF8[exportPath<>"/ChargedMass.txt",ToString[InputForm[{{(vv^2 \[Lambda]31)/2-\[Mu]1sq,-\[Mu]12sqRe},
 {-\[Mu]12sqRe,(vv^2 \[Lambda]23)/2-\[Mu]2sq}}]]];
 
 
@@ -159,10 +160,6 @@ YsffC=SparseArray[Simplify[Conjugate[Ysff]//Normal,Assumptions->{yt3>0}]];
 (*Mode -> 2 : Match couplings at 1-loop and masses at 2-loop (full g^4) *)
 
 
-(* ::Subsection:: *)
-(*NLO matching, by which I mean Mode -> 2*)
-
-
 (** Normalization4D flag = preserve 4D units so that the EFT path integral weight is e^{-S/T} 
 (didn't work at time of writing) 
 TODO?: Should we add an option for this?
@@ -194,7 +191,7 @@ allSoftScaleMatching = Join[couplingsSoft, temporalScalarCouplings, debyeMasses,
 (*We want to do in place updating of parameters in the python code i.e. \[Lambda]14D gets updated to \[Lambda]13D which gets updated to \[Lambda]13DUS,
 it's easier to do this if we remove the suffices so its the same variable name throughout*)
 allSoftScaleParamsSqrtSuffixFree = RemoveSuffixes[sqrtSubRules[allSoftScaleMatching], {"3d"}];
-exportUTF8[exportPath<>"/softScaleParams_NLO.txt", allSoftScaleParamsSqrtSuffixFree];
+exportUTF8[exportPath<>"/SoftScaleParams_NLO.txt", allSoftScaleParamsSqrtSuffixFree];
 
 
 (* 3D RG equations can be solved exactly, so do that here. 
@@ -214,7 +211,7 @@ SolveRunning3D[betaFunctions_] := Block[{exprList},
 
 running3DSoft = RemoveSuffixes[SolveRunning3D[BetaFunctions3DS[]],{"3d"}];
 running3DSoft= Join[running3DSoft, {RGScale->T}];
-exportUTF8[exportPath<>"/softScaleRGE.txt", running3DSoft];
+exportUTF8[exportPath<>"/SoftScaleRGE.txt", running3DSoft];
 
 
 (* ::Subsection:: *)
@@ -233,11 +230,11 @@ allUltrasoftScaleParamsSqrt = RemoveSuffixes[sqrtSubRules[allUltrasoftScaleParam
 allUltrasoftScaleParamsSqrt= Join[allUltrasoftScaleParamsSqrt, {\[Mu]3US -> T}];
 
 
-exportUTF8[exportPath<>"/ultrasoftScaleParams_NLO.txt", allUltrasoftScaleParamsSqrt];
+exportUTF8[exportPath<>"/UltrasoftScaleParams_NLO.txt", allUltrasoftScaleParamsSqrt];
 
 
 runningUS = RemoveSuffixes[SolveRunning3D[BetaFunctions3DUS[]],{"US", "3d"}];
-exportUTF8[exportPath<>"/ultrasoftScaleRGE.txt", runningUS];
+exportUTF8[exportPath<>"/UltrasoftScaleRGE.txt", runningUS];
 
 
 (* ::Section:: *)
@@ -313,7 +310,7 @@ scalarPermutationMatrix = {
 {0,1,0,0,0,0,0,0,0,0,0,0},
 {0,0,0,0,0,0,0,0,0,0,0,1}};
 If[!OrthogonalMatrixQ[scalarPermutationMatrix], Print["Error, permutation matrix is not orthogonal"]];
-exportUTF8[exportPath<>"/scalarPermutationMatrix.txt", StringReplace[ToString[scalarPermutationMatrix],{"{"->"[","}"->"]"}]];
+exportUTF8[exportPath<>"/ScalarPermutationMatrix.txt", StringReplace[ToString[scalarPermutationMatrix],{"{"->"[","}"->"]"}]];
 
 
 (*Our casescalarPermutationMatrix is symmetric but taking transpose anyway for consistency/future proofing*)
@@ -329,7 +326,7 @@ If[!SymmetricMatrixQ[upperLeftMM] || !SymmetricMatrixQ[bottomRightMM], Print["Er
 
 
 exportUTF8[
-exportPath<>"/scalarMassMatrix.txt", 
+exportPath<>"/ScalarMassMatrix.txt", 
 {ToString[InputForm[upperLeftMM]], 
 ToString[InputForm[bottomRightMM]]
 }
@@ -369,7 +366,7 @@ We compute D' and S in BLOOP numerically
 DSRot = scalarPermutationMatrix . DSRotBlock;
 
 
-exportUTF8[exportPath<>"/scalarRotationMatrix.json", matrixToJSON[DSRot]];
+exportUTF8[exportPath<>"/ScalarRotationMatrix.json", matrixToJSON[DSRot]];
 exportUTF8[exportPath<>"/ScalarMassNames.json", extractSymbols[ScalarMassDiag]];
 
 
@@ -413,8 +410,8 @@ vectorShorthands = {stW-> g1/Sqrt[g1^2+g2^2], ctW-> g2/Sqrt[g1^2+g2^2]};
 (** Vector masses mVsq[i]. **)
 {VectorMassDiagSimple, VectorMassExpressions} = toSymbolicMatrix[VectorMassDiag, mVsq];
 
-exportUTF8[exportPath<>"/vectorMasses.txt", VectorMassExpressions];
-exportUTF8[exportPath<>"/vectorShorthands.txt", vectorShorthands];
+exportUTF8[exportPath<>"/VectorMasses.txt", VectorMassExpressions];
+exportUTF8[exportPath<>"/VectorShorthands.txt", vectorShorthands];
 
 
 (* ::Subsection:: *)
@@ -429,7 +426,7 @@ CalculatePotentialUS[]
 
 (* ::Text:: *)
 (*##############       BUG     #################*)
-(*For reasons beyond me a SM term in the NNLO is wrong.  *)
+(*For reasons beyond me a SM term in NNLO is wrong.  *)
 (*We get (ctW^2*g2^2*Sqrt[mVsq0]*Sqrt[mVsq1])/(12*Pi^2) = g2^5 v^2/(48\[Pi]^2 \[Sqrt]g1^2+g2^2)*)
 (*In the SM example it is g2^6 v^2/(48\[Pi]^2(g1^2+g2^2))*)
 (* The difference can be explained if you cube ctW instead of square.*)
@@ -458,7 +455,7 @@ exportUTF8[
 	"fieldSymbols" -> extractSymbols[backgroundFieldsFull]}];
 
 
-exportUTF8[exportPath<>"/allSymbols.json",
+exportUTF8[exportPath<>"/AllSymbols.json",
 	DeleteDuplicates[Join[
 	extractSymbols[veffLO],
 	extractSymbols[veffNLO],
@@ -480,6 +477,3 @@ exportUTF8[exportPath<>"/allSymbols.json",
 	extractSymbols[betaFunctions4DUnsquared]["LHS"]
 ]]
 ];
-
-
-veffNNLO
