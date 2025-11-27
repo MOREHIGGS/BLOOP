@@ -9,7 +9,7 @@ SetDirectory[NotebookDirectory[]];
 
 
 (* ::Text:: *)
-(*Import helper functions and setup export path (I want the files saved in build, not Share)*)
+(*Import helper functions and setup export path*)
 
 
 Get["MathematicaToPythonHelper.m"]
@@ -378,33 +378,18 @@ exportUTF8[exportPath<>"/ScalarMassNames.json", extractSymbols[ScalarMassDiag]];
 
 
 (* ::Text:: *)
-(*We can analytically diagonalise the SM gauge group so we do that. *)
-(*We currently do not support gauge groups that cannot be diagonalised symbolically.*)
-(*This is because its slower than than the symbolically diagonalised case and just not needed in our research. We could add a mode to handle numerically diagonalising the gauge sector like we do the scalar sector should there be demand. *)
+(*The SM is simple enough to be worth analytically diagonalising *)
+(*We currently do not support gauge groups that cannot be diagonalised symbolically. But this could be added if there's demand. *)
 
 
-(*vectorN = 12; (* SU3 x SU2 x U1 *)
-VectorMassMatrix = PrintTensorsVEV[2]//Normal;
-
-(** Take the only nontrivial 2x2 submatrix and diagonalize that **) 
-VectorMassMatrixNontrivial = VectorMassMatrix[[11;;12,11;;12]];
-{VectorEigenvalues, VectorEigenvectors} = Eigensystem[VectorMassMatrixNontrivial];
-
-VectorEigenvectorsSimp = Simplify[ Normalize /@ VectorEigenvectors, Assumptions -> {g3>0, g2>0, g1>0}];
-VectorEigenvaluesSimp = Simplify[ VectorEigenvalues, Assumptions -> {g3>0, g2>0, g1>0}];
-
-(** Diagonalizing rotation and resulting eigenvalues: **)
-DVRot = Normal[BlockDiagonalMatrix[{IdentityMatrix[10],VectorEigenvectorsSimp}]];
-VectorMassDiag=Normal[BlockDiagonalMatrix[{ConstantArray[0,{8,8}],{{VectorMassMatrix[[9,9]]}},{{VectorMassMatrix[[10,10]]}}, DiagonalMatrix[VectorEigenvalues]}]];*)
-vectorN = 12; (* SU3 x SU2 x U1 *)
 VectorMassMatrix = PrintTensorsVEV[2]//Normal;
 
 (** Take the only nontrivial 4x4 submatrix and diagonalize that **) 
 VectorMassMatrixNontrivial = VectorMassMatrix[[9;;12,9;;12]];
 {VectorEigenvalues, VectorEigenvectors} = Eigensystem[VectorMassMatrixNontrivial];
 (*This is to match how DRalgo works internally based on SM example*)
-(*VectorEigenvectors = Transpose[VectorEigenvectors];*)
-VectorEigenvectorsSimp = Simplify[ Normalize /@ VectorEigenvectors, Assumptions -> {g3>0, g2>0, g1>0}];
+(*Tranpose needed as mathematica uses the convention D = SMS^-1 whereas DRalgo and python use the opposite*)
+VectorEigenvectorsSimp = Transpose[Simplify[ Normalize /@ VectorEigenvectors, Assumptions -> {g3>0, g2>0, g1>0}]];
 VectorEigenvaluesSimp = Simplify[ VectorEigenvalues, Assumptions -> {g3>0, g2>0, g1>0}];
 
 (** Diagonalizing rotation and resulting eigenvalues: **)
@@ -473,24 +458,28 @@ exportUTF8[
 	"fieldSymbols" -> extractSymbols[backgroundFieldsFull]}];
 
 
-allSymbols=DeleteDuplicates[Join[
-extractSymbols[veffLO],
-extractSymbols[veffNLO],
-extractSymbols[veffNNLO],
-extractSymbols[VectorMassExpressions]["LHS"],
-extractSymbols[VectorMassExpressions]["RHS"],
-extractSymbols[ScalarMassDiag],
-extractSymbols[upperLeftMM],
-extractSymbols[bottomRightMM],
-extractSymbols[runningUS]["LHS"],
-extractSymbols[runningUS]["RHS"],
-extractSymbols[allUltrasoftScaleParamsSqrt]["RHS"],
-extractSymbols[allUltrasoftScaleParamsSqrt]["LHS"],
-extractSymbols[running3DSoft]["RHS"],
-extractSymbols[running3DSoft]["LHS"],
-extractSymbols[allSoftScaleParamsSqrtSuffixFree]["RHS"],
-extractSymbols[allSoftScaleParamsSqrtSuffixFree]["LHS"],
-extractSymbols[betaFunctions4DUnsquared]["RHS"],
-extractSymbols[betaFunctions4DUnsquared]["LHS"]
-]];
-exportUTF8[exportPath<>"/allSymbols.json",allSymbols];
+exportUTF8[exportPath<>"/allSymbols.json",
+	DeleteDuplicates[Join[
+	extractSymbols[veffLO],
+	extractSymbols[veffNLO],
+	extractSymbols[veffNNLO],
+	extractSymbols[VectorMassExpressions]["LHS"],
+	extractSymbols[VectorMassExpressions]["RHS"],
+	extractSymbols[ScalarMassDiag],
+	extractSymbols[upperLeftMM],
+	extractSymbols[bottomRightMM],
+	extractSymbols[runningUS]["LHS"],
+	extractSymbols[runningUS]["RHS"],
+	extractSymbols[allUltrasoftScaleParamsSqrt]["RHS"],
+	extractSymbols[allUltrasoftScaleParamsSqrt]["LHS"],
+	extractSymbols[running3DSoft]["RHS"],
+	extractSymbols[running3DSoft]["LHS"],
+	extractSymbols[allSoftScaleParamsSqrtSuffixFree]["RHS"],
+	extractSymbols[allSoftScaleParamsSqrtSuffixFree]["LHS"],
+	extractSymbols[betaFunctions4DUnsquared]["RHS"],
+	extractSymbols[betaFunctions4DUnsquared]["LHS"]
+]]
+];
+
+
+veffNNLO
