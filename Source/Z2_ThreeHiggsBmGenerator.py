@@ -12,7 +12,7 @@ from glob import glob
 
 from ParsedExpression import ParsedExpression
 from TrackVEV import cNlopt
-from PDGData import mHiggs, higgsVEV
+from PDGData import mHiggs, higgsVEV, mTop, mW, mZ
 
 
 def bIsBounded(params):
@@ -129,9 +129,8 @@ def _lagranianParamGen(
     lamda23 = (2.0 * mu2sq + mSpm2**2 + mSpm1**2) / vsq
     lamda23p = (mS2**2 + mS1**2 - mSpm2**2 - mSpm1**2) / vsq
 
-    paramsDict = {
+    return {
         "bmNumber": bmNumber,
-        "RGScale": 91.1876,
         "bmInput": {
             "thetaCPV": thetaCPV,
             "ghDM": ghDM,
@@ -141,14 +140,7 @@ def _lagranianParamGen(
             "deltac": deltac,
             "darkHieracy": darkHieracy,
         },
-        "massTerms": {
-            "mu12sqRe": mu12sq,
-            "mu12sqIm": 0,
-            "mu2sq": mu2sq,
-            "mu3sq": mu3sq,
-            "mu1sq": darkHieracy * mu2sq,
-        },
-        "couplingValues": {
+        "lagranianParameters": {
             "lamda1Re": 0.1,
             "lamda1Im": 0,
             "lamda2Re": lamda2Abs * cosTheta,
@@ -164,15 +156,24 @@ def _lagranianParamGen(
             "lamda31": darkHieracy * lamda23,
             "lamda31p": darkHieracy * lamda23p,
             "lamda33": lamda33,
+            "mu12sqRe": mu12sq,
+            "mu12sqIm": 0,
+            "mu2sq": mu2sq,
+            "mu3sq": mu3sq,
+            "mu1sq": darkHieracy * mu2sq,
+            "yt3": m.sqrt(2.0) * mTop / higgsVEV,
+            "g1": 2.0 * m.sqrt(mZ**2 - mW**2) / higgsVEV,  ## U(1)
+            "g2": 2.0 * mW / higgsVEV,  ## SU(2)
+            "g3": m.sqrt(0.1183 * 4.0 * np.pi),  ## SU(3)
+            "RGScale": 91.1876,
         },
     }
-    return paramsDict
 
 
 def checkPhysical(params, nloptInst, potential, chargedMassMatrix, neutralMassMatrix):
     params["v1"] = 0
     params["v2"] = 0
-    params["v3"] = 246.22
+    params["v3"] = higgsVEV
     if not bIsBounded(params):
         return False
 
@@ -237,7 +238,7 @@ def _handPickedBm(nloptInst, potential, chargedMassMatrix, neutralMassMatrix):
     bmdictList = []
     ## Move this to userArg or something
     bmInputList = [
-        [300, 0, 0, 0, 0.0, 0.0, 1],
+        [100, 90, 90, 10, 0.6, 2*np.pi/3, 1],
         [67, 4.0, 50.0, 1.0, 0.0, 2.0 * np.pi / 3, 1],
         [70, 12.0, 50.0, 1.0, 0.0, 2.0 * np.pi / 3, 1],
         [75, 55.0, 50.0, 1.0, 0.0, 2.0 * np.pi / 3, 1],
@@ -251,7 +252,7 @@ def _handPickedBm(nloptInst, potential, chargedMassMatrix, neutralMassMatrix):
         bmParams = _lagranianParamGen(*bmInput, len(bmdictList))
         if bmParams:
             if checkPhysical(
-                bmParams["massTerms"] | bmParams["couplingValues"],
+                bmParams["lagranianParameters"],
                 nloptInst,
                 potential,
                 chargedMassMatrix,
@@ -354,6 +355,7 @@ from unittest import TestCase
 
 
 class BmGeneratorUnitTests(TestCase):
+    maxDiff=None
     def test_bIsBoundedFalse(self):
         source = {
             "mu12sqRe": 12724.595168103033,
@@ -405,7 +407,7 @@ class BmGeneratorUnitTests(TestCase):
         self.assertEqual(True, bIsBounded(source))
 
     def test_lagranianParamGen(self):
-        reference = {'bmNumber': 0, 'RGScale': 91.1876, 'bmInput': {'thetaCPV': 3.11308902835221, 'ghDM': 0.15520161865427817, 'mS1': 89.15641588128479, 'delta12': 87.17952518246265, 'delta1c': 14.020273320699415, 'deltac': 5.129099092707543, 'darkHieracy': 1}, 'massTerms': {'mu12sqRe': 542.3572917258725, 'mu12sqIm': 0, 'mu2sq': -9572.921254799061, 'mu3sq': 7837.461207406938, 'mu1sq': -9572.921254799061}, 'couplingValues': {'lamda1Re': 0.1, 'lamda1Im': 0, 'lamda2Re': -0.08646892283299933, 'lamda2Im': 0.0024653454694036642, 'lamda11': 0.11, 'lamda22': 0.12, 'lamda12': 0.13, 'lamda12p': 0.14, 'lamda23': 0.05327468098550607, 'lamda23p': 0.2749344421058253, 'lamda3Re': -0.08646892283299933, 'lamda3Im': 0.0024653454694036642, 'lamda31': 0.05327468098550607, 'lamda31p': 0.2749344421058253, 'lamda33': 0.12927959478844336}}
+        reference = {'bmNumber': 0, 'bmInput': {'thetaCPV': 3.11308902835221, 'ghDM': 0.15520161865427817, 'mS1': 89.15641588128479, 'delta12': 87.17952518246265, 'delta1c': 14.020273320699415, 'deltac': 5.129099092707543, 'darkHieracy': 1}, 'lagranianParameters': {'lamda1Re': 0.1, 'lamda1Im': 0, 'lamda2Re': -0.08646892283299933, 'lamda2Im': 0.0024653454694036642, 'lamda11': 0.11, 'lamda22': 0.12, 'lamda12': 0.13, 'lamda12p': 0.14, 'lamda23': 0.05327468098550607, 'lamda23p': 0.2749344421058253, 'lamda3Re': -0.08646892283299933, 'lamda3Im': 0.0024653454694036642, 'lamda31': 0.05327468098550607, 'lamda31p': 0.2749344421058253, 'lamda33': 0.12927959478844336, 'mu12sqRe': 542.3572917258725, 'mu12sqIm': 0, 'mu2sq': -9572.921254799061, 'mu3sq': 7837.461207406938, 'mu1sq': -9572.921254799061, 'yt3': 0.9911288650670501, 'g1': 0.3498276219479385, 'g2': 0.6528885874117552, 'g3': 1.2192627459570353,'RGScale': 91.1876}}
         source = (
             89.15641588128479,
             87.17952518246265,
