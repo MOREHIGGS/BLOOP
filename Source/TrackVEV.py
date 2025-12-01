@@ -90,14 +90,16 @@ class TrackVEV:
             "failureReason": False,
         }
 
-        params = self.getLagranianParams4D(benchmark)
+        params = np.zeros(len(self.allSymbols), dtype="float64")
+        for key, value in benchmark["lagranianParameters"].items():
+            params[self.allSymbols.index(key)] = value
 
         ## RG running. We want to do 4D -> 3D matching at a scale where logs are small;
         ## usually a T-dependent scale 4.*pi*exp(-np.euler_gamma)*T
         ## TODO FIX for when user RGscale < 7T!!!
 
         muRange = np.linspace(
-            params[self.allSymbols.index("RGScale")],
+            benchmark["lagranianParameters"]["RGScale"],
             7.3 * self.TRange[-1],
             len(self.TRange) * 10,
         )
@@ -193,27 +195,6 @@ class TrackVEV:
 
         ## Potential computed again in case its complex
         return bestResult[0], evaluatePotential(bestResult[0], params3D)
-
-    def getLagranianParams4D(self, paramsDict):
-        ## --- SM fermion and gauge boson masses---
-        ## How get g3 from PDG??
-        paramsDict = {
-            "yt3": sqrt(2.0) * mTop / higgsVEV,
-            "g1": 2.0 * sqrt(mZ**2 - mW**2) / higgsVEV,  ## U(1)
-            "g2": 2.0 * mW / higgsVEV,  ## SU(2)
-            "g3": sqrt(0.1183 * 4.0 * pi),  ## SU(3)
-
-            ## BSM stuff from benchmark
-            "RGScale": paramsDict["RGScale"],
-            **paramsDict["massTerms"],
-            **paramsDict["couplingValues"],
-        }
-
-        params = np.zeros(len(self.allSymbols), dtype="float64")
-        for key, value in paramsDict.items():
-            params[self.allSymbols.index(key)] = value
-
-        return params
 
     def getTConsts(self, T, params):
         ## Should this be moved to DRalgo? Probably
