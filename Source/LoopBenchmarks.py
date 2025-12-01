@@ -42,7 +42,7 @@ def doBenchmark(trackVEV, args, benchmark, fieldNames):
         if args.verbose:
             print(f"Plotting {benchmark['bmNumber']}")
 
-        import_module(args.plotDataFile).plotData(minimizationResult, filename, fieldNames)
+        import_module(args.plotDataModule).plotData(minimizationResult, filename, fieldNames)
 
     if args.bProcessMin:
         if args.verbose:
