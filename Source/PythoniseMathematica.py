@@ -149,8 +149,7 @@ def pythoniseMathematica(args):
             "fileName": args.lagranianVariablesFilePath 
         },
     }
-    #print(allSymbols)
-    #exit() 
+    
     generateModules(
         args, 
         allSymbols, 
