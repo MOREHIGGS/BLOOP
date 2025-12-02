@@ -98,7 +98,6 @@ def pythoniseMathematica(args):
     allSymbols = sorted(
         [replaceGreekSymbols(symbol) for symbol in allSymbols], reverse=True
     )
-
     expressionDict = {
         "bounded": {
             "expressions": pythoniseExpressionSystemArray(
@@ -150,6 +149,8 @@ def pythoniseMathematica(args):
             "fileName": args.lagranianVariablesFilePath 
         },
     }
+    #print(allSymbols)
+    #exit() 
     generateModules(
         args, 
         allSymbols, 
@@ -160,7 +161,7 @@ def pythoniseMathematica(args):
         pythoniseExpressionSystem(getLines(args.vectorMassesSquaredFilePath)),
         pythoniseExpressionSystem(getLines(args.vectorShortHandsFilePath)),
         args.gccFlags,
-        getLinesJSON(args.lagranianVariablesFilePath)["fieldSymbols"]
+        [replaceGreekSymbols(name) for name in getLinesJSON(args.lagranianVariablesFilePath)["fieldSymbols"]]
     )
     (outputFile := Path(args.pythonisedExpressionsFilePath)).parent.mkdir(
         exist_ok=True, parents=True
