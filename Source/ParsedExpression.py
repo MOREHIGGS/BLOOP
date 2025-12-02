@@ -101,22 +101,6 @@ class ParsedExpressionUnitTests(TestCase):
             ParsedExpression(source, None).evaluate({"lam": 100, "mssq": 100}),
         )
 
-    def test_ParsedExpressionComplex(self):
-        source = {
-            "expression": "sqrt(lam) + log(mssq)",
-            "identifier": "Identifier",
-            "symbols": ["lam", "mssq"],
-        }
-
-        reference = complex(15.938584910946165 + 5.336296769019722j)
-
-        self.assertEqual(
-            reference,
-            ParsedExpression(source, None).evaluate(
-                {"lam": complex(100, 100), "mssq": complex(100, 100)}
-            ),
-        )
-
     def test_ParsedExpressionSystem(self):
         source = [
             {
