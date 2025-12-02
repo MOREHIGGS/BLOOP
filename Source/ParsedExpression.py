@@ -1,4 +1,4 @@
-from cmath import log, sqrt
+from math import log, sqrt
 import numpy as np
 
 
@@ -68,7 +68,7 @@ class ParsedExpressionSystemArray:
         self.fileName = fileName
 
     def evaluate(self, params):
-        newParams = np.array(params, dtype="complex")
+        newParams = np.array(params)
         for expression in self.parsedExpressions:
             newParams[expression[0]] = expression[1].evaluate(params)
 

@@ -141,7 +141,6 @@ class TrackVEV:
                 print(f"Start of temp = {T} loop")
 
             params = self.runParams4D(betaSpline4D, T)
-
             if not np.all(self.bounded.evaluateUnordered(params)):
                 return minimizationResults | {"failureReason": "unBounded"}
 

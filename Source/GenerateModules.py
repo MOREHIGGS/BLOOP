@@ -48,7 +48,7 @@ def generateModules(
             veffFilePaths[idx], 
             allSymbols
         ))
-        
+    
     computeMassesModule = generateComputeMassesModule(
         allSymbols,
         scalarMassMatrixFilePath,
@@ -112,7 +112,7 @@ def generateEvaluatePotentialModule(
         from libc.complex cimport csqrt
         from libc.complex cimport clog
 
-        cpdef evaluatePotential(fields, complex [:] parameters):
+        cpdef evaluatePotential(fields, double [:] parameters):
         
         {% for name in fieldNames %}
             parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
@@ -121,7 +121,7 @@ def generateEvaluatePotentialModule(
             computeMasses(parameters)
             
         {%- for symbol in allSymbols %}
-            cdef double complex {{ symbol }} = parameters[{{ loop.index0 }}]
+            cdef double {{ symbol }} = parameters[{{ loop.index0 }}]
         {%- endfor %}
             valueLO = _lo(
         {%- for symbol in allSymbols %}
@@ -161,10 +161,11 @@ def generateEvaluatePotentialModule(
         )
 def generateVeffSubModule(name, veffFp, allSymbols):
     # Creates a cython module with that computes an order of Veff
+    ## NOTE this is the one thing the can return complex
     return Environment().from_string(dedent("""\
             cdef double complex _{{ name }}(
             {%- for symbol in allSymbols %}
-                double complex {{ symbol }},
+                float {{ symbol }},
             {%- endfor %}
                 ):
                 cdef double complex a = 0.0
@@ -201,9 +202,9 @@ def generateComputeMassesModule(
         from scipy.linalg.blas import dgemm
         from numpy import divide, sqrt
 
-        cpdef void computeMasses(complex [:] parameters):
+        cpdef void computeMasses(double [:] parameters):
         {%- for symbol in allSymbols %}
-            cdef double complex * {{ symbol }} = &parameters[{{ loop.index0 }}]
+            cdef double * {{ symbol }} = &parameters[{{ loop.index0 }}]
         {%- endfor %}
 
             _computeMasses(
@@ -214,11 +215,11 @@ def generateComputeMassesModule(
 
         cdef void _computeMasses(
         {%- for symbol in allSymbols %}
-            double complex * _{{ symbol }},
+            double * _{{ symbol }},
         {%- endfor %}
         ):
         {%- for symbol in allSymbols %}
-            cdef double {{ symbol }} = _{{ symbol }}[0].real
+            cdef double {{ symbol }} = _{{ symbol }}[0]
         {%- endfor %}
 
         {%- for expression in vectorMasses %}
