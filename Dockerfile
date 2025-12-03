@@ -2,22 +2,13 @@ FROM python:3.13.5
 
 ENV PIP_ROOT_USER_ACTION=ignore
 
-RUN pip install --upgrade pip
+COPY pyproject.toml .
+COPY . .
 
-RUN pip install --no-cache-dir pdg
-RUN pip install --no-cache-dir nlopt 
-RUN pip install --no-cache-dir numpy 
-RUN pip install --no-cache-dir scipy 
-RUN pip install --no-cache-dir ijson 
-RUN pip install --no-cache-dir pathos 
-RUN pip install --no-cache-dir sympy 
-RUN pip install --no-cache-dir matplotlib 
-RUN pip install --no-cache-dir importlib
-RUN pip install --no-cache-dir Cython
-RUN pip install --no-cache-dir Setuptools
-RUN pip install --no-cache-dir jinja2
+RUN pip install --upgrade pip setuptools wheel
+RUN pip install -e .
+
 RUN pip install --no-cache-dir line_profiler
 RUN pip install --no-cache-dir gprof2dot
 RUN apt-get update && apt-get install -y graphviz && rm -rf /var/lib/apt/lists/*
-ENV PYTHONPATH "/Bloop/Source:/Bloop/Build/CythonModules"
 ENV PATH="/Bloop/Share:${PATH}"
