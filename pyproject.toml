@@ -41,7 +41,3 @@ bloop = "Source.RunStages:main"
 packages = ["Source"]
 package-dir = {"Source" = "Source"}
 
-[tool.setuptools.package-data]
-Source = ["*.pyx", "*.pxd"]
-
-[tool.setuptools_scm]
