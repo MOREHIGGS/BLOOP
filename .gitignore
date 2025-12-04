@@ -9,6 +9,8 @@ build/
 Build/*
 Testing
 .version.py
+Share/DRalgoScripts/*
+Source/*Generator.py
 
 *.swp
 *.png
