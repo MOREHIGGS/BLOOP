@@ -1,9 +1,10 @@
 # BLOOP (Beyond one LOOp Phase transition)
 **THIS CODE IS IN ACTIVE DEVELOPMENT, EXPECT BUGS AND FEATURES TO BE CHANGED AND/OR REMOVED. DOUBLE CHECK ANY RESULT FROM THE CODE.**
 
+##Installing the code:
 Download the code base with a git clone. From this point forward all commands are to be run from inside the Bloop directory
 
-For cross platform compatibility and clean installation environment we recommend install the code in a container using podman (or docker). Alternatively the code can be pip installed locally.
+For cross platform compatibility and clean installation environment we recommend install the code in a container using podman (or docker). Alternatively, the code can be pip installed locally.
 <details>
  <summary>Installition with podman</summary>
 
@@ -79,19 +80,6 @@ pip install -e .
 
 From this point forward all commands are to be run from inside the Run directory
 
-## Implementing new models:
-Before we can get started with this code you need to first implement your own model in DRalgo following our examples laid out in the Mathematica directory. 
-Store the generated txt files inside build.
-
-Now we need to point the code to these generated text files this can be done via the command line (python3 -m RunStages --help to see all the command line options). 
-However, **we strongly recommend the use of a bash script or config file** for easily excuting the code in a repeatable manner. As an example we have a config file for the default Z2 case which can be found in Run. 
-
-The flags that control model dependent behaviour are: 
-- Data files: --loFilePath etc 
-- Minimisation control: --initialGuesses, --var<Upper/Lower>Bounds, --absLocalTolerance etc 
-- Generate benchmarks: --benchmarkFile (this should be a .py)
-  
-We have an example benchmark generating code in Source. The only thing we require from the user is the benchmark generator produces a json which we then load in benchmarkLooping.py.
 ## Executing BLOOP:
 Excuting BLOOP depends on installation method:
 <details>
@@ -112,9 +100,23 @@ bloop
 ```
  
 </details>
+This will run run BLOOP with the Z2-3HDM model. Details of which can be found here https://arxiv.org/abs/2511.04636. 
 
+BLOOP is intended to be controlled by command line arguments. To see a full list of arguments simply run  --help when excuting the code (see above). 
 
-Generally useful flags:
+A brief outline of the most important flags:
+
+- Model file paths: --loFilePath etc (relative to Run) 
+- Generating benchmarks: --bmGeneratorModule
 - --loopOrder
 - --verbose
+
+
+## Implementing new models:
+Before we can get started with this code you need to first implement your own model in DRalgo following our examples laid out in the Mathematica directory. 
+Store the generated txt files inside build.
+
+BLOOP needs to be given the model file paths via the cmd line. To make this easier **we strongly recommend the use of a bash script or config file**. We have an example config file for the default Z2 case which can be found in Run. 
+  
+We have an example benchmark generating code in Source. The only thing we require from the user is the benchmark generator produces a json which we then load in benchmarkLooping.py.
 
