@@ -10,10 +10,16 @@ Podman can be installed via:
 <details>
 <summary>Windows</summary>
 
-### Windows Installation
-1. Download the installer from [releases](link)
-2. Run `setup.exe`
-3. Follow the installation wizard
+### Windows (using winget in the powershell)
+```bash
+winget install -e --id RedHat.Podman
+```
+```bash 
+podman machine init
+```
+```bash
+podman machine start
+ ```
 
 </details>
 
@@ -21,23 +27,26 @@ Podman can be installed via:
 <summary>macOS</summary>
 
 ### macOS Installation
+```bash 
+brew install podman
+```
 ```bash
-brew install myproject
+podman machine init
+```
+```bash
+podman machine start
 ```
 
-### Linux (ubuntu):
+</details>
 
-```sudo apt install podman```
+<details>
+<summary>Linux</summary>
 
-### Windows (using winget in the powershell)
-``` winget install -e --id RedHat.Podman ```
-``` podman machine init ```
-``` podman machine start ```
+### Linux (Ubuntu/Debian):
 
-### Mac
-```brew install podman```
-``` podman machine init ```
-``` podman machine start ```
+```bash sudo apt install podman```
+
+</details>
 
 
 ## Using a container:
