@@ -8,6 +8,7 @@ build/
 **/OutputResult/*
 Build/*
 Testing
+.version.py
 
 *.swp
 *.png

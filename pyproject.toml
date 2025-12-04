@@ -44,5 +44,5 @@ dependencies = { file = ["requirements.txt"] }
 dev = { file = ["requirementsDev.txt"] }
 
 [tool.setuptools_scm]
-write_to = "Source/_version.py"
+write_to = ".version.py"
 
