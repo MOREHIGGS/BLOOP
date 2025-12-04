@@ -3,10 +3,12 @@
 
 Download the code base with a git clone. From this point forward all commands are to be run from inside the Bloop directory
 
-For cross platform compatibility and clean installation environment we recommend install the code in a container using podman (or docker). Alternatively the code can be pip installed locally
+For cross platform compatibility and clean installation environment we recommend install the code in a container using podman (or docker). Alternatively the code can be pip installed locally.
 <details>
  <summary>Installition with podman</summary>
-Podman can be installed via:
+
+If podman is not already installed on your computer you can follow the relavent instructions:
+
 <details>
 <summary>Windows (using winget in the powershell)</summary>
 Virtualization must be enabled in the BIOS (default for windows 11) 
@@ -50,24 +52,34 @@ sudo apt install podman
 </details>
 
 
-## Using a container:
-On first installisation you will need to do:
+## Building the container:
 
-```podman build . -t bloop```
+If the container hasn't already been built then run (from inside the Bloop directory):
+
+```bash 
+podman build . -t bloop
+```
 
 With the container built we can enter the container with:
 
-```podman run --mount type=bind,src=$PWD,target=/Bloop -it bloop /bin/bash -c "cd /Bloop/Run && exec /bin/bash"```
+```bash 
+podman run --mount type=bind,src=$PWD,target=/Bloop -it bloop /bin/bash -c "cd /Bloop/Run && exec /bin/bash"
+```
 
-This will put you in the Run directory inside Bloop for convience. The container only needs to be built once, unless we add a new dependency or a dependency needs updating.
+This will put you in the Run directory inside Bloop for convience. The container only needs to be built once, and only needs to be rebuilt if a new dependency needs to be installed, or an old one updated.
+</details>
+
+<details>
+<summary>Installing with PIP </summary>
+From inside the Bloop directory run:
+
+ ```bash
+pip install -e .
+```
+ 
 </details>
 
 From this point forward all commands are to be run from inside the Run directory
-
-## Running unit and integration tests:
-Ensure the code has been installed successfully via
-
-```UnitAndIntegrationTests.sh```
 
 ## Implementing new models:
 Before we can get started with this code you need to first implement your own model in DRalgo following our examples laid out in the Mathematica directory. 
