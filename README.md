@@ -3,15 +3,15 @@
 
 Download the code base with a git clone. From this point forward all commands are to be run from inside the Bloop directory
 
-For cross platform compatibility and clean installation environment we recommend install the code in a container using podman or docker. 
-Podman can be installed via:
-
-
+For cross platform compatibility and clean installation environment we recommend install the code in a container using podman (or docker). Alternatively the code can be pip installed locally
 <details>
-<summary>Windows</summary>
+ <summary>Installition with podman</summary>
+Podman can be installed via:
+<details>
+<summary>Windows (using winget in the powershell)</summary>
+Virtualization must be enabled in the BIOS (default for windows 11) 
 
-### Windows (using winget in the powershell)
-```bash
+ ```bash
 winget install -e --id RedHat.Podman
 ```
 ```bash 
@@ -25,8 +25,8 @@ podman machine start
 
 <details>
 <summary>macOS</summary>
-
-### macOS Installation
+Virtualization must be enabled (on by default)
+ 
 ```bash 
 brew install podman
 ```
@@ -40,11 +40,12 @@ podman machine start
 </details>
 
 <details>
-<summary>Linux</summary>
+<summary>Linux(Ubuntu/Debian)</summary>
 
-### Linux (Ubuntu/Debian):
 
-```bash sudo apt install podman```
+```bash 
+sudo apt install podman
+```
 
 </details>
 
@@ -59,6 +60,7 @@ With the container built we can enter the container with:
 ```podman run --mount type=bind,src=$PWD,target=/Bloop -it bloop /bin/bash -c "cd /Bloop/Run && exec /bin/bash"```
 
 This will put you in the Run directory inside Bloop for convience. The container only needs to be built once, unless we add a new dependency or a dependency needs updating.
+</details>
 
 From this point forward all commands are to be run from inside the Run directory
 
