@@ -6,7 +6,8 @@ Download the code base with a git clone. From this point forward all commands ar
 For cross platform compatibility and clean installation environment we recommend install the code in a container using podman or docker. 
 Podman can be installed via:
 
-- Linux (ubuntu)
+- Linux (ubuntu):
+
 ```sudo apt install podman```
 
 - Windows (using winget in the powershell)
