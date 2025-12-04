@@ -6,6 +6,25 @@ Download the code base with a git clone. From this point forward all commands ar
 For cross platform compatibility and clean installation environment we recommend install the code in a container using podman or docker. 
 Podman can be installed via:
 
+
+<details>
+<summary>Windows</summary>
+
+### Windows Installation
+1. Download the installer from [releases](link)
+2. Run `setup.exe`
+3. Follow the installation wizard
+
+</details>
+
+<details>
+<summary>macOS</summary>
+
+### macOS Installation
+```bash
+brew install myproject
+```
+
 ### Linux (ubuntu):
 
 ```sudo apt install podman```
