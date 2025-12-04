@@ -1,36 +1,33 @@
 [build-system]
-requires = ["setuptools>=45", "setuptools-scm", "wheel", "Cython"]
+requires = [
+    "setuptools>=61",
+    "setuptools-scm"
+]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "BLOOP"
-dynamic = ["version"]
-description = """BLOOP (Beyond one LOOp Phase transitions) is a python package to compute the critical temperature and strength of cosmological phase transitions using dimensional reduction via DRalgo"""
+description = """
+BLOOP (Beyond one LOOp Phase transitions) is a python package to compute the
+critical temperature and strength of cosmological phase transitions using
+dimensional reduction techniques.
+"""
 readme = "README.md"
 requires-python = ">=3.10"
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
+
 authors = [
-    {name = "Jasmine Thomson-Cooke", email = "jasmine@stp.dias"},
-    {name = "Lucy Lweitt", email = "llewitt@cern.ch"},
-]
-classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Programming Language :: Python :: 3",
+    { name = "Jasmine Thomson-Cooke", email = "jasmine@stp.dias" },
+    { name = "Lucy Lweitt",           email = "llewitt@cern.ch" }
 ]
 
-dependencies = [
-    "pdg",
-    "nlopt",
-    "numpy",
-    "scipy",
-    "ijson",
-    "pathos",
-    "sympy",
-    "matplotlib",
-    "Cython",
-    "setuptools",
-    "jinja2",
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3"
 ]
+
+dynamic = ["version", "dependencies"]
+
 [project.urls]
 Homepage = "https://github.com/JasmineTC/Bloop"
 
@@ -39,5 +36,13 @@ bloop = "Source.RunStages:main"
 
 [tool.setuptools]
 packages = ["Source"]
-package-dir = {"Source" = "Source"}
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools.dynamic.optional-dependencies]
+dev = { file = ["requirementsDev.txt"] }
+
+[tool.setuptools_scm]
+write_to = "Source/_version.py"
 

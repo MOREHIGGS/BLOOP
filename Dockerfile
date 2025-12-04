@@ -2,13 +2,18 @@ FROM python:3.13.5
 
 ENV PIP_ROOT_USER_ACTION=ignore
 
-COPY pyproject.toml .
-COPY . .
+COPY requirements.txt .
+COPY requirementsDev.txt .
+ARG DEV=false
 
-RUN pip install --upgrade pip setuptools wheel
-RUN pip install -e .
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN pip install --no-cache-dir line_profiler
-RUN pip install --no-cache-dir gprof2dot
-RUN apt-get update && apt-get install -y graphviz && rm -rf /var/lib/apt/lists/*
+RUN if [ "$DEV" = "true" ] ; then \
+        apt-get update && \
+        apt-get install -y graphviz && \
+        rm -rf /var/lib/apt/lists/* && \
+        pip install --no-cache-dir -r requirementsDev.txt ; \
+    fi
+
 ENV PATH="/Bloop/Share:${PATH}"
+ENV PYTHONPATH "/Bloop/Source:/Bloop/Build/CythonModules"
