@@ -10,6 +10,7 @@ For cross platform compatibility and clean installation environment we recommend
 If podman is not already installed on your computer you can follow the relavent instructions:
 
 <details>
+ 
 <summary>Windows (using winget in the powershell)</summary>
 Virtualization must be enabled in the BIOS (default for windows 11) 
 
@@ -51,9 +52,6 @@ sudo apt install podman
 
 </details>
 
-
-## Building the container:
-
 If the container hasn't already been built then run (from inside the Bloop directory):
 
 ```bash 
@@ -94,14 +92,29 @@ The flags that control model dependent behaviour are:
 - Generate benchmarks: --benchmarkFile (this should be a .py)
   
 We have an example benchmark generating code in Source. The only thing we require from the user is the benchmark generator produces a json which we then load in benchmarkLooping.py.
-## Executing the code:
-The code is excuted via
+## Executing BLOOP:
+Excuting BLOOP depends on installation method:
+<details>
+<summary>Container installation: </summary>
+From inside the Run directory:
 
-```python3 -m RunStages ```
+ ```bash
+python3 -m RunStages
+```
+ 
+</details>
+<details>
+<summary>PIP installation: </summary>
+From inside the Run directory:
+
+ ```bash
+bloop
+```
+ 
+</details>
+
 
 Generally useful flags:
 - --loopOrder
 - --verbose
 
-
-**THIS CODE WILL BE MOVED TO https://github.com/BLOOP-JTC/BLOOP**
