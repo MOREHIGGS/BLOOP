@@ -3,35 +3,81 @@
 
 Download the code base with a git clone. From this point forward all commands are to be run from inside the Bloop directory
 
-For easy OS compatibility we run the code inside a container from the command line. This will require podman (or docker) to be installed on your system. 
-Podman can be installed via:
+For cross platform compatibility and clean installation environment we recommend install the code in a container using podman (or docker). Alternatively the code can be pip installed locally.
+<details>
+ <summary>Installition with podman</summary>
 
-- Linux (ubuntu)
-```sudo apt install podman```
+If podman is not already installed on your computer you can follow the relavent instructions:
 
-- Windows
-``` ??? ```
+<details>
+ 
+<summary>Windows (using winget in the powershell)</summary>
+Virtualization must be enabled in the BIOS (default for windows 11) 
 
-- Mac
-```???```
-  
-## Using a container:
-On first installisation you will need to do:
+ ```bash
+winget install -e --id RedHat.Podman
+```
+```bash 
+podman machine init
+```
+```bash
+podman machine start
+ ```
 
-```podman build . -t bloop```
+</details>
+
+<details>
+<summary>macOS</summary>
+Virtualization must be enabled (on by default)
+ 
+```bash 
+brew install podman
+```
+```bash
+podman machine init
+```
+```bash
+podman machine start
+```
+
+</details>
+
+<details>
+<summary>Linux(Ubuntu/Debian)</summary>
+
+
+```bash 
+sudo apt install podman
+```
+
+</details>
+
+If the container hasn't already been built then run (from inside the Bloop directory):
+
+```bash 
+podman build . -t bloop
+```
 
 With the container built we can enter the container with:
 
-```podman run --mount type=bind,src=$PWD,target=/Bloop -it bloop /bin/bash -c "cd /Bloop/Run && exec /bin/bash"```
+```bash 
+podman run --mount type=bind,src=$PWD,target=/Bloop -it bloop /bin/bash -c "cd /Bloop/Run && exec /bin/bash"
+```
 
-This will put you in the Run directory inside Bloop for convience. The container only needs to be built once, unless we add a new dependency or a dependency needs updating.
+This will put you in the Run directory inside Bloop for convience. The container only needs to be built once, and only needs to be rebuilt if a new dependency needs to be installed, or an old one updated.
+</details>
+
+<details>
+<summary>Installing with PIP </summary>
+From inside the Bloop directory run:
+
+ ```bash
+pip install -e .
+```
+ 
+</details>
 
 From this point forward all commands are to be run from inside the Run directory
-
-## Running unit and integration tests:
-Ensure the code has been installed successfully via
-
-```UnitAndIntegrationTests.sh```
 
 ## Implementing new models:
 Before we can get started with this code you need to first implement your own model in DRalgo following our examples laid out in the Mathematica directory. 
@@ -46,14 +92,29 @@ The flags that control model dependent behaviour are:
 - Generate benchmarks: --benchmarkFile (this should be a .py)
   
 We have an example benchmark generating code in Source. The only thing we require from the user is the benchmark generator produces a json which we then load in benchmarkLooping.py.
-## Executing the code:
-The code is excuted via
+## Executing BLOOP:
+Excuting BLOOP depends on installation method:
+<details>
+<summary>Container installation: </summary>
+From inside the Run directory:
 
-```python3 -m RunStages ```
+ ```bash
+python3 -m RunStages
+```
+ 
+</details>
+<details>
+<summary>PIP installation: </summary>
+From inside the Run directory:
+
+ ```bash
+bloop
+```
+ 
+</details>
+
 
 Generally useful flags:
 - --loopOrder
 - --verbose
 
-
-**THIS CODE WILL BE MOVED TO https://github.com/BLOOP-JTC/BLOOP**

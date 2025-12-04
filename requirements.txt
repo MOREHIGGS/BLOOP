@@ -1,0 +1,12 @@
+pdg
+nlopt
+numpy
+scipy
+ijson
+pathos
+sympy
+matplotlib
+Cython
+setuptools
+jinja2
+
