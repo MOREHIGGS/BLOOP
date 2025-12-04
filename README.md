@@ -3,18 +3,23 @@
 
 Download the code base with a git clone. From this point forward all commands are to be run from inside the Bloop directory
 
-For easy OS compatibility we run the code inside a container from the command line. This will require podman (or docker) to be installed on your system. 
+For cross platform compatibility and clean installation environment we recommend install the code in a container using podman or docker. 
 Podman can be installed via:
 
 - Linux (ubuntu)
 ```sudo apt install podman```
 
-- Windows
-``` ??? ```
+- Windows (using winget in the powershell)
+``` winget install -e --id RedHat.Podman ```
+``` podman machine init ```
+``` podman machine start ```
 
 - Mac
-```???```
-  
+```brew install podman```
+``` podman machine init ```
+``` podman machine start ```
+
+
 ## Using a container:
 On first installisation you will need to do:
 
