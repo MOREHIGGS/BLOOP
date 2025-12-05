@@ -38,10 +38,10 @@ bloop = "Source.RunStages:main"
 packages = ["Source"]
 
 [tool.setuptools.dynamic]
-dependencies = { file = ["requirements.txt"] }
+dependencies = { file = ["Share/.requirements.txt"] }
 
 [tool.setuptools.dynamic.optional-dependencies]
-dev = { file = ["requirementsDev.txt"] }
+dev = { file = ["Share/.requirementsDev.txt"] }
 
 [tool.setuptools_scm]
 write_to = ".version.py"
