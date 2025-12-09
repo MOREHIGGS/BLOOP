@@ -1,7 +1,6 @@
 FROM python:3.13.5
 ARG DEV=false
 
-# Install uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 RUN apt-get update && \
@@ -13,7 +12,6 @@ COPY Share/.requirements.txt .
 RUN uv pip install --system --no-cache -r .requirements.txt
 
 COPY Share/.requirementsDev.txt .
-# Install Python dev dependencies
 RUN if [ "$DEV" = "true" ] ; then \
         uv pip install --system --no-cache -r .requirementsDev.txt ; \
     fi
@@ -27,5 +25,4 @@ COPY Share/RunStagesWrapper.sh /usr/local/bin/bloop
 RUN chmod +x /usr/local/bin/bloop
 RUN register-python-argcomplete bloop > /etc/bash_completion.d/bloop
 
-# Source the completion file in bashrc
 RUN echo 'source /etc/bash_completion.d/python-argcomplete' >> /root/.bashrc
