@@ -80,36 +80,28 @@ pip install -e .
 
 From this point forward all commands are to be run from inside the Run directory
 
-## Executing BLOOP:
-Excuting BLOOP depends on installation method:
-<details>
-<summary>Container installation: </summary>
-From inside the Run directory:
-
- ```bash
-python3 -m RunStages
-```
- 
-</details>
-<details>
-<summary>PIP installation: </summary>
-From inside the Run directory:
+## Using BLOOP:
+Bloop can be run with default settings by excuting :
 
  ```bash
 bloop
 ```
  
-</details>
-This will run run BLOOP with the Z2-3HDM model. Details of which can be found here https://arxiv.org/abs/2511.04636. 
+from the cmd line. Default settings for bloop run the Z2-3HDM model. Details of which can be found here https://arxiv.org/abs/2511.04636. 
 
-BLOOP is intended to be controlled by command line arguments. To see a full list of arguments simply run  --help when excuting the code (see above). 
+BLOOP is intended to be controlled by command line arguments. To see a full list of arguments simply run  
 
+```bash
+bloop --help
+```
 A brief outline of the most important flags:
 
 - Model file paths: --loFilePath etc (relative to Run) 
 - Generating benchmarks: --bmGeneratorModule
 - --loopOrder
 - --verbose
+- --configFilePath 
+- --bProcessMin/bPlot
 
 
 ## Implementing new models:

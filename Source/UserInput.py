@@ -1,3 +1,4 @@
+import argcomplete
 import argparse
 import multiprocessing
 from enum import IntEnum
@@ -340,7 +341,9 @@ class UserInput(argparse.ArgumentParser):
            action="store",
            default="../Build/Z2_3HDM/DRalgoOutputFiles/PythonisedExpressionsFile.json",
        )
-
+       
+       argcomplete.autocomplete(self)
+       
     noMetaVar = {"store_true", "store_false", "help", "version"}
     
     ## Magic claude monkey patch to remove the metaVar that clutters --help

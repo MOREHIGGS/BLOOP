@@ -3,7 +3,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Fine tests providing partial coverage
 echo Unit tests...
-python3 -m Source.UnitTests
+python3 $SCRIPT_DIR/../Source/UnitTests.py
 
 echo Intergration tests...
 # Super coarse test providing full coverage
