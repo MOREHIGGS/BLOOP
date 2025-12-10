@@ -59,7 +59,7 @@ def loopBenchmarks(args):
     
     with open(args.benchmarkFilePath, "r") as benchmarkFile:
         benchmarkData = json.load(benchmarkFile)
-    
+    ## TODO move first and last benchmark check here so plays nice with tqdm 
     if args.workers >1:
         with Pool(args.workers) as pool:
             scanResults = list(tqdm(pool.imap_unordered(
