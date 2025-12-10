@@ -22,10 +22,12 @@ bloop --loopOrder 1 \
       --TRangeEnd 200 \
       --TRangeStepSize 2 \
       --gccFlags O1
-diff $SCRIPT_DIR/IntegrationTests/Pool/OutputResult/BM_1.json $SCRIPT_DIR/IntegrationTests/Pool/ReferenceResult/BM_1.json
 
+diff $SCRIPT_DIR/IntegrationTests/Pool/OutputResult/BM_1.json $SCRIPT_DIR/IntegrationTests/Pool/ReferenceResult/BM_1.json
+diff $SCRIPT_DIR/IntegrationTests/Pool/OutputResult/ScanResults.json $SCRIPT_DIR/IntegrationTests/Pool/ReferenceResult/ScanResults.json
+
+echo Running code at NNLO...
 rm -f  $SCRIPT_DIR/IntegrationTests/NNLO/OutputResult/* 
-rm -f  $SCRIPT_DIR/IntegrationTests/Benchmarks/*
 
 bloop --loopOrder 2 \
       --firstBenchmark 1 \
@@ -37,9 +39,8 @@ bloop --loopOrder 2 \
       --TRangeStart 50 \
       --TRangeEnd 100 \
       --TRangeStepSize 10 \
-      --bProcessMin \
       --gccFlags O1
 
 diff $SCRIPT_DIR/IntegrationTests/NNLO/OutputResult/BM_1.json $SCRIPT_DIR/IntegrationTests/NNLO/ReferenceResult/BM_1.json
-diff $SCRIPT_DIR/IntegrationTests/NNLO/OutputResult/ScanResults.json $SCRIPT_DIR/IntegrationTests/NNLO/ReferenceResult/BM_1_interp.json
+diff $SCRIPT_DIR/IntegrationTests/NNLO/OutputResult/ScanResults.json $SCRIPT_DIR/IntegrationTests/NNLO/ReferenceResult/ScanResults.json
 
