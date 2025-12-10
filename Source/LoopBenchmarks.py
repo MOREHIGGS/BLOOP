@@ -34,7 +34,7 @@ def doBenchmark(trackVEV, args, benchmark, fieldNames):
     Path(args.resultsDirectory).mkdir(parents=True, exist_ok=True)
     if args.bSave:
         if args.verbose:
-            print(f"Saving {benchmark['bmNumber']} to {filename}.json")
+            print(f"Saving raw data of {benchmark['bmNumber']} to {filename}.json")
         with open(f"{filename}.json", "w") as fp:
             fp.write(json.dumps(minimizationResult, indent=4))
             
@@ -44,21 +44,20 @@ def doBenchmark(trackVEV, args, benchmark, fieldNames):
 
         import_module(args.plotDataModule).plotData(minimizationResult, filename, fieldNames)
 
-    if args.bProcessMin:
-        if args.verbose:
-            print(f"Processing {benchmark['bmNumber']} to {filename + '_interp'}.json")
-        with open(f"{filename}_interp.json", "w") as fp :
-            fp.write(
-                json.dumps(
-                    interpretData(
-                        minimizationResult,
-                        benchmark["bmNumber"],
-                        benchmark["bmInput"],
-                        fieldNames,
-                    ),
-                    indent=4,
-                )
+    if args.verbose:
+        print(f"Processing {benchmark['bmNumber']} to {filename + '_interp'}.json")
+    with open(f"{filename}_interp.json", "w") as fp :
+        fp.write(
+            json.dumps(
+            interpretData(
+                minimizationResult,
+                benchmark["bmNumber"],
+                benchmark["bmInput"],
+                fieldNames,
+            ),
+            indent=4,
             )
+        )
 
 
 def loopBenchmarks(args):
