@@ -23,9 +23,6 @@ def _drange(start, end, jump):
 
 
 def doBenchmark(trackVEV, args, fieldNames,benchmark):
-    if not args.firstBenchmark <= benchmark["bmNumber"] <= args.lastBenchmark:
-        return
-
     if args.verbose:
         print(f"Starting benchmark: {benchmark['bmNumber']}")
 
@@ -58,8 +55,8 @@ def loopBenchmarks(args):
     doBenchmarkWrapper = partial(doBenchmark, trackVEV, args, fieldNames)
     
     with open(args.benchmarkFilePath, "r") as benchmarkFile:
-        benchmarkData = json.load(benchmarkFile)
-    ## TODO move first and last benchmark check here so plays nice with tqdm 
+        benchmarkData = [benchmark for benchmark in json.load(benchmarkFile) 
+                         if args.firstBenchmark <= benchmark["bmNumber"] <= args.lastBenchmark]
     if args.workers >1:
         with Pool(args.workers) as pool:
             scanResults = list(tqdm(pool.imap_unordered(
@@ -75,7 +72,7 @@ def loopBenchmarks(args):
          json.dump(
          scanResults, 
          fp,
-         indent=4)
+         indent=2)
 
 def setUpTrackVEV(args):
     with open(args.pythonisedExpressionsFilePath, "r") as fp:
