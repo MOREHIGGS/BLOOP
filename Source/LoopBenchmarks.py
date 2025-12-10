@@ -4,6 +4,8 @@ from pathlib import Path
 from pathos.multiprocessing import Pool
 from ijson import items
 from importlib import import_module
+from functools import partial
+from tqdm import tqdm
 
 from TrackVEV import TrackVEV, cNlopt
 from ProcessMinimization import interpretData
@@ -20,7 +22,7 @@ def _drange(start, end, jump):
         start += decimal.Decimal(jump)
 
 
-def doBenchmark(trackVEV, args, benchmark, fieldNames):
+def doBenchmark(trackVEV, args, fieldNames,benchmark):
     if not args.firstBenchmark <= benchmark["bmNumber"] <= args.lastBenchmark:
         return
 
@@ -44,44 +46,33 @@ def doBenchmark(trackVEV, args, benchmark, fieldNames):
 
         import_module(args.plotDataModule).plotData(minimizationResult, filename, fieldNames)
 
-    if args.verbose:
-        print(f"Processing {benchmark['bmNumber']} to {filename + '_interp'}.json")
-    with open(f"{filename}_interp.json", "w") as fp :
-        fp.write(
-            json.dumps(
-            interpretData(
+    return interpretData(
                 minimizationResult,
                 benchmark["bmNumber"],
                 benchmark["bmInput"],
                 fieldNames,
-            ),
-            indent=4,
             )
-        )
-
 
 def loopBenchmarks(args):
     trackVEV, fieldNames = setUpTrackVEV(args)
-
+    doBenchmarkWrapper = partial(doBenchmark, trackVEV, args, fieldNames)
     with open(args.benchmarkFilePath) as benchmarkFile:
+        benchmarkData = json.load(benchmarkFile)
         if args.workers >1:
             with Pool(args.workers) as pool:
-                ## Apply might be better suited to avoid this lambda function side step
-                def doBenchmarkWrap(benchmark):
-                    return doBenchmark(
-                                    trackVEV, args, benchmark, fieldNames
-                                )
-                pool.map(
-                    doBenchmarkWrap,
-                    (
-                        benchmark
-                        for benchmark in items(benchmarkFile, "item", use_float=True)
-                    ),
-                )
+                scanResults = list(tqdm(pool.imap_unordered(
+                    doBenchmarkWrapper,
+                    benchmarkData
+                    ), 
+                    total = len(benchmarkData)
+                ))
         else:
-            for benchmark in json.load(benchmarkFile):
-                doBenchmark(trackVEV, args, benchmark, fieldNames)
-
+            scanResults = [doBenchmarkWrapper(benchmark) for benchmark in benchmarkData]
+        
+        with open(f"{args.resultsDirectory}/ScanResults.json","w") as fp:
+             json.dump(
+             scanResults, 
+             fp)
 
 def setUpTrackVEV(args):
     with open(args.pythonisedExpressionsFilePath, "r") as fp:
