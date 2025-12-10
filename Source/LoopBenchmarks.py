@@ -56,23 +56,26 @@ def doBenchmark(trackVEV, args, fieldNames,benchmark):
 def loopBenchmarks(args):
     trackVEV, fieldNames = setUpTrackVEV(args)
     doBenchmarkWrapper = partial(doBenchmark, trackVEV, args, fieldNames)
-    with open(args.benchmarkFilePath) as benchmarkFile:
+    
+    with open(args.benchmarkFilePath, "r") as benchmarkFile:
         benchmarkData = json.load(benchmarkFile)
-        if args.workers >1:
-            with Pool(args.workers) as pool:
-                scanResults = list(tqdm(pool.imap_unordered(
+    
+    if args.workers >1:
+        with Pool(args.workers) as pool:
+            scanResults = list(tqdm(pool.imap_unordered(
                     doBenchmarkWrapper,
                     benchmarkData
-                    ), 
-                    total = len(benchmarkData)
+                ), 
+                total = len(benchmarkData)
                 ))
-        else:
-            scanResults = [doBenchmarkWrapper(benchmark) for benchmark in benchmarkData]
+    else:
+        scanResults = [doBenchmarkWrapper(benchmark) for benchmark in tqdm(benchmarkData)]
         
-        with open(f"{args.resultsDirectory}/ScanResults.json","w") as fp:
-             json.dump(
-             scanResults, 
-             fp)
+    with open(f"{args.resultsDirectory}/ScanResults.json","w") as fp:
+         json.dump(
+         scanResults, 
+         fp,
+         indent=4)
 
 def setUpTrackVEV(args):
     with open(args.pythonisedExpressionsFilePath, "r") as fp:
