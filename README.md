@@ -101,7 +101,7 @@ A brief outline of the most important flags:
 - --loopOrder
 - --verbose
 - --configFilePath 
-- --bProcessMin/bPlot
+- --bPlot
 
 
 ## Implementing new models:

@@ -241,12 +241,6 @@ class UserInput(argparse.ArgumentParser):
            help="Str: Module name of python module to generate plots, invoked by --bPlot (don't include the .py extension here)"
        )
        outputGroup.add_argument(
-           "--bProcessMin",
-           action="store_true",
-           default=False,
-           help="Bool: If activated ProcessMinimization.py is used to try to find phase transitions from the raw data",
-       )
-       outputGroup.add_argument(
            "--resultsDirectory",
            action="store",
            default="Results",

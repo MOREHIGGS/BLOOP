@@ -10,3 +10,4 @@ Cython
 setuptools
 jinja2
 argcomplete
+tqdm
