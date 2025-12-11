@@ -13,7 +13,7 @@ def interpretData(result, bmNumber, bmInput, fieldNames):
         "bmInput": bmInput,
         "strong": False,
         "complex": False,
-        "results": {},
+        "results": None,
     }
 
     if result["failureReason"]:
@@ -21,6 +21,19 @@ def interpretData(result, bmNumber, bmInput, fieldNames):
 
     PTTemps = set()
     allFieldValues = result["vevLocation"] / np.sqrt(result["T"])
+    allFieldValuesT = allFieldValues.transpose() 
+    fieldLengthDiff = np.array([ np.sqrt(np.sum(allFieldValuesT[idx]**2)) 
+                       - np.sqrt(np.sum(allFieldValuesT[idx+1]**2)) 
+                       for idx in range(len(allFieldValuesT)-1) ])  
+    
+    PTIndices = (fieldLengthDiff > 0.6).nonzero()
+    if len(PTIndices) > 0:
+        processedResult["strong"] = max(fieldLengthDiff[PTIndices])
+        for idx in PTIndices:
+            pass            
+            
+
+
     for idx, fieldValues in enumerate(allFieldValues):
         ## Find the indices where a field (dimentionless) changes by more than 0.3
         PTindices = np.nonzero(np.abs(np.diff(fieldValues)) > 0.3)[0]
