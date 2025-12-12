@@ -13,6 +13,60 @@ from PythoniseMathematica import replaceGreekSymbols
 from ParsedExpression import ParsedExpressionSystemArray
 
 
+def loopBenchmarks(args):
+    trackVEV, fieldNames = setUpTrackVEV(args)
+    doBenchmarkWrapper = partial(doBenchmark, trackVEV, args, fieldNames)
+    
+    with open(args.benchmarkFilePath, "r") as benchmarkFile:
+        benchmarkData = [benchmark for benchmark in json.load(benchmarkFile) 
+                         if args.firstBenchmark <= benchmark["bmNumber"] <= args.lastBenchmark]
+    if args.workers >1:
+        with Pool(args.workers) as pool:
+            scanResults = list(tqdm(pool.imap_unordered(
+                    doBenchmarkWrapper,
+                    benchmarkData
+                ), 
+                total = len(benchmarkData)
+                ))
+    else:
+        scanResults = [doBenchmarkWrapper(benchmark) for benchmark in tqdm(benchmarkData)]
+        
+    with open(f"{args.resultsDirectory}/ScanResults.json","w") as fp:
+         json.dump(
+         scanResults, 
+         fp,
+         indent=2)
+
+
+def doBenchmark(trackVEV, args, fieldNames,benchmark):
+    if args.verbose:
+        print(f"Starting benchmark: {benchmark['bmNumber']}")
+
+    minimizationResult = trackVEV.trackVEV(benchmark)
+
+    filename = f"{args.resultsDirectory}/BM_{benchmark['bmNumber']}"
+
+    Path(args.resultsDirectory).mkdir(parents=True, exist_ok=True)
+    if args.bSave:
+        if args.verbose:
+            print(f"Saving raw data of {benchmark['bmNumber']} to {filename}.json")
+        with open(f"{filename}.json", "w") as fp:
+            fp.write(json.dumps(minimizationResult, indent=4))
+            
+    if args.bPlot:
+        if args.verbose:
+            print(f"Plotting {benchmark['bmNumber']}")
+
+        import_module(args.plotDataModule).plotData(minimizationResult, filename, fieldNames)
+
+    return interpretData(
+                minimizationResult,
+                benchmark["bmNumber"],
+                benchmark["bmInput"],
+                fieldNames,
+            )
+
+
 def interpretData(result, bmNumber, bmInput, fieldNames):
     processedResult = {
         "bmNumber": bmNumber,
@@ -57,67 +111,6 @@ def interpretData(result, bmNumber, bmInput, fieldNames):
         processedResult["fieldJumps"] = results
     return processedResult
 
-
-## This (sometimes) avoids floating point error in T gotten by np.arange or linspace
-## However one must be careful as 1 = decimal.Decimal(1.000000000000001)
-def _drange(start, end, jump):
-    start = decimal.Decimal(start)
-    while start <= end:
-        yield float(start)
-        start += decimal.Decimal(jump)
-
-
-def doBenchmark(trackVEV, args, fieldNames,benchmark):
-    if args.verbose:
-        print(f"Starting benchmark: {benchmark['bmNumber']}")
-
-    minimizationResult = trackVEV.trackVEV(benchmark)
-
-    filename = f"{args.resultsDirectory}/BM_{benchmark['bmNumber']}"
-
-    Path(args.resultsDirectory).mkdir(parents=True, exist_ok=True)
-    if args.bSave:
-        if args.verbose:
-            print(f"Saving raw data of {benchmark['bmNumber']} to {filename}.json")
-        with open(f"{filename}.json", "w") as fp:
-            fp.write(json.dumps(minimizationResult, indent=4))
-            
-    if args.bPlot:
-        if args.verbose:
-            print(f"Plotting {benchmark['bmNumber']}")
-
-        import_module(args.plotDataModule).plotData(minimizationResult, filename, fieldNames)
-
-    return interpretData(
-                minimizationResult,
-                benchmark["bmNumber"],
-                benchmark["bmInput"],
-                fieldNames,
-            )
-
-def loopBenchmarks(args):
-    trackVEV, fieldNames = setUpTrackVEV(args)
-    doBenchmarkWrapper = partial(doBenchmark, trackVEV, args, fieldNames)
-    
-    with open(args.benchmarkFilePath, "r") as benchmarkFile:
-        benchmarkData = [benchmark for benchmark in json.load(benchmarkFile) 
-                         if args.firstBenchmark <= benchmark["bmNumber"] <= args.lastBenchmark]
-    if args.workers >1:
-        with Pool(args.workers) as pool:
-            scanResults = list(tqdm(pool.imap_unordered(
-                    doBenchmarkWrapper,
-                    benchmarkData
-                ), 
-                total = len(benchmarkData)
-                ))
-    else:
-        scanResults = [doBenchmarkWrapper(benchmark) for benchmark in tqdm(benchmarkData)]
-        
-    with open(f"{args.resultsDirectory}/ScanResults.json","w") as fp:
-         json.dump(
-         scanResults, 
-         fp,
-         indent=2)
 
 def setUpTrackVEV(args):
     with open(args.pythonisedExpressionsFilePath, "r") as fp:
@@ -190,3 +183,13 @@ def setUpTrackVEV(args):
         ##Saves loading parsed expression a second time
         lagranianVariables["fieldSymbols"],
     )
+
+## This (sometimes) avoids floating point error in T gotten by np.arange or linspace
+## However one must be careful as 1 = decimal.Decimal(1.000000000000001)
+def _drange(start, end, jump):
+    start = decimal.Decimal(start)
+    while start <= end:
+        yield float(start)
+        start += decimal.Decimal(jump)
+
+
