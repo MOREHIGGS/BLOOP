@@ -22,8 +22,8 @@ def interpretData(result, bmNumber, bmInput, fieldNames):
     PTTemps = set()
     allFieldValues = result["vevLocation"] / np.sqrt(result["T"])
     allFieldValuesT = allFieldValues.transpose() 
-    fieldLengthDiff = np.array([ np.sqrt(np.sum(allFieldValuesT[idx]**2)) 
-                       - np.sqrt(np.sum(allFieldValuesT[idx+1]**2)) 
+    fieldLengthDiff = np.array([ np.linalg.norm(allFieldValuesT[idx]) 
+                       - np.linalg.norm(allFieldValuesT[idx+1]) 
                        for idx in range(len(allFieldValuesT)-1) ])  
     
     PTIndices = (fieldLengthDiff > 0.6).nonzero()
