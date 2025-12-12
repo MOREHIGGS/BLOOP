@@ -23,8 +23,8 @@ bloop --loopOrder 1 \
       --TRangeStepSize 2 \
       --gccFlags O1
 
-diff $SCRIPT_DIR/IntegrationTests/Pool/OutputResult/BM_1.json $SCRIPT_DIR/IntegrationTests/Pool/ReferenceResult/BM_1.json
-diff $SCRIPT_DIR/IntegrationTests/Pool/OutputResult/ScanResults.json $SCRIPT_DIR/IntegrationTests/Pool/ReferenceResult/ScanResults.json
+diff $SCRIPT_DIR/IntegrationTests/NLO/OutputResult/BM_1.json $SCRIPT_DIR/IntegrationTests/NLO/ReferenceResult/BM_1.json
+diff $SCRIPT_DIR/IntegrationTests/NLO/OutputResult/ScanResults.json $SCRIPT_DIR/IntegrationTests/NLO/ReferenceResult/ScanResults.json
 
 echo Running code at NNLO...
 rm -f  $SCRIPT_DIR/IntegrationTests/NNLO/OutputResult/* 

@@ -246,6 +246,12 @@ class UserInput(argparse.ArgumentParser):
            default="Results",
            help="Str: Directory to save files to",
        )
+       outputGroup.add_argument(
+           "--strengthCutOff",
+           action="store",
+           default=0.6,
+           help="float: Lowest strength of phase transition which we will label as strong",
+       )
        ########################################################################
        filesGroup = self.add_argument_group('Model File Paths', 'These paths are all relative to Source (See config for example path)')
        filesGroup.add_argument = self.addArgumentNoMetaVar(filesGroup)

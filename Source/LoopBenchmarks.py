@@ -6,49 +6,12 @@ from ijson import items
 from importlib import import_module
 from functools import partial
 from tqdm import tqdm
+import numpy as np
 
 from TrackVEV import TrackVEV, cNlopt
-from ProcessMinimization import interpretData
 from PythoniseMathematica import replaceGreekSymbols
 from ParsedExpression import ParsedExpressionSystemArray
 
-
-## This (sometimes) avoids floating point error in T gotten by np.arange or linspace
-## However one must be careful as 1 = decimal.Decimal(1.000000000000001)
-def _drange(start, end, jump):
-    start = decimal.Decimal(start)
-    while start <= end:
-        yield float(start)
-        start += decimal.Decimal(jump)
-
-
-def doBenchmark(trackVEV, args, fieldNames,benchmark):
-    if args.verbose:
-        print(f"Starting benchmark: {benchmark['bmNumber']}")
-
-    minimizationResult = trackVEV.trackVEV(benchmark)
-
-    filename = f"{args.resultsDirectory}/BM_{benchmark['bmNumber']}"
-
-    Path(args.resultsDirectory).mkdir(parents=True, exist_ok=True)
-    if args.bSave:
-        if args.verbose:
-            print(f"Saving raw data of {benchmark['bmNumber']} to {filename}.json")
-        with open(f"{filename}.json", "w") as fp:
-            fp.write(json.dumps(minimizationResult, indent=4))
-            
-    if args.bPlot:
-        if args.verbose:
-            print(f"Plotting {benchmark['bmNumber']}")
-
-        import_module(args.plotDataModule).plotData(minimizationResult, filename, fieldNames)
-
-    return interpretData(
-                minimizationResult,
-                benchmark["bmNumber"],
-                benchmark["bmInput"],
-                fieldNames,
-            )
 
 def loopBenchmarks(args):
     trackVEV, fieldNames = setUpTrackVEV(args)
@@ -73,6 +36,95 @@ def loopBenchmarks(args):
          scanResults, 
          fp,
          indent=2)
+
+
+def doBenchmark(
+    trackVEV, 
+    args, 
+    fieldNames, 
+    benchmark
+):
+    if args.verbose:
+        print(f"Starting benchmark: {benchmark['bmNumber']}")
+
+    minimizationResult = trackVEV.trackVEV(benchmark)
+
+    filename = f"{args.resultsDirectory}/BM_{benchmark['bmNumber']}"
+
+    Path(args.resultsDirectory).mkdir(parents=True, exist_ok=True)
+    if args.bSave:
+        if args.verbose:
+            print(f"Saving raw data of {benchmark['bmNumber']} to {filename}.json")
+        with open(f"{filename}.json", "w") as fp:
+            fp.write(json.dumps(minimizationResult, indent=4))
+            
+    if args.bPlot:
+        if args.verbose:
+            print(f"Plotting {benchmark['bmNumber']}")
+
+        import_module(args.plotDataModule).plotData(minimizationResult, filename, fieldNames)
+
+    return processData(
+                minimizationResult,
+                benchmark["bmNumber"],
+                benchmark["bmInput"],
+                fieldNames,
+                args.strengthCutOff,
+            )
+
+
+def processData(
+    result, 
+    bmNumber, 
+    bmInput, 
+    fieldNames, 
+    strengthCutOff
+):
+    processedResult = {
+        "bmNumber": bmNumber,
+        "bmInput": bmInput,
+        "failureReason": result["failureReason"],
+        "fieldJumps": None,
+        "strong": False,
+        "steps": 0
+    }
+
+    if result["failureReason"]:
+        return processedResult 
+
+    processedResult |= {"isPerturbative": bool(np.all(result["bIsPerturbative"])),
+                        "complex": bool(np.any(
+                                 np.abs( np.array(result["vevDepthImag"]) / np.array(result["vevDepthReal"])
+                                        ) > 1e-8
+                                        ))
+                        }
+      
+    allFieldValues = result["vevLocation"] / np.sqrt(result["T"])
+    allFieldValuesD = np.diff(allFieldValues)
+    allFieldValuesT = allFieldValues.transpose() 
+    
+    fieldLengthDiff = np.array([ np.linalg.norm(allFieldValuesT[idx]) 
+                       - np.linalg.norm(allFieldValuesT[idx+1]) 
+                       for idx in range(len(allFieldValuesT)-1) ])  
+    
+    PTIndices = (fieldLengthDiff >= strengthCutOff).nonzero()[0]
+    if len(PTIndices) > 0:
+        processedResult["steps"] = len(fieldLengthDiff[PTIndices])
+        processedResult["strong"] = float(max(fieldLengthDiff[PTIndices]))
+        results = []
+        
+        for idx in PTIndices:
+            resultDic = {"Tc": result["T"][idx]}
+
+            for fieldNameIdx, fieldJumps in enumerate(allFieldValuesD):
+                if abs(fieldJumps[idx]) > 0.1:
+                    resultDic[fieldNames[fieldNameIdx]] = float(fieldJumps[idx])
+            results.append(resultDic)
+        
+        processedResult["fieldJumps"] = results
+    
+    return processedResult
+
 
 def setUpTrackVEV(args):
     with open(args.pythonisedExpressionsFilePath, "r") as fp:
@@ -145,3 +197,13 @@ def setUpTrackVEV(args):
         ##Saves loading parsed expression a second time
         lagranianVariables["fieldSymbols"],
     )
+
+## This (sometimes) avoids floating point error in T gotten by np.arange or linspace
+## However one must be careful as 1 = decimal.Decimal(1.000000000000001)
+def _drange(start, end, jump):
+    start = decimal.Decimal(start)
+    while start <= end:
+        yield float(start)
+        start += decimal.Decimal(jump)
+
+
