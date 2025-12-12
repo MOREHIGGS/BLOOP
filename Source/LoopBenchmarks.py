@@ -38,7 +38,12 @@ def loopBenchmarks(args):
          indent=2)
 
 
-def doBenchmark(trackVEV, args, fieldNames,benchmark):
+def doBenchmark(
+    trackVEV, 
+    args, 
+    fieldNames, 
+    benchmark
+):
     if args.verbose:
         print(f"Starting benchmark: {benchmark['bmNumber']}")
 
@@ -59,15 +64,22 @@ def doBenchmark(trackVEV, args, fieldNames,benchmark):
 
         import_module(args.plotDataModule).plotData(minimizationResult, filename, fieldNames)
 
-    return interpretData(
+    return processData(
                 minimizationResult,
                 benchmark["bmNumber"],
                 benchmark["bmInput"],
                 fieldNames,
+                args.strengthCutOff,
             )
 
 
-def interpretData(result, bmNumber, bmInput, fieldNames):
+def processData(
+    result, 
+    bmNumber, 
+    bmInput, 
+    fieldNames, 
+    strengthCutOff
+):
     processedResult = {
         "bmNumber": bmNumber,
         "bmInput": bmInput,
@@ -94,7 +106,8 @@ def interpretData(result, bmNumber, bmInput, fieldNames):
     fieldLengthDiff = np.array([ np.linalg.norm(allFieldValuesT[idx]) 
                        - np.linalg.norm(allFieldValuesT[idx+1]) 
                        for idx in range(len(allFieldValuesT)-1) ])  
-    PTIndices = (fieldLengthDiff > 0.6).nonzero()[0]
+    
+    PTIndices = (fieldLengthDiff >= strengthCutOff).nonzero()[0]
     if len(PTIndices) > 0:
         processedResult["steps"] = len(fieldLengthDiff[PTIndices])
         processedResult["strong"] = float(max(fieldLengthDiff[PTIndices]))
@@ -109,6 +122,7 @@ def interpretData(result, bmNumber, bmInput, fieldNames):
             results.append(resultDic)
         
         processedResult["fieldJumps"] = results
+    
     return processedResult
 
 
