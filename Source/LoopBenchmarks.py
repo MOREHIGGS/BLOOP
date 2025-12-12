@@ -33,7 +33,6 @@ def interpretData(result, bmNumber, bmInput, fieldNames):
                                         ))
                         }
       
-
     allFieldValues = result["vevLocation"] / np.sqrt(result["T"])
     allFieldValuesD = np.diff(allFieldValues)
     allFieldValuesT = allFieldValues.transpose() 
@@ -48,7 +47,8 @@ def interpretData(result, bmNumber, bmInput, fieldNames):
         results = []
         
         for idx in PTIndices:
-            resultDic = {}
+            resultDic = {"Tc": result["T"][idx]}
+
             for fieldNameIdx, fieldJumps in enumerate(allFieldValuesD):
                 if abs(fieldJumps[idx]) > 0.1:
                     resultDic[fieldNames[fieldNameIdx]] = float(fieldJumps[idx])
