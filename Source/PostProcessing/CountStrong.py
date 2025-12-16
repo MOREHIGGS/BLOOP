@@ -31,20 +31,20 @@ for result in data:
         failDict[result["failureReason"]] += 1
     else:
         if len(result["steps"]) > 1:
-                mutliStepCount += 1
+                multiStepCount += 1
 
-        if resultDic["strong"] > 0.6:
+        if result["strong"] > 0.6:
             strongestBM = (
-                (result["strong"], resultDic["bmNumber"])
-                if resultDic["strong"] > strongestBM[0]
+                (result["strong"], result["bmNumber"])
+                if result["strong"] > strongestBM[0]
                 else strongestBM
                 )
             strongCount += 1
                 
             for jumpResults in result["fieldJumps"]:
                 Tc = jumpResults["Tc"]
-                Tcmax = Tc if Tc > Tmax else Tmax
-                Tcmin = Tc if Tc < Tmin else Tmin 
+                Tcmax = Tc if Tc > TcMax else TcMax
+                Tcmin = Tc if Tc < TcMin else TcMin 
 
             if result["complex"]:
                 complexCount += 1
