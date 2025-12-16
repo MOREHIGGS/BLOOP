@@ -9,58 +9,55 @@ from glob import glob
 from json import load
 from collections import defaultdict
 
-totalCount = 0
 strongCount = 0
-mutliV3Jump = 0
 multiStepCount = 0
 complexCount = 0
+nonPertCount = 0
 failDict = defaultdict(int)
 strongestBM = (0, 0)
 TcMin = 1e100
+TcMax = 0
 
 directory = "Results/2LoopResults/Combined01SSS"
-allFiles = glob(join(directory, "*.json"))
+with open(directory, "r") as fp:
+    data = load(fp)
 
-if len(allFiles) == 0:
-    print("Empty directory, exiting")
+if len(data) == 0:
+    print("{directory} contains no data, exiting")
     exit()
 
-for filePointer in allFiles:
-    fileName = filePointer.split("/")[1].lstrip().split(" ")[0]
-    with open(filePointer, "r") as f:
-        resultDic = load(f)
-        totalCount += 1
-        if resultDic["failureReason"]:
-            failDict[resultDic["failureReason"]] += 1
-        else:
-            if len(resultDic["jumpsv3"]) > 1:
-                mutliV3Jump += 1
+for result in data:
+    if result["failureReason"]:
+        failDict[result["failureReason"]] += 1
+    else:
+        if len(result["steps"]) > 1:
+                mutliStepCount += 1
 
-            if resultDic["strong"] > 0.6:
-                strongestBM = (
-                    (resultDic["strong"], resultDic["bmNumber"])
-                    if resultDic["strong"] > strongestBM[0]
-                    else strongestBM
+        if resultDic["strong"] > 0.6:
+            strongestBM = (
+                (result["strong"], resultDic["bmNumber"])
+                if resultDic["strong"] > strongestBM[0]
+                else strongestBM
                 )
-                strongCount += 1
-                TcMin = (
-                    resultDic["jumpsv3"][0][1]
-                    if resultDic["jumpsv3"][0][1] < TcMin
-                    else TcMin
-                )
+            strongCount += 1
+                
+            for jumpResults in result["fieldJumps"]:
+                Tc = jumpResults["Tc"]
+                Tcmax = Tc if Tc > Tmax else Tmax
+                Tcmin = Tc if Tc < Tmin else Tmin 
 
-            if resultDic["step"] > 1:
-                multiStepCount += 1
-
-            if resultDic["complexMin"]:
+            if result["complex"]:
                 complexCount += 1
+
+            if not result["isPerturbative"]:
+                nonPertCount +=1
 
 print(f"Summary of the results in the directory '{directory}':")
 print(f"The lowest Tc min is: {TcMin}")
 print(f"The strongest BM is: {strongestBM}")
-print(f"The number of benchmarks is: {totalCount}")
+print(f"The number of benchmarks is: {len(data)}")
 print(f"The number of strong benchmarks is: {strongCount}")
 print(f"The number of mutli step phase transitions is: {multiStepCount}")
 print(f"The number of failed benchmarks is: {failDict.items()}")
-print(f"The mutli v3 jump count is: {mutliV3Jump}")
 print(f"The number of benchmarks with a complex min is: {complexCount}")
+print(f"The number of benchmarks that become non-pert is: {nonPertCount}")
