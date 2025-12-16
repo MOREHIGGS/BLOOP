@@ -247,6 +247,12 @@ class UserInput(argparse.ArgumentParser):
            help="Str: Directory to save files to",
        )
        outputGroup.add_argument(
+           "--scanResultsName",
+           action="store",
+           default="ScanResults",
+           help="Str: File name to save interpreted to",
+       )
+       outputGroup.add_argument(
            "--strengthCutOff",
            action="store",
            default=0.6,

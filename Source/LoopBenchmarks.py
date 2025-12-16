@@ -31,7 +31,7 @@ def loopBenchmarks(args):
     else:
         scanResults = [doBenchmarkWrapper(benchmark) for benchmark in tqdm(benchmarkData)]
         
-    with open(f"{args.resultsDirectory}/ScanResults.json","w") as fp:
+    with open(f"{args.resultsDirectory}/{args.scanResultsName}.json","w") as fp:
          json.dump(
          scanResults, 
          fp,
