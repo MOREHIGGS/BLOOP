@@ -45,15 +45,15 @@ norm = plt.Normalize(0.6, max(max(dataTotal[0][0]), max(dataTotal[1][0])))
 fileNames = axisLabels
 
 ## ~~~~ For nicer axis labels~~~~
-axisLabels = [
-    "$\\theta_{\\text{CPV}}$",
-    "$g_{\\text{hDM}}$",
-    "$m_{s1}$ (GeV)",
-    "$\\delta_{12} \\  (GeV)$",
-    "$\\delta_{1c} \\  (GeV)$",
-    "$\\delta_{c} \\  (GeV)$",
-    "n"
-]
+#axisLabels = [
+#    "$\\theta_{\\text{CPV}}$",
+#    "$g_{\\text{hDM}}$",
+#    "$m_{s1}$ (GeV)",
+#    "$\\delta_{12} \\  (GeV)$",
+#    "$\\delta_{1c} \\  (GeV)$",
+#    "$\\delta_{c} \\  (GeV)$",
+#    "n"
+#]
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 loopList = ["1Loop", "2Loop"]
@@ -66,8 +66,7 @@ for loopIdx, dataLoop in enumerate(dataTotal):
     for inputIdx, data in enumerate(dataLoop[4:]):
         plt.scatter(dataLoop[3], data, s=4.2**2, c=dataLoop[0], marker="o", norm=norm)
         plt.xlabel(axisLabels[0], labelpad=5, fontsize=12)
-        ## +1 needed to skip zeroth element
-        print(inputIdx, axisLabels[inputIdx])
+        ## +1 needed to skip x axis element
         plt.ylabel(axisLabels[inputIdx+1], labelpad=5, fontsize=12)
         plt.colorbar(
             ticks=(0.60, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1, 1.05, 1.10, 1.15),
