@@ -10,6 +10,7 @@ class Stages(IntEnum):
     convertMathematica = 0
     generateBenchmark = 1
     doMinimization = 2
+    summariseResults = 3 
 
     @staticmethod
     def fromString(*args, **kwargs):
@@ -75,7 +76,7 @@ class UserInput(argparse.ArgumentParser):
        )
        stageGroup.add_argument(
            "--lastStage", 
-           default="doMinimization", 
+           default="summariseResults", 
            type=Stages.fromString,
            help="What stage of the code to end on"
        )
