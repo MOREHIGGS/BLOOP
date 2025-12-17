@@ -73,7 +73,7 @@ def bPhysicalMinimum(nloptInst, potential, params):
     def potentialWrapped(fields, _):
         return potential(fields, params)
 
-    minValue = nloptInst.nloptGlobal(potentialWrapped, minimumInitialGuesses[0])[1]
+    minLocation, minValue = nloptInst.nloptGlobal(potentialWrapped, minimumInitialGuesses[0])
 
     for guess in minimumInitialGuesses:
         minLocationTemp, minValueTemp = nloptInst.nloptLocal(potentialWrapped, guess)
@@ -223,7 +223,7 @@ def _randomBmParam(
 
         if bmParams:
             if checkPhysical(
-                bmParams["massTerms"] | bmParams["couplingValues"],
+                bmParams["lagranianParameters"],
                 nloptInst,
                 potential,
                 chargedMassMatrix,
