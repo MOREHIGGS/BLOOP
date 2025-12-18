@@ -59,11 +59,10 @@ def summariseResults(args):
         with open("outputSummary.txt", "w") as fp:
             fp.writelines(dedent(f"""\
                 Summary of the results: 
-                The lowest Tc min is: {min(dataSorted[2])} 
+                Tc min/max is: {{min(dataSorted[2])}, {max(dataSorted[2])} 
                 The strongest BM is: {dataSorted[0][-1]} (strength), {dataSorted[1][-1]} (bmNumber) 
-                The number of benchmarks is: {len(data)} 
-                The number of strong benchmarks is: {len(dataSorted[0])} 
-                The number of mutli step phase transitions is: {multiStepCount} 
+                The total number of benchmarks is: {len(data)}, {len(dataSorted[0])} of which are strong 
+                and {multiStepCount} of which are mutli step PT
                 The number of failed benchmarks is: {failDict.items()} 
                 The number of benchmarks with a complex min is: {complexCount} 
                 The number of benchmarks that become non-pert is: {nonPertCount}
