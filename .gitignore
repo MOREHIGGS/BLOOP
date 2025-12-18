@@ -12,6 +12,7 @@ Testing
 Share/DRalgoScripts/*
 Source/*Generator.py
 
+*.txt
 *.swp
 *.png
 *.pstats
