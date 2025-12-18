@@ -23,7 +23,6 @@ def main():
 
         loopBenchmarks(args)
     if args.firstStage <= Stages.summariseResults <= args.lastStage:
-        print(1.5)
         if args.verbose:
             print("Summarise Results stage started")
 

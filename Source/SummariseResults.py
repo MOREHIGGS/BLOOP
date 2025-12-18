@@ -32,7 +32,6 @@ def summariseResults(args):
                     multiStepCount += 1
     
             if result["complex"]:
-                print(result)
                 complexCount += 1
 
             if not result["isPerturbative"]:
@@ -56,10 +55,10 @@ def summariseResults(args):
     ## transpose taken so each row is just on variable type (faster to plot)
     dataSorted =  np.transpose(np.asarray(sorted(zip(strengthList, bmNumberList, TcList, *np.transpose(bmInputList))))) 
     if len(dataSorted[0]) > 0:
-        with open("outputSummary.txt", "w") as fp:
+        with open(f"{args.resultsDirectory}/summary.txt", "w") as fp:
             fp.writelines(dedent(f"""\
                 Summary of the results: 
-                Tc min/max is: {{min(dataSorted[2])}, {max(dataSorted[2])} 
+                Tc min/max is: {min(dataSorted[2])}, {max(dataSorted[2])} 
                 The strongest BM is: {dataSorted[0][-1]} (strength), {dataSorted[1][-1]} (bmNumber) 
                 The total number of benchmarks is: {len(data)}, {len(dataSorted[0])} of which are strong 
                 and {multiStepCount} of which are mutli step PT
@@ -92,7 +91,7 @@ def summariseResults(args):
             ## +1 needed to skip zeroth element
             plt.ylabel(axisLabels[inputIdx+1], labelpad=5, fontsize=12)
             plt.colorbar(label="strength")
-            plt.savefig(f"{args.resultsDirectory}/ScanFigures/{fileNames[inputIdx+1]}")
+            plt.savefig(f"{args.resultsDirectory}/{fileNames[inputIdx+1]}")
             plt.close()
     
         # Makes plots of bm inputs vs Tc
@@ -101,6 +100,6 @@ def summariseResults(args):
             plt.xlabel(axisLabels[inputIdx], labelpad=5, fontsize=12)
             plt.ylabel("$T_c$ (GeV)", labelpad=5, fontsize=12)
             plt.colorbar(label="strength")
-            plt.savefig(f"{args.resultsDirectory}/ScanFigures/Tc{fileNames[inputIdx]}")
+            plt.savefig(f"{args.resultsDirectory}/Tc{fileNames[inputIdx]}")
             plt.close()
 
