@@ -1,4 +1,5 @@
 from json import load
+from textwrap import dedent
 from collections import defaultdict
 from matplotlib import pylab as plt
 import numpy as np
@@ -54,7 +55,7 @@ def summariseResults(args):
     ## this is so the colour of the scatter plot is set by the strong PT at that point
     ## transpose taken so each row is just on variable type (faster to plot)
     dataSorted =  np.transpose(np.asarray(sorted(zip(strengthList, bmNumberList, TcList, *np.transpose(bmInputList))))) 
-    axisLabels = list(result["bmInput"].keys())
+    
     if len(dataSorted) > 0:
         print("Summary of the results:")
         print(f"The lowest Tc min is: {min(dataSorted[2])}")
@@ -68,8 +69,8 @@ def summariseResults(args):
         
         # Is this still needed?
         norm = plt.Normalize(dataSorted[0][0], dataSorted[0][-1])
-
-        fileNames = axisLabels
+        fileNames = list(result["bmInput"].keys())
+        axisLabels = list(result["bmInput"].keys())
 
         ## ~~~~ For nicer axis labels~~~~
         #axisLabels = [
