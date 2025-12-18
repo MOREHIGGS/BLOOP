@@ -55,18 +55,18 @@ def summariseResults(args):
     ## this is so the colour of the scatter plot is set by the strong PT at that point
     ## transpose taken so each row is just on variable type (faster to plot)
     dataSorted =  np.transpose(np.asarray(sorted(zip(strengthList, bmNumberList, TcList, *np.transpose(bmInputList))))) 
-    
     if len(dataSorted) > 0:
-        print("Summary of the results:")
-        print(f"The lowest Tc min is: {min(dataSorted[2])}")
-        print(f"The strongest BM is: {dataSorted[0][-1]} (strength), {dataSorted[1][-1]} (bmNumber)")
-        print(f"The number of benchmarks is: {len(data)}")
-        print(f"The number of strong benchmarks is: {len(dataSorted[0])}")
-        print(f"The number of mutli step phase transitions is: {multiStepCount}")
-        print(f"The number of failed benchmarks is: {failDict.items()}")
-        print(f"The number of benchmarks with a complex min is: {complexCount}")
-        print(f"The number of benchmarks that become non-pert is: {nonPertCount}")
-        
+        with open("outputSummary.txt", "w") as fp:
+            fp.writelines(dedent(f"""\
+                Summary of the results: 
+                Tc min/max is: {{min(dataSorted[2])}, {max(dataSorted[2])} 
+                The strongest BM is: {dataSorted[0][-1]} (strength), {dataSorted[1][-1]} (bmNumber) 
+                The total number of benchmarks is: {len(data)}, {len(dataSorted[0])} of which are strong 
+                and {multiStepCount} of which are mutli step PT
+                The number of failed benchmarks is: {failDict.items()} 
+                The number of benchmarks with a complex min is: {complexCount} 
+                The number of benchmarks that become non-pert is: {nonPertCount}
+                """))
         # Is this still needed?
         norm = plt.Normalize(dataSorted[0][0], dataSorted[0][-1])
         fileNames = list(result["bmInput"].keys())
