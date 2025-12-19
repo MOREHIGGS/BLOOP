@@ -11,3 +11,4 @@ setuptools
 jinja2
 argcomplete
 tqdm
+pytest
