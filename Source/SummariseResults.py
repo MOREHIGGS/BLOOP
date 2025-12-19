@@ -54,7 +54,8 @@ def summariseResults(args):
     ## this is so the colour of the scatter plot is set by the strong PT at that point
     ## transpose taken so each row is just on variable type (faster to plot)
     dataSorted =  np.transpose(np.asarray(sorted(zip(strengthList, bmNumberList, TcList, *np.transpose(bmInputList))))) 
-    if len(dataSorted[0]) > 0:
+    
+    if len(dataSorted) > 0:
         with open(f"{args.resultsDirectory}/summary.txt", "w") as fp:
             fp.writelines(dedent(f"""\
                 Summary of the results: 
