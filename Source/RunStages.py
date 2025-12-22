@@ -1,16 +1,19 @@
+from importlib import import_module
+from UserInput import UserInput, Stages
+
+from PythoniseMathematica import pythoniseMathematica
+from SummariseResults import summariseResults
+
 def main():
-    from importlib import import_module
-    from UserInput import UserInput, Stages
     args = UserInput().parse()
 
     if args.firstStage <= Stages.convertMathematica <= args.lastStage:
         if args.verbose:
             print("Convert Mathematica stage started")
 
-        from PythoniseMathematica import pythoniseMathematica
-
         pythoniseMathematica(args)
-
+    
+    
     if args.firstStage <= Stages.generateBenchmark <= args.lastStage:
         if args.verbose:
             print("Benchmark generation stage started")
@@ -19,10 +22,16 @@ def main():
     if args.firstStage <= Stages.doMinimization <= args.lastStage:
         if args.verbose:
             print("Minimization stage started")
-
+        ##importing this before pythoniseMathematica fails integration test        
         from LoopBenchmarks import loopBenchmarks
-
         loopBenchmarks(args)
+
+    if args.firstStage <= Stages.summariseResults <= args.lastStage:
+        if args.verbose:
+            print("Summarise Results stage started")
+
+        summariseResults(args)
+
 
 if __name__ == "__main__":
         main()
