@@ -10,17 +10,11 @@
       "deltac": 1.0,
       "darkHieracy": 1
     },
+    "failureReason": false,
+    "PTData": null,
     "strong": false,
-    "complex": false,
-    "results": {
-      "v3": [
-        [
-          0.355187893696775,
-          150.0
-        ]
-      ]
-    },
-    "steps": 1,
-    "bIsPerturbative": true
+    "steps": 0,
+    "isPerturbative": true,
+    "complex": false
   }
 ]
