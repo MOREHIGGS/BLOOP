@@ -15,7 +15,7 @@ bloop --loopOrder 1 \
       --firstBenchmark 1 \
       --lastBenchmark 1 \
       --bSave \
-      --resultsDirectory $SCRIPT_DIR/IntegrationTests/Pool/OutputResult/  \
+      --resultsDirectory $SCRIPT_DIR/IntegrationTests/Pool/OutputResult  \
       --benchmarkFile $SCRIPT_DIR/IntegrationTests/Benchmarks \
       --benchmarkType handPicked \
       --TRangeStart 100 \
@@ -33,7 +33,7 @@ bloop --loopOrder 2 \
       --firstBenchmark 1 \
       --lastBenchmark 1 \
       --bSave \
-      --resultsDirectory $SCRIPT_DIR/IntegrationTests/NNLO/OutputResult/ \
+      --resultsDirectory $SCRIPT_DIR/IntegrationTests/NNLO/OutputResult \
       --benchmarkFile $SCRIPT_DIR/IntegrationTests/Benchmarks \
       --benchmarkType handPicked \
       --TRangeStart 50 \

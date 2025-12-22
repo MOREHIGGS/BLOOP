@@ -11,17 +11,19 @@
       "darkHieracy": 1
     },
     "failureReason": false,
-    "fieldJumps": [
+    "PTData": [
       {
         "Tc": 50.0,
+        "strength": 0.8072097921573853,
         "v3": -0.8072097854001097
       },
       {
         "Tc": 60.0,
+        "strength": 0.6117556982530488,
         "v3": -0.6117556970275126
       }
     ],
-    "strong": 0.8072097921573853,
+    "strong": true,
     "steps": 2,
     "isPerturbative": true,
     "complex": false
