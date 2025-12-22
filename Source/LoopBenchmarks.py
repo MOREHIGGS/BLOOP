@@ -84,7 +84,7 @@ def processData(
         "bmNumber": bmNumber,
         "bmInput": bmInput,
         "failureReason": result["failureReason"],
-        "fieldJumps": None,
+        "PTData": None,
         "strong": False,
         "steps": 0
     }
@@ -110,18 +110,21 @@ def processData(
     PTIndices = (fieldLengthDiff >= strengthCutOff).nonzero()[0]
     if len(PTIndices) > 0:
         processedResult["steps"] = len(fieldLengthDiff[PTIndices])
-        processedResult["strong"] = float(max(fieldLengthDiff[PTIndices]))
+        processedResult["strong"] = True
         results = []
         
         for idx in PTIndices:
-            resultDic = {"Tc": result["T"][idx]}
-
+            resultDic = {
+                "Tc": result["T"][idx], 
+                "strength": fieldLengthDiff[idx]
+            }
+            
             for fieldNameIdx, fieldJumps in enumerate(allFieldValuesD):
                 if abs(fieldJumps[idx]) > 0.1:
                     resultDic[fieldNames[fieldNameIdx]] = float(fieldJumps[idx])
             results.append(resultDic)
         
-        processedResult["fieldJumps"] = results
+        processedResult["PTData"] = results
     
     return processedResult
 
