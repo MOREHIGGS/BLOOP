@@ -10,6 +10,9 @@ def runTests():
     
     if unit_result == 0:
         loopOrderList = ["NLO", "NNLO"]
+        TStart = [100, 50]
+        TStep = [2, 10]
+        TEnd = [200,100]
         for idx, loopOrder in enumerate(loopOrderList):
             print(f"Running {loopOrder} integration test:")
             for file in glob.glob(f"../Share/IntegrationTests/{loopOrder}/OutputResult/*"):
@@ -24,8 +27,9 @@ def runTests():
                 '--bSave',
                 '--resultsDirectory', f'../Share/IntegrationTests/{loopOrder}/OutputResult/',
                 '--benchmarkFile', '../Share/IntegrationTests/Benchmarks',
-                '--TRangeStart', '100', 
-                '--TRangeStepSize', '2',
+                '--TRangeStart', f'{TStart[idx]}', 
+                '--TRangeStepSize', f'{TStep[idx]}',
+                '--TRangeEnd', f'{TEnd[idx]}',
                 '--gccFlags', 'O1',
                 '--lastStage', 'doMinimization',
             ])
