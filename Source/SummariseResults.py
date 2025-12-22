@@ -54,7 +54,7 @@ def summariseResults(args):
     ## this is so the colour of the scatter plot is set by the strong PT at that point
     ## transpose taken so each row is just on variable type (faster to plot)
     dataSorted =  np.transpose(np.asarray(sorted(zip(strengthList, bmNumberList, TcList, *np.transpose(bmInputList))))) 
-    if len(dataSorted[0]) > 0:
+    if len(dataSorted) > 0:
         with open(f"{args.resultsDirectory}/summary.txt", "w") as fp:
             fp.writelines(dedent(f"""\
                 Summary of the results: 
@@ -68,9 +68,8 @@ def summariseResults(args):
                 """))
         # Is this still needed?
         norm = plt.Normalize(dataSorted[0][0], dataSorted[0][-1])
-        
+        fileNames = list(result["bmInput"].keys())
         axisLabels = list(result["bmInput"].keys())
-        fileNames = axisLabels
 
         ## ~~~~ For nicer axis labels~~~~
         #axisLabels = [
@@ -93,7 +92,7 @@ def summariseResults(args):
             plt.colorbar(label="strength")
             plt.savefig(f"{args.resultsDirectory}/{fileNames[inputIdx+1]}")
             plt.close()
-    
+        
         # Makes plots of bm inputs vs Tc
         for inputIdx, data in enumerate(dataSorted[3:]):
             plt.scatter(data, dataSorted[2], s=4.2**2, c=dataSorted[0], marker="o", norm=norm)
