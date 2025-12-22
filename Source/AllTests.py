@@ -14,7 +14,7 @@ def runTests():
             print(f"Running {loopOrder} integration test:")
             for file in glob.glob(f"../Share/IntegrationTests/{loopOrder}/OutputResult/*"):
                 os.remove(file)
-            exit()
+            
             subprocess.run([
                 sys.executable,
                 'RunStages.py',
