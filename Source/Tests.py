@@ -4,6 +4,7 @@ import subprocess
 import json
 import glob
 import os
+import difflib
 
 def runTests():
     unit_result = pytest.main(["PyTestUnitTests.py"])
@@ -55,17 +56,16 @@ def runTests():
             else:
                 print(f"{loopOrder} data is outside 1% of what we expect.")
             
-            print(f"Please see {loopOrder}Diff.txt to see the actual diff")
-            import difflib
-            diff = difflib.unified_diff(
-               json.dumps(bm1, indent=2).splitlines(keepends=True),
-               json.dumps(bm1Ref, indent=2).splitlines(keepends=True),
-               fromfile='reference',
-               tofile='output'
-               )
-            print()
-            print()
-            print(''.join(diff))
+            print(f"Please see {loopOrder}Diff.txt for further details.")
+            
+            with open(f"{loopOrder}Diff.txt", "w") as fp:
+                fp.write("".join(difflib.unified_diff(
+                    json.dumps(bm1, indent=2).splitlines(keepends=True),
+                    json.dumps(bm1Ref, indent=2).splitlines(keepends=True),
+                    fromfile='reference',
+                    tofile='output'
+                )))
+                
     else:
         print("Unit tests failed. Skipping integration tests.")
 
