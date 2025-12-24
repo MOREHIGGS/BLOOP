@@ -26,7 +26,7 @@ def runTests():
                 '--resultsDirectory', f'../Share/IntegrationTests/{loopOrder}/OutputResult/',
                 '--benchmarkFile', '../Share/IntegrationTests/Benchmarks',
                 '--TRangeStart', '90', 
-                '--TRangeStepSize', f'2',
+                '--TRangeStepSize', f'1',
                 '--TRangeEnd', f'200',
                 '--gccFlags', 'O1',
                 '--lastStage', 'doMinimization',
