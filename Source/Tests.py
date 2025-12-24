@@ -53,15 +53,25 @@ def runTests():
             else:
                 print(f"{loopOrder} data is outside 1% of what we expect.")
             
-            print(f"Please see {loopOrder}Diff.txt for further details.\n")
+            print(f"See {loopOrder}Diff.txt for further details.\n")
             
             with open(f"{loopOrder}Diff.txt", "w") as fp:
+                fp.write("BM1 diff:\n")
                 fp.write("".join(difflib.unified_diff(
                     json.dumps(bm1, indent=2).splitlines(keepends=True),
                     json.dumps(bm1Ref, indent=2).splitlines(keepends=True),
-                    fromfile='reference',
-                    tofile='output'
+                    fromfile='output',
+                    tofile='reference'
                 )))
+                fp.write("Scan results diff:\n")
+                fp.write("".join(difflib.unified_diff(
+                    json.dumps(scanResults, indent=2).splitlines(keepends=True),
+                    json.dumps(scanResultsRef, indent=2).splitlines(keepends=True),
+                    fromfile='output',
+                    tofile='reference'
+                )))
+
+
                 
     else:
         print("Unit tests failed. Skipping integration tests.")
