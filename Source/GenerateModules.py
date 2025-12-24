@@ -202,34 +202,18 @@ def generateComputeMassesModule(
         from scipy.linalg.blas import dgemm
         from numpy import divide, sqrt
 
-        cpdef void computeMasses(double [:] parameters):
+        cdef void computeMasses(double [:] parameters):
         {%- for symbol in allSymbols %}
-            cdef double * {{ symbol }} = &parameters[{{ loop.index0 }}]
-        {%- endfor %}
-
-            _computeMasses(
-        {%- for symbol in allSymbols %}
-                {{ symbol }},
-        {%- endfor %}
-            )
-
-        cdef void _computeMasses(
-        {%- for symbol in allSymbols %}
-            double * _{{ symbol }},
-        {%- endfor %}
-        ):
-        {%- for symbol in allSymbols %}
-            cdef double {{ symbol }} = _{{ symbol }}[0]
+            cdef double {{ symbol }} = parameters[{{ loop.index0 }}]
+            cdef double _{{ symbol }} = {{symbol}}
         {%- endfor %}
 
         {%- for expression in vectorMasses %}
-            {{ expression.identifier }} = {{ expression.expression }}
-            _{{ expression.identifier }}[0] = {{ expression.identifier }}
+            _{{ expression.identifier }} = {{ expression.expression }}
         {%- endfor %}
 
         {%- for expression in vectorShorthands %}
-            {{ expression.identifier }} = {{ expression.expression }}
-            _{{ expression.identifier }}[0] = {{ expression.identifier }}
+            _{{ expression.identifier }} = {{ expression.expression }}
         {%- endfor %}
 
         {%- for scalarMassMatrix in scalarMassMatrices %}
@@ -251,13 +235,18 @@ def generateComputeMassesModule(
             
 
         {%- for symbol, indices in scalarRotationMatrix.items() %}
-            _{{ symbol }}[0] = eigenVectors[{{ indices[0] }}][{{ indices[1] }}]
+            _{{ symbol }} = eigenVectors[{{ indices[0] }}][{{ indices[1] }}]
         {%- endfor %}
 
         {% set scalarMassMatrixLength = (scalarMassNames | length) / (scalarMassMatrices | length) | int %}
         {%- for massSymbol in scalarMassNames %}
-            _{{ massSymbol }}[0] = eigenValues{{ (loop.index0 / scalarMassMatrixLength) | int }}[{{ (loop.index0 % scalarMassMatrixLength) | int }}]
+            _{{ massSymbol }} = eigenValues{{ (loop.index0 / scalarMassMatrixLength) | int }}[{{ (loop.index0 % scalarMassMatrixLength) | int }}]
         {%- endfor %}
+
+         {%- for symbol in allSymbols %}
+            parameters[{{ loop.index0 }}] = _{{symbol}}
+        {%- endfor %}
+
         """)).render(
             allSymbols=allSymbols, 
             scalarMassMatrices = scalarMassMatrices,
