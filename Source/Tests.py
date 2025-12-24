@@ -47,14 +47,25 @@ def runTests():
         
             if bm1 == pytest.approx(bm1Ref, rel=0.) and scanResults ==  pytest.approx(scanResultsRef, rel=0.):
                 print(f"{loopOrder} data is exactly what we expect")
+                continue
         
             elif bm1 == pytest.approx(bm1Ref, rel=0.01):
                 print(f"{loopOrder} data is within 1% of what we expect")
         
             else:
-                print(f"""{loopOrder} data is outside 1% of what we expect. \n 
-                       Please do a diff for further deatils""")
-
+                print(f"{loopOrder} data is outside 1% of what we expect.")
+            
+            print(f"Please see {loopOrder}Diff.txt to see the actual diff")
+            import difflib
+            diff = difflib.unified_diff(
+               json.dumps(bm1, indent=2).splitlines(keepends=True),
+               json.dumps(bm1Ref, indent=2).splitlines(keepends=True),
+               fromfile='reference',
+               tofile='output'
+               )
+            print()
+            print()
+            print(''.join(diff))
     else:
         print("Unit tests failed. Skipping integration tests.")
 
