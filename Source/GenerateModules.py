@@ -198,7 +198,6 @@ def generateComputeMassesModule(
     
     return Environment().from_string(dedent("""\
         from scipy.linalg import lapack, block_diag
-        from scipy.linalg.blas import dgemm
         from numpy import divide, sqrt
 
         cdef void computeMasses(double [:] params):
@@ -225,10 +224,10 @@ def generateComputeMassesModule(
                 eigenVectors{{ loop.index0 }},
         {%- endfor %}
             )
-            
+        ## This avoids a matrix mutliplication, like 6% faster (1loop)
+        ## Needs to not be harded coded before merge
         {%- if not scalarPermutationMatrix == none %}
-            scalarPermutationMatrix = {{ scalarPermutationMatrix }}
-            eigenVectors = dgemm(1,  scalarPermutationMatrix, eigenVectors)
+            eigenVectors = eigenVectors[[0, 10, 2, 8, 4, 6, 5, 7, 3, 9, 1, 11], :]
         {%- endif %}
             
 
