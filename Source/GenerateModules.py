@@ -191,7 +191,7 @@ def generateComputeMassesModule(
         scalarPermutationMatrix = None
     else:
         with open(scalarPermutationMatrixFile) as file:
-            scalarPermutationMatrix = convertMatrixToCythonSyntax(file.read())
+            scalarPermutationMatrix = file.readline()
 
     with open(scalarRotationMatrixFile) as file:
         scalarRotationMatrix = json.loads(file.read())
@@ -226,10 +226,10 @@ def generateComputeMassesModule(
         {%- endfor %}
             )
             
-            {%- if not scalarPermutationMatrix == none %}
+        {%- if not scalarPermutationMatrix == none %}
             scalarPermutationMatrix = {{ scalarPermutationMatrix }}
             eigenVectors = dgemm(1,  scalarPermutationMatrix, eigenVectors)
-            {%- endif %}
+        {%- endif %}
             
 
         {%- for symbol, indices in scalarRotationMatrix.items() %}
