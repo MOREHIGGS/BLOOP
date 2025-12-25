@@ -57,6 +57,7 @@ def generateModules(
         scalarRotationMatrixFilePath,
         vectorMasses,
         vectorShorthands,
+        loopOrder,
     )
     
     generateEvaluatePotentialModule(
@@ -184,6 +185,7 @@ def generateComputeMassesModule(
     scalarRotationMatrixFile,
     vectorMasses,
     vectorShorthands,
+    loopOrder
 ):
     with open(scalarMassMatrixFile) as file:
         scalarMassMatrices = [convertMatrixToCythonSyntax(line) for line in file.readlines()]
@@ -215,26 +217,29 @@ def generateComputeMassesModule(
 
         {%- for scalarMassMatrix in scalarMassMatrices %}
             scalarMassMatrix{{ loop.index0 }} = divide({{ scalarMassMatrix -}}, (T ** 2))
-            eigenValues{{ loop.index0 }}, eigenVectors{{ loop.index0 }}, _ = lapack.dsyevd(scalarMassMatrix{{ loop.index0 }}, compute_v = 1)
+
+            eigenValues{{ loop.index0 }}, eigenVectors{{ loop.index0 }}, _ = lapack.dsyevd(scalarMassMatrix{{ loop.index0 }}, compute_v = {{bEigenVectors}})
             eigenValues{{ loop.index0 }} *= (T ** 2)
         {%- endfor %}
         
+        {%- if bEigenVectors %}
             eigenVectors = block_diag(
         {%- for scalarMassMatrix in scalarMassMatrices %}
                 eigenVectors{{ loop.index0 }},
         {%- endfor %}
             )
-        ## This avoids a matrix mutliplication, like 6% faster (1loop)
+        
+        ## This avoids a matrix mutliplication
         ## Needs to not be harded coded before merge
-        {%- if not scalarPermutationMatrix == none %}
+        {%- if scalarPermutationMatrix is not none %}
             eigenVectors = eigenVectors[[0, 10, 2, 8, 4, 6, 5, 7, 3, 9, 1, 11], :]
         {%- endif %}
-            
 
         {%- for symbol, indices in scalarRotationMatrix.items() %}
             params[{{allSymbols.index( symbol )}}] = eigenVectors[{{ indices[0] }}][{{ indices[1] }}]
         {%- endfor %}
 
+        {%- endif %}
         {% set scalarMassMatrixLength = (scalarMassNames | length) / (scalarMassMatrices | length) | int %}
         {%- for symbol in scalarMassNames %}
             params[{{allSymbols.index( symbol )}}] = eigenValues{{ (loop.index0 / scalarMassMatrixLength) | int }}[{{ (loop.index0 % scalarMassMatrixLength) | int }}]
@@ -248,6 +253,7 @@ def generateComputeMassesModule(
             scalarRotationMatrix = scalarRotationMatrix,
             vectorMasses = vectorMasses,
             vectorShorthands = vectorShorthands,
+            bEigenVectors = 0 if loopOrder ==1 else 1,
         )
 
 def mutliLineExpression(filePointer):
