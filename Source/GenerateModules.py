@@ -196,33 +196,22 @@ def generateComputeMassesModule(
     with open(scalarRotationMatrixFile) as file:
         scalarRotationMatrix = json.loads(file.read())
     
-    outSymbols = [symbol for symbol in scalarMassNames]
-    for expression in vectorMasses:
-        outSymbols.append(expression['identifier'])
-
-
-    for expression in vectorShorthands:
-        outSymbols.append(expression['identifier'])
-    
-    for symbol in scalarRotationMatrix.keys():
-        outSymbols.append(symbol)
-    
     return Environment().from_string(dedent("""\
         from scipy.linalg import lapack, block_diag
         from scipy.linalg.blas import dgemm
         from numpy import divide, sqrt
 
-        cdef void computeMasses(double [:] parameters):
+        cdef void computeMasses(double [:] params):
         {%- for symbol in allSymbols %}
-            cdef double {{ symbol }} = parameters[{{ loop.index0 }}]
+            cdef double {{ symbol }} = params[{{ loop.index0 }}]
         {%- endfor %}
 
         {%- for expression in vectorMasses %}
-            _{{ expression.identifier }} = {{ expression.expression }}
+            params[{{allSymbols.index(expression.identifier)}}] = {{ expression.expression }}
         {%- endfor %}
 
         {%- for expression in vectorShorthands %}
-            _{{ expression.identifier }} = {{ expression.expression }}
+            params[{{allSymbols.index(expression.identifier)}}] = {{ expression.expression }}
         {%- endfor %}
 
         {%- for scalarMassMatrix in scalarMassMatrices %}
@@ -244,16 +233,12 @@ def generateComputeMassesModule(
             
 
         {%- for symbol, indices in scalarRotationMatrix.items() %}
-            _{{ symbol }} = eigenVectors[{{ indices[0] }}][{{ indices[1] }}]
+            params[{{allSymbols.index( symbol )}}] = eigenVectors[{{ indices[0] }}][{{ indices[1] }}]
         {%- endfor %}
 
         {% set scalarMassMatrixLength = (scalarMassNames | length) / (scalarMassMatrices | length) | int %}
-        {%- for massSymbol in scalarMassNames %}
-            _{{ massSymbol }} = eigenValues{{ (loop.index0 / scalarMassMatrixLength) | int }}[{{ (loop.index0 % scalarMassMatrixLength) | int }}]
-        {%- endfor %}
-
-         {%- for symbol in outSymbols %}
-            parameters[{{allSymbols.index(symbol)}}] = _{{symbol}}
+        {%- for symbol in scalarMassNames %}
+            params[{{allSymbols.index( symbol )}}] = eigenValues{{ (loop.index0 / scalarMassMatrixLength) | int }}[{{ (loop.index0 % scalarMassMatrixLength) | int }}]
         {%- endfor %}
 
         """)).render(
@@ -264,7 +249,6 @@ def generateComputeMassesModule(
             scalarRotationMatrix = scalarRotationMatrix,
             vectorMasses = vectorMasses,
             vectorShorthands = vectorShorthands,
-            outSymbols = outSymbols,
         )
 
 def mutliLineExpression(filePointer):
