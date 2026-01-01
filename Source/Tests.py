@@ -5,26 +5,27 @@ import json
 import glob
 import os
 import difflib
-
+import time
 def runTests():
-    unit_result = pytest.main(["PyTestUnitTests.py"])
-    
-    if unit_result == 0:
+    sourceDirectory = os.path.dirname(os.path.realpath(__file__))
+    integrationTestsDirectory = f"{sourceDirectory}/../Share/IntegrationTests"
+    unitResult = pytest.main([f"{sourceDirectory}/PyTestUnitTests.py"])
+    if unitResult == 0:
         loopOrderList = ["NLO", "NNLO"]
         for idx, loopOrder in enumerate(loopOrderList):
             print(f"Running {loopOrder} integration test:")
-            for file in glob.glob(f"../Share/IntegrationTests/{loopOrder}/OutputResult/*"):
+            for file in glob.glob("integrationTestDirectory/{loopOrder}/OutputResult/*"):
                 os.remove(file)
-            
+ 
             subprocess.run([
                 sys.executable,
-                'RunStages.py',
+                f'{sourceDirectory}/RunStages.py',
                 '--loopOrder', f'{idx +1}', 
                 '--firstBenchmark', '1',
                 '--lastBenchmark', '1',
                 '--bSave',
-                '--resultsDirectory', f'../Share/IntegrationTests/{loopOrder}/OutputResult/',
-                '--benchmarkFile', '../Share/IntegrationTests/Benchmarks',
+                '--resultsDirectory', f'{integrationTestsDirectory}/{loopOrder}/OutputResult/',
+                '--benchmarkFile', 'integrationTestsDirectory/Benchmarks',
                 '--TRangeStart', '90', 
                 '--TRangeStepSize', f'1',
                 '--TRangeEnd', f'200',
@@ -32,15 +33,14 @@ def runTests():
                 '--lastStage', 'doMinimization',
             ])
 
-           
-            with open(f"../Share/IntegrationTests/{loopOrder}/OutputResult/ScanResults.json", "r") as fp:
+            with open(f"{integrationTestsDirectory}/{loopOrder}/OutputResult/ScanResults.json", "r") as fp:
                 scanResults = json.load(fp)
-            with open(f"../Share/IntegrationTests/{loopOrder}/ReferenceResult/ScanResults.json", "r") as fp:
+            with open(f"{integrationTestsDirectory}/{loopOrder}/ReferenceResult/ScanResults.json", "r") as fp:
                 scanResultsRef = json.load(fp)
 
-            with open(f"../Share/IntegrationTests/{loopOrder}/OutputResult/BM_1.json", "r") as fp:
+            with open(f"{integrationTestsDirectory}/{loopOrder}/OutputResult/BM_1.json", "r") as fp:
                 bm1 = json.load(fp)
-            with open(f"../Share/IntegrationTests/{loopOrder}/ReferenceResult/BM_1.json", "r") as fp:
+            with open(f"{integrationTestsDirectory}/{loopOrder}/ReferenceResult/BM_1.json", "r") as fp:
                 bm1Ref = json.load(fp)
             print() 
             if bm1 == pytest.approx(bm1Ref, rel=0.) and scanResults ==  pytest.approx(scanResultsRef, rel=0.):
