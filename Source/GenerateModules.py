@@ -201,7 +201,8 @@ def generateComputeMassesModule(
     return Environment().from_string(dedent("""\
         from scipy.linalg import lapack, block_diag
         from numpy import divide, sqrt
-
+        from scipy.linalg.blas import dgemm
+        
         cdef void computeMasses(double [:] params):
         {%- for symbol in allSymbols %}
             cdef double {{ symbol }} = params[{{ loop.index0 }}]
@@ -229,12 +230,11 @@ def generateComputeMassesModule(
         {%- endfor %}
             )
         
-        ## This avoids a matrix mutliplication
-        ## Needs to not be harded coded before merge
-        {%- if scalarPermutationMatrix is not none %}
-            eigenVectors = eigenVectors[[0, 10, 2, 8, 4, 6, 5, 7, 3, 9, 1, 11], :]
+        {%- if not scalarPermutationMatrix == none %}
+            scalarPermutationMatrix = {{ scalarPermutationMatrix }}
+            eigenVectors = dgemm(1,  scalarPermutationMatrix, eigenVectors)
         {%- endif %}
-
+        
         {%- for symbol, indices in scalarRotationMatrix.items() %}
             params[{{allSymbols.index( symbol )}}] = eigenVectors[{{ indices[0] }}][{{ indices[1] }}]
         {%- endfor %}
