@@ -5,7 +5,6 @@ import nlopt
 from dataclasses import dataclass, InitVar, field
 
 from PDGData import mTop, mW, mZ, higgsVEV
-from evaluatePotential  import evaluatePotential
 
 @dataclass(frozen=True)
 class cNlopt:
@@ -178,6 +177,7 @@ class TrackVEV:
         return minimizationResults
     
     def findGlobalMinimum(self, params3D, minimumCandidates):
+        from evaluatePotential  import evaluatePotential
         """For physics reasons we only minimise the real part,
         for nlopt reasons we need to give a redunant grad arg"""
         def VeffWrapper(fields, grad):
