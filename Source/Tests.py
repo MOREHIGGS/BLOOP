@@ -6,6 +6,8 @@ import glob
 import os
 import difflib
 import time
+import shutil
+
 def runTests():
     sourceDirectory = os.path.dirname(os.path.realpath(__file__))
     integrationTestsDirectory = f"{sourceDirectory}/../Share/IntegrationTests"
@@ -16,7 +18,13 @@ def runTests():
             print(f"Running {loopOrder} integration test:")
             for file in glob.glob("integrationTestDirectory/{loopOrder}/OutputResult/*"):
                 os.remove(file)
- 
+
+            for file in glob.glob(f"{sourceDirectory}/../Build/CythonModules/*"):
+                if os.path.isdir(file):
+                    shutil.rmtree(file)
+                else:
+                    os.remove(file)
+            
             subprocess.run([
                 sys.executable,
                 f'{sourceDirectory}/RunStages.py',
