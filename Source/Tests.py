@@ -25,7 +25,7 @@ def runTests():
                 else:
                     os.remove(file)
             
-            subprocess.run([
+            integrationTest = subprocess.run([
                 sys.executable,
                 f'{sourceDirectory}/RunStages.py',
                 '--loopOrder', f'{idx +1}', 
@@ -39,8 +39,16 @@ def runTests():
                 '--TRangeEnd', f'200',
                 '--gccFlags', 'O1',
                 '--lastStage', 'doMinimization',
-            ])
+                ], 
+                capture_output=True,
+                text=True,
+                )
 
+            if not integrationTest.returncode == 0:
+                print(f"Error output: {integrationTest.stderr}")
+                print(f"{loopOrder} integration test failed, exiting tests.")
+                exit() 
+            
             with open(f"{integrationTestsDirectory}/{loopOrder}/OutputResult/ScanResults.json", "r") as fp:
                 scanResults = json.load(fp)
             with open(f"{integrationTestsDirectory}/{loopOrder}/ReferenceResult/ScanResults.json", "r") as fp:
