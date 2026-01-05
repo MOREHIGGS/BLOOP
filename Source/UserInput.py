@@ -257,6 +257,7 @@ class UserInput(argparse.ArgumentParser):
            "--strengthCutOff",
            action="store",
            default=0.6,
+           type=float,
            help="float: Lowest strength of phase transition which we will label as strong",
        )
        ########################################################################
