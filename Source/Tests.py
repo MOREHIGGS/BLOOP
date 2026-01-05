@@ -29,11 +29,10 @@ def runTests():
                 sys.executable,
                 f'{sourceDirectory}/RunStages.py',
                 '--loopOrder', f'{idx +1}', 
-                '--firstBenchmark', '1',
-                '--lastBenchmark', '1',
+                '--lastBenchmark', '3',
                 '--bSave',
                 '--resultsDirectory', f'{integrationTestsDirectory}/{loopOrder}/OutputResult/',
-                '--benchmarkFile', 'integrationTestsDirectory/Benchmarks',
+                '--benchmarkFile', 'f{integrationTestsDirectory}/Benchmarks',
                 '--TRangeStart', '90', 
                 '--TRangeStepSize', f'1',
                 '--TRangeEnd', f'200',
@@ -54,39 +53,40 @@ def runTests():
             with open(f"{integrationTestsDirectory}/{loopOrder}/ReferenceResult/ScanResults.json", "r") as fp:
                 scanResultsRef = json.load(fp)
 
-            with open(f"{integrationTestsDirectory}/{loopOrder}/OutputResult/BM_1.json", "r") as fp:
-                bm1 = json.load(fp)
-            with open(f"{integrationTestsDirectory}/{loopOrder}/ReferenceResult/BM_1.json", "r") as fp:
-                bm1Ref = json.load(fp)
-            print() 
-            if bm1 == pytest.approx(bm1Ref, rel=0.) and scanResults ==  pytest.approx(scanResultsRef, rel=0.):
-                print(f"{loopOrder} data is exactly what we expect")
-                continue
-        
-            elif bm1 == pytest.approx(bm1Ref, rel=0.01):
-                print(f"{loopOrder} data is within 1% of what we expect")
-        
-            else:
-                print(f"{loopOrder} data is outside 1% of what we expect.")
-            
-            print(f"See {loopOrder}Diff.txt for further details.\n")
-            
-            with open(f"{loopOrder}Diff.txt", "w") as fp:
-                fp.write("BM1 diff:\n")
-                fp.write("".join(difflib.unified_diff(
-                    json.dumps(bm1, indent=2).splitlines(keepends=True),
-                    json.dumps(bm1Ref, indent=2).splitlines(keepends=True),
-                    fromfile='output',
-                    tofile='reference'
-                )))
-                fp.write("Scan results diff:\n")
-                fp.write("".join(difflib.unified_diff(
-                    json.dumps(scanResults, indent=2).splitlines(keepends=True),
-                    json.dumps(scanResultsRef, indent=2).splitlines(keepends=True),
-                    fromfile='output',
-                    tofile='reference'
-                )))
+            try:
+                os.remove(f"{loopOrder}Diff.txt")
+            except:
+                pass
 
+            if scanResults ==  pytest.approx(scanResultsRef, rel=0.):
+                print(f"{loopOrder} data is exactly what we expect")
+            
+            else:
+                for i in range(4):
+                    with open(f"{integrationTestsDirectory}/{loopOrder}/OutputResult/BM_{i}.json", "r") as fp:
+                        bm = json.load(fp)
+                    with open(f"{integrationTestsDirectory}/{loopOrder}/ReferenceResult/BM_{i}.json", "r") as fp:
+                        bmRef = json.load(fp)
+                
+                    if bm == pytest.approx(bmRef, rel=0.): 
+                        print(f"BM{i} data is exactly what we expect")
+        
+                    elif bm == pytest.approx(bm1Ref, rel=0.01):
+                        print(f"BM{i} is within 1% of what we expect")
+        
+                    else:
+                        print(f"BM{i} is outside 1% of what we expect")
+            
+                    with open(f"{loopOrder}Diff.txt", "a") as fp:
+                        fp.write(f"BM{i} diff:\n")
+                        fp.write("".join(difflib.unified_diff(
+                        json.dumps(bm, indent=2).splitlines(keepends=True),
+                        json.dumps(bmRef, indent=2).splitlines(keepends=True),
+                        fromfile='output',
+                        tofile='reference'
+                    )))
+
+                print(f"See {loopOrder}Diff.txt for further details.")
 
                 
     else:

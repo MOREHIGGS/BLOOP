@@ -1,5 +1,29 @@
 [
   {
+    "bmNumber": 0,
+    "bmInput": {
+      "thetaCPV": 2.5522714805947393,
+      "ghDM": 0.5086042817226999,
+      "mS1": 99.36450394464288,
+      "delta12": 42.80075856374667,
+      "delta1c": 96.06869518984769,
+      "deltac": 5.2678728361278155,
+      "darkHieracy": 1
+    },
+    "failureReason": false,
+    "PTData": [
+      {
+        "Tc": 128.0,
+        "strength": 1.0501271311692228,
+        "v3": -1.0501889730740612
+      }
+    ],
+    "strong": true,
+    "steps": 1,
+    "isPerturbative": true,
+    "complex": false
+  },
+  {
     "bmNumber": 1,
     "bmInput": {
       "thetaCPV": 2.0943951023931953,
@@ -8,6 +32,42 @@
       "delta12": 4.0,
       "delta1c": 50.0,
       "deltac": 1.0,
+      "darkHieracy": 1
+    },
+    "failureReason": false,
+    "PTData": null,
+    "strong": false,
+    "steps": 0,
+    "isPerturbative": true,
+    "complex": false
+  },
+  {
+    "bmNumber": 2,
+    "bmInput": {
+      "thetaCPV": 3.082183112574816,
+      "ghDM": 0.5364316612973308,
+      "mS1": 68.43630541987292,
+      "delta12": 79.0888560988479,
+      "delta1c": 45.64676671775482,
+      "deltac": 27.279729519388148,
+      "darkHieracy": 1
+    },
+    "failureReason": false,
+    "PTData": null,
+    "strong": false,
+    "steps": 0,
+    "isPerturbative": true,
+    "complex": false
+  },
+  {
+    "bmNumber": 3,
+    "bmInput": {
+      "thetaCPV": 1.893580908713017,
+      "ghDM": 0.49693161396025076,
+      "mS1": 69.13440475054537,
+      "delta12": 62.67361616764857,
+      "delta1c": 89.67096039014373,
+      "deltac": 19.87132366433007,
       "darkHieracy": 1
     },
     "failureReason": false,
