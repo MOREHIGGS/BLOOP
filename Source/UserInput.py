@@ -42,6 +42,12 @@ class UserInput(argparse.ArgumentParser):
            help="List[str]: Flags to pass to gcc. Recommended flags for perfomance 'O3 march=native'. Note native compiles it for your cpu and so the excutable is non-transferable.  To reduce memory 'O1'. Don't include the - or flags"
        )
        configGroup.add_argument(
+           "--profile",
+           action="store_true",
+           default=False,
+           help="Bool: Flag to allow for profiling of cython code"
+       )
+       configGroup.add_argument(
            "--verbose",
            action="store_true",
            default=False,
