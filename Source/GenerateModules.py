@@ -72,11 +72,17 @@ def generateModules(
     generateSetupFile(
         CythonModulesDir / "Setup.py",
         loopOrder, 
-        gccFlags
+        gccFlags,
+        args.profile
     )
     compileCythonModules(args.verbose, CythonModulesDir)
     
-def generateSetupFile(fileName, loopOrder, gccFlags):
+def generateSetupFile(
+    fileName, 
+    loopOrder, 
+    gccFlags,
+    profile
+):  
     with open(fileName, 'w') as file:
         file.writelines(Environment().from_string(dedent("""\
             #!/usr/bin/env python3
@@ -93,11 +99,14 @@ def generateSetupFile(fileName, loopOrder, gccFlags):
                             "language_level": "3", 
                             "boundscheck": False,
                             "wraparound": False,
+                            "profile": {{profile}},
                             }
                 ),
             )
             """
-        )).render(loopOrder = loopOrder, gccFlags = [f"-{flag}" for flag in gccFlags] ))
+        )).render(loopOrder = loopOrder, 
+        gccFlags = [f"-{flag}" for flag in gccFlags],
+        profile = profile))
     
 def generateEvaluatePotentialModule(
     filename, 
