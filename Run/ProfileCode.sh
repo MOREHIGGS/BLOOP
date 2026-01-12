@@ -32,14 +32,11 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
-echo $SCRIPT_DIR
-echo $SCRIPT_DIR
-echo $SCRIPT_DIR
-echo $SCRIPT_DIR
+
 echo "Generating 20 random benchmarks and compiling modules at loop order $LOOPORDER"
 bloop --lastStage generateBenchmark --benchmarkType random --randomNum 20 --loopOrder $LOOPORDER || exit -1
 echo "Profiling code"
-python3 -m cProfile -o $OUTPUTFILE.pstats $SCRIPT_DIR/../Source/RunStages.py --firstStage doMinimization --lastStage doMinimization || exit -1
+OMP_NUM_THREADS=1 python3 -m cProfile -o $OUTPUTFILE.pstats $SCRIPT_DIR/../Source/RunStages.py --profile --firstStage doMinimization --lastStage doMinimization || exit -1
 gprof2dot --colour-nodes-by-selftime -f pstats $OUTPUTFILE.pstats | \dot -Tsvg -o $OUTPUTFILE.svg || exit -1
 echo "Profile success, results stored in $OUTPUTFILE.svg"
 rm $OUTPUTFILE.pstats || exit -1
