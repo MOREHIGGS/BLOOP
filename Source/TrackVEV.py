@@ -149,11 +149,40 @@ class TrackVEV:
             params = self.softScaleRGE.evaluate(params)
             params = self.softToUltraSoft.evaluate(params)
 
+            from evaluatePotential  import evaluatePotential
+            print(evaluatePotential(
+                np.array(self.initialGuesses[0], dtype = np.float64), 
+                np.array(params, dtype = np.float64),
+                np.array(self.nloptInst.varLowerBounds, dtype = np.float64),
+                np.array(self.nloptInst.varUpperBounds, dtype = np.float64),
+                np.array(self.nloptInst.absGlobalTol, dtype = np.float64),
+                self.nloptInst.relGlobalTol,
+            ))
+            breakpoint()
+            exit(0)
+
+            """For physics reasons we only minimise the real part,
+            for nlopt reasons we need to give a redunant grad arg"""
+            def VeffWrapper(fields, grad):
+                return np.real(
+                        evaluatePotential(fields, params)
+                    )
+
+            bestResult = self.nloptInst.nloptGlobal(
+                VeffWrapper, 
+                self.initialGuesses[0],
+            )
+
             ## Round needed because nlopt result sometimes fp out of bounds
             ## See https://github.com/stevengj/nlopt/issues/625
-            vevLocation, vevDepth = self.findGlobalMinimum(
-                params, self.initialGuesses + [np.round(vevLocation, 8)]
-            )
+            for candidate in self.initialGuesses + [np.round(vevLocation, 8)]:
+                result = self.nloptInst.nloptLocal(VeffWrapper, candidate)
+                if result[1] < bestResult[1]:
+                    bestResult = result
+
+            ## Potential computed again in case its complex
+            vevLocation = bestResult[0]
+            vevDepth = evaluatePotential(bestResult[0], params)
            
             minimizationResults["T"].append(T)
             minimizationResults["vevDepthReal"].append(vevDepth.real)
@@ -176,25 +205,6 @@ class TrackVEV:
 
         return minimizationResults
     
-    def findGlobalMinimum(self, params3D, minimumCandidates):
-        from evaluatePotential  import evaluatePotential
-        """For physics reasons we only minimise the real part,
-        for nlopt reasons we need to give a redunant grad arg"""
-        def VeffWrapper(fields, grad):
-            return np.real(
-                    evaluatePotential(fields, params3D)
-                )
-
-        bestResult = self.nloptInst.nloptGlobal(VeffWrapper, minimumCandidates[0])
-
-        for candidate in minimumCandidates:
-            result = self.nloptInst.nloptLocal(VeffWrapper, candidate)
-            if result[1] < bestResult[1]:
-                bestResult = result
-
-        ## Potential computed again in case its complex
-        return bestResult[0], evaluatePotential(bestResult[0], params3D)
-
     def getTConsts(self, T, params):
         ## Should this be moved to DRalgo? Probably
         RGScale = 4.0 * pi * exp(-np.euler_gamma) * T

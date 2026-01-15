@@ -89,7 +89,12 @@ def generateSetupFile(
             # -*- coding: utf-8 -*-
             from setuptools import setup, Extension
             from Cython.Build import cythonize
-            extensions = [Extension("evaluatePotential", ["evaluatePotential.pyx"], extra_compile_args = {{gccFlags}})]
+            extensions = [Extension(
+                "evaluatePotential", 
+                ["evaluatePotential.pyx"], 
+                extra_compile_args = {{gccFlags}},
+                libraries = ["nlopt"],
+            )]
 
             setup(
                 name="Veff_cython",
@@ -121,18 +126,49 @@ def generateEvaluatePotentialModule(
         """
         from libc.complex cimport csqrt
         from libc.complex cimport clog
+        from nlopt cimport *
 
-        cpdef evaluatePotential(fields, double [:] parameters):
+        cdef extern from "nlopt.h":
+            void* nlopt_create(int, unsigned)
+            int nlopt_set_min_objective(void*, void*, void*)
+            int nlopt_optimize(void*, void*, void*)
+            int nlopt_set_lower_bounds(void*, void*)
+            int nlopt_set_upper_bounds(void*, void*)
+            int nlopt_set_xtol_abs(void*, void*)
+            int nlopt_set_xtol_rel(void*, double)
+
+        cpdef evaluatePotential(
+            fields, 
+            double [:] parameters,
+            double [:] lower_bounds,
+            double [:] upper_bounds,
+            double [:] xtol_abs,
+            double xtol_rel,
+        ):
+            cdef void* opt = nlopt_create(3, 3)
+            nlopt_set_min_objective(opt, <void*>&_evaluatePotential, <void*>&parameters[0])
+            nlopt_set_lower_bounds(opt, <void*>&lower_bounds[0])
+            nlopt_set_upper_bounds(opt, <void*>&upper_bounds[0])
+            nlopt_set_xtol_abs(opt, <void*>&xtol_abs[0])
+            nlopt_set_xtol_rel(opt, xtol_rel)
+            
+            cdef double results[3]
+            nlopt_optimize(opt, <void*>&parameters[0], results)
+
+            return results
+
+        cdef _evaluatePotential(fields, double* parameters):
         
         {% for name in fieldNames %}
             parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
-         {%- endfor %}
+        {%- endfor %}
         
-            computeMasses(parameters)
+            computeMasses(<double[:{{ allSymbols | length }}:1]>parameters)
             
         {%- for symbol in allSymbols %}
             cdef double {{ symbol }} = parameters[{{ loop.index0 }}]
         {%- endfor %}
+
             valueLO = _lo(
         {%- for symbol in allSymbols %}
             {{ symbol }},
