@@ -32,7 +32,7 @@ def runTests():
                 '--lastBenchmark', '3',
                 '--bSave',
                 '--resultsDirectory', f'{integrationTestsDirectory}/{loopOrder}/OutputResult/',
-                '--benchmarkFile', 'f{integrationTestsDirectory}/Benchmarks',
+                '--benchmarkFile', f'{integrationTestsDirectory}/Benchmarks',
                 '--TRangeStart', '90', 
                 '--TRangeStepSize', f'1',
                 '--TRangeEnd', f'200',
@@ -71,7 +71,7 @@ def runTests():
                     if bm == pytest.approx(bmRef, rel=0.): 
                         print(f"BM{i} data is exactly what we expect")
         
-                    elif bm == pytest.approx(bm1Ref, rel=0.01):
+                    elif bm == pytest.approx(bmRef, rel=0.01):
                         print(f"BM{i} is within 1% of what we expect")
         
                     else:
