@@ -209,7 +209,7 @@ def generateComputeMassesModule(
     
     return Environment().from_string(dedent("""\
         from scipy.linalg import lapack, block_diag
-        from numpy import array
+        from numpy import array, sqrt
         from scipy.linalg.blas import dgemm
         
         cdef void computeMasses(double [:] params):
@@ -225,7 +225,7 @@ def generateComputeMassesModule(
             params[{{allSymbols.index(expression.identifier)}}] = {{ expression.expression }}
         {%- endfor %}
         {%- for scalarMassMatrix in scalarMassMatrices %}
-            scalarMassMatrix{{ loop.index0 }} = array({{ scalarMassMatrix -}}), dtype=float)
+            scalarMassMatrix{{ loop.index0 }} = array({{ scalarMassMatrix -}}, dtype=float)
             
             eigenValues{{ loop.index0 }}, eigenVectors{{ loop.index0 }}, _ = lapack.dsyevd(scalarMassMatrix{{ loop.index0 }}, compute_v = {{bEigenVectors}})
         {%- endfor %}
