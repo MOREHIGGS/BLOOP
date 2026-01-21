@@ -126,15 +126,7 @@ def generateEvaluatePotentialModule(
         
             computeMasses(parameters)
             
-        {%- for symbol in allSymbols %}
-            cdef double {{ symbol }} = parameters[{{ loop.index0 }}]
-        {%- endfor %}
-            valueVeff = veff(
-        {%- for symbol in allSymbols %}
-            {{ symbol }},
-        {%- endfor %}
-            )
-            return valueVeff
+            return veff(parameters)
         
         {{ veffSubModule }}
         
@@ -155,16 +147,15 @@ def generateVeffModule(veffFilePaths, allSymbols):
     expressionTest = [item for result in results for item in result[1]]
     test = zip(opTest, expressionTest)
     return Environment().from_string(dedent("""\
-            cdef double complex veff(
-            {%- for symbol in allSymbols %}
-                float {{ symbol }},
-            {%- endfor %}
-                ):
-                cdef double complex a = 0.0
-            {%- for op, term in opsAndExpressions %}
-                a {{ op }} {{ term }}
-            {%- endfor %}
-                return a
+        cdef double complex veff(double [:] params):
+        {%- for symbol in allSymbols %}
+            cdef double {{ symbol }} = params[{{ loop.index0 }}]
+        {%- endfor %}
+            cdef double complex a = 0.0
+        {%- for op, term in opsAndExpressions %}
+            a {{ op }} {{ term }}
+        {%- endfor %}
+            return a
             """)).render(allSymbols=allSymbols, opsAndExpressions=test)
 
 
