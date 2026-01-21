@@ -209,7 +209,7 @@ def generateComputeMassesModule(
     
     return Environment().from_string(dedent("""\
         from scipy.linalg import lapack, block_diag
-        from numpy import array, sqrt
+        from numpy import array
         from scipy.linalg.blas import dgemm
         
         cdef void computeMasses(double [:] params):
@@ -224,13 +224,10 @@ def generateComputeMassesModule(
         {%- for expression in vectorShorthands %}
             params[{{allSymbols.index(expression.identifier)}}] = {{ expression.expression }}
         {%- endfor %}
-            #cdef double Tsq = T*T
-            #cdef double TsqInverse = 1.0 / Tsq
         {%- for scalarMassMatrix in scalarMassMatrices %}
-            scalarMassMatrix{{ loop.index0 }} = array({{ scalarMassMatrix -}}, dtype=float, order='F')# * TsqInverse
+            scalarMassMatrix{{ loop.index0 }} = array({{ scalarMassMatrix -}}), dtype=float)
             
             eigenValues{{ loop.index0 }}, eigenVectors{{ loop.index0 }}, _ = lapack.dsyevd(scalarMassMatrix{{ loop.index0 }}, compute_v = {{bEigenVectors}})
-            #eigenValues{{ loop.index0 }} *= Tsq
         {%- endfor %}
         
         {%- if bEigenVectors %}
