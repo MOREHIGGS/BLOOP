@@ -36,18 +36,14 @@ def generateModules(
     loopOrder = args.loopOrder 
     
     veffFilePaths   = [args.loFilePath, args.nloFilePath]
-    veffNames = ["lo", "nlo"]
+	
     if loopOrder >1:
         veffFilePaths.append(args.nnloFilePath)
-        veffNames.append("nnlo")
-        
-    veffSubModules = []
-    for idx, name in enumerate(veffNames):
-        veffSubModules.append(generateVeffSubModule(
-            name, 
-            veffFilePaths[idx], 
-            allSymbols
-        ))
+   
+    veffModule = generateVeffModule(
+    	veffFilePaths, 
+        allSymbols
+        )
     
     computeMassesModule = generateComputeMassesModule(
         allSymbols,
@@ -65,7 +61,7 @@ def generateModules(
         loopOrder,
         allSymbols, 
         fieldNames,
-        veffSubModules,
+        veffModule,
         computeMassesModule,
     )
     
@@ -133,31 +129,14 @@ def generateEvaluatePotentialModule(
         {%- for symbol in allSymbols %}
             cdef double {{ symbol }} = parameters[{{ loop.index0 }}]
         {%- endfor %}
-            valueLO = _lo(
+            valueVeff = veff(
         {%- for symbol in allSymbols %}
             {{ symbol }},
         {%- endfor %}
             )
-            valueNLO = _nlo(
-        {%- for symbol in allSymbols %}
-            {{ symbol }},
-        {%- endfor %}
-            )
-        {%- if loopOrder > 1 %}
-            valueNNLO = _nnlo(
-        {%- for symbol in allSymbols %}
-            {{ symbol }},
-        {%- endfor %}
-                )
-            return valueLO + valueNLO + valueNNLO
-            
-        {%- else %}
-            return valueLO + valueNLO
-        {%- endif %}
+            return valueVeff
         
-        {%- for veffSubModule in veffSubModules %}
         {{ veffSubModule }}
-        {%- endfor %}
         
         {{computeMassesModule}}
         
@@ -165,15 +144,18 @@ def generateEvaluatePotentialModule(
         loopOrder=loopOrder, 
         allSymbols=allSymbols, 
         fieldNames=fieldNames, 
-        veffSubModules = veffSubModules, 
+        veffSubModule = veffSubModules, 
         computeMassesModule = computeMassesModule
         )
         )
-def generateVeffSubModule(name, veffFp, allSymbols):
-    # Creates a cython module with that computes an order of Veff
+def generateVeffModule(veffFilePaths, allSymbols):
     ## NOTE this is the one thing the can return complex
+    results = [mutliLineExpression(veffFP) for veffFP in veffFilePaths]
+    opTest = [item for result in results for item in result[0]]
+    expressionTest = [item for result in results for item in result[1]]
+    test = zip(opTest, expressionTest)
     return Environment().from_string(dedent("""\
-            cdef double complex _{{ name }}(
+            cdef double complex veff(
             {%- for symbol in allSymbols %}
                 float {{ symbol }},
             {%- endfor %}
@@ -183,7 +165,7 @@ def generateVeffSubModule(name, veffFp, allSymbols):
                 a {{ op }} {{ term }}
             {%- endfor %}
                 return a
-            """)).render(name=name, allSymbols=allSymbols, opsAndExpressions=np.transpose(mutliLineExpression(veffFp)))
+            """)).render(allSymbols=allSymbols, opsAndExpressions=test)
 
 
 def generateComputeMassesModule(
