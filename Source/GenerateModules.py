@@ -36,18 +36,14 @@ def generateModules(
     loopOrder = args.loopOrder 
     
     veffFilePaths   = [args.loFilePath, args.nloFilePath]
-    veffNames = ["lo", "nlo"]
+	
     if loopOrder >1:
         veffFilePaths.append(args.nnloFilePath)
-        veffNames.append("nnlo")
-        
-    veffSubModules = []
-    for idx, name in enumerate(veffNames):
-        veffSubModules.append(generateVeffSubModule(
-            name, 
-            veffFilePaths[idx], 
-            allSymbols
-        ))
+   
+    veffModule = generateVeffModule(
+    	veffFilePaths, 
+        allSymbols
+        )
     
     computeMassesModule = generateComputeMassesModule(
         allSymbols,
@@ -65,7 +61,7 @@ def generateModules(
         loopOrder,
         allSymbols, 
         fieldNames,
-        veffSubModules,
+        veffModule,
         computeMassesModule,
     )
     
@@ -130,34 +126,9 @@ def generateEvaluatePotentialModule(
         
             computeMasses(parameters)
             
-        {%- for symbol in allSymbols %}
-            cdef double {{ symbol }} = parameters[{{ loop.index0 }}]
-        {%- endfor %}
-            valueLO = _lo(
-        {%- for symbol in allSymbols %}
-            {{ symbol }},
-        {%- endfor %}
-            )
-            valueNLO = _nlo(
-        {%- for symbol in allSymbols %}
-            {{ symbol }},
-        {%- endfor %}
-            )
-        {%- if loopOrder > 1 %}
-            valueNNLO = _nnlo(
-        {%- for symbol in allSymbols %}
-            {{ symbol }},
-        {%- endfor %}
-                )
-            return valueLO + valueNLO + valueNNLO
-            
-        {%- else %}
-            return valueLO + valueNLO
-        {%- endif %}
+            return veff(parameters)
         
-        {%- for veffSubModule in veffSubModules %}
         {{ veffSubModule }}
-        {%- endfor %}
         
         {{computeMassesModule}}
         
@@ -165,25 +136,27 @@ def generateEvaluatePotentialModule(
         loopOrder=loopOrder, 
         allSymbols=allSymbols, 
         fieldNames=fieldNames, 
-        veffSubModules = veffSubModules, 
+        veffSubModule = veffSubModules, 
         computeMassesModule = computeMassesModule
         )
         )
-def generateVeffSubModule(name, veffFp, allSymbols):
-    # Creates a cython module with that computes an order of Veff
+def generateVeffModule(veffFilePaths, allSymbols):
     ## NOTE this is the one thing the can return complex
+    results = [mutliLineExpression(veffFP) for veffFP in veffFilePaths]
+    opTest = [item for result in results for item in result[0]]
+    expressionTest = [item for result in results for item in result[1]]
+    test = zip(opTest, expressionTest)
     return Environment().from_string(dedent("""\
-            cdef double complex _{{ name }}(
-            {%- for symbol in allSymbols %}
-                float {{ symbol }},
-            {%- endfor %}
-                ):
-                cdef double complex a = 0.0
-            {%- for op, term in opsAndExpressions %}
-                a {{ op }} {{ term }}
-            {%- endfor %}
-                return a
-            """)).render(name=name, allSymbols=allSymbols, opsAndExpressions=np.transpose(mutliLineExpression(veffFp)))
+        cdef double complex veff(double [:] params):
+        {%- for symbol in allSymbols %}
+            cdef double {{ symbol }} = params[{{ loop.index0 }}]
+        {%- endfor %}
+            cdef double complex a = 0.0
+        {%- for op, term in opsAndExpressions %}
+            a {{ op }} {{ term }}
+        {%- endfor %}
+            return a
+            """)).render(allSymbols=allSymbols, opsAndExpressions=test)
 
 
 def generateComputeMassesModule(
@@ -209,7 +182,7 @@ def generateComputeMassesModule(
     
     return Environment().from_string(dedent("""\
         from scipy.linalg import lapack, block_diag
-        from numpy import divide, sqrt
+        from numpy import array, sqrt
         from scipy.linalg.blas import dgemm
         
         cdef void computeMasses(double [:] params):
@@ -224,12 +197,10 @@ def generateComputeMassesModule(
         {%- for expression in vectorShorthands %}
             params[{{allSymbols.index(expression.identifier)}}] = {{ expression.expression }}
         {%- endfor %}
-
         {%- for scalarMassMatrix in scalarMassMatrices %}
-            scalarMassMatrix{{ loop.index0 }} = divide({{ scalarMassMatrix -}}, (T ** 2))
-
+            scalarMassMatrix{{ loop.index0 }} = array({{ scalarMassMatrix -}}, dtype=float)
+            
             eigenValues{{ loop.index0 }}, eigenVectors{{ loop.index0 }}, _ = lapack.dsyevd(scalarMassMatrix{{ loop.index0 }}, compute_v = {{bEigenVectors}})
-            eigenValues{{ loop.index0 }} *= (T ** 2)
         {%- endfor %}
         
         {%- if bEigenVectors %}
