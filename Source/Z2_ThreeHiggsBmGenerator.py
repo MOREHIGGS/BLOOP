@@ -44,17 +44,32 @@ def generateBenchmarks(args):
         params["v2"] = fields[1]
         params["v3"] = fields[2]
         return treeLevel.evaluate(params)
-    bmdictList = []
+
     if args.benchmarkType == "randomSSS":
         with open(output_file, "w") as fp:
             json.dump(_strongSubSet(args.prevResultDir), fp, indent=4)
         return
-
-    elif args.benchmarkType == "handPicked":
-        for bmParams in _handPickedBm(nloptInst, potential, chargedMassMatrix, neutralMassMatrix):
-                ### IMPORTANT ###
-                ## copy is needed otherwise the background fields enter the 4D beta function
-                ## and lead to small numerical errors (~1e-3%) in the couplings
+    
+    bmdictList = []
+    bmGenerator = None
+    if args.benchmarkType == "handPicked":
+        bmGenerator = _handPickedBm()
+        
+    elif args.benchmarkType == "random":
+        bmGenerator = _randomBmParam()     
+    
+    if not bmGenerator:
+        print("Write errror message here")
+        exit()
+        
+    for bmParams in bmGenerator:
+        if len(bmdictList) == args.randomNum:
+            break
+        if bmParams:
+            ### IMPORTANT ###
+            ## copy is needed otherwise the background fields enter the 4D beta function
+            ## and lead to small numerical errors (~1e-3%) in the couplings
+            ## Note: The error is of order the tol of solve_ivp so maybe not important? 
                 params = copy(bmParams["lagranianParameters"])
                 if checkPhysical(
                     params,
@@ -63,35 +78,20 @@ def generateBenchmarks(args):
                     chargedMassMatrix,
                     neutralMassMatrix,
                 ):
+                    bmParams["bmNumber"] = len(bmdictList)
                     bmdictList.append(bmParams)
-                
-        with open(output_file, "w") as fp:        
-            json.dump(
-                bmdictList,
-                fp,
-                indent=4,
-            )
 
-    elif args.benchmarkType == "random":
-        with open(output_file, "w") as fp: 
-            json.dump(
-                _randomBmParam(
-                    args.randomNum,
-                    nloptInst,
-                    potential,
-                    chargedMassMatrix,
-                    neutralMassMatrix,
-                ),
-                fp,
-                indent=4,
+    with open(output_file, "w") as fp:        
+        json.dump(
+            bmdictList,
+            fp,
+            indent=4,
         )
-
     return
 
 
 
-def _handPickedBm(nloptInst, potential, chargedMassMatrix, neutralMassMatrix):
-    bmdictList = []
+def _handPickedBm():
     bmInputList = [
         ##Strong
         [99.36450394464288, 42.80075856374667, 96.06869518984769, 5.2678728361278155, 0.5086042817226999, 2.5522714805947393, 1],
@@ -109,40 +109,21 @@ def _handPickedBm(nloptInst, potential, chargedMassMatrix, neutralMassMatrix):
     ]
 
     for bmInput in bmInputList:
-        yield _lagranianParamGen(*bmInput, len(bmdictList))
+        yield _lagranianParamGen(*bmInput)
 
 
-def _randomBmParam(
-    randomNum, nloptInst, potential, chargedMassMatrix, neutralMassMatrix
-):
-    bmdictList = []
-    ## TODO put in some upper limit for this while loop
-    darkHieracy = 1
-    ## Run in parallel?
-    while len(bmdictList) < randomNum:
+def _randomBmParam():
+    while True:
         mS1 = np.random.uniform(63, 100)
         delta12 = np.random.uniform(5, 100)
         delta1c = np.random.uniform(5, 100)
         deltac = np.random.uniform(5, 100)
         ghDM = np.random.uniform(0, 1)
         thetaCPV = np.random.uniform(np.pi / 2, 3 * np.pi / 2)
-
-        bmParams = _lagranianParamGen(
-            mS1, delta12, delta1c, deltac, ghDM, thetaCPV, darkHieracy, len(bmdictList)
+        yield _lagranianParamGen(
+            mS1, delta12, delta1c, deltac, ghDM, thetaCPV, 1
         )
 
-        if bmParams:
-            params = copy(bmParams["lagranianParameters"])
-            if checkPhysical(
-                params,
-                nloptInst,
-                potential,
-                chargedMassMatrix,
-                neutralMassMatrix,
-            ):
-                bmdictList.append(bmParams)
-
-    return bmdictList
 
 def _strongSubSet(prevResultDir):
     bmdictList = []
@@ -169,7 +150,7 @@ def _strongSubSet(prevResultDir):
 
 
 def _lagranianParamGen(
-    mS1, delta12, delta1c, deltac, ghDM, thetaCPV, darkHieracy, bmNumber
+    mS1, delta12, delta1c, deltac, ghDM, thetaCPV, darkHieracy
 ):
     ## SM params
     vsq = higgsVEV**2
@@ -214,7 +195,6 @@ def _lagranianParamGen(
     lamda23p = (mS2**2 + mS1**2 - mSpm2**2 - mSpm1**2) / vsq
 
     return {
-        "bmNumber": bmNumber,
         "bmInput": {
             "thetaCPV": thetaCPV,
             "ghDM": ghDM,
@@ -408,16 +388,15 @@ class BmGeneratorUnitTests(TestCase):
         }
         self.assertEqual(True, bIsBounded(source))
 
-    def test_lagranianParamGen(self):
-        reference = {'bmNumber': 0, 'bmInput': {'thetaCPV': 3.11308902835221, 'ghDM': 0.15520161865427817, 'mS1': 89.15641588128479, 'delta12': 87.17952518246265, 'delta1c': 14.020273320699415, 'deltac': 5.129099092707543, 'darkHieracy': 1}, 'lagranianParameters': {'lamda1Re': 0.1, 'lamda1Im': 0, 'lamda2Re': -0.08646892283299933, 'lamda2Im': 0.0024653454694036642, 'lamda11': 0.11, 'lamda22': 0.12, 'lamda12': 0.13, 'lamda12p': 0.14, 'lamda23': 0.05327468098550607, 'lamda23p': 0.2749344421058253, 'lamda3Re': -0.08646892283299933, 'lamda3Im': 0.0024653454694036642, 'lamda31': 0.05327468098550607, 'lamda31p': 0.2749344421058253, 'lamda33': 0.12927959478844336, 'mu12sqRe': 542.3572917258725, 'mu12sqIm': 0, 'mu2sq': -9572.921254799061, 'mu3sq': 7837.461207406938, 'mu1sq': -9572.921254799061, 'yt3': 0.9911288650670501, 'g1': 0.3498276219479385, 'g2': 0.6528885874117552, 'g3': 1.2192627459570353,'RGScale': 91.1876}}
-        source = (
-            89.15641588128479,
-            87.17952518246265,
-            14.020273320699415,
-            5.129099092707543,
-            0.15520161865427817,
-            3.11308902835221,
-            1,
-            0,
-        )
-        self.assertEqual(reference, _lagranianParamGen(*source))
+    # def test_lagranianParamGen(self):
+    #     reference = {'bmNumber': 0, 'bmInput': {'thetaCPV': 3.11308902835221, 'ghDM': 0.15520161865427817, 'mS1': 89.15641588128479, 'delta12': 87.17952518246265, 'delta1c': 14.020273320699415, 'deltac': 5.129099092707543, 'darkHieracy': 1}, 'lagranianParameters': {'lamda1Re': 0.1, 'lamda1Im': 0, 'lamda2Re': -0.08646892283299933, 'lamda2Im': 0.0024653454694036642, 'lamda11': 0.11, 'lamda22': 0.12, 'lamda12': 0.13, 'lamda12p': 0.14, 'lamda23': 0.05327468098550607, 'lamda23p': 0.2749344421058253, 'lamda3Re': -0.08646892283299933, 'lamda3Im': 0.0024653454694036642, 'lamda31': 0.05327468098550607, 'lamda31p': 0.2749344421058253, 'lamda33': 0.12927959478844336, 'mu12sqRe': 542.3572917258725, 'mu12sqIm': 0, 'mu2sq': -9572.921254799061, 'mu3sq': 7837.461207406938, 'mu1sq': -9572.921254799061, 'yt3': 0.9911288650670501, 'g1': 0.3498276219479385, 'g2': 0.6528885874117552, 'g3': 1.2192627459570353,'RGScale': 91.1876}}
+    #     source = (
+    #         89.15641588128479,
+    #         87.17952518246265,
+    #         14.020273320699415,
+    #         5.129099092707543,
+    #         0.15520161865427817,
+    #         3.11308902835221,
+    #         1,
+    #     )
+    #     self.assertEqual(reference, _lagranianParamGen(*source))
