@@ -31,8 +31,6 @@ def generateBenchmarks(args):
     
     with open(args.pythonisedExpressionsFilePath, "r") as fp:
         parsedExpressions = json.load(fp)
-    ## Take the pythonised tree level potential we've generated
-    treeLevel = ParsedExpression(parsedExpressions["veff"]["expressions"], None)
     chargedMassMatrix = ParsedExpression(
         parsedExpressions["scalarMassMatrices"]["expressions"][0], None
     )
@@ -40,12 +38,6 @@ def generateBenchmarks(args):
         parsedExpressions["scalarMassMatrices"]["expressions"][1], None
     )
 
-    def potential(fields, params):
-        params["v1"] = fields[0]
-        params["v2"] = fields[1]
-        params["v3"] = fields[2]
-        return treeLevel.evaluate(params)
-    
     (outputFilePath := Path(args.benchmarkFilePath)).parent.mkdir(exist_ok=True, parents=True)
     
     if args.benchmarkType == "randomSSS":
@@ -72,7 +64,6 @@ def generateBenchmarks(args):
                 if checkPhysical(
                     copy(bmParams["lagranianParameters"]),
                     nloptInst,
-                    potential,
                     chargedMassMatrix,
                     neutralMassMatrix,
                 ):
@@ -156,9 +147,7 @@ def _lagranianParamGen(
     mW = api.get_particle_by_name("W+").mass
     mZ = api.get_particle_by_name("Z0").mass
 
-    higgsVEV = 1 / m.sqrt(
-        (m.sqrt(2) * constants["Fermi coupling constant"][0])
-    )
+    higgsVEV = 1/m.sqrt((m.sqrt(2) * constants["Fermi coupling constant"][0]))
 
     vsq = higgsVEV**2
     mu3sq = mHiggs**2 / 2
@@ -240,12 +229,10 @@ def _lagranianParamGen(
     }
 
 
-def checkPhysical(params, nloptInst, potential, chargedMassMatrix, neutralMassMatrix):
+def checkPhysical(params, nloptInst, chargedMassMatrix, neutralMassMatrix):
     params["v1"] = 0
     params["v2"] = 0
-    params["v3"] = 1 / m.sqrt(
-            (m.sqrt(2) * constants["Fermi coupling constant"][0])
-        )
+    params["v3"] = 1/m.sqrt((m.sqrt(2) * constants["Fermi coupling constant"][0]))
     if not bIsBounded(params):
         return False
 
@@ -266,12 +253,12 @@ def checkPhysical(params, nloptInst, potential, chargedMassMatrix, neutralMassMa
     if not np.all(neutralEigenValues[1:] >= 3969):
         return False
 
-    if not bPhysicalMinimum(nloptInst, potential, params):
+    if not bPhysicalMinimum(nloptInst, params):
         return False
 
     return True
 
-def bPhysicalMinimum(nloptInst, potential, params):
+def bPhysicalMinimum(nloptInst, params):
     minimumInitialGuesses = [
         [0, 0, 0],
         [0, 0, 246],
@@ -282,19 +269,27 @@ def bPhysicalMinimum(nloptInst, potential, params):
         [-299, 299, 299],
     ]
 
-    def potentialWrapped(fields, _):
-        return potential(fields, params)
+    def potential(fields, _):
+        v1 = fields[0]
+        v2 = fields[1]
+        v3 = fields[2]
+        return (v1**4*params["lamda11"] + v2**4*params["lamda22"] + v3**4*params["lamda33"] 
+                + v1**2*(v2**2*(params["lamda12"] + params["lamda12p"] + 2*params["lamda1Re"]) 
+                        + v3**2*(params["lamda31"] + params["lamda31p"] + 2*params["lamda3Re"]) 
+                        - 2*params["mu1sq"]) 
+                + v2**2*(v3**2*(params["lamda23"] + params["lamda23p"] + 2*params["lamda2Re"]) 
+                        - 2*params["mu2sq"]) 
+                - 4*v1*v2*params["mu12sqRe"] - 2*v3**2*params["mu3sq"])/4
 
-    minLocation, minValue = nloptInst.nloptGlobal(potentialWrapped, minimumInitialGuesses[0])
+    
+    minLocation, minValue = nloptInst.nloptGlobal(potential, minimumInitialGuesses[0])
 
     for guess in minimumInitialGuesses:
-        minLocationTemp, minValueTemp = nloptInst.nloptLocal(potentialWrapped, guess)
+        minLocationTemp, minValueTemp = nloptInst.nloptLocal(potential, guess)
 
         if minValueTemp < minValue:
             minLocation, minValue = minLocationTemp, minValueTemp
-    higgsVEV = 1 / m.sqrt(
-        (m.sqrt(2) * constants["Fermi coupling constant"][0])
-    )
+    higgsVEV = 1/m.sqrt((m.sqrt(2) * constants["Fermi coupling constant"][0]))
     return np.all(np.isclose(minLocation, [0, 0, higgsVEV], atol=1))
 
 def bIsBounded(params):
