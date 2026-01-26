@@ -2,7 +2,6 @@ import json
 import decimal
 from pathlib import Path
 from pathos.multiprocessing import Pool
-from ijson import items
 from importlib import import_module
 from functools import partial
 from tqdm import tqdm
