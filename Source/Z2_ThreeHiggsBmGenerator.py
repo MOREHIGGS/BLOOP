@@ -131,7 +131,7 @@ def strongSubSet(prevResultDir):
         with open(fileName, "r") as fp:
             resultDic = json.load(fp)
 
-        if resultDic["strong"] > 0.6:
+        if resultDic["strong"]:
             bmdictList.append(
                 _lagranianParamGen(
                     resultDic["bmInput"]["mS1"],
