@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 from os.path import join
 from glob import glob
+import copy
 
 from ParsedExpression import ParsedExpression
 from TrackVEV import cNlopt
@@ -256,8 +257,12 @@ def _handPickedBm(nloptInst, potential, chargedMassMatrix, neutralMassMatrix):
     for bmInput in bmInputList:
         bmParams = _lagranianParamGen(*bmInput, len(bmdictList))
         if bmParams:
+            ### IMPORTANT ###
+            ## copy is needed otherwise the background fields enter the 4D beta function
+            ## and lead to small numerical errors (~1e-3%) in the couplings
+            params = copy.copy(bmParams["lagranianParameters"])
             if checkPhysical(
-                bmParams["lagranianParameters"],
+                params,
                 nloptInst,
                 potential,
                 chargedMassMatrix,
