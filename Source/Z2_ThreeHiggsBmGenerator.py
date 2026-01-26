@@ -255,17 +255,15 @@ def checkPhysical(params, nloptInst, potential, chargedMassMatrix, neutralMassMa
     if not np.all(chargedEigenValues >= -1e-20):
         return False
     ## ASSUMING ONLY TWO GOLDSTONES check if masses are heavy enough to avoid dection
-    ## (above 90GeV (8100 = 90**2 - avoids sqrt))
     if not np.all(chargedEigenValues[2:] >= 8100):
         return False
 
     neutralEigenValues = np.linalg.eigvalsh(neutralMassMatrix.evaluate(params))
-    ## Enforces positive neutral masses (tolerance to handle goldstone bosons)
+    ## Enforces positive neutral masses
     if not np.all(neutralEigenValues >= -1e-20):
         return False
     ## ASSUMING ONLY ONE GOLDSTONE check if masses are heavy enough to avoid
     ## Higgs decaying to light particle
-    ## (above 63GeV (3969 = 63**2 - avoids sqrt))
     if not np.all(neutralEigenValues[1:] >= 3969):
         return False
 
@@ -275,7 +273,6 @@ def checkPhysical(params, nloptInst, potential, chargedMassMatrix, neutralMassMa
     return True
 
 def bPhysicalMinimum(nloptInst, potential, params):
-    ## Move these to user args or somewhere out of the way
     minimumInitialGuesses = [
         [0, 0, 0],
         [0, 0, 246],
@@ -286,9 +283,6 @@ def bPhysicalMinimum(nloptInst, potential, params):
         [-299, 299, 299],
     ]
 
-    ## I don't like having the function wrapped here,
-    ## should be defined once at a higher level, not every func call but params
-    ## makes that non-trivial
     def potentialWrapped(fields, _):
         return potential(fields, params)
 
