@@ -1,10 +1,9 @@
-from math import sqrt, pi, log, exp
+from math import pi, log, exp
 import numpy as np
 import scipy
 import nlopt
 from dataclasses import dataclass, InitVar, field
 
-from PDGData import mTop, mW, mZ, higgsVEV
 
 @dataclass(frozen=True)
 class cNlopt:
