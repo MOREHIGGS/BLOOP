@@ -8,7 +8,7 @@ from sys import maxsize
 
 class Stages(IntEnum):
     convertMathematica = 0
-    generateBenchmark = 1
+    generateBenchmarks = 1
     doMinimization = 2
     summariseResults = 3 
 

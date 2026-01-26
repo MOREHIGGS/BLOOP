@@ -14,7 +14,7 @@ def main():
         pythoniseMathematica(args)
     
     
-    if args.firstStage <= Stages.generateBenchmark <= args.lastStage:
+    if args.firstStage <= Stages.generateBenchmarks <= args.lastStage:
         if args.verbose:
             print("Benchmark generation stage started")
         import_module(args.bmGeneratorModule).generateBenchmarks(args)
