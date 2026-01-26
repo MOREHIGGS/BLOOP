@@ -69,9 +69,8 @@ def generateBenchmarks(args):
             ## copy is needed otherwise the background fields enter the 4D beta function
             ## and lead to small numerical errors (~1e-3%) in the couplings
             ## Note: The error is of order the tol of solve_ivp so maybe not important? 
-                params = copy(bmParams["lagranianParameters"])
                 if checkPhysical(
-                    params,
+                    copy(bmParams["lagranianParameters"]),
                     nloptInst,
                     potential,
                     chargedMassMatrix,
