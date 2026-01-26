@@ -8,7 +8,7 @@ from sys import maxsize
 
 class Stages(IntEnum):
     convertMathematica = 0
-    generateBenchmark = 1
+    generateBenchmarks = 1
     doMinimization = 2
     summariseResults = 3 
 
@@ -105,10 +105,11 @@ class UserInput(argparse.ArgumentParser):
            help="Str: Specify the mode to generate bm with.",
        )
        benchmarkGroup.add_argument(
-           "--randomNum",
+           "--maxNumBenchmarks",
            type=int,
            action="store",
-           help="Int: Specify how many random bm to generate.",
+           default = 1000,
+           help="Int: Specify the maximum nunmber of benchmarks to generate. Needed for random mode.",
        )
        benchmarkGroup.add_argument(
            "--firstBenchmark", 

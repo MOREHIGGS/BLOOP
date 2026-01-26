@@ -77,9 +77,6 @@ class ParsedExpressionSystemArray:
     def evaluateUnordered(self, params):
         return [expression[1].evaluate(params) for expression in self.parsedExpressions]
 
-    def dictToArray(self, params):
-        return [params[key] if key in params else 0 for key in self.allSymbols]
-
 
 from unittest import TestCase
 
