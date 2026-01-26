@@ -14,9 +14,9 @@ from TrackVEV import cNlopt
 from PDGData import mHiggs, higgsVEV, mTop, mW, mZ
 
 def generateBenchmarks(args):
-    (output_file := Path(args.benchmarkFilePath)).parent.mkdir(exist_ok=True, parents=True)
-
-    ## Need to take these from args
+    if args.benchmarkType == "load":
+        return 
+    
     nloptInst = cNlopt(
         config={
             "nbrVars": 3,
@@ -28,6 +28,7 @@ def generateBenchmarks(args):
             "varUpperBounds": [300, 300, 300],
         }
     )
+    
     with open(args.pythonisedExpressionsFilePath, "r") as fp:
         parsedExpressions = json.load(fp)
     ## Take the pythonised tree level potential we've generated
@@ -44,26 +45,28 @@ def generateBenchmarks(args):
         params["v2"] = fields[1]
         params["v3"] = fields[2]
         return treeLevel.evaluate(params)
-
+    
+    (outputFilePath := Path(args.benchmarkFilePath)).parent.mkdir(exist_ok=True, parents=True)
+    
     if args.benchmarkType == "randomSSS":
-        with open(output_file, "w") as fp:
-            json.dump(_strongSubSet(args.prevResultDir), fp, indent=4)
+        with open(outputFilePath, "w") as fp:
+            json.dump(strongSubSet(args.prevResultDir), fp, indent=4)
         return
     
     bmdictList = []
     bmGenerator = None
     if args.benchmarkType == "handPicked":
-        bmGenerator = _handPickedBm()
+        bmGenerator = handPickedParameters()
         
     elif args.benchmarkType == "random":
-        bmGenerator = _randomBmParam()     
+        bmGenerator = randomParameters()     
     
     if not bmGenerator:
         print("Write errror message here")
         exit()
         
     for bmParams in bmGenerator:
-        if len(bmdictList) == args.randomNum:
+        if len(bmdictList) == args.maxNumBenchmarks:
             break
         if bmParams:
             ### IMPORTANT ###
@@ -80,8 +83,8 @@ def generateBenchmarks(args):
                 ):
                     bmParams["bmNumber"] = len(bmdictList)
                     bmdictList.append(bmParams)
-
-    with open(output_file, "w") as fp:        
+    
+    with open(outputFilePath, "w") as fp:        
         json.dump(
             bmdictList,
             fp,
@@ -91,7 +94,7 @@ def generateBenchmarks(args):
 
 
 
-def _handPickedBm():
+def handPickedParameters():
     bmInputList = [
         ##Strong
         [99.36450394464288, 42.80075856374667, 96.06869518984769, 5.2678728361278155, 0.5086042817226999, 2.5522714805947393, 1],
@@ -112,7 +115,7 @@ def _handPickedBm():
         yield _lagranianParamGen(*bmInput)
 
 
-def _randomBmParam():
+def randomParameters():
     while True:
         mS1 = np.random.uniform(63, 100)
         delta12 = np.random.uniform(5, 100)
@@ -125,7 +128,7 @@ def _randomBmParam():
         )
 
 
-def _strongSubSet(prevResultDir):
+def strongSubSet(prevResultDir):
     bmdictList = []
 
     for fileName in glob(join(prevResultDir, "*.json")):
