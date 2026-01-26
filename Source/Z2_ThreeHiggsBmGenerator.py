@@ -39,23 +39,35 @@ def generateBenchmarks(args):
         parsedExpressions["scalarMassMatrices"]["expressions"][1], None
     )
 
-    ## Feels weird to have nested function but not sure how else to go until can
-    ## use arrays with nlopt
     def potential(fields, params):
         params["v1"] = fields[0]
         params["v2"] = fields[1]
         params["v3"] = fields[2]
         return treeLevel.evaluate(params)
-
+    bmdictList = []
     if args.benchmarkType == "randomSSS":
         with open(output_file, "w") as fp:
             json.dump(_strongSubSet(args.prevResultDir), fp, indent=4)
         return
 
     elif args.benchmarkType == "handPicked":
-        with open(output_file, "w") as fp:
+        for bmParams in _handPickedBm(nloptInst, potential, chargedMassMatrix, neutralMassMatrix):
+                ### IMPORTANT ###
+                ## copy is needed otherwise the background fields enter the 4D beta function
+                ## and lead to small numerical errors (~1e-3%) in the couplings
+                params = copy(bmParams["lagranianParameters"])
+                if checkPhysical(
+                    params,
+                    nloptInst,
+                    potential,
+                    chargedMassMatrix,
+                    neutralMassMatrix,
+                ):
+                    bmdictList.append(bmParams)
+                
+        with open(output_file, "w") as fp:        
             json.dump(
-                _handPickedBm(nloptInst, potential, chargedMassMatrix, neutralMassMatrix),
+                bmdictList,
                 fp,
                 indent=4,
             )
@@ -76,6 +88,8 @@ def generateBenchmarks(args):
 
     return
 
+
+
 def _handPickedBm(nloptInst, potential, chargedMassMatrix, neutralMassMatrix):
     bmdictList = []
     bmInputList = [
@@ -95,22 +109,8 @@ def _handPickedBm(nloptInst, potential, chargedMassMatrix, neutralMassMatrix):
     ]
 
     for bmInput in bmInputList:
-        bmParams = _lagranianParamGen(*bmInput, len(bmdictList))
-        if bmParams:
-            ### IMPORTANT ###
-            ## copy is needed otherwise the background fields enter the 4D beta function
-            ## and lead to small numerical errors (~1e-3%) in the couplings
-            params = copy(bmParams["lagranianParameters"])
-            if checkPhysical(
-                params,
-                nloptInst,
-                potential,
-                chargedMassMatrix,
-                neutralMassMatrix,
-            ):
-                bmdictList.append(bmParams)
+        yield _lagranianParamGen(*bmInput, len(bmdictList))
 
-    return bmdictList
 
 def _randomBmParam(
     randomNum, nloptInst, potential, chargedMassMatrix, neutralMassMatrix
