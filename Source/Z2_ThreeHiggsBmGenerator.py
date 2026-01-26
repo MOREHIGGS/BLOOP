@@ -91,7 +91,6 @@ def _handPickedBm(nloptInst, potential, chargedMassMatrix, neutralMassMatrix):
         [75, 55.0, 50.0, 1.0, 0.0, 2.0 * np.pi / 3, 1],
         [74, 55.0, 50.0, 15.0, 0.0, 2.0 * np.pi / 3, 1],
         [90, 5.0, 1.0, 1.0, 0.0, 2.0 * np.pi / 3, 1],
-        [90, 55.0, 1.0, 1.0, 0.0, 2.0 * np.pi / 3, 1],
         [90, 55.0, 1.0, 22.0, 0.0, 2.0 * np.pi / 3, 1],
     ]
 
