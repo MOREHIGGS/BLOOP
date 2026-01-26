@@ -2,7 +2,8 @@
 
 import math as m
 import numpy as np
-
+import pdg
+from scipy.constants import physical_constants as constants
 import json
 from pathlib import Path
 from os.path import join
@@ -11,7 +12,6 @@ from copy import copy
 
 from ParsedExpression import ParsedExpression
 from TrackVEV import cNlopt
-from PDGData import mHiggs, higgsVEV, mTop, mW, mZ
 
 def generateBenchmarks(args):
     if args.benchmarkType == "load":
@@ -151,12 +151,20 @@ def strongSubSet(prevResultDir):
 def _lagranianParamGen(
     mS1, delta12, delta1c, deltac, ghDM, thetaCPV, darkHieracy
 ):
-    ## SM params
+    api = pdg.connect()
+    mHiggs = api.get_particle_by_name("H").mass
+    mTop = api.get_particle_by_name("t").mass
+    mW = api.get_particle_by_name("W+").mass
+    mZ = api.get_particle_by_name("Z0").mass
+
+    higgsVEV = 1 / m.sqrt(
+        (m.sqrt(2) * constants["Fermi coupling constant"][0])
+    )
+
     vsq = higgsVEV**2
     mu3sq = mHiggs**2 / 2
     lamda33 = mu3sq / vsq
 
-    ## ~~~ USER BSM PHYSICS ~~~
     mS2 = delta12 + mS1
     mSpm1 = delta1c + mS1
     mSpm2 = deltac + mSpm1
@@ -236,7 +244,9 @@ def _lagranianParamGen(
 def checkPhysical(params, nloptInst, potential, chargedMassMatrix, neutralMassMatrix):
     params["v1"] = 0
     params["v2"] = 0
-    params["v3"] = higgsVEV
+    params["v3"] = 1 / m.sqrt(
+            (m.sqrt(2) * constants["Fermi coupling constant"][0])
+        )
     if not bIsBounded(params):
         return False
 
@@ -289,7 +299,9 @@ def bPhysicalMinimum(nloptInst, potential, params):
 
         if minValueTemp < minValue:
             minLocation, minValue = minLocationTemp, minValueTemp
-
+    higgsVEV = 1 / m.sqrt(
+        (m.sqrt(2) * constants["Fermi coupling constant"][0])
+    )
     return np.all(np.isclose(minLocation, [0, 0, higgsVEV], atol=1))
 
 def bIsBounded(params):
@@ -387,15 +399,27 @@ class BmGeneratorUnitTests(TestCase):
         }
         self.assertEqual(True, bIsBounded(source))
 
-    # def test_lagranianParamGen(self):
-    #     reference = {'bmNumber': 0, 'bmInput': {'thetaCPV': 3.11308902835221, 'ghDM': 0.15520161865427817, 'mS1': 89.15641588128479, 'delta12': 87.17952518246265, 'delta1c': 14.020273320699415, 'deltac': 5.129099092707543, 'darkHieracy': 1}, 'lagranianParameters': {'lamda1Re': 0.1, 'lamda1Im': 0, 'lamda2Re': -0.08646892283299933, 'lamda2Im': 0.0024653454694036642, 'lamda11': 0.11, 'lamda22': 0.12, 'lamda12': 0.13, 'lamda12p': 0.14, 'lamda23': 0.05327468098550607, 'lamda23p': 0.2749344421058253, 'lamda3Re': -0.08646892283299933, 'lamda3Im': 0.0024653454694036642, 'lamda31': 0.05327468098550607, 'lamda31p': 0.2749344421058253, 'lamda33': 0.12927959478844336, 'mu12sqRe': 542.3572917258725, 'mu12sqIm': 0, 'mu2sq': -9572.921254799061, 'mu3sq': 7837.461207406938, 'mu1sq': -9572.921254799061, 'yt3': 0.9911288650670501, 'g1': 0.3498276219479385, 'g2': 0.6528885874117552, 'g3': 1.2192627459570353,'RGScale': 91.1876}}
-    #     source = (
-    #         89.15641588128479,
-    #         87.17952518246265,
-    #         14.020273320699415,
-    #         5.129099092707543,
-    #         0.15520161865427817,
-    #         3.11308902835221,
-    #         1,
-    #     )
-    #     self.assertEqual(reference, _lagranianParamGen(*source))
+    def test_lagranianParamGen(self):
+        reference = {'bmInput': {'thetaCPV': 3.11308902835221, 'ghDM': 0.15520161865427817, 'mS1': 89.15641588128479, 'delta12': 87.17952518246265, 'delta1c': 14.020273320699415, 'deltac': 5.129099092707543, 'darkHieracy': 1}, 'lagranianParameters': {'lamda1Re': 0.1, 'lamda1Im': 0, 'lamda2Re': -0.08646892283299933, 'lamda2Im': 0.0024653454694036642, 'lamda11': 0.11, 'lamda22': 0.12, 'lamda12': 0.13, 'lamda12p': 0.14, 'lamda23': 0.05327468098550607, 'lamda23p': 0.2749344421058253, 'lamda3Re': -0.08646892283299933, 'lamda3Im': 0.0024653454694036642, 'lamda31': 0.05327468098550607, 'lamda31p': 0.2749344421058253, 'lamda33': 0.12927959478844336, 'mu12sqRe': 542.3572917258725, 'mu12sqIm': 0, 'mu2sq': -9572.921254799061, 'mu3sq': 7837.461207406938, 'mu1sq': -9572.921254799061, 'yt3': 0.9911288650670501, 'g1': 0.3498276219479385, 'g2': 0.6528885874117552, 'g3': 1.2192627459570353,'RGScale': 91.1876}}
+        source = (
+            89.15641588128479,
+            87.17952518246265,
+            14.020273320699415,
+            5.129099092707543,
+            0.15520161865427817,
+            3.11308902835221,
+            1,
+        )
+        self.assertEqual(reference, _lagranianParamGen(*source))
+
+    
+    def test_HiggsMass(self):
+        api = pdg.connect()
+        reference = [125.1995304097179, 172.5590883453979, 80.377, 91.18797809193725]
+        pdgData = [api.get_particle_by_name("H").mass, api.get_particle_by_name("t").mass, api.get_particle_by_name("W+").mass, api.get_particle_by_name("Z0").mass]
+        self.assertEqual(reference,  pdgData, "Data we imported from PDG is not what we expect. Likely just a version difference.")
+
+    def test_Fermi(self):
+        self.assertEqual(
+            1.1663787e-05, constants["Fermi coupling constant"][0], "Data we imported from Scipy is not what we expect. Likely just a version difference."
+        )
