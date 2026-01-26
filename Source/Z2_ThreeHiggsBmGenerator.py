@@ -54,17 +54,13 @@ def generateBenchmarks(args):
         return
     
     bmdictList = []
-    bmGenerator = None
+    
     if args.benchmarkType == "handPicked":
         bmGenerator = handPickedParameters()
         
     elif args.benchmarkType == "random":
         bmGenerator = randomParameters()     
     
-    if not bmGenerator:
-        print("Write errror message here")
-        exit()
-        
     for bmParams in bmGenerator:
         if len(bmdictList) == args.maxNumBenchmarks:
             break
