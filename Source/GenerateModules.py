@@ -190,26 +190,26 @@ cdef void computeMasses(double [::1] params):
 {%- for symbol in allSymbols %}
 	cdef double {{ symbol }} = params[{{ loop.index0 }}]
 {%- endfor %}
-	cdef char uplo[1] 
-	uplo[0] = ord('U')
-	cdef char jobz[1]
+	cdef char uplo = 'U' 
 	## TODO set to V if NNLO
-	jobz[0] = ord('N')
-
+	cdef char jobz = 'N'
 	## Reports status of dsyevd 
 	## TODO use this to catch errors 
-	cdef int info = 0
+	## TODO can n and lda be moved here?
+	cdef int info
 	
 {%- for scalarMassMatrix in scalarMassMatrices %}
-	cdef int n{{ loop.index0}}
-	cdef int lda{{ loop.index0}}
-	cdef double[::1] eigenvalues{{ loop.index0 }}
+	cdef double [:, ::1] scalarMassMatrix{{ loop.index0 }}
+	cdef double[::1] eigenvalues{{ loop.index0 }} 
+	cdef double[::1] work{{ loop.index0 }} 
+	cdef int[::1] iwork{{ loop.index0 }}
+	
 	cdef int lwork{{ loop.index0 }} = -1
 	cdef int liwork{{ loop.index0 }} = -1
-	cdef double work_query{{ loop.index0 }} = 0.0
-	cdef int iwork_query{{ loop.index0 }} = 0
-	cdef double[::1] work{{ loop.index0 }}
-	cdef int[::1] iwork{{ loop.index0 }}
+	cdef double work_query{{loop.index0}}
+	cdef int iwork_query{{loop.index0}}
+	cdef int n{{ loop.index0}}
+	cdef int lda{{ loop.index0}}
 {%- endfor %}
 
 {%- for scalarMassMatrix in scalarMassMatrices %}
@@ -220,20 +220,30 @@ cdef void computeMasses(double [::1] params):
 	eigenvalues{{ loop.index0 }} = empty(n{{ loop.index0}}, dtype=float)
 
 	# Workspace query
-	dsyevd(jobz, uplo, &n{{ loop.index0 }}, &scalarMassMatrix{{ loop.index0}}[0,0], &lda{{ loop.index0 }}, 
-		   &eigenvalues{{ loop.index0 }}[0], &work_query{{ loop.index0 }}, &lwork{{ loop.index0 }}, 
-		   &iwork_query{{loop.index0}}, &liwork{{ loop.index0 }}, &info)
+	dsyevd(&jobz, &uplo,
+       &n{{loop.index0}},
+       &scalarMassMatrix{{loop.index0}}[0, 0], &lda{{loop.index0}},
+       &eigenvalues{{loop.index0}}[0],
+       &work_query{{loop.index0}}, &lwork{{loop.index0}},
+       &iwork_query{{loop.index0}}, &liwork{{loop.index0}},
+       &info)
 
-	lwork{{ loop.index0 }} = int(work_query{{ loop.index0 }})
+	lwork{{ loop.index0 }} = <int>work_query{{ loop.index0 }}
 	liwork{{ loop.index0 }} = iwork_query{{ loop.index0 }}
 
 	work{{ loop.index0 }} = empty(lwork{{ loop.index0 }}, dtype=float)
 	iwork{{ loop.index0 }} = empty(liwork{{ loop.index0 }}, dtype=int)
 
 # Actual computation
-	dsyevd(jobz, uplo, &n{{ loop.index0 }}, &scalarMassMatrix{{ loop.index0}}[0,0], &lda{{ loop.index0 }},
-		   &eigenvalues{{ loop.index0}}[0], &work{{loop.index0}}[0], &lwork{{ loop.index0 }}, 
-		   &iwork{{ loop.index0}}[0], &liwork{{ loop.index0 }}, &info)
+	dsyevd(&jobz, &uplo,
+    	   &n{{loop.index0}},
+      	   &scalarMassMatrix{{loop.index0}}[0, 0], &lda{{loop.index0}},
+     	   &eigenvalues{{loop.index0}}[0],
+           &work{{loop.index0}}[0], &lwork{{loop.index0}},
+           &iwork{{loop.index0}}[0], &liwork{{loop.index0}},
+           &info)
+
+
 {%- endfor %}
 
 {%- for expression in vectorMasses %}
