@@ -118,7 +118,7 @@ def generateEvaluatePotentialModule(
         from libc.complex cimport csqrt
         from libc.complex cimport clog
 
-        cpdef evaluatePotential(fields, double [:] parameters):
+        cpdef evaluatePotential(fields, double [::1] parameters):
         
         {% for name in fieldNames %}
             parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
@@ -147,7 +147,7 @@ def generateVeffModule(veffFilePaths, allSymbols):
     expressionTest = [item for result in results for item in result[1]]
     test = zip(opTest, expressionTest)
     return Environment().from_string(dedent("""\
-        cdef double complex veff(double [:] params):
+        cdef double complex veff(double [::1] params):
         {%- for symbol in allSymbols %}
             cdef double {{ symbol }} = params[{{ loop.index0 }}]
         {%- endfor %}
@@ -182,10 +182,11 @@ def generateComputeMassesModule(
     
     return Environment().from_string(dedent("""\
         from scipy.linalg import lapack, block_diag
+        from scipy.linalg.cython_lapack cimport dsyevd
         from numpy import array, sqrt
         from scipy.linalg.blas import dgemm
         
-        cdef void computeMasses(double [:] params):
+        cdef void computeMasses(double [::1] params):
         {%- for symbol in allSymbols %}
             cdef double {{ symbol }} = params[{{ loop.index0 }}]
         {%- endfor %}
