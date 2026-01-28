@@ -43,40 +43,19 @@ from unittest import TestCase
 
 
 class ParsedExpressionUnitTests(TestCase):
-    # def test_ParsedExpression(self):
-    #     from numpy import pi
+    def test_ParsedExpression(self):
+        from numpy import pi
 
-    #     source = {
-    #         "expression": f"sqrt(lam)/(4*{pi}) + log(mssq)",
-    #         "identifier": "Identifier",
-    #         "symbols": ["lam", "mssq"],
-    #     }
+        source = {
+            "expression": f"sqrt(params[0])/(4*{pi}) + log(params[2])",
+            "identifier": "Identifier",
+            "symbols": ["lam","dummy", "mssq"],
+        }
 
-    #     reference = 5.400944901447568
+        reference = 5.400944901447568
 
-    #     self.assertEqual(
-    #         reference,
-    #         ParsedExpression(source, None).evaluate({"lam": 100, "mssq": 100}),
-    #     )
+        self.assertEqual(
+            reference,
+            ParsedExpressionArray(source, None).evaluate([100,5j, 100]),
+        )
 
-    # def test_ParsedExpressionSystem(self):
-    #     source = [
-    #         {
-    #             "expression": "sqrt(lam) + log(mssq)",
-    #             "identifier": "Identifier",
-    #             "symbols": ["lam", "mssq"],
-    #         },
-    #         {
-    #             "expression": "sqrt(2*lam) + log(mssq)",
-    #             "identifier": "Identifier",
-    #             "symbols": ["lam", "mssq"],
-    #         },
-    #     ]
-
-    #     reference = [(14.605170185988092 + 0j), (18.747305809719045 + 0j)]
-
-    #     self.assertEqual(
-    #         reference,
-    #         ParsedExpressionSystem(source, None).evaluate({"lam": 100, "mssq": 100}),
-    #     )
-    pass
