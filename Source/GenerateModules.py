@@ -195,7 +195,6 @@ cdef void computeMasses(double [::1] params):
 	cdef char jobz = 'N'
 	## Reports status of dsyevd 
 	## TODO use this to catch errors 
-	## TODO can n and lda be moved here?
 	cdef int info
 	
 {%- for scalarMassMatrix in scalarMassMatrices %}
