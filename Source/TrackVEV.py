@@ -191,16 +191,12 @@ class TrackVEV:
         ## Potential computed again in case its complex
         return bestResult[0], evaluatePotential(bestResult[0], params3D)
 
-    def getTConsts(self, T, params):
-        ## Should this be moved to DRalgo? Probably
+    def runParams4D(self, paramsDict, T):
+        params = np.zeros(len(self.allSymbols), dtype="float64")
+
         params[self.allSymbols.index("RGScale")] = 4.0 * pi * exp(-np.euler_gamma) * T
         params[self.allSymbols.index("T")] = T
-        return params
-
-    def runParams4D(self, paramsDict, T):
-        params = self.getTConsts(T, np.zeros(len(self.allSymbols), dtype="float64"))
-
-        muEvaulate = params[self.allSymbols.index("RGScale")]
+        muEvaulate = 4.0 * pi * exp(-np.euler_gamma) * T
         for key, spline in paramsDict.items():
             params[self.allSymbols.index(key)] = spline(muEvaulate)
 
