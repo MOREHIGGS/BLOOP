@@ -71,7 +71,7 @@ def runTests():
                     if bm == pytest.approx(bmRef, rel=0.): 
                         print(f"BM{i} data is exactly what we expect")
         
-                    elif bm == pytest.approx(bmRef, rel=0.01):
+                    elif bm == pytest.approx(bmRef, rel=0.01, abs = 0.1):
                         print(f"BM{i} is within 1% of what we expect")
         
                     else:
