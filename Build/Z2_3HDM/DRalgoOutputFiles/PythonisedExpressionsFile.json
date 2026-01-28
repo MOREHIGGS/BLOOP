@@ -958,10 +958,8 @@
             },
             {
                 "identifier": "mu1sq",
-                "expression": "params[11] - 0.000395785873602882*(9*params[52]**4 + 2*params[52]**2*(9*params[51]**2 - 24*params[49] - 8*params[48] - 4*params[47] - 8*params[39] - 4*params[38]) - 27*params[51]**4 - 24*params[51]**2*(6*params[49] + 2*params[48] + params[47] + 2*params[39] + params[38] + 4*params[27]) + 192*params[49]**2 + 32*params[48]**2 + 32*params[48]*params[47] + 32*params[47]**2 + 192*params[46]**2 + 192*params[45]**2 + 32*params[39]**2 + 32*params[39]*params[38] + 32*params[38]**2 + 192*params[36]**2 + 192*params[35]**2 + 48*params[29]**2 + 8*params[28]**2 + 24*params[27]**2)*log(params[54]/params[91])",
+                "expression": "0.00695960852855846*params[52]**4 + 0.001546579673012991*params[52]**2*(9*params[51]**2 - 24*params[49] - 8*params[48] - 4*params[47] - 8*params[39] - 4*params[38]) - 0.02087882558567538*params[51]**4 - 0.01855895607615589*params[51]**2*(6*params[49] + 2*params[48] + params[47] + 2*params[39] + params[38] + 4*params[27]) + 0.1484716486092471*params[49]**2 + 0.02474527476820786*params[48]**2 + 0.02474527476820786*params[48]*params[47] + 0.02474527476820786*params[47]**2 + 0.1484716486092471*params[46]**2 + 0.1484716486092471*params[45]**2 + 0.02474527476820786*params[39]**2 + 0.02474527476820786*params[39]*params[38] + 0.02474527476820786*params[38]**2 + 0.1484716486092471*params[36]**2 + 0.1484716486092471*params[35]**2 + 0.03711791215231178*params[29]**2 + 0.006186318692051964*params[28]**2 + 0.01855895607615589*params[27]**2 + params[11]",
                 "symbols": [
-                    "RGScale",
-                    "T",
                     "g1",
                     "g2",
                     "lamda11",
@@ -981,10 +979,8 @@
             },
             {
                 "identifier": "mu2sq",
-                "expression": "params[10] - 0.000395785873602882*(9*params[52]**4 + 2*params[52]**2*(9*params[51]**2 - 8*params[48] - 4*params[47] - 24*params[44] - 8*params[43] - 4*params[42]) - 27*params[51]**4 - 24*params[51]**2*(2*params[48] + params[47] + 6*params[44] + 2*params[43] + params[42] + 4*params[30]) + 32*params[48]**2 + 32*params[48]*params[47] + 32*params[47]**2 + 192*params[46]**2 + 192*params[45]**2 + 192*params[44]**2 + 32*params[43]**2 + 32*params[43]*params[42] + 32*params[42]**2 + 192*params[41]**2 + 192*params[40]**2 + 48*params[32]**2 + 8*params[31]**2 + 24*params[30]**2)*log(params[54]/params[91])",
+                "expression": "0.00695960852855846*params[52]**4 + 0.001546579673012991*params[52]**2*(9*params[51]**2 - 8*params[48] - 4*params[47] - 24*params[44] - 8*params[43] - 4*params[42]) - 0.02087882558567538*params[51]**4 - 0.01855895607615589*params[51]**2*(2*params[48] + params[47] + 6*params[44] + 2*params[43] + params[42] + 4*params[30]) + 0.02474527476820786*params[48]**2 + 0.02474527476820786*params[48]*params[47] + 0.02474527476820786*params[47]**2 + 0.1484716486092471*params[46]**2 + 0.1484716486092471*params[45]**2 + 0.1484716486092471*params[44]**2 + 0.02474527476820786*params[43]**2 + 0.02474527476820786*params[43]*params[42] + 0.02474527476820786*params[42]**2 + 0.1484716486092471*params[41]**2 + 0.1484716486092471*params[40]**2 + 0.03711791215231178*params[32]**2 + 0.006186318692051964*params[31]**2 + 0.01855895607615589*params[30]**2 + params[10]",
                 "symbols": [
-                    "RGScale",
-                    "T",
                     "g1",
                     "g2",
                     "lamda12",
@@ -1004,10 +1000,8 @@
             },
             {
                 "identifier": "mu3sq",
-                "expression": "params[8] + 0.000395785873602882*(-9*params[52]**4 + 2*params[52]**2*(-9*params[51]**2 + 8*params[43] + 4*params[42] + 8*params[39] + 4*params[38] + 24*params[37]) + 27*params[51]**4 + 24*params[51]**2*(2*params[43] + params[42] + 2*params[39] + params[38] + 6*params[37] + 4*params[33]) - 32*params[43]**2 - 32*params[43]*params[42] - 32*params[42]**2 - 192*params[41]**2 - 192*params[40]**2 - 32*params[39]**2 - 32*params[39]*params[38] - 32*params[38]**2 - 192*params[37]**2 - 192*params[36]**2 - 192*params[35]**2 - 64*params[34]*(-6*params[50]**2 + params[34]) - 24*params[33]**2 - 48*params[26]**2 - 8*params[25]**2)*log(params[54]/params[91])",
+                "expression": "0.00695960852855846*params[52]**4 - 0.001546579673012991*params[52]**2*(-9*params[51]**2 + 8*params[43] + 4*params[42] + 8*params[39] + 4*params[38] + 24*params[37]) - 0.02087882558567538*params[51]**4 - 0.01855895607615589*params[51]**2*(2*params[43] + params[42] + 2*params[39] + params[38] + 6*params[37] + 4*params[33]) + 0.02474527476820786*params[43]**2 + 0.02474527476820786*params[43]*params[42] + 0.02474527476820786*params[42]**2 + 0.1484716486092471*params[41]**2 + 0.1484716486092471*params[40]**2 + 0.02474527476820786*params[39]**2 + 0.02474527476820786*params[39]*params[38] + 0.02474527476820786*params[38]**2 + 0.1484716486092471*params[37]**2 + 0.1484716486092471*params[36]**2 + 0.1484716486092471*params[35]**2 + 0.04949054953641571*params[34]*(-6*params[50]**2 + params[34]) + 0.01855895607615589*params[33]**2 + 0.03711791215231178*params[26]**2 + 0.006186318692051964*params[25]**2 + params[8]",
                 "symbols": [
-                    "RGScale",
-                    "T",
                     "g1",
                     "g2",
                     "g3",

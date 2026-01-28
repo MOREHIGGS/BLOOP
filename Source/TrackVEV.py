@@ -194,7 +194,7 @@ class TrackVEV:
     def runParams4D(self, paramsDict, T):
         params = np.zeros(len(self.allSymbols), dtype="float64")
 
-        params[self.allSymbols.index("RGScale")] = 4.0 * pi * exp(-np.euler_gamma) * T
+        #params[self.allSymbols.index("RGScale")] = 4.0 * pi * exp(-np.euler_gamma) * T
         params[self.allSymbols.index("T")] = T
         muEvaulate = 4.0 * pi * exp(-np.euler_gamma) * T
         for key, spline in paramsDict.items():
