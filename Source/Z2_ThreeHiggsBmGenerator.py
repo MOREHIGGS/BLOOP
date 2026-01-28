@@ -10,7 +10,6 @@ from os.path import join
 from glob import glob
 from copy import copy
 
-from ParsedExpression import ParsedExpression
 from TrackVEV import cNlopt
 
 def generateBenchmarks(args):
@@ -29,15 +28,6 @@ def generateBenchmarks(args):
         }
     )
     
-    with open(args.pythonisedExpressionsFilePath, "r") as fp:
-        parsedExpressions = json.load(fp)
-    chargedMassMatrix = ParsedExpression(
-        parsedExpressions["scalarMassMatrices"]["expressions"][0], None
-    )
-    neutralMassMatrix = ParsedExpression(
-        parsedExpressions["scalarMassMatrices"]["expressions"][1], None
-    )
-
     (outputFilePath := Path(args.benchmarkFilePath)).parent.mkdir(exist_ok=True, parents=True)
     
     if args.benchmarkType == "randomSSS":
@@ -64,8 +54,6 @@ def generateBenchmarks(args):
                 if checkPhysical(
                     copy(bmParams["lagranianParameters"]),
                     nloptInst,
-                    chargedMassMatrix,
-                    neutralMassMatrix,
                 ):
                     bmParams["bmNumber"] = len(bmdictList)
                     bmdictList.append(bmParams)
@@ -229,7 +217,7 @@ def _lagranianParamGen(
     }
 
 
-def checkPhysical(params, nloptInst, chargedMassMatrix, neutralMassMatrix):
+def checkPhysical(params, nloptInst):
     params["v1"] = 0
     params["v2"] = 0
     params["v3"] = 1/m.sqrt((m.sqrt(2) * constants["Fermi coupling constant"][0]))
