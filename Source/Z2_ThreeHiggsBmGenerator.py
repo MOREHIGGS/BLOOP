@@ -235,16 +235,18 @@ def checkPhysical(params, nloptInst, chargedMassMatrix, neutralMassMatrix):
     params["v3"] = 1/m.sqrt((m.sqrt(2) * constants["Fermi coupling constant"][0]))
     if not bIsBounded(params):
         return False
-
-    chargedEigenValues = np.linalg.eigvalsh(chargedMassMatrix.evaluate(params))
+    
+    chargedMatrix, neutralMatrix = getMassMatrices(params)
+    
+    chargedEigenValues = np.linalg.eigvalsh(chargedMatrix)
     ## Enforces positive charged masses (tolerance to handle goldstone bosons)
     if not np.all(chargedEigenValues >= -1e-20):
         return False
     ## ASSUMING ONLY TWO GOLDSTONES check if masses are heavy enough to avoid dection
     if not np.all(chargedEigenValues[2:] >= 8100):
         return False
-
-    neutralEigenValues = np.linalg.eigvalsh(neutralMassMatrix.evaluate(params))
+    
+    neutralEigenValues = np.linalg.eigvalsh(neutralMatrix)
     ## Enforces positive neutral masses
     if not np.all(neutralEigenValues >= -1e-20):
         return False
@@ -257,6 +259,108 @@ def checkPhysical(params, nloptInst, chargedMassMatrix, neutralMassMatrix):
         return False
 
     return True
+
+def getMassMatrices(params):
+    v1 = params["v1"]
+    v2 = params["v2"]
+    v3 = params["v3"]
+    
+    lamda11 = params["lamda11"]
+    lamda12 = params["lamda12"]
+    lamda22 = params["lamda22"]
+    lamda23 = params["lamda23"]
+    lamda31 = params["lamda31"]
+    lamda33 = params["lamda33"]
+    
+    lamda12p = params["lamda12p"]
+    lamda23p = params["lamda23p"]
+    lamda31p = params["lamda31p"]
+    
+    lamda1Re = params["lamda1Re"]
+    lamda2Re = params["lamda2Re"]
+    lamda3Re = params["lamda3Re"]
+    
+    lamda1Im = params["lamda1Im"]
+    lamda2Im = params["lamda2Im"]
+    lamda3Im = params["lamda3Im"]
+    
+    mu1sq = params["mu1sq"]
+    mu2sq = params["mu2sq"]
+    mu3sq = params["mu3sq"]
+    
+    mu12sqRe = params["mu12sqRe"]
+    mu12sqIm = params["mu12sqIm"]
+    
+    m00 = (2*v1**2*lamda11 + v2**2*lamda12 + v3**2*lamda31 - 2*mu1sq)/2
+    m01 = v1*v3*lamda3Im
+    m02 = 0
+    m03 = v1*v3*(lamda31p/2 + lamda3Re)
+    m04 = v1*v2*(lamda12p/2 + lamda1Re) - mu12sqRe
+    m05 = -(v1*v2*lamda1Im) + mu12sqIm
+    
+    m11 = (v2**2*lamda23 + v1**2*lamda31 + 2*v3**2*lamda33 - 2*mu3sq)/2
+    m12 = v1*v3*(lamda31p/2 + lamda3Re)
+    m13 = 0
+    m14 = -(v2*v3*lamda2Im)
+    m15 = v2*v3*(lamda23p/2 + lamda2Re)
+    
+    m22 = (2*v1**2*lamda11 + v2**2*lamda12 + v3**2*lamda31 - 2*mu1sq)/2
+    m23 = -(v1*v3*lamda3Im)
+    m24 = v1*v2*lamda1Im - mu12sqIm
+    m25 = v1*v2*(lamda12p/2 + lamda1Re) - mu12sqRe
+    
+    m33 = (v2**2*lamda23 + v1**2*lamda31 + 2*v3**2*lamda33 - 2*mu3sq)/2
+    m34 = v2*v3*(lamda23p/2 + lamda2Re)
+    m35 = v2*v3*lamda2Im
+    
+    m44 = (v1**2*lamda12 + 2*v2**2*lamda22 + v3**2*lamda23 - 2*mu2sq)/2
+    m45 = 0
+    
+    m55 = (v1**2*lamda12 + 2*v2**2*lamda22 + v3**2*lamda23 - 2*mu2sq)/2
+    
+    chargedMatrix = np.array([[m00, m01, m02, m03, m04, m05],
+                              [m01, m11, m12, m13, m14, m15],
+                              [m02, m12, m22, m23, m24, m25],
+                              [m03, m13, m23, m33, m34, m35],
+                              [m04, m14, m24, m34, m44, m45],
+                              [m05, m15, m25, m35, m45, m55],])
+    
+    m00 = (v1**2*(lamda12 + lamda12p + 2*lamda1Re) + 6*v2**2*lamda22 + v3**2*(lamda23 + lamda23p + 2*lamda2Re) - 2*mu2sq)/2
+    m01 = -(v1**2*lamda1Im) + v3**2*lamda2Im
+    m02 = 2*v1*v2*lamda1Im - mu12sqIm
+    m03 = v2*v3*(lamda23 + lamda23p + 2*lamda2Re)
+    m04 = v1*v2*(lamda12 + lamda12p + 2*lamda1Re) - mu12sqRe
+    m05 = -2*v2*v3*lamda2Im
+    
+    m11 = (v1**2*(lamda12 + lamda12p - 2*lamda1Re) + 2*v2**2*lamda22 + v3**2*(lamda23 + lamda23p - 2*lamda2Re) - 2*mu2sq)/2
+    m12 = 2*v1*v2*lamda1Re - mu12sqRe
+    m13 = 2*v2*v3*lamda2Im
+    m14 = -2*v1*v2*lamda1Im + mu12sqIm
+    m15 = 2*v2*v3*lamda2Re
+    
+    m22 = (2*v1**2*lamda11 + v2**2*(lamda12 + lamda12p - 2*lamda1Re) + v3**2*(lamda31 + lamda31p - 2*lamda3Re) - 2*mu1sq)/2
+    m23 = -2*v1*v3*lamda3Im
+    m24 = v2**2*lamda1Im - v3**2*lamda3Im
+    m25 = 2*v1*v3*lamda3Re
+    
+    m33 = (v2**2*(lamda23 + lamda23p + 2*lamda2Re) + 6*v3**2*lamda33 + v1**2*(lamda31 + lamda31p + 2*lamda3Re) - 2*mu3sq)/2
+    m34 = v1*v3*(lamda31 + lamda31p + 2*lamda3Re)
+    m35 = -(v2**2*lamda2Im) + v1**2*lamda3Im
+    
+    m44 = (6*v1**2*lamda11 + v2**2*(lamda12 + lamda12p + 2*lamda1Re) + v3**2*(lamda31 + lamda31p + 2*lamda3Re) - 2*mu1sq)/2
+    m45 = 2*v1*v3*lamda3Im
+    
+    m55 = (v2**2*(lamda23 + lamda23p - 2*lamda2Re) + 2*v3**2*lamda33 + v1**2*(lamda31 + lamda31p - 2*lamda3Re) - 2*mu3sq)/2
+    neutralMatrix = np.array([[m00, m01, m02, m03, m04, m05],
+                              [m01, m11, m12, m13, m14, m15],
+                              [m02, m12, m22, m23, m24, m25],
+                              [m03, m13, m23, m33, m34, m35],
+                              [m04, m14, m24, m34, m44, m45],
+                              [m05, m15, m25, m35, m45, m55],])
+
+
+    return chargedMatrix, neutralMatrix
+
 
 def bPhysicalMinimum(nloptInst, params):
     minimumInitialGuesses = [
