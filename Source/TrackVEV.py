@@ -67,9 +67,6 @@ class TrackVEV:
 
     verbose: bool = False
 
-    EulerGammaPrime = 2.0 * (log(4.0 * pi) - np.euler_gamma)
-    Lfconst = 4.0 * log(2.0)
-
     allSymbols: list = field(default_factory=list)
 
     config: InitVar[dict] = None
@@ -196,11 +193,8 @@ class TrackVEV:
 
     def getTConsts(self, T, params):
         ## Should this be moved to DRalgo? Probably
-        RGScale = 4.0 * pi * exp(-np.euler_gamma) * T
-
-        params[self.allSymbols.index("RGScale")] = RGScale
+        params[self.allSymbols.index("RGScale")] = 4.0 * pi * exp(-np.euler_gamma) * T
         params[self.allSymbols.index("T")] = T
-
         return params
 
     def runParams4D(self, paramsDict, T):
