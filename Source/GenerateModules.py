@@ -211,6 +211,7 @@ cdef void computeMasses(double [::1] params):
 	cdef int lda{{ loop.index0}}
 {%- endfor %}
 
+## Do we need to free any of this memory?
 {%- for scalarMassMatrix in scalarMassMatrices %}
 	## Only generate the upper right part of the matrix and preallocate the memory
 	scalarMassMatrix{{ loop.index0 }} = array({{ scalarMassMatrix -}}, dtype=float, order="F")
