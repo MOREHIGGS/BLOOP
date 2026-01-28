@@ -213,7 +213,9 @@ cdef void computeMasses(double [::1] params):
 {%- endfor %}
 
 {%- for scalarMassMatrix in scalarMassMatrices %}
+	## Only generate the upper right part of the matrix and preallocate the memory
 	scalarMassMatrix{{ loop.index0 }} = array({{ scalarMassMatrix -}}, dtype=float, order="F")
+	## These are known at compile time
 	n{{ loop.index0}} = scalarMassMatrix{{ loop.index0}}.shape[0]
 	lda{{ loop.index0}} = n{{ loop.index0}}
 
@@ -227,10 +229,10 @@ cdef void computeMasses(double [::1] params):
        &work_query{{loop.index0}}, &lwork{{loop.index0}},
        &iwork_query{{loop.index0}}, &liwork{{loop.index0}},
        &info)
-
+	## Cache this info
 	lwork{{ loop.index0 }} = <int>work_query{{ loop.index0 }}
 	liwork{{ loop.index0 }} = iwork_query{{ loop.index0 }}
-
+	
 	work{{ loop.index0 }} = empty(lwork{{ loop.index0 }}, dtype=float)
 	iwork{{ loop.index0 }} = empty(liwork{{ loop.index0 }}, dtype=intc)
 
