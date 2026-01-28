@@ -129,16 +129,6 @@ def pythoniseMathematica(args):
             ),
             "filePath": args.softToUltraSoftFilePath,
         },
-
-        "veff": {
-            "expressions": pythoniseExpression(getLines(args.loFilePath)[0]),
-            "fileName": args.loFilePath,
-        },
-        
-        "scalarMassMatrices": {
-            "expressions": pythoniseExpressionSystem(getLines(args.scalarMassMatrixFilePath)),
-            "fileName": args.scalarMassMatrixFilePath
-        },
         
         "allSymbols": {
             "allSymbols": allSymbols,
