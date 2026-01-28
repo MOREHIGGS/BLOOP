@@ -2,45 +2,6 @@ from math import log, sqrt
 import numpy as np
 
 
-class ParsedExpression:
-    def __init__(self, parsedExpression, fileName):
-        self.identifier = parsedExpression["identifier"]
-        self.expression = parsedExpression["expression"]
-        self.symbols = parsedExpression["symbols"]
-        self.fileName = fileName
-
-        self.lambdaExpression = compile(self.expression, self.identifier, mode="eval")
-
-    def evaluate(self, functionArguments: list[float]) -> float:
-        return eval(
-            self.lambdaExpression, functionArguments | {"log": log, "sqrt": sqrt}
-        )
-
-
-class ParsedExpressionSystem:
-    def __init__(self, parsedExpressionSystem, fileName):
-        self.parsedExpressions = [
-            ParsedExpression(parsedExpression, fileName)
-            for parsedExpression in parsedExpressionSystem
-        ]
-        self.fileName = fileName
-
-    def evaluate(self, inputDict: dict[str, float], bReturnDict=False) -> list[float]:
-        """Optional argument is a hack"""
-        outList = [
-            expression.evaluate(inputDict) for expression in self.parsedExpressions
-        ]
-        if bReturnDict:
-            return {
-                self.parsedExpressions[i].identifier: outList[i]
-                for i in range(len(outList))
-            }
-        return outList
-
-    def getExpressionNames(self) -> list[str]:
-        return [expr.identifier for expr in self.parsedExpressions]
-
-
 class ParsedExpressionArray:
     def __init__(self, parsedExpression, fileName):
         self.identifier = parsedExpression["identifier"]
@@ -82,40 +43,40 @@ from unittest import TestCase
 
 
 class ParsedExpressionUnitTests(TestCase):
-    def test_ParsedExpression(self):
-        from numpy import pi
+    # def test_ParsedExpression(self):
+    #     from numpy import pi
 
-        source = {
-            "expression": f"sqrt(lam)/(4*{pi}) + log(mssq)",
-            "identifier": "Identifier",
-            "symbols": ["lam", "mssq"],
-        }
+    #     source = {
+    #         "expression": f"sqrt(lam)/(4*{pi}) + log(mssq)",
+    #         "identifier": "Identifier",
+    #         "symbols": ["lam", "mssq"],
+    #     }
 
-        reference = 5.400944901447568
+    #     reference = 5.400944901447568
 
-        self.assertEqual(
-            reference,
-            ParsedExpression(source, None).evaluate({"lam": 100, "mssq": 100}),
-        )
+    #     self.assertEqual(
+    #         reference,
+    #         ParsedExpression(source, None).evaluate({"lam": 100, "mssq": 100}),
+    #     )
 
-    def test_ParsedExpressionSystem(self):
-        source = [
-            {
-                "expression": "sqrt(lam) + log(mssq)",
-                "identifier": "Identifier",
-                "symbols": ["lam", "mssq"],
-            },
-            {
-                "expression": "sqrt(2*lam) + log(mssq)",
-                "identifier": "Identifier",
-                "symbols": ["lam", "mssq"],
-            },
-        ]
+    # def test_ParsedExpressionSystem(self):
+    #     source = [
+    #         {
+    #             "expression": "sqrt(lam) + log(mssq)",
+    #             "identifier": "Identifier",
+    #             "symbols": ["lam", "mssq"],
+    #         },
+    #         {
+    #             "expression": "sqrt(2*lam) + log(mssq)",
+    #             "identifier": "Identifier",
+    #             "symbols": ["lam", "mssq"],
+    #         },
+    #     ]
 
-        reference = [(14.605170185988092 + 0j), (18.747305809719045 + 0j)]
+    #     reference = [(14.605170185988092 + 0j), (18.747305809719045 + 0j)]
 
-        self.assertEqual(
-            reference,
-            ParsedExpressionSystem(source, None).evaluate({"lam": 100, "mssq": 100}),
-        )
-
+    #     self.assertEqual(
+    #         reference,
+    #         ParsedExpressionSystem(source, None).evaluate({"lam": 100, "mssq": 100}),
+    #     )
+    pass
