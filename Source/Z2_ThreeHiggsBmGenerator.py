@@ -16,18 +16,6 @@ def generateBenchmarks(args):
     if args.benchmarkType == "load":
         return 
     
-    nloptInst = cNlopt(
-        config={
-            "nbrVars": 3,
-            "absGlobalTol": 0.5,
-            "relGlobalTol": 0.5,
-            "absLocalTol": 0.5,
-            "relLocalTol": 0.5,
-            "varLowerBounds": [-300, 0, 0],
-            "varUpperBounds": [300, 300, 300],
-        }
-    )
-    
     (outputFilePath := Path(args.benchmarkFilePath)).parent.mkdir(exist_ok=True, parents=True)
     
     if args.benchmarkType == "randomSSS":
@@ -53,7 +41,6 @@ def generateBenchmarks(args):
             ## Note: The error is of order the tol of solve_ivp so maybe not important? 
                 if checkPhysical(
                     copy(bmParams["lagranianParameters"]),
-                    nloptInst,
                 ):
                     bmParams["bmNumber"] = len(bmdictList)
                     bmdictList.append(bmParams)
@@ -217,7 +204,7 @@ def _lagranianParamGen(
     }
 
 
-def checkPhysical(params, nloptInst):
+def checkPhysical(params):
     params["v1"] = 0
     params["v2"] = 0
     params["v3"] = 1/m.sqrt((m.sqrt(2) * constants["Fermi coupling constant"][0]))
@@ -243,7 +230,7 @@ def checkPhysical(params, nloptInst):
     if not np.all(neutralEigenValues[1:] >= 3969):
         return False
 
-    if not bPhysicalMinimum(nloptInst, params):
+    if not bPhysicalMinimum(params):
         return False
 
     return True
@@ -350,7 +337,7 @@ def getMassMatrices(params):
     return chargedMatrix, neutralMatrix
 
 
-def bPhysicalMinimum(nloptInst, params):
+def bPhysicalMinimum(params):
     minimumInitialGuesses = [
         [0, 0, 0],
         [0, 0, 246],
@@ -360,7 +347,18 @@ def bPhysicalMinimum(nloptInst, params):
         [299, 299, 299],
         [-299, 299, 299],
     ]
-
+    nloptInst = cNlopt(
+        config={
+            "nbrVars": 3,
+            "absGlobalTol": 0.5,
+            "relGlobalTol": 0.5,
+            "absLocalTol": 0.5,
+            "relLocalTol": 0.5,
+            "varLowerBounds": [-300, 0, 0],
+            "varUpperBounds": [300, 300, 300],
+        }
+    )
+    
     def potential(fields, _):
         v1 = fields[0]
         v2 = fields[1]
