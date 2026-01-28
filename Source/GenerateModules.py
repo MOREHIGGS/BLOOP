@@ -183,7 +183,7 @@ def generateComputeMassesModule(
     return Environment().from_string(dedent("""\
 from scipy.linalg import block_diag
 from scipy.linalg.cython_lapack cimport dsyevd
-from numpy import array, sqrt, empty
+from numpy import array, sqrt, empty, intc
 from scipy.linalg.blas import dgemm
 
 cdef void computeMasses(double [::1] params):
@@ -199,7 +199,7 @@ cdef void computeMasses(double [::1] params):
 	cdef int info
 	
 {%- for scalarMassMatrix in scalarMassMatrices %}
-	cdef double [:, ::1] scalarMassMatrix{{ loop.index0 }}
+	cdef double [::1, :] scalarMassMatrix{{ loop.index0 }}
 	cdef double[::1] eigenvalues{{ loop.index0 }} 
 	cdef double[::1] work{{ loop.index0 }} 
 	cdef int[::1] iwork{{ loop.index0 }}
@@ -232,7 +232,7 @@ cdef void computeMasses(double [::1] params):
 	liwork{{ loop.index0 }} = iwork_query{{ loop.index0 }}
 
 	work{{ loop.index0 }} = empty(lwork{{ loop.index0 }}, dtype=float)
-	iwork{{ loop.index0 }} = empty(liwork{{ loop.index0 }}, dtype=int)
+	iwork{{ loop.index0 }} = empty(liwork{{ loop.index0 }}, dtype=intc)
 
 # Actual computation
 	dsyevd(&jobz, &uplo,
