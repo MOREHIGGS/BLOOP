@@ -47,33 +47,32 @@ def bIsPerturbative(params, pertSymbols, allSymbols):
 
     return True
 
-@dataclass(frozen=True)
 class TrackVEV:
-    TRange: tuple = (0,)
-
-    pertSymbols: frozenset = frozenset({1})
-
-    initialGuesses: tuple = (0,)
-
-    ## idk how to type hint these correctly
-    nloptInst: str = "nloptInstance"
-    
-    hardToSoft: callable = 0
-    hardScale: callable = 0
-    softScaleRGE: callable = 0
-    softToUltraSoft: callable = 0
-    betaFunction4DExpression: str = "betaFunction4DExpression"
-    bounded: str = "bounded"
-
-    verbose: bool = False
-
-    allSymbols: list = field(default_factory=list)
-
-    config: InitVar[dict] = None
-
-    def __post_init__(self, config):
-        if config:
-            self.__init__(**config)
+    def __init__(self, TRange,
+             pertSymbols,
+             initialGuesses,
+             nloptInst,
+             hardToSoft,
+             hardScale,
+             softScaleRGE,
+             softToUltraSoft,
+             betaFunction4DExpression,
+             bounded,
+             verbose,
+             allSymbols):
+        
+        self.TRange = TRange
+        self.pertSymbols = pertSymbols
+        self.initialGuesses = initialGuesses
+        self.nloptInst = nloptInst
+        self.hardToSoft = hardToSoft
+        self.hardScale = hardScale
+        self.softScaleRGE = softScaleRGE
+        self.softToUltraSoft = softToUltraSoft
+        self.betaFunction4DExpression = betaFunction4DExpression
+        self.bounded = bounded
+        self.verbose = verbose
+        self.allSymbols = allSymbols
 
     def trackVEV(self, benchmark):
         minimizationResults = {

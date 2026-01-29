@@ -156,53 +156,46 @@ def setUpTrackVEV(args):
     gaugeSymbols = [
         replaceGreekSymbols(item) for item in lagranianVariables["gaugeSymbols"]
     ]
-    return (
-        TrackVEV(
-            config={
-                "nloptInst": nloptInst,
-                "hardToSoft": ParsedExpressionSystemArray(
-                    pythonisedExpressions["hardToSoft"]["expressions"],
-                    allSymbols,
-                    pythonisedExpressions["hardToSoft"]["filePath"],
-                ),
-                "hardScale": ParsedExpressionArray(
-                    pythonisedExpressions["hardScale"]["expressions"],
-                    pythonisedExpressions["hardScale"]["filePath"],
-                ),
-                "softScaleRGE": ParsedExpressionSystemArray(
-                    pythonisedExpressions["softScaleRGE"]["expressions"],
-                    allSymbols,
-                    pythonisedExpressions["softScaleRGE"]["filePath"],
-                ),
-                "softToUltraSoft": ParsedExpressionSystemArray(
-                    pythonisedExpressions["softToUltraSoft"]["expressions"],
-                    allSymbols,
-                    pythonisedExpressions["softToUltraSoft"]["filePath"],
-                ),
-                "betaFunction4DExpression": ParsedExpressionSystemArray(
-                    pythonisedExpressions["betaFunctions4D"]["expressions"],
-                    allSymbols,
-                    pythonisedExpressions["betaFunctions4D"]["filePath"],
-                ),
-                "bounded": ParsedExpressionSystemArray(
-                    pythonisedExpressions["bounded"]["expressions"],
-                    allSymbols,
-                    pythonisedExpressions["bounded"]["filePath"],
-                ),
-                "TRange": tuple(
-                    _drange(args.TRangeStart, args.TRangeEnd, str(args.TRangeStepSize))
-                ),
-                "pertSymbols": frozenset(
-                    fourPointSymbols + yukawaSymbols + gaugeSymbols
-                ),
-                "verbose": args.verbose,
-                "initialGuesses": args.initialGuesses,
-                "allSymbols": allSymbols,
-            }
-        ),
+    
+    return (TrackVEV(tuple(_drange(args.TRangeStart, args.TRangeEnd, str(args.TRangeStepSize))),
+                 set(fourPointSymbols + yukawaSymbols + gaugeSymbols),
+                 args.initialGuesses,
+                 nloptInst,
+                 ParsedExpressionSystemArray(
+                     pythonisedExpressions["hardToSoft"]["expressions"],
+                     allSymbols,
+                     pythonisedExpressions["hardToSoft"]["filePath"],
+                 ),
+                 ParsedExpressionArray(
+                     pythonisedExpressions["hardScale"]["expressions"],
+                     pythonisedExpressions["hardScale"]["filePath"],
+                 ),
+                 ParsedExpressionSystemArray(
+                     pythonisedExpressions["softScaleRGE"]["expressions"],
+                     allSymbols,
+                     pythonisedExpressions["softScaleRGE"]["filePath"],
+                 ),
+                 ParsedExpressionSystemArray(
+                     pythonisedExpressions["softToUltraSoft"]["expressions"],
+                     allSymbols,
+                     pythonisedExpressions["softToUltraSoft"]["filePath"],
+                 ),
+                 ParsedExpressionSystemArray(
+                     pythonisedExpressions["betaFunctions4D"]["expressions"],
+                     allSymbols,
+                     pythonisedExpressions["betaFunctions4D"]["filePath"],
+                 ),
+                 ParsedExpressionSystemArray(
+                     pythonisedExpressions["bounded"]["expressions"],
+                     allSymbols,
+                     pythonisedExpressions["bounded"]["filePath"],
+                 ),
+                 args.verbose,
+                 allSymbols
+                 ),
         ##Saves loading parsed expression a second time
         lagranianVariables["fieldSymbols"],
-    )
+        )
 
 ## This (sometimes) avoids floating point error in T gotten by np.arange or linspace
 ## However one must be careful as 1 = decimal.Decimal(1.000000000000001)
