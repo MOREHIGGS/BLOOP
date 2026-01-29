@@ -82,8 +82,12 @@ class TrackVEV:
                              pythonisedExpressions["softScaleRGE"],
                              self.allSymbols,
                          )
-        
-        self.softToUltraSoft = ParsedExpressionSystem(
+        if pythonisedExpressions["softToUltraSoft"] == "none":
+            print("None")
+            self.softToUltraSoft = None
+        else:
+            print("Not none")
+            self.softToUltraSoft = ParsedExpressionSystem(
                              pythonisedExpressions["softToUltraSoft"],
                              self.allSymbols,
                          )
@@ -174,7 +178,7 @@ class TrackVEV:
             params = self.softScaleRGE.evaluate(params)
             if self.softToUltraSoft:
                 params = self.softToUltraSoft.evaluate(params)
-                
+
             ## Round needed because nlopt result sometimes fp out of bounds
             ## See https://github.com/stevengj/nlopt/issues/625
             vevLocation, vevDepth = self.findGlobalMinimum(

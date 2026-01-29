@@ -138,12 +138,6 @@ def pythoniseMathematica(args):
             ),
             "filePath": args.softScaleRGEFilePath,
         },
-        "softToUltraSoft": {
-            "expressions": pythoniseExpressionSystemArray(
-                getLines(args.softToUltraSoftFilePath), allSymbols
-            ),
-            "filePath": args.softToUltraSoftFilePath,
-        },
         
         "allSymbols": {
             "allSymbols": allSymbols,
@@ -154,7 +148,17 @@ def pythoniseMathematica(args):
             "fileName": args.lagranianVariablesFilePath 
         },
     }
-    
+    if args.softToUltraSoftFilePath.lower() == "none":
+        expressionDict |= {"softToUltraSoft": "none"}
+        
+    else:
+        expressionDict |= {"softToUltraSoft": {
+                    "expressions": pythoniseExpressionSystemArray(
+                        getLines(args.softToUltraSoftFilePath), allSymbols
+                    ),
+                    "filePath": args.softToUltraSoftFilePath,
+                }}
+        
     generateModules(
         args, 
         allSymbols, 

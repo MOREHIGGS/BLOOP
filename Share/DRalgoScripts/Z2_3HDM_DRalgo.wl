@@ -196,7 +196,8 @@ allSoftScaleParamsSqrtSuffixFree = RemoveSuffixes[sqrtSubRules[allSoftScaleMatch
 (* ##### IMPORTANT #####
 As far as I'm aware the hardscale is always best to be set as <float \[Epsilon] [1,4]> \[Pi]Exp[-EulerGamma] T
 As this will minimise Lb and Lf contributions. 
-We will therefore assume the hardscale is <float>*T so that we can set Lb, Lf at compile (or more accurately Mathematica) time.
+We will therefore assume the hardscale is <float>*T -which means Lb, Lf are temperature independent and
+can be set at compile (or more accurately Mathematica) time.
 This can reduce the number of multipications (probably only if one of them is 0) and memory use.  
 If this assumption is not valid for your case please reach out over email or on the repo.
 Note: 
