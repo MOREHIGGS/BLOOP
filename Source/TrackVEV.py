@@ -5,7 +5,7 @@ from dataclasses import dataclass, InitVar
 import json
 
 from PythoniseMathematica import replaceGreekSymbols
-from ParsedExpression import ParsedExpressionSystemArray, ParsedExpressionArray, ParsedExpressionSystemArray2
+from ParsedExpression import ParsedExpression, ParsedExpressionSystem
 
 @dataclass(frozen=True)
 class cNlopt:
@@ -72,27 +72,27 @@ class TrackVEV:
                             for symbolSet in ("fourPointSymbols", "yukawaSymbols", "gaugeSymbols")
                             for symbol in pythonisedExpressions["lagranianVariables"]["lagranianVariables"][symbolSet]
                             }
-        self.hardToSoft = ParsedExpressionSystemArray2(
+        self.hardToSoft = ParsedExpressionSystem(
                              pythonisedExpressions["hardToSoft"],
                              self.allSymbols,
                          )
-        self.hardScale = ParsedExpressionArray(
-                             pythonisedExpressions["hardScale"]["expressions"],
+        self.hardScale = ParsedExpression(
+                             pythonisedExpressions["hardScale"]["expressions"]["expression"],
                              pythonisedExpressions["hardScale"]["filePath"],
                          )
-        self.softScaleRGE = ParsedExpressionSystemArray2(
+        self.softScaleRGE = ParsedExpressionSystem(
                              pythonisedExpressions["softScaleRGE"],
                              self.allSymbols,
                          )
-        self.softToUltraSoft = ParsedExpressionSystemArray2(
+        self.softToUltraSoft = ParsedExpressionSystem(
                              pythonisedExpressions["softToUltraSoft"],
                              self.allSymbols,
                          )
-        self.betaFunction4DExpression = ParsedExpressionSystemArray2(
+        self.betaFunction4DExpression = ParsedExpressionSystem(
                              pythonisedExpressions["betaFunctions4D"],
                              self.allSymbols,
                          )
-        self.bounded = ParsedExpressionSystemArray2(
+        self.bounded = ParsedExpressionSystem(
                              pythonisedExpressions["bounded"],
                              self.allSymbols,
                          )
