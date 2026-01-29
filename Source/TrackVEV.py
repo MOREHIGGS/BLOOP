@@ -133,7 +133,12 @@ class TrackVEV:
             if self.verbose:
                 print(f"Start of temp = {T} loop")
 
-            params = self.runParams4D(betaSpline4D, T)
+            params = np.zeros(len(self.allSymbols), dtype="float64")
+            params[self.allSymbols.index("T")] = T
+            
+            for key, spline in betaSpline4D.items():
+                params[self.allSymbols.index(key)] = spline(self.hardScale.evaluate(params))
+                
             if not np.all(self.bounded.evaluateUnordered(params)):
                 return minimizationResults | {"failureReason": "unBounded"}
 
@@ -188,15 +193,6 @@ class TrackVEV:
 
         ## Potential computed again in case its complex
         return bestResult[0], evaluatePotential(bestResult[0], params3D)
-
-    def runParams4D(self, paramsDict, T):
-        params = np.zeros(len(self.allSymbols), dtype="float64")
-        params[self.allSymbols.index("T")] = T
-        
-        for key, spline in paramsDict.items():
-            params[self.allSymbols.index(key)] = spline(self.hardScale.evaluate(params))
-
-        return params
     
 
 
