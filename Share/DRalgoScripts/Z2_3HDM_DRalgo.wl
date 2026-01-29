@@ -210,17 +210,23 @@ allSoftScaleParamsSqrtSuffixFreeNoLbLf = allSoftScaleParamsSqrtSuffixFree/.Lb->0
 exportUTF8[exportPath<>"/SoftScaleParams_NLO.txt", allSoftScaleParamsSqrtSuffixFreeNoLbLf];
 
 
+hardScale = N[4\[Pi]*Exp[-EulerGamma]*T];
+exportUTF8[exportPath<>"/HardScale.txt", hardScale];
+
+
+(*TODO give this more generic lagangue (or at least double check with someone)*)
+
+
 (* 3D RG equations can be solved exactly, so do that here. 
 msq -> msq + \[Beta][msq] Log[\[Mu]3/\[Mu]] where RHS msq is the 3D mass at scale \[Mu] and LHS msq is the mass at scale \[Mu]3
-We have chosen \[Mu]3 to be T and \[Mu] to be 4.0 * pi * exp(-euler_gamma) * T*)
-(* TODO move 4.0 * pi * exp(-euler_gamma) * T to here*)
+We have chosen \[Mu]3 to be T and \[Mu] to be the hardScale *)
 	
 SolveRunning3D[betaFunctions_] := Block[{exprList},
 	(* Extracting lhs and beta for each list element *)
 	exprList = {#[[1]], #[[2]]} & /@ betaFunctions;
 
 	(* Make new list with RGE solution on RHS *)
-	newRulesList = (#1 -> #1 + #2*Log[T/RGScale]) & @@@ exprList;
+	newRulesList = (#1 -> #1 + #2*Log[T/hardScale]) & @@@ exprList;
 	Return[newRulesList];
 ];
 

@@ -9,7 +9,7 @@ import numpy as np
 
 from TrackVEV import TrackVEV, cNlopt
 from PythoniseMathematica import replaceGreekSymbols
-from ParsedExpression import ParsedExpressionSystemArray
+from ParsedExpression import ParsedExpressionSystemArray, ParsedExpressionArray
 
 
 def loopBenchmarks(args):
@@ -164,6 +164,10 @@ def setUpTrackVEV(args):
                     pythonisedExpressions["hardToSoft"]["expressions"],
                     allSymbols,
                     pythonisedExpressions["hardToSoft"]["filePath"],
+                ),
+                "hardScale": ParsedExpressionArray(
+                    pythonisedExpressions["hardScale"]["expressions"],
+                    pythonisedExpressions["hardScale"]["filePath"],
                 ),
                 "softScaleRGE": ParsedExpressionSystemArray(
                     pythonisedExpressions["softScaleRGE"]["expressions"],

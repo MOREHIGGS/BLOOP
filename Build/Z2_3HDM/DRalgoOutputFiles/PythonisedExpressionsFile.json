@@ -864,7 +864,7 @@
             },
             {
                 "identifier": "mu1sq",
-                "expression": "-0.01024054810898845*params[54]**2*params[52]**4 - params[54]**2*params[52]**2/16 + 0.01237551741488083*params[54]**2*params[51]**4 + 0.01064428773129424*params[54]**2*params[51]**2*(6*params[49] + 2*params[48] + params[47] + 2*params[39] + params[38]) - 3*params[54]**2*params[51]**2/16 - params[54]**2*(6*params[49] + 2*params[48] + params[47] + 2*params[39] + params[38])/12 + 0.003655260899045145*params[54]**2*(6*params[49]**2 + params[48]**2 + params[48]*params[47] + params[47]**2 + 6*params[46]**2 + 6*params[45]**2 + params[39]**2 + params[39]*params[38] + params[38]**2 + 6*params[36]**2 + 6*params[35]**2) - 0.000791571747205764*params[54]**2*(143.282578771459*params[49]**2 + 23.8804297952431*params[48]**2 + 23.8804297952431*params[48]*params[47] + 23.8804297952431*params[47]**2 + 143.282578771459*params[46]**2 + 143.282578771459*params[45]**2 + 23.8804297952431*params[39]**2 + 23.8804297952431*params[39]*params[38] + 23.8804297952431*params[38]**2 + 143.282578771459*params[36]**2 + 143.282578771459*params[35]**2 + 2.772588722239781*params[0]**2*(2*params[39] + params[38])) + 0.000131928624534294*params[52]**2*(-99.35271267767339*params[54]**2*params[51]**2 + 26.89405671404624*params[54]**2*(6*params[49] + 2*params[48] + params[47] + 2*params[39] + params[38])) + params[11]",
+                "expression": "-0.01024054810898845*params[54]**2*params[52]**4 - params[54]**2*params[52]**2/16 + 0.01237551741488083*params[54]**2*params[51]**4 - 0.000791571747205764*params[54]**2*params[51]**2*(-16.9103223464323 + 6*EulerGamma)*(6*params[49] + 2*params[48] + params[47] + 2*params[39] + params[38]) - 3*params[54]**2*params[51]**2/16 - params[54]**2*(6*params[49] + 2*params[48] + params[47] + 2*params[39] + params[38])/12 + 0.006332573977646112*EulerGamma*params[54]**2*(6*params[49]**2 + params[48]**2 + params[48]*params[47] + params[47]**2 + 6*params[46]**2 + 6*params[45]**2 + params[39]**2 + params[39]*params[38] + params[38]**2 + 6*params[36]**2 + 6*params[35]**2) - 0.000791571747205764*params[54]**2*(143.282578771459*params[49]**2 + 23.8804297952431*params[48]**2 + 23.8804297952431*params[48]*params[47] + 23.8804297952431*params[47]**2 + 143.282578771459*params[46]**2 + 143.282578771459*params[45]**2 + 23.8804297952431*params[39]**2 + 23.8804297952431*params[39]*params[38] + 23.8804297952431*params[38]**2 + 143.282578771459*params[36]**2 + 143.282578771459*params[35]**2 + 2.772588722239781*params[0]**2*(2*params[39] + params[38])) + 0.000131928624534294*params[52]**2*(9*params[54]**2*params[51]**2*(-13.9252686220269 + 5*EulerGamma) - 2*params[54]**2*(-16.9103223464323 + 6*EulerGamma)*(6*params[49] + 2*params[48] + params[47] + 2*params[39] + params[38])) + params[11]",
                 "symbols": [
                     "T",
                     "g1",
@@ -884,7 +884,7 @@
             },
             {
                 "identifier": "mu2sq",
-                "expression": "-0.01024054810898845*params[54]**2*params[52]**4 - params[54]**2*params[52]**2/16 + 0.01237551741488083*params[54]**2*params[51]**4 + 0.01064428773129424*params[54]**2*params[51]**2*(2*params[48] + params[47] + 6*params[44] + 2*params[43] + params[42]) - 3*params[54]**2*params[51]**2/16 - params[54]**2*(2*params[48] + params[47] + 6*params[44] + 2*params[43] + params[42])/12 + 0.000791571747205764*params[54]**2*(-19.26270447603083*params[48]**2 - 19.26270447603083*params[48]*params[47] - 19.26270447603083*params[47]**2 - 115.576226856185*params[46]**2 - 115.576226856185*params[45]**2 - 115.576226856185*params[44]**2 - 19.26270447603083*params[43]**2 - 19.26270447603083*params[43]*params[42] - 19.26270447603083*params[42]**2 - 115.576226856185*params[41]**2 - 115.576226856185*params[40]**2 - 2.772588722239781*params[0]**2*(2*params[43] + params[42])) + 0.000131928624534294*params[52]**2*(-99.35271267767339*params[54]**2*params[51]**2 + 26.89405671404624*params[54]**2*(2*params[48] + params[47] + 6*params[44] + 2*params[43] + params[42])) + params[10]",
+                "expression": "-0.01024054810898845*params[54]**2*params[52]**4 - params[54]**2*params[52]**2/16 + 0.01237551741488083*params[54]**2*params[51]**4 - 0.000791571747205764*params[54]**2*params[51]**2*(-16.9103223464323 + 6*EulerGamma)*(2*params[48] + params[47] + 6*params[44] + 2*params[43] + params[42]) - 3*params[54]**2*params[51]**2/16 - params[54]**2*(2*params[48] + params[47] + 6*params[44] + 2*params[43] + params[42])/12 + 0.000791571747205764*params[54]**2*(-23.8804297952431*params[48]**2 - 23.8804297952431*params[48]*params[47] - 23.8804297952431*params[47]**2 - 143.282578771459*params[46]**2 - 143.282578771459*params[45]**2 - 143.282578771459*params[44]**2 - 23.8804297952431*params[43]**2 - 23.8804297952431*params[43]*params[42] - 23.8804297952431*params[42]**2 - 143.282578771459*params[41]**2 - 143.282578771459*params[40]**2 - 2.772588722239781*params[0]**2*(2*params[43] + params[42]) + 8*EulerGamma*(params[48]**2 + params[48]*params[47] + params[47]**2 + 6*params[46]**2 + 6*params[45]**2 + 6*params[44]**2 + params[43]**2 + params[43]*params[42] + params[42]**2 + 6*params[41]**2 + 6*params[40]**2)) + 0.000131928624534294*params[52]**2*(9*params[54]**2*params[51]**2*(-13.9252686220269 + 5*EulerGamma) - 2*params[54]**2*(-16.9103223464323 + 6*EulerGamma)*(2*params[48] + params[47] + 6*params[44] + 2*params[43] + params[42])) + params[10]",
                 "symbols": [
                     "T",
                     "g1",
@@ -904,7 +904,7 @@
             },
             {
                 "identifier": "mu3sq",
-                "expression": "-0.01024054810898845*params[54]**2*params[52]**4 - params[54]**2*params[52]**2/16 + 0.01237551741488083*params[54]**2*params[51]**4 - 0.000197892936801441*params[54]**2*params[51]**2*(-107.576226856185*params[43] - 53.78811342809248*params[42] - 107.576226856185*params[39] - 53.78811342809248*params[38] - 322.7286805685549*params[37] - 14.317766166719345*params[0]**2) - 3*params[54]**2*params[51]**2/16 - 0.0341551805598297*params[54]**2*params[50]**2*params[0]**2 - params[54]**2*(2*params[43] + params[42] + 2*params[39] + params[38] + 6*params[37] + 3*params[0]**2)/12 - 0.01524781263800001*params[54]**2*(params[43]**2 + params[43]*params[42] + params[42]**2 + 6*params[41]**2 + 6*params[40]**2 + params[39]**2 + params[39]*params[38] + params[38]**2 + 6*params[37]**2 + 6*params[36]**2 + 6*params[35]**2) + 2.1988104089049e-5*params[52]**2*(-596.1162760660404*params[54]**2*params[51]**2 + params[54]**2*(322.7286805685549*params[43] + 161.3643402842774*params[42] + 322.7286805685549*params[39] + 161.3643402842774*params[38] + 968.1860417056646*params[37] - 86.49237972318795*params[0]**2)) + params[8] + 0.00438940579829268*params[0]**2*(params[54]**2*(2*params[43] + params[42] + 2*params[39] + params[38] + 3*params[37]) - 12*params[8])",
+                "expression": "-0.01024054810898845*params[54]**2*params[52]**4 - params[54]**2*params[52]**2/16 + 0.01237551741488083*params[54]**2*params[51]**4 - 0.000197892936801441*params[54]**2*params[51]**2*(-14.317766166719345*params[0]**2 + 4*(-16.9103223464323 + 6*EulerGamma)*(2*params[43] + params[42] + 2*params[39] + params[38] + 6*params[37])) - 3*params[54]**2*params[51]**2/16 - 0.0341551805598297*params[54]**2*params[50]**2*params[0]**2 - params[54]**2*(2*params[43] + params[42] + 2*params[39] + params[38] + 6*params[37] + 3*params[0]**2)/12 + 0.006332573977646112*params[54]**2*(-2.98505372440539 + EulerGamma)*(params[43]**2 + params[43]*params[42] + params[42]**2 + 6*params[41]**2 + 6*params[40]**2 + params[39]**2 + params[39]*params[38] + params[38]**2 + 6*params[37]**2 + 6*params[36]**2 + 6*params[35]**2) + 2.1988104089049e-5*params[52]**2*(54*params[54]**2*params[51]**2*(-13.9252686220269 + 5*EulerGamma) + params[54]**2*(-86.49237972318795*params[0]**2 - 12*(-16.9103223464323 + 6*EulerGamma)*(2*params[43] + params[42] + 2*params[39] + params[38] + 6*params[37]))) + params[8] + 0.00438940579829268*params[0]**2*(params[54]**2*(2*params[43] + params[42] + 2*params[39] + params[38] + 3*params[37]) - 12*params[8])",
                 "symbols": [
                     "T",
                     "g1",
@@ -939,6 +939,16 @@
             }
         ],
         "filePath": "../Build/Z2_3HDM/DRalgoOutputFiles/SoftScaleParams_NLO.txt"
+    },
+    "hardScale": {
+        "expressions": {
+            "identifier": "missing",
+            "expression": "7.055507955448182*params[54]",
+            "symbols": [
+                "T"
+            ]
+        },
+        "filePath": "../Build/Z2_3HDM/DRalgoOutputFiles/HardScale.txt"
     },
     "softScaleRGE": {
         "expressions": [

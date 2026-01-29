@@ -56,10 +56,11 @@ class TrackVEV:
 
     initialGuesses: tuple = (0,)
 
-    ## idk how to type hint this correctly
+    ## idk how to type hint these correctly
     nloptInst: str = "nloptInstance"
     
     hardToSoft: callable = 0
+    hardScale: callable = 0
     softScaleRGE: callable = 0
     softToUltraSoft: callable = 0
     betaFunction4DExpression: str = "betaFunction4DExpression"
@@ -193,12 +194,10 @@ class TrackVEV:
 
     def runParams4D(self, paramsDict, T):
         params = np.zeros(len(self.allSymbols), dtype="float64")
-
-        #params[self.allSymbols.index("RGScale")] = 4.0 * pi * exp(-np.euler_gamma) * T
         params[self.allSymbols.index("T")] = T
-        muEvaulate = 4.0 * pi * exp(-np.euler_gamma) * T
+        
         for key, spline in paramsDict.items():
-            params[self.allSymbols.index(key)] = spline(muEvaulate)
+            params[self.allSymbols.index(key)] = spline(self.hardScale.evaluate(params))
 
         return params
     
