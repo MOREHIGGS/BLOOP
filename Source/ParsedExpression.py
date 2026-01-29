@@ -39,8 +39,9 @@ class ParsedExpressionSystemArray:
         return [expression[1].evaluate(params) for expression in self.parsedExpressions]
     
 class ParsedExpressionArray2:
-    def __init__(self, expression):
+    def __init__(self, expression, fileName):
         self.lambdaExpression = compile(expression, "<string>", mode="eval")
+        self.fileName = fileName
 
     def evaluate(self, params):
         return eval(self.lambdaExpression, {"log": log, "sqrt": sqrt, "params": params})
@@ -52,7 +53,7 @@ class ParsedExpressionSystemArray2:
         self.parsedExpressions = [
             (
                 allSymbols.index(expression["identifier"]),
-                ParsedExpressionArray2(expression["expression"]),
+                ParsedExpressionArray2(expression["expression"], self.fileName),
             )
             for expression in expressionsDict["expressions"]
         ]

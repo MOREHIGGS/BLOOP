@@ -72,33 +72,29 @@ class TrackVEV:
                             for symbolSet in ("fourPointSymbols", "yukawaSymbols", "gaugeSymbols")
                             for symbol in pythonisedExpressions["lagranianVariables"]["lagranianVariables"][symbolSet]
                             }
-        self.hardToSoft = ParsedExpressionSystemArray(
-                             pythonisedExpressions["hardToSoft"]["expressions"],
+        self.hardToSoft = ParsedExpressionSystemArray2(
+                             pythonisedExpressions["hardToSoft"],
                              self.allSymbols,
-                             pythonisedExpressions["hardToSoft"]["filePath"],
                          )
         self.hardScale = ParsedExpressionArray(
                              pythonisedExpressions["hardScale"]["expressions"],
                              pythonisedExpressions["hardScale"]["filePath"],
                          )
-        self.softScaleRGE = ParsedExpressionSystemArray(
-                             pythonisedExpressions["softScaleRGE"]["expressions"],
+        self.softScaleRGE = ParsedExpressionSystemArray2(
+                             pythonisedExpressions["softScaleRGE"],
                              self.allSymbols,
-                             pythonisedExpressions["softScaleRGE"]["filePath"],
                          )
-        self.softToUltraSoft = ParsedExpressionSystemArray(
-                             pythonisedExpressions["softToUltraSoft"]["expressions"],
+        self.softToUltraSoft = ParsedExpressionSystemArray2(
+                             pythonisedExpressions["softToUltraSoft"],
                              self.allSymbols,
-                             pythonisedExpressions["softToUltraSoft"]["filePath"],
                          )
         self.betaFunction4DExpression = ParsedExpressionSystemArray2(
                              pythonisedExpressions["betaFunctions4D"],
                              self.allSymbols,
                          )
-        self.bounded = ParsedExpressionSystemArray(
-                             pythonisedExpressions["bounded"]["expressions"],
+        self.bounded = ParsedExpressionSystemArray2(
+                             pythonisedExpressions["bounded"],
                              self.allSymbols,
-                             pythonisedExpressions["bounded"]["filePath"],
                          )
         
     def trackVEV(self, benchmark):
