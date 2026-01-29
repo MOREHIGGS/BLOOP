@@ -90,9 +90,7 @@ class TrackVEV:
         for key, value in benchmark["lagranianParameters"].items():
             params[self.allSymbols.index(key)] = value
 
-        ## RG running. We want to do 4D -> 3D matching at a scale where logs are small;
-        ## usually a T-dependent scale 4.*pi*exp(-np.euler_gamma)*T
-        ## TODO FIX for when user RGscale < 7T!!!
+        ## What to do if user RGScale > 7.3TMax? Idk why someone might do this though
 
         muRange = np.linspace(
             benchmark["lagranianParameters"]["RGScale"],
@@ -100,8 +98,10 @@ class TrackVEV:
             len(self.TRange) * 10,
         )
 
-        ## -----Unexepected behaviour------
-        ## This updates the RGScale with the value of mu
+        ## (Maybe) Important note:
+        ## Any none-zero value in initalConditions will be updated even if not
+        ## included in beta function - leads to differences at the level of the tol
+        ## of solve_ivp (default 1e-3%)
         ## including mu in np.real or not gives fp errors
         def betaFunction(
                 mu, 
