@@ -1,8 +1,10 @@
 import numpy as np
 import scipy
 import nlopt
-from dataclasses import dataclass, InitVar, field
+from dataclasses import dataclass, InitVar
+import json
 
+from PythoniseMathematica import replaceGreekSymbols
 
 @dataclass(frozen=True)
 class cNlopt:
@@ -49,7 +51,6 @@ def bIsPerturbative(params, pertSymbols, allSymbols):
 
 class TrackVEV:
     def __init__(self, TRange,
-             pertSymbols,
              initialGuesses,
              nloptInst,
              hardToSoft,
@@ -59,21 +60,30 @@ class TrackVEV:
              betaFunction4DExpression,
              bounded,
              verbose,
-             allSymbols):
+             pythonisedExpressionsFilePath):
         
+        self.verbose = verbose
         self.TRange = TRange
-        self.pertSymbols = pertSymbols
         self.initialGuesses = initialGuesses
         self.nloptInst = nloptInst
+        self.verbose = verbose
+        
+        with open(pythonisedExpressionsFilePath, "r") as fp:
+            pythonisedExpressions = json.load(fp)
+        
+        self.allSymbols = pythonisedExpressions["allSymbols"]["allSymbols"]
+        self.pertSymbols = {replaceGreekSymbols(symbol) 
+                            for symbolSet in ("fourPointSymbols", "yukawaSymbols", "gaugeSymbols")
+                            for symbol in pythonisedExpressions["lagranianVariables"]["lagranianVariables"][symbolSet]
+                            }
+        
         self.hardToSoft = hardToSoft
         self.hardScale = hardScale
         self.softScaleRGE = softScaleRGE
         self.softToUltraSoft = softToUltraSoft
         self.betaFunction4DExpression = betaFunction4DExpression
         self.bounded = bounded
-        self.verbose = verbose
-        self.allSymbols = allSymbols
-
+        
     def trackVEV(self, benchmark):
         minimizationResults = {
             "T": [],

@@ -147,18 +147,7 @@ def setUpTrackVEV(args):
         }
     )
 
-    fourPointSymbols = [
-        replaceGreekSymbols(item) for item in lagranianVariables["fourPointSymbols"]
-    ]
-    yukawaSymbols = [
-        replaceGreekSymbols(item) for item in lagranianVariables["yukawaSymbols"]
-    ]
-    gaugeSymbols = [
-        replaceGreekSymbols(item) for item in lagranianVariables["gaugeSymbols"]
-    ]
-    
     return (TrackVEV(tuple(_drange(args.TRangeStart, args.TRangeEnd, str(args.TRangeStepSize))),
-                 set(fourPointSymbols + yukawaSymbols + gaugeSymbols),
                  args.initialGuesses,
                  nloptInst,
                  ParsedExpressionSystemArray(
@@ -191,7 +180,7 @@ def setUpTrackVEV(args):
                      pythonisedExpressions["bounded"]["filePath"],
                  ),
                  args.verbose,
-                 allSymbols
+                 args.pythonisedExpressionsFilePath
                  ),
         ##Saves loading parsed expression a second time
         lagranianVariables["fieldSymbols"],
