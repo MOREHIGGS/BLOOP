@@ -8,11 +8,32 @@ from tqdm import tqdm
 import numpy as np
 
 from TrackVEV import TrackVEV, cNlopt
-from ParsedExpression import ParsedExpressionSystemArray, ParsedExpressionArray
-
 
 def loopBenchmarks(args):
-    trackVEV, fieldNames = setUpTrackVEV(args)
+    with open(args.pythonisedExpressionsFilePath, "r") as fp:
+        pythonisedExpressions = json.load(fp)
+        
+    fieldNames = pythonisedExpressions["lagranianVariables"]["lagranianVariables"]["fieldSymbols"]
+    
+    nloptInst = cNlopt(
+        config={
+            "nbrVars": len(fieldNames),
+            "absGlobalTol": args.absGlobalTolerance,
+            "relGlobalTol": args.relGlobalTolerance,
+            "absLocalTol": args.absLocalTolerance,
+            "relLocalTol": args.relLocalTolerance,
+            "varLowerBounds": args.varLowerBounds,
+            "varUpperBounds": args.varUpperBounds,
+        }
+    )
+    
+    trackVEV = TrackVEV(tuple(_drange(args.TRangeStart, args.TRangeEnd, str(args.TRangeStepSize))),
+                     args.initialGuesses,
+                     nloptInst,
+                     args.verbose,
+                     args.pythonisedExpressionsFilePath,
+                     )
+    
     doBenchmarkWrapper = partial(doBenchmark, trackVEV, args, fieldNames)
     
     with open(args.benchmarkFilePath, "r") as benchmarkFile:
@@ -126,34 +147,6 @@ def processData(
     
     return processedResult
 
-
-def setUpTrackVEV(args):
-    with open(args.pythonisedExpressionsFilePath, "r") as fp:
-        pythonisedExpressions = json.load(fp)
-
-    fieldSymbols = pythonisedExpressions["lagranianVariables"]["lagranianVariables"]["fieldSymbols"]
-
-    nloptInst = cNlopt(
-        config={
-            "nbrVars": len(fieldSymbols),
-            "absGlobalTol": args.absGlobalTolerance,
-            "relGlobalTol": args.relGlobalTolerance,
-            "absLocalTol": args.absLocalTolerance,
-            "relLocalTol": args.relLocalTolerance,
-            "varLowerBounds": args.varLowerBounds,
-            "varUpperBounds": args.varUpperBounds,
-        }
-    )
-
-    return (TrackVEV(tuple(_drange(args.TRangeStart, args.TRangeEnd, str(args.TRangeStepSize))),
-                 args.initialGuesses,
-                 nloptInst,
-                 args.verbose,
-                 args.pythonisedExpressionsFilePath,
-                 ),
-        ##Saves loading parsed expression a second time
-        fieldSymbols,
-        )
 
 ## This (sometimes) avoids floating point error in T gotten by np.arange or linspace
 ## However one must be careful as 1 = decimal.Decimal(1.000000000000001)
