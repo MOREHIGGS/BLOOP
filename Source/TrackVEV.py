@@ -102,12 +102,11 @@ class TrackVEV:
         ## Any none-zero value in initalConditions will be updated even if not
         ## included in beta function - leads to differences at the level of the tol
         ## of solve_ivp (default 1e-3%)
-        ## including mu in np.real or not gives fp errors
         def betaFunction(
                 mu, 
                 initialConditions
             ):
-                return np.real(self.betaFunction4DExpression.evaluate(initialConditions) / mu)
+                return self.betaFunction4DExpression.evaluate(initialConditions) / mu
                 
         solvedBetaFunction = scipy.integrate.solve_ivp(
             betaFunction,
