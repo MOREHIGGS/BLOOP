@@ -131,7 +131,6 @@ def setUpTrackVEV(args):
     with open(args.pythonisedExpressionsFilePath, "r") as fp:
         pythonisedExpressions = json.load(fp)
 
-    allSymbols = pythonisedExpressions["allSymbols"]["allSymbols"]
     fieldSymbols = pythonisedExpressions["lagranianVariables"]["lagranianVariables"]["fieldSymbols"]
 
     nloptInst = cNlopt(
@@ -151,25 +150,6 @@ def setUpTrackVEV(args):
                  nloptInst,
                  args.verbose,
                  args.pythonisedExpressionsFilePath,
-                 ParsedExpressionSystemArray(
-                     pythonisedExpressions["hardToSoft"]["expressions"],
-                     allSymbols,
-                     pythonisedExpressions["hardToSoft"]["filePath"],
-                 ),
-                 ParsedExpressionArray(
-                     pythonisedExpressions["hardScale"]["expressions"],
-                     pythonisedExpressions["hardScale"]["filePath"],
-                 ),
-                 ParsedExpressionSystemArray(
-                     pythonisedExpressions["softScaleRGE"]["expressions"],
-                     allSymbols,
-                     pythonisedExpressions["softScaleRGE"]["filePath"],
-                 ),
-                 ParsedExpressionSystemArray(
-                     pythonisedExpressions["softToUltraSoft"]["expressions"],
-                     allSymbols,
-                     pythonisedExpressions["softToUltraSoft"]["filePath"],
-                 ),
                  ),
         ##Saves loading parsed expression a second time
         fieldSymbols,

@@ -56,10 +56,6 @@ class TrackVEV:
              nloptInst,
              verbose,
              pythonisedExpressionsFilePath,
-             hardToSoft,
-             hardScale,
-             softScaleRGE,
-             softToUltraSoft,
         ):
         
         self.verbose = verbose
@@ -77,10 +73,25 @@ class TrackVEV:
                             for symbol in pythonisedExpressions["lagranianVariables"]["lagranianVariables"][symbolSet]
                             }
         
-        self.hardToSoft = hardToSoft
-        self.hardScale = hardScale
-        self.softScaleRGE = softScaleRGE
-        self.softToUltraSoft = softToUltraSoft
+        self.hardToSoft = ParsedExpressionSystemArray(
+                             pythonisedExpressions["hardToSoft"]["expressions"],
+                             self.allSymbols,
+                             pythonisedExpressions["hardToSoft"]["filePath"],
+                         )
+        self.hardScale = ParsedExpressionArray(
+                             pythonisedExpressions["hardScale"]["expressions"],
+                             pythonisedExpressions["hardScale"]["filePath"],
+                         )
+        self.softScaleRGE = ParsedExpressionSystemArray(
+                             pythonisedExpressions["softScaleRGE"]["expressions"],
+                             self.allSymbols,
+                             pythonisedExpressions["softScaleRGE"]["filePath"],
+                         )
+        self.softToUltraSoft = ParsedExpressionSystemArray(
+                             pythonisedExpressions["softToUltraSoft"]["expressions"],
+                             self.allSymbols,
+                             pythonisedExpressions["softToUltraSoft"]["filePath"],
+                         )
         self.betaFunction4DExpression = ParsedExpressionSystemArray(
                              pythonisedExpressions["betaFunctions4D"]["expressions"],
                              self.allSymbols,
@@ -158,6 +169,11 @@ class TrackVEV:
                 
             if not np.all(self.bounded.evaluateUnordered(params)):
                 return minimizationResults | {"failureReason": "unBounded"}
+            
+            minimizationResults["bIsPerturbative"].append(bIsPerturbative(params, 
+                                                                          self.pertSymbols, 
+                                                                          self.allSymbols)
+                                                          )
 
             params = self.hardToSoft.evaluate(params)
             params = self.softScaleRGE.evaluate(params)
@@ -174,10 +190,6 @@ class TrackVEV:
             minimizationResults["vevDepthReal"].append(vevDepth.real)
             minimizationResults["vevDepthImag"].append(vevDepth.imag)
             minimizationResults["vevLocation"].append(vevLocation)
-            minimizationResults["bIsPerturbative"].append(bIsPerturbative(params, 
-                                                                          self.pertSymbols, 
-                                                                          self.allSymbols)
-                                                          )
 
             if np.all(np.abs(vevLocation) < 0.5):
                 if self.verbose:
