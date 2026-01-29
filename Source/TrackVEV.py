@@ -144,8 +144,9 @@ class TrackVEV:
 
             params = self.hardToSoft.evaluate(params)
             params = self.softScaleRGE.evaluate(params)
-            params = self.softToUltraSoft.evaluate(params)
-
+            if self.softToUltraSoft:
+                params = self.softToUltraSoft.evaluate(params)
+                
             ## Round needed because nlopt result sometimes fp out of bounds
             ## See https://github.com/stevengj/nlopt/issues/625
             vevLocation, vevDepth = self.findGlobalMinimum(
