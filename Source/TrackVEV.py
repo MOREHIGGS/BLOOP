@@ -142,8 +142,6 @@ class TrackVEV:
             if not np.all(self.bounded.evaluateUnordered(params)):
                 return minimizationResults | {"failureReason": "unBounded"}
 
-            isPert = bIsPerturbative(params, self.pertSymbols, self.allSymbols)
-
             params = self.hardToSoft.evaluate(params)
             params = self.softScaleRGE.evaluate(params)
             params = self.softToUltraSoft.evaluate(params)
@@ -158,7 +156,9 @@ class TrackVEV:
             minimizationResults["vevDepthReal"].append(vevDepth.real)
             minimizationResults["vevDepthImag"].append(vevDepth.imag)
             minimizationResults["vevLocation"].append(vevLocation)
-            minimizationResults["bIsPerturbative"].append(isPert)
+            minimizationResults["bIsPerturbative"].append(bIsPerturbative(params, 
+                                                                          self.pertSymbols, 
+                                                                          self.allSymbols))
 
             if np.all(np.abs(vevLocation) < 0.5):
                 if self.verbose:
