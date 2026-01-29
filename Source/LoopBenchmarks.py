@@ -8,7 +8,6 @@ from tqdm import tqdm
 import numpy as np
 
 from TrackVEV import TrackVEV, cNlopt
-from PythoniseMathematica import replaceGreekSymbols
 from ParsedExpression import ParsedExpressionSystemArray, ParsedExpressionArray
 
 

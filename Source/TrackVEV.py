@@ -5,6 +5,7 @@ from dataclasses import dataclass, InitVar
 import json
 
 from PythoniseMathematica import replaceGreekSymbols
+from ParsedExpression import ParsedExpressionSystemArray, ParsedExpressionArray
 
 @dataclass(frozen=True)
 class cNlopt:
@@ -83,7 +84,11 @@ class TrackVEV:
         self.softScaleRGE = softScaleRGE
         self.softToUltraSoft = softToUltraSoft
         self.betaFunction4DExpression = betaFunction4DExpression
-        self.bounded = bounded
+        self.bounded = ParsedExpressionSystemArray(
+                             pythonisedExpressions["bounded"]["expressions"],
+                             self.allSymbols,
+                             pythonisedExpressions["bounded"]["filePath"],
+                         )
         
     def trackVEV(self, benchmark):
         minimizationResults = {
