@@ -317,6 +317,11 @@ class UserInput(argparse.ArgumentParser):
            default="../Build/Z2_3HDM/DRalgoOutputFiles/SoftScaleParams_NLO.txt",
        )
        filesGroup.add_argument(
+           "--hardScaleFilePath",
+           action="store",
+           default="../Build/Z2_3HDM/DRalgoOutputFiles/HardScale.txt",
+       )
+       filesGroup.add_argument(
            "--softScaleRGEFilePath",
            action="store",
            default="../Build/Z2_3HDM/DRalgoOutputFiles/SoftScaleRGE.txt",

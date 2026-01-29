@@ -7,18 +7,34 @@ from functools import partial
 from tqdm import tqdm
 import numpy as np
 
-from TrackVEV import TrackVEV, cNlopt
-from PythoniseMathematica import replaceGreekSymbols
-from ParsedExpression import ParsedExpressionSystemArray
-
+from TrackVEV import TrackVEV
 
 def loopBenchmarks(args):
-    trackVEV, fieldNames = setUpTrackVEV(args)
+    with open(args.pythonisedExpressionsFilePath, "r") as fp:
+        pythonisedExpressions = json.load(fp)
+        
+    fieldNames = pythonisedExpressions["lagranianVariables"]["lagranianVariables"]["fieldSymbols"]
+    
+    trackVEV = TrackVEV(tuple(_drange(args.TRangeStart, args.TRangeEnd, str(args.TRangeStepSize))),
+                     args.initialGuesses,
+                     args.verbose,
+                     pythonisedExpressions,
+                     {"nbrVars": len(fieldNames),
+                             "absGlobalTol": args.absGlobalTolerance,
+                             "relGlobalTol": args.relGlobalTolerance,
+                             "absLocalTol": args.absLocalTolerance,
+                             "relLocalTol": args.relLocalTolerance,
+                             "varLowerBounds": args.varLowerBounds,
+                             "varUpperBounds": args.varUpperBounds,
+                     },
+                     )
+    
     doBenchmarkWrapper = partial(doBenchmark, trackVEV, args, fieldNames)
     
     with open(args.benchmarkFilePath, "r") as benchmarkFile:
         benchmarkData = [benchmark for benchmark in json.load(benchmarkFile) 
                          if args.firstBenchmark <= benchmark["bmNumber"] <= args.lastBenchmark]
+        
     if args.workers >1:
         with Pool(args.workers) as pool:
             scanResults = list(tqdm(pool.imap_unordered(
@@ -127,78 +143,6 @@ def processData(
     
     return processedResult
 
-
-def setUpTrackVEV(args):
-    with open(args.pythonisedExpressionsFilePath, "r") as fp:
-        pythonisedExpressions = json.load(fp)
-
-    allSymbols = pythonisedExpressions["allSymbols"]["allSymbols"]
-    lagranianVariables = pythonisedExpressions["lagranianVariables"]["lagranianVariables"]
-
-    nloptInst = cNlopt(
-        config={
-            "nbrVars": len(lagranianVariables["fieldSymbols"]),
-            "absGlobalTol": args.absGlobalTolerance,
-            "relGlobalTol": args.relGlobalTolerance,
-            "absLocalTol": args.absLocalTolerance,
-            "relLocalTol": args.relLocalTolerance,
-            "varLowerBounds": args.varLowerBounds,
-            "varUpperBounds": args.varUpperBounds,
-        }
-    )
-
-    fourPointSymbols = [
-        replaceGreekSymbols(item) for item in lagranianVariables["fourPointSymbols"]
-    ]
-    yukawaSymbols = [
-        replaceGreekSymbols(item) for item in lagranianVariables["yukawaSymbols"]
-    ]
-    gaugeSymbols = [
-        replaceGreekSymbols(item) for item in lagranianVariables["gaugeSymbols"]
-    ]
-    return (
-        TrackVEV(
-            config={
-                "nloptInst": nloptInst,
-                "hardToSoft": ParsedExpressionSystemArray(
-                    pythonisedExpressions["hardToSoft"]["expressions"],
-                    allSymbols,
-                    pythonisedExpressions["hardToSoft"]["filePath"],
-                ),
-                "softScaleRGE": ParsedExpressionSystemArray(
-                    pythonisedExpressions["softScaleRGE"]["expressions"],
-                    allSymbols,
-                    pythonisedExpressions["softScaleRGE"]["filePath"],
-                ),
-                "softToUltraSoft": ParsedExpressionSystemArray(
-                    pythonisedExpressions["softToUltraSoft"]["expressions"],
-                    allSymbols,
-                    pythonisedExpressions["softToUltraSoft"]["filePath"],
-                ),
-                "betaFunction4DExpression": ParsedExpressionSystemArray(
-                    pythonisedExpressions["betaFunctions4D"]["expressions"],
-                    allSymbols,
-                    pythonisedExpressions["betaFunctions4D"]["filePath"],
-                ),
-                "bounded": ParsedExpressionSystemArray(
-                    pythonisedExpressions["bounded"]["expressions"],
-                    allSymbols,
-                    pythonisedExpressions["bounded"]["filePath"],
-                ),
-                "TRange": tuple(
-                    _drange(args.TRangeStart, args.TRangeEnd, str(args.TRangeStepSize))
-                ),
-                "pertSymbols": frozenset(
-                    fourPointSymbols + yukawaSymbols + gaugeSymbols
-                ),
-                "verbose": args.verbose,
-                "initialGuesses": args.initialGuesses,
-                "allSymbols": allSymbols,
-            }
-        ),
-        ##Saves loading parsed expression a second time
-        lagranianVariables["fieldSymbols"],
-    )
 
 ## This (sometimes) avoids floating point error in T gotten by np.arange or linspace
 ## However one must be careful as 1 = decimal.Decimal(1.000000000000001)

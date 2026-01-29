@@ -191,20 +191,43 @@ allSoftScaleMatching = Join[couplingsSoft, temporalScalarCouplings, debyeMasses,
 (*We want to do in place updating of parameters in the python code i.e. \[Lambda]14D gets updated to \[Lambda]13D which gets updated to \[Lambda]13DUS,
 it's easier to do this if we remove the suffices so its the same variable name throughout*)
 allSoftScaleParamsSqrtSuffixFree = RemoveSuffixes[sqrtSubRules[allSoftScaleMatching], {"3d"}];
-exportUTF8[exportPath<>"/SoftScaleParams_NLO.txt", allSoftScaleParamsSqrtSuffixFree];
+
+
+(* ##### IMPORTANT #####
+As far as I'm aware the hardscale is always best to be set as <float \[Epsilon] [1,4]> \[Pi]Exp[-EulerGamma] T
+As this will minimise Lb and Lf contributions. 
+We will therefore assume the hardscale is <float>*T -which means Lb, Lf are temperature independent and
+can be set at compile (or more accurately Mathematica) time.
+This can reduce the number of multipications (probably only if one of them is 0) and memory use.  
+If this assumption is not valid for your case please reach out over email or on the repo.
+Note: 
+Lb = 2Log[HardScale/T] - 2(Log[4.0\[Pi]] - eulerGamma)
+Lf = Lb + 4Log[2]
+DEV NOTE: Lb and Lf are used outside of NLOPT and so any simplication in expressions has (currently) minimal impact on perfomance
+HOWEVER, getting rid of Lb and Lf would reduce memory use inside NLOPT and so bring us one step closer to fitting in cache *)
+allSoftScaleParamsSqrtSuffixFreeNoLbLf = allSoftScaleParamsSqrtSuffixFree/.Lb->0/.Lf->N[4Log[2]];
+
+
+exportUTF8[exportPath<>"/SoftScaleParams_NLO.txt", allSoftScaleParamsSqrtSuffixFreeNoLbLf];
+
+
+hardScale = N[4\[Pi]*Exp[-EulerGamma]*T];
+exportUTF8[exportPath<>"/HardScale.txt", hardScale];
+
+
+(*TODO give this more generic lagangue (or at least double check with someone)*)
 
 
 (* 3D RG equations can be solved exactly, so do that here. 
 msq -> msq + \[Beta][msq] Log[\[Mu]3/\[Mu]] where RHS msq is the 3D mass at scale \[Mu] and LHS msq is the mass at scale \[Mu]3
-We have chosen \[Mu]3 to be T and \[Mu] to be 4.0 * pi * exp(-euler_gamma) * T*)
-(* TODO move 4.0 * pi * exp(-euler_gamma) * T to here*)
+We have chosen \[Mu]3 to be T and \[Mu] to be the hardScale *)
 	
 SolveRunning3D[betaFunctions_] := Block[{exprList},
 	(* Extracting lhs and beta for each list element *)
 	exprList = {#[[1]], #[[2]]} & /@ betaFunctions;
 
 	(* Make new list with RGE solution on RHS *)
-	newRulesList = (#1 -> #1 + #2*Log[T/RGScale]) & @@@ exprList;
+	newRulesList = (#1 -> #1 + #2*Log[T/hardScale]) & @@@ exprList;
 	Return[newRulesList];
 ];
 
@@ -471,8 +494,8 @@ exportUTF8[exportPath<>"/AllSymbols.json",
 	extractSymbols[allUltrasoftScaleParamsSqrt]["LHS"],
 	extractSymbols[running3DSoft]["RHS"],
 	extractSymbols[running3DSoft]["LHS"],
-	extractSymbols[allSoftScaleParamsSqrtSuffixFree]["RHS"],
-	extractSymbols[allSoftScaleParamsSqrtSuffixFree]["LHS"],
+	extractSymbols[allSoftScaleParamsSqrtSuffixFreeNoLbLf]["RHS"],
+	extractSymbols[allSoftScaleParamsSqrtSuffixFreeNoLbLf]["LHS"],
 	extractSymbols[betaFunctions4DUnsquared]["RHS"],
 	extractSymbols[betaFunctions4DUnsquared]["LHS"]
 ]]

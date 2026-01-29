@@ -9,7 +9,14 @@ from GenerateModules import generateModules
 
 def getLines(relativePathToResource):
     with open(relativePathToResource, "r", encoding="utf-8") as fp:
-        return fp.readlines()
+        ## This is a hack to deal with adding hardScale super late to this part of the code
+        ## Would be better to do something like  fp.read().strip()
+        ## But that breaks existing code and I don't wanna fix that right now, 
+        ## especially with our plans of replacing these parsed expressions with meta cython code
+        data = fp.readlines()
+        if len(data) == 1:
+            return data[0]
+        return data
 
 def getLinesJSON(relativePathToResource):
     with open(relativePathToResource, "r") as fp:
@@ -57,7 +64,6 @@ def pythoniseExpressionArray(line, allSymbols):
     identifier, line = (
         map(str.strip, line.split("->")) if ("->" in line) else ("missing", line)
     )
-
     identifier = removeSuffices(replaceGreekSymbols(identifier))
     expression = parse_mathematica(replaceSymbolsConst(replaceGreekSymbols(line)))
     symbols = [str(symbol) for symbol in expression.free_symbols]
@@ -98,6 +104,7 @@ def pythoniseMathematica(args):
     allSymbols = sorted(
         [replaceGreekSymbols(symbol) for symbol in allSymbols], reverse=True
     )
+    
     expressionDict = {
         "bounded": {
             "expressions": pythoniseExpressionSystemArray(
@@ -117,17 +124,19 @@ def pythoniseMathematica(args):
             ),
             "filePath": args.hardToSoftFilePath,
         },
+
+        "hardScale": {
+            "expressions": pythoniseExpressionArray(
+                getLines(args.hardScaleFilePath), allSymbols
+            ),
+            "filePath": args.hardScaleFilePath,
+        },
+
         "softScaleRGE": {
             "expressions": pythoniseExpressionSystemArray(
                 getLines(args.softScaleRGEFilePath), allSymbols
             ),
             "filePath": args.softScaleRGEFilePath,
-        },
-        "softToUltraSoft": {
-            "expressions": pythoniseExpressionSystemArray(
-                getLines(args.softToUltraSoftFilePath), allSymbols
-            ),
-            "filePath": args.softToUltraSoftFilePath,
         },
         
         "allSymbols": {
@@ -139,7 +148,17 @@ def pythoniseMathematica(args):
             "fileName": args.lagranianVariablesFilePath 
         },
     }
-    
+    if args.softToUltraSoftFilePath.lower() == "none":
+        expressionDict |= {"softToUltraSoft": "none"}
+        
+    else:
+        expressionDict |= {"softToUltraSoft": {
+                    "expressions": pythoniseExpressionSystemArray(
+                        getLines(args.softToUltraSoftFilePath), allSymbols
+                    ),
+                    "filePath": args.softToUltraSoftFilePath,
+                }}
+        
     generateModules(
         args, 
         allSymbols, 
