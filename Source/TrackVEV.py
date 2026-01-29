@@ -53,14 +53,15 @@ class TrackVEV:
     def __init__(self, TRange,
              initialGuesses,
              nloptInst,
+             verbose,
+             pythonisedExpressionsFilePath,
              hardToSoft,
              hardScale,
              softScaleRGE,
              softToUltraSoft,
              betaFunction4DExpression,
              bounded,
-             verbose,
-             pythonisedExpressionsFilePath):
+        ):
         
         self.verbose = verbose
         self.TRange = TRange

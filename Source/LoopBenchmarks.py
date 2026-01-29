@@ -133,11 +133,11 @@ def setUpTrackVEV(args):
         pythonisedExpressions = json.load(fp)
 
     allSymbols = pythonisedExpressions["allSymbols"]["allSymbols"]
-    lagranianVariables = pythonisedExpressions["lagranianVariables"]["lagranianVariables"]
+    fieldSymbols = pythonisedExpressions["lagranianVariables"]["lagranianVariables"]["fieldSymbols"]
 
     nloptInst = cNlopt(
         config={
-            "nbrVars": len(lagranianVariables["fieldSymbols"]),
+            "nbrVars": len(fieldSymbols),
             "absGlobalTol": args.absGlobalTolerance,
             "relGlobalTol": args.relGlobalTolerance,
             "absLocalTol": args.absLocalTolerance,
@@ -150,6 +150,8 @@ def setUpTrackVEV(args):
     return (TrackVEV(tuple(_drange(args.TRangeStart, args.TRangeEnd, str(args.TRangeStepSize))),
                  args.initialGuesses,
                  nloptInst,
+                 args.verbose,
+                 args.pythonisedExpressionsFilePath,
                  ParsedExpressionSystemArray(
                      pythonisedExpressions["hardToSoft"]["expressions"],
                      allSymbols,
@@ -179,11 +181,9 @@ def setUpTrackVEV(args):
                      allSymbols,
                      pythonisedExpressions["bounded"]["filePath"],
                  ),
-                 args.verbose,
-                 args.pythonisedExpressionsFilePath
                  ),
         ##Saves loading parsed expression a second time
-        lagranianVariables["fieldSymbols"],
+        fieldSymbols,
         )
 
 ## This (sometimes) avoids floating point error in T gotten by np.arange or linspace
