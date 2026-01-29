@@ -1,4 +1,3 @@
-from math import pi, log, exp
 import numpy as np
 import scipy
 import nlopt
@@ -43,7 +42,7 @@ class cNlopt:
 
 def bIsPerturbative(params, pertSymbols, allSymbols):
     for pertSymbol in pertSymbols:
-        if abs(params[allSymbols.index(pertSymbol)]) > 4 * pi:
+        if abs(params[allSymbols.index(pertSymbol)]) > 4 * np.pi:
             return False
 
     return True
