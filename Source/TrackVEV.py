@@ -120,7 +120,6 @@ class TrackVEV:
         betaSpline4D = {
             symbol: scipy.interpolate.CubicSpline(muRange, solvedBetaFunction.y[idx])
             for idx, symbol in enumerate(self.allSymbols)
-            if symbol != "RGScale"
             if np.any(solvedBetaFunction.y[idx] != solvedBetaFunction.y[idx][0])
         }
 
