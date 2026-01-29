@@ -5,7 +5,7 @@ from dataclasses import dataclass, InitVar
 import json
 
 from PythoniseMathematica import replaceGreekSymbols
-from ParsedExpression import ParsedExpressionSystemArray, ParsedExpressionArray
+from ParsedExpression import ParsedExpressionSystemArray, ParsedExpressionArray, ParsedExpressionSystemArray2
 
 @dataclass(frozen=True)
 class cNlopt:
@@ -72,7 +72,6 @@ class TrackVEV:
                             for symbolSet in ("fourPointSymbols", "yukawaSymbols", "gaugeSymbols")
                             for symbol in pythonisedExpressions["lagranianVariables"]["lagranianVariables"][symbolSet]
                             }
-        
         self.hardToSoft = ParsedExpressionSystemArray(
                              pythonisedExpressions["hardToSoft"]["expressions"],
                              self.allSymbols,
@@ -92,10 +91,9 @@ class TrackVEV:
                              self.allSymbols,
                              pythonisedExpressions["softToUltraSoft"]["filePath"],
                          )
-        self.betaFunction4DExpression = ParsedExpressionSystemArray(
-                             pythonisedExpressions["betaFunctions4D"]["expressions"],
+        self.betaFunction4DExpression = ParsedExpressionSystemArray2(
+                             pythonisedExpressions["betaFunctions4D"],
                              self.allSymbols,
-                             pythonisedExpressions["betaFunctions4D"]["filePath"],
                          )
         self.bounded = ParsedExpressionSystemArray(
                              pythonisedExpressions["bounded"]["expressions"],
