@@ -158,7 +158,8 @@ class TrackVEV:
             minimizationResults["vevLocation"].append(vevLocation)
             minimizationResults["bIsPerturbative"].append(bIsPerturbative(params, 
                                                                           self.pertSymbols, 
-                                                                          self.allSymbols))
+                                                                          self.allSymbols)
+                                                          )
 
             if np.all(np.abs(vevLocation) < 0.5):
                 if self.verbose:
@@ -175,13 +176,13 @@ class TrackVEV:
 
         return minimizationResults
     
-    def findGlobalMinimum(self, params3D, minimumCandidates):
+    def findGlobalMinimum(self, params, minimumCandidates):
         from evaluatePotential  import evaluatePotential
         """For physics reasons we only minimise the real part,
         for nlopt reasons we need to give a redunant grad arg"""
         def VeffWrapper(fields, grad):
             return np.real(
-                    evaluatePotential(fields, params3D)
+                    evaluatePotential(fields, params)
                 )
 
         bestResult = self.nloptInst.nloptGlobal(VeffWrapper, minimumCandidates[0])
@@ -192,7 +193,7 @@ class TrackVEV:
                 bestResult = result
 
         ## Potential computed again in case its complex
-        return bestResult[0], evaluatePotential(bestResult[0], params3D)
+        return bestResult[0], evaluatePotential(bestResult[0], params)
     
 
 
