@@ -170,16 +170,6 @@ def setUpTrackVEV(args):
                      allSymbols,
                      pythonisedExpressions["softToUltraSoft"]["filePath"],
                  ),
-                 ParsedExpressionSystemArray(
-                     pythonisedExpressions["betaFunctions4D"]["expressions"],
-                     allSymbols,
-                     pythonisedExpressions["betaFunctions4D"]["filePath"],
-                 ),
-                 ParsedExpressionSystemArray(
-                     pythonisedExpressions["bounded"]["expressions"],
-                     allSymbols,
-                     pythonisedExpressions["bounded"]["filePath"],
-                 ),
                  ),
         ##Saves loading parsed expression a second time
         fieldSymbols,

@@ -60,8 +60,6 @@ class TrackVEV:
              hardScale,
              softScaleRGE,
              softToUltraSoft,
-             betaFunction4DExpression,
-             bounded,
         ):
         
         self.verbose = verbose
@@ -83,7 +81,11 @@ class TrackVEV:
         self.hardScale = hardScale
         self.softScaleRGE = softScaleRGE
         self.softToUltraSoft = softToUltraSoft
-        self.betaFunction4DExpression = betaFunction4DExpression
+        self.betaFunction4DExpression = ParsedExpressionSystemArray(
+                             pythonisedExpressions["betaFunctions4D"]["expressions"],
+                             self.allSymbols,
+                             pythonisedExpressions["betaFunctions4D"]["filePath"],
+                         )
         self.bounded = ParsedExpressionSystemArray(
                              pythonisedExpressions["bounded"]["expressions"],
                              self.allSymbols,
