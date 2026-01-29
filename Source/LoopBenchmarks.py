@@ -7,7 +7,7 @@ from functools import partial
 from tqdm import tqdm
 import numpy as np
 
-from TrackVEV import TrackVEV, cNlopt
+from TrackVEV import TrackVEV
 
 def loopBenchmarks(args):
     with open(args.pythonisedExpressionsFilePath, "r") as fp:
@@ -15,23 +15,18 @@ def loopBenchmarks(args):
         
     fieldNames = pythonisedExpressions["lagranianVariables"]["lagranianVariables"]["fieldSymbols"]
     
-    nloptInst = cNlopt(
-        config={
-            "nbrVars": len(fieldNames),
-            "absGlobalTol": args.absGlobalTolerance,
-            "relGlobalTol": args.relGlobalTolerance,
-            "absLocalTol": args.absLocalTolerance,
-            "relLocalTol": args.relLocalTolerance,
-            "varLowerBounds": args.varLowerBounds,
-            "varUpperBounds": args.varUpperBounds,
-        }
-    )
-    
     trackVEV = TrackVEV(tuple(_drange(args.TRangeStart, args.TRangeEnd, str(args.TRangeStepSize))),
                      args.initialGuesses,
-                     nloptInst,
                      args.verbose,
-                     args.pythonisedExpressionsFilePath,
+                     pythonisedExpressions,
+                     {"nbrVars": len(fieldNames),
+                             "absGlobalTol": args.absGlobalTolerance,
+                             "relGlobalTol": args.relGlobalTolerance,
+                             "absLocalTol": args.absLocalTolerance,
+                             "relLocalTol": args.relLocalTolerance,
+                             "varLowerBounds": args.varLowerBounds,
+                             "varUpperBounds": args.varUpperBounds,
+                     },
                      )
     
     doBenchmarkWrapper = partial(doBenchmark, trackVEV, args, fieldNames)
@@ -39,6 +34,7 @@ def loopBenchmarks(args):
     with open(args.benchmarkFilePath, "r") as benchmarkFile:
         benchmarkData = [benchmark for benchmark in json.load(benchmarkFile) 
                          if args.firstBenchmark <= benchmark["bmNumber"] <= args.lastBenchmark]
+        
     if args.workers >1:
         with Pool(args.workers) as pool:
             scanResults = list(tqdm(pool.imap_unordered(

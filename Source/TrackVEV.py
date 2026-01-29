@@ -2,7 +2,6 @@ import numpy as np
 import scipy
 import nlopt
 from dataclasses import dataclass, InitVar
-import json
 
 from PythoniseMathematica import replaceGreekSymbols
 from ParsedExpression import ParsedExpression, ParsedExpressionSystem
@@ -18,8 +17,6 @@ class cNlopt:
     relGlobalTol: float = 0
     config: InitVar[dict] = None
 
-    ##Regular init method doesn't work with frozen data classes,
-    ##Need to manually init by passing the class a dict i.e. class(config = dict)
     def __post_init__(self, config: dict):
         if config:
             self.__init__(**config)
@@ -53,45 +50,49 @@ def bIsPerturbative(params, pertSymbols, allSymbols):
 class TrackVEV:
     def __init__(self, TRange,
              initialGuesses,
-             nloptInst,
              verbose,
-             pythonisedExpressionsFilePath,
+             pythonisedExpressions,
+             nloptConfig,
         ):
         
         self.verbose = verbose
         self.TRange = TRange
         self.initialGuesses = initialGuesses
-        self.nloptInst = nloptInst
+        self.nloptInst = cNlopt( config=nloptConfig )
         self.verbose = verbose
         
-        with open(pythonisedExpressionsFilePath, "r") as fp:
-            pythonisedExpressions = json.load(fp)
-        
         self.allSymbols = pythonisedExpressions["allSymbols"]["allSymbols"]
+        
         self.pertSymbols = {replaceGreekSymbols(symbol) 
                             for symbolSet in ("fourPointSymbols", "yukawaSymbols", "gaugeSymbols")
                             for symbol in pythonisedExpressions["lagranianVariables"]["lagranianVariables"][symbolSet]
                             }
+        
         self.hardToSoft = ParsedExpressionSystem(
                              pythonisedExpressions["hardToSoft"],
                              self.allSymbols,
                          )
+        
         self.hardScale = ParsedExpression(
                              pythonisedExpressions["hardScale"]["expressions"]["expression"],
                              pythonisedExpressions["hardScale"]["filePath"],
                          )
+        
         self.softScaleRGE = ParsedExpressionSystem(
                              pythonisedExpressions["softScaleRGE"],
                              self.allSymbols,
                          )
+        
         self.softToUltraSoft = ParsedExpressionSystem(
                              pythonisedExpressions["softToUltraSoft"],
                              self.allSymbols,
                          )
+        
         self.betaFunction4DExpression = ParsedExpressionSystem(
                              pythonisedExpressions["betaFunctions4D"],
                              self.allSymbols,
                          )
+        
         self.bounded = ParsedExpressionSystem(
                              pythonisedExpressions["bounded"],
                              self.allSymbols,
