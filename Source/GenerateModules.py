@@ -36,12 +36,12 @@ def generateModules(
     loopOrder = args.loopOrder 
     
     veffFilePaths   = [args.loFilePath, args.nloFilePath]
-	
+    
     if loopOrder >1:
         veffFilePaths.append(args.nnloFilePath)
    
     veffModule = generateVeffModule(
-    	veffFilePaths, 
+        veffFilePaths, 
         allSymbols
         )
     
@@ -116,23 +116,25 @@ def generateEvaluatePotentialModule(
 ):
     with open(filename, 'w') as file:
         file.write(Environment().from_string(dedent("""\
-from libc.complex cimport csqrt
-from libc.complex cimport clog
-
-cpdef evaluatePotential(fields, double [::1] parameters):
+from libc.complex cimport csqrt, clog
+cimport cython
+@cython.cdivision(True)
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cpdef evaluatePotential(const double [::1] fields, double [::1] parameters):
 {% for name in fieldNames %}
-	parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
+    parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
 {%- endfor %}
 
-	computeMasses(parameters)
-	
-	return veff(parameters)
+    computeMasses(parameters)
+    
+    return veff(parameters)
 
 {{computeMassesModule}}
 
 {{ veffSubModule }}
 
-	
+    
         """)).render(
         loopOrder=loopOrder, 
         allSymbols=allSymbols, 
@@ -150,14 +152,14 @@ def generateVeffModule(veffFilePaths, allSymbols):
     return Environment().from_string(dedent("""\
 cdef double complex veff(double [::1] params):
 {%- for symbol in allSymbols %}
-	cdef double {{ symbol }} = params[{{ loop.index0 }}]
+    cdef double {{ symbol }} = params[{{ loop.index0 }}]
 {%- endfor %}
-	cdef double complex a = 0.0
+    cdef double complex a = 0.0
 {%- for op, term in opsAndExpressions %}
-	a {{ op }} {{ term }}
+    a {{ op }} {{ term }}
 {%- endfor %}
-	return a
-	""")).render(allSymbols=allSymbols, opsAndExpressions=test)
+    return a
+    """)).render(allSymbols=allSymbols, opsAndExpressions=test)
 
 
 def generateComputeMassesModule(
@@ -184,64 +186,73 @@ def generateComputeMassesModule(
     return Environment().from_string(dedent("""\
 from scipy.linalg import block_diag
 from scipy.linalg.cython_lapack cimport dsyevd
-from numpy import array, sqrt, empty, intc
+from numpy import array, empty, intc
 from scipy.linalg.blas import dgemm
+from libc.math cimport sqrt
+from cython cimport view
 
+# cdef int size = <computed>
+# cdef double[::1] work0 = view.array(shape=(size,), itemsize=sizeof(double), format="d")
+
+@cython.cdivision(True)
+@cython.boundscheck(False)
+@cython.wraparound(False)
 cdef void computeMasses(double [::1] params):
 {%- for symbol in allSymbols %}
-	cdef double {{ symbol }} = params[{{ loop.index0 }}]
+    cdef double {{ symbol }} = params[{{ loop.index0 }}]
 {%- endfor %}
-	cdef char uplo = 'U' 
-	## TODO set to V if NNLO
-	cdef char jobz = 'N'
-	## Reports status of dsyevd 
-	## TODO use this to catch errors 
-	cdef int info
-	
+    cdef char uplo = 'U' 
+    ## TODO set to V if NNLO
+    cdef char jobz = 'N'
+    ## Reports status of dsyevd 
+    ## TODO use this to catch errors 
+    cdef int info
+    
 {%- for scalarMassMatrix in scalarMassMatrices %}
-	cdef double [::1, :] scalarMassMatrix{{ loop.index0 }}
-	cdef double[::1] eigenvalues{{ loop.index0 }} 
-	cdef double[::1] work{{ loop.index0 }} 
-	cdef int[::1] iwork{{ loop.index0 }}
-	
-	cdef int lwork{{ loop.index0 }} = -1
-	cdef int liwork{{ loop.index0 }} = -1
-	cdef double work_query{{loop.index0}}
-	cdef int iwork_query{{loop.index0}}
-	cdef int n{{ loop.index0}}
-	cdef int lda{{ loop.index0}}
+    cdef double [::1, :] scalarMassMatrix{{ loop.index0 }}
+    cdef double eigenvalues{{ loop.index0 }}[6]
+    cdef double work{{ loop.index0 }}[500]
+    cdef int iwork{{ loop.index0 }}[100]
+    
+    cdef int lwork{{ loop.index0 }} = -1
+    cdef int liwork{{ loop.index0 }} = -1
+    cdef double work_query{{loop.index0}}
+    cdef int iwork_query{{loop.index0}}
+    cdef int n{{ loop.index0}} = 6
+    cdef int lda{{ loop.index0}} =6
 {%- endfor %}
 
 ## Do we need to free any of this memory?
 {%- for scalarMassMatrix in scalarMassMatrices %}
-	## Only generate the upper right part of the matrix and preallocate the memory
-	scalarMassMatrix{{ loop.index0 }} = array({{ scalarMassMatrix -}}, dtype=float, order="F")
-	## These are known at compile time
-	n{{ loop.index0}} = scalarMassMatrix{{ loop.index0}}.shape[0]
-	lda{{ loop.index0}} = n{{ loop.index0}}
+    ## Only generate the upper right part of the matrix and preallocate the memory
+    scalarMassMatrix{{ loop.index0 }} = array({{ scalarMassMatrix -}}, dtype=float, order="F")
+    ## These are known at compile time
+    # n{{ loop.index0}} = scalarMassMatrix{{ loop.index0}}.shape[0]
+    # lda{{ loop.index0}} = n{{ loop.index0}}
 
-	eigenvalues{{ loop.index0 }} = empty(n{{ loop.index0}}, dtype=float)
+    # eigenvalues{{ loop.index0 }} = empty(n{{ loop.index0}}, dtype=float)
 
-	# Workspace query
-	dsyevd(&jobz, &uplo,
-       &n{{loop.index0}},
-       &scalarMassMatrix{{loop.index0}}[0, 0], &lda{{loop.index0}},
-       &eigenvalues{{loop.index0}}[0],
-       &work_query{{loop.index0}}, &lwork{{loop.index0}},
-       &iwork_query{{loop.index0}}, &liwork{{loop.index0}},
-       &info)
-	## Cache this info
-	lwork{{ loop.index0 }} = <int>work_query{{ loop.index0 }}
-	liwork{{ loop.index0 }} = iwork_query{{ loop.index0 }}
-	
-	work{{ loop.index0 }} = empty(lwork{{ loop.index0 }}, dtype=float)
-	iwork{{ loop.index0 }} = empty(liwork{{ loop.index0 }}, dtype=intc)
+    # Workspace query
+    # dsyevd(&jobz, &uplo,
+    #    &n{{loop.index0}},
+    #    &scalarMassMatrix{{loop.index0}}[0, 0], &lda{{loop.index0}},
+    #    &eigenvalues{{loop.index0}}[0],
+    #    &work_query{{loop.index0}}, &lwork{{loop.index0}},
+    #    &iwork_query{{loop.index0}}, &liwork{{loop.index0}},
+    #    &info)
+    # ## Cache this info
+    # lwork{{ loop.index0 }} = <int>work_query{{ loop.index0 }}
+    # liwork{{ loop.index0 }} = iwork_query{{ loop.index0 }}
+    # work{{ loop.index0 }} = view.array(shape=(lwork{{loop.index0}},), itemsize=sizeof(double), format="d")
+    # iwork{{ loop.index0 }} = view.array(shape=(liwork{{loop.index0}},), itemsize=sizeof(int), format="i")
+#   work{{ loop.index0 }} = empty(lwork{{ loop.index0 }}, dtype=float)
+#   iwork{{ loop.index0 }} = empty(liwork{{ loop.index0 }}, dtype=intc)
 
 # Actual computation
-	dsyevd(&jobz, &uplo,
-    	   &n{{loop.index0}},
-      	   &scalarMassMatrix{{loop.index0}}[0, 0], &lda{{loop.index0}},
-     	   &eigenvalues{{loop.index0}}[0],
+    dsyevd(&jobz, &uplo,
+           &n{{loop.index0}},
+           &scalarMassMatrix{{loop.index0}}[0, 0], &lda{{loop.index0}},
+           &eigenvalues{{loop.index0}}[0],
            &work{{loop.index0}}[0], &lwork{{loop.index0}},
            &iwork{{loop.index0}}[0], &liwork{{loop.index0}},
            &info)
@@ -250,37 +261,36 @@ cdef void computeMasses(double [::1] params):
 {%- endfor %}
 
 {%- for expression in vectorMasses %}
-	params[{{allSymbols.index(expression.identifier)}}] = {{ expression.expression }}
+    params[{{allSymbols.index(expression.identifier)}}] = {{ expression.expression }}
 {%- endfor %}
 
 {%- for expression in vectorShorthands %}
-	params[{{allSymbols.index(expression.identifier)}}] = {{ expression.expression }}
+    params[{{allSymbols.index(expression.identifier)}}] = {{ expression.expression }}
 {%- endfor %}
-	
+    
 
 
 {%- if bEigenVectors %}
-	eigenVectors = block_diag(
+    eigenVectors = block_diag(
 {%- for scalarMassMatrix in scalarMassMatrices %}
-		eigenVectors{{ loop.index0 }},
+        eigenVectors{{ loop.index0 }},
 {%- endfor %}
-	)
+    )
 
 {%- if not scalarPermutationMatrix == none %}
-	scalarPermutationMatrix = {{ scalarPermutationMatrix }}
-	eigenVectors = dgemm(1,  scalarPermutationMatrix, eigenVectors)
+    scalarPermutationMatrix = {{ scalarPermutationMatrix }}
+    eigenVectors = dgemm(1,  scalarPermutationMatrix, eigenVectors)
 {%- endif %}
 
 {%- for symbol, indices in scalarRotationMatrix.items() %}
-	params[{{allSymbols.index( symbol )}}] = eigenVectors[{{ indices[0] }}][{{ indices[1] }}]
+    params[{{allSymbols.index( symbol )}}] = eigenVectors[{{ indices[0] }}][{{ indices[1] }}]
 {%- endfor %}
 
 {%- endif %}
 {% set scalarMassMatrixLength = (scalarMassNames | length) / (scalarMassMatrices | length) | int %}
 {%- for symbol in scalarMassNames %}
-	params[{{allSymbols.index( symbol )}}] = eigenvalues{{ (loop.index0 / scalarMassMatrixLength) | int }}[{{ (loop.index0 % scalarMassMatrixLength) | int }}]
+    params[{{allSymbols.index( symbol )}}] = eigenvalues{{ (loop.index0 / scalarMassMatrixLength) | int }}[{{ (loop.index0 % scalarMassMatrixLength) | int }}]
 {%- endfor %}
-
         """)).render(
             allSymbols=allSymbols, 
             scalarMassMatrices = scalarMassMatrices,
