@@ -211,13 +211,11 @@ cdef void computeMasses(double [::1] params):
 {%- for scalarMassMatrix in scalarMassMatrices %}
     cdef double [::1, :] scalarMassMatrix{{ loop.index0 }}
     cdef double eigenvalues{{ loop.index0 }}[6]
-    cdef double work{{ loop.index0 }}[500]
-    cdef int iwork{{ loop.index0 }}[100]
+    cdef double work{{ loop.index0 }}[13]
+    cdef int iwork{{ loop.index0 }}[1]
     
-    cdef int lwork{{ loop.index0 }} = -1
-    cdef int liwork{{ loop.index0 }} = -1
-    cdef double work_query{{loop.index0}}
-    cdef int iwork_query{{loop.index0}}
+    cdef int lwork{{ loop.index0 }} = 13
+    cdef int liwork{{ loop.index0 }} = 1
     cdef int n{{ loop.index0}} = 6
     cdef int lda{{ loop.index0}} =6
 {%- endfor %}
@@ -241,8 +239,8 @@ cdef void computeMasses(double [::1] params):
     #    &iwork_query{{loop.index0}}, &liwork{{loop.index0}},
     #    &info)
     # ## Cache this info
-    # lwork{{ loop.index0 }} = <int>work_query{{ loop.index0 }}
-    # liwork{{ loop.index0 }} = iwork_query{{ loop.index0 }}
+    # lwork{{ loop.index0 }} = 13
+    # liwork{{ loop.index0 }} = 1
     # work{{ loop.index0 }} = view.array(shape=(lwork{{loop.index0}},), itemsize=sizeof(double), format="d")
     # iwork{{ loop.index0 }} = view.array(shape=(liwork{{loop.index0}},), itemsize=sizeof(int), format="i")
 #   work{{ loop.index0 }} = empty(lwork{{ loop.index0 }}, dtype=float)
@@ -291,6 +289,9 @@ cdef void computeMasses(double [::1] params):
 {%- for symbol in scalarMassNames %}
     params[{{allSymbols.index( symbol )}}] = eigenvalues{{ (loop.index0 / scalarMassMatrixLength) | int }}[{{ (loop.index0 % scalarMassMatrixLength) | int }}]
 {%- endfor %}
+    # print(eigenvalues1)
+    # print(eigenvalues0)
+    # exit()
         """)).render(
             allSymbols=allSymbols, 
             scalarMassMatrices = scalarMassMatrices,
