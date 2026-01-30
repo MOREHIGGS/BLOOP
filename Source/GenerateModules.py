@@ -191,9 +191,6 @@ from scipy.linalg.blas import dgemm
 from libc.math cimport sqrt
 from cython cimport view
 
-# cdef int size = <computed>
-# cdef double[::1] work0 = view.array(shape=(size,), itemsize=sizeof(double), format="d")
-
 @cython.cdivision(True)
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -207,44 +204,26 @@ cdef void computeMasses(double [::1] params):
     ## Reports status of dsyevd 
     ## TODO use this to catch errors 
     cdef int info
-    
+    ## Note Cython doesn't like 
+    # cdef int n1 = 6
+    # cdef int lda1 = n1
+    # as it doesn't treat n as a compile time const
 {%- for scalarMassMatrix in scalarMassMatrices %}
-    cdef double [::1, :] scalarMassMatrix{{ loop.index0 }}
-    cdef double eigenvalues{{ loop.index0 }}[6]
-    cdef double work{{ loop.index0 }}[13]
-    cdef int iwork{{ loop.index0 }}[1]
-    
-    cdef int lwork{{ loop.index0 }} = 13
-    cdef int liwork{{ loop.index0 }} = 1
+    ##TODO make this known at compile time
+    cdef double [::1, :] scalarMassMatrix{{ loop.index0 }} 
     cdef int n{{ loop.index0}} = 6
-    cdef int lda{{ loop.index0}} =6
+    cdef int lda{{ loop.index0}} = 6
+    cdef double eigenvalues{{ loop.index0 }}[6]
+    cdef int lwork{{ loop.index0 }} = 13
+    cdef int liwork{{ loop.index0 }} = 1 
+    cdef double work{{ loop.index0 }}[13]
+    cdef int iwork{{ loop.index0 }}[1] 
 {%- endfor %}
 
 ## Do we need to free any of this memory?
 {%- for scalarMassMatrix in scalarMassMatrices %}
-    ## Only generate the upper right part of the matrix and preallocate the memory
+    ## Only generate the upper right part of the matrix and do stuff like sMM[0] = expression
     scalarMassMatrix{{ loop.index0 }} = array({{ scalarMassMatrix -}}, dtype=float, order="F")
-    ## These are known at compile time
-    # n{{ loop.index0}} = scalarMassMatrix{{ loop.index0}}.shape[0]
-    # lda{{ loop.index0}} = n{{ loop.index0}}
-
-    # eigenvalues{{ loop.index0 }} = empty(n{{ loop.index0}}, dtype=float)
-
-    # Workspace query
-    # dsyevd(&jobz, &uplo,
-    #    &n{{loop.index0}},
-    #    &scalarMassMatrix{{loop.index0}}[0, 0], &lda{{loop.index0}},
-    #    &eigenvalues{{loop.index0}}[0],
-    #    &work_query{{loop.index0}}, &lwork{{loop.index0}},
-    #    &iwork_query{{loop.index0}}, &liwork{{loop.index0}},
-    #    &info)
-    # ## Cache this info
-    # lwork{{ loop.index0 }} = 13
-    # liwork{{ loop.index0 }} = 1
-    # work{{ loop.index0 }} = view.array(shape=(lwork{{loop.index0}},), itemsize=sizeof(double), format="d")
-    # iwork{{ loop.index0 }} = view.array(shape=(liwork{{loop.index0}},), itemsize=sizeof(int), format="i")
-#   work{{ loop.index0 }} = empty(lwork{{ loop.index0 }}, dtype=float)
-#   iwork{{ loop.index0 }} = empty(liwork{{ loop.index0 }}, dtype=intc)
 
 # Actual computation
     dsyevd(&jobz, &uplo,
@@ -254,18 +233,7 @@ cdef void computeMasses(double [::1] params):
            &work{{loop.index0}}[0], &lwork{{loop.index0}},
            &iwork{{loop.index0}}[0], &liwork{{loop.index0}},
            &info)
-
-
 {%- endfor %}
-
-{%- for expression in vectorMasses %}
-    params[{{allSymbols.index(expression.identifier)}}] = {{ expression.expression }}
-{%- endfor %}
-
-{%- for expression in vectorShorthands %}
-    params[{{allSymbols.index(expression.identifier)}}] = {{ expression.expression }}
-{%- endfor %}
-    
 
 
 {%- if bEigenVectors %}
@@ -289,9 +257,15 @@ cdef void computeMasses(double [::1] params):
 {%- for symbol in scalarMassNames %}
     params[{{allSymbols.index( symbol )}}] = eigenvalues{{ (loop.index0 / scalarMassMatrixLength) | int }}[{{ (loop.index0 % scalarMassMatrixLength) | int }}]
 {%- endfor %}
-    # print(eigenvalues1)
-    # print(eigenvalues0)
-    # exit()
+
+{%- for expression in vectorMasses %}
+    params[{{allSymbols.index(expression.identifier)}}] = {{ expression.expression }}
+{%- endfor %}
+
+{%- for expression in vectorShorthands %}
+    params[{{allSymbols.index(expression.identifier)}}] = {{ expression.expression }}
+{%- endfor %}
+    
         """)).render(
             allSymbols=allSymbols, 
             scalarMassMatrices = scalarMassMatrices,
