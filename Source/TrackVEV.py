@@ -83,10 +83,8 @@ class TrackVEV:
                              self.allSymbols,
                          )
         if pythonisedExpressions["softToUltraSoft"] == "none":
-            print("None")
             self.softToUltraSoft = None
         else:
-            print("Not none")
             self.softToUltraSoft = ParsedExpressionSystem(
                              pythonisedExpressions["softToUltraSoft"],
                              self.allSymbols,
