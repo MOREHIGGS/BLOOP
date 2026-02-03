@@ -203,13 +203,12 @@ cdef void computeMasses(double [::1] params):
     cdef double {{ symbol }} = params[{{ loop.index0 }}]
 {%- endfor %}
     cdef char uplo = 'U' 
-    ## TODO set to V if NNLO
     cdef char jobz = {{"'V'" if bEigenVectors else "'N'"}} 
     ## TODO use this to catch errors 
     cdef int info
 {%- for scalarMassMatrix in scalarMassMatrices %}
-    ##TODO make this known at compile time
     {%- set n = scalarMassMatrixSizes[loop.index0] %}
+    ## TODO put on stack
     cdef double [::1, :] scalarMassMatrix{{ loop.index0 }} 
     cdef int n{{ loop.index0}} = {{ n }}
     cdef int lda{{ loop.index0}} =  {{ n }} 
@@ -221,10 +220,9 @@ cdef void computeMasses(double [::1] params):
 {%- endfor %}
 
 {%- for scalarMassMatrix in scalarMassMatrices %}
-    ## Only generate the upper right part of the matrix and do stuff like sMM[0] = expression
+    ## TODO Only generate the upper right part of the matrix and do stuff like sMM[0] = expression
     scalarMassMatrix{{ loop.index0 }} = array({{ scalarMassMatrix -}}, dtype=float, order="F")
 
-# Actual computation
     dsyevd(&jobz, &uplo,
            &n{{loop.index0}},
            &scalarMassMatrix{{loop.index0}}[0, 0], &lda{{loop.index0}},
@@ -243,13 +241,13 @@ cdef void computeMasses(double [::1] params):
     )
 
 {%- if not scalarPermutationMatrix == none %}
+    cdef int scalarPermutationMatrix[12][12]
     scalarPermutationMatrix = {{ scalarPermutationMatrix }}
     eigenVectors = dgemm(1,  scalarPermutationMatrix, eigenVectors)
 {%- endif %}
 
 {%- for symbol, indices in scalarRotationMatrix.items() %}
     params[{{allSymbols.index( symbol )}}] = eigenVectors[{{ indices[0] }}][{{ indices[1] }}]
-    print(params[{{allSymbols.index( symbol )}}])
 {%- endfor %}
 {%- endif %}
 {% set scalarMassMatrixLength = (scalarMassNames | length) / (scalarMassMatrices | length) | int %}
