@@ -188,12 +188,12 @@ def generateComputeMassesModule(
         scalarRotationMatrix = json.loads(file.read())
     
     return Environment().from_string(dedent("""\
+## DEV note: netlib.org hosts documention for lapack/blas
 from scipy.linalg import block_diag
 from scipy.linalg.cython_lapack cimport dsyevd
 from numpy import array, empty, intc
 from scipy.linalg.blas import dgemm
 from libc.math cimport sqrt
-from cython cimport view
 
 @cython.cdivision(True)
 @cython.boundscheck(False)
@@ -207,32 +207,35 @@ cdef void computeMasses(double [::1] params):
     ## TODO use this to catch errors 
     cdef int info
 {%- for scalarMassMatrix in scalarMassMatrices %}
+    {%- set i = loop.index0 %}
     {%- set n = scalarMassMatrixSizes[loop.index0] %}
     ## TODO put on stack
-    cdef double [::1, :] scalarMassMatrix{{ loop.index0 }} 
-    cdef int n{{ loop.index0}} = {{ n }}
-    cdef int lda{{ loop.index0}} =  {{ n }} 
-    cdef double eigenvalues{{ loop.index0 }}[{{ n }}]
-    cdef int lwork{{ loop.index0 }} = {{1 + 6*n +2*n*n if bEigenVectors else 2*n+1}}
-    cdef int liwork{{ loop.index0 }} = {{3+5*n if bEigenVectors else 1}} 
-    cdef double work{{ loop.index0 }}[{{1 + 6*n +2*n*n if bEigenVectors else 2*n+1}}]
-    cdef int iwork{{ loop.index0 }}[{{3+5*n if bEigenVectors else 1}}] 
-{%- endfor %}
-
-{%- for scalarMassMatrix in scalarMassMatrices %}
+    cdef double [::1, :] scalarMassMatrix{{ i }} 
+    cdef int n{{ i }} = {{ n }}
+    cdef int lda{{ i }} =  {{ n }} 
+    cdef double eigenvalues{{ i }}[{{ n }}]
+    cdef int lwork{{ i }} = {{1 + 6*n +2*n*n if bEigenVectors else 2*n+1}}
+    cdef int liwork{{ i }} = {{3+5*n if bEigenVectors else 1}} 
+    cdef double work{{ i }}[{{1 + 6*n +2*n*n if bEigenVectors else 2*n+1}}]
+    cdef int iwork{{ i }}[{{3+5*n if bEigenVectors else 1}}] 
+    
     ## TODO Only generate the upper right part of the matrix and do stuff like sMM[0] = expression
-    scalarMassMatrix{{ loop.index0 }} = array({{ scalarMassMatrix -}}, dtype=float, order="F")
+    scalarMassMatrix{{ i }} = array({{ scalarMassMatrix -}}, dtype=float, order="F")
 
     dsyevd(&jobz, &uplo,
-           &n{{loop.index0}},
-           &scalarMassMatrix{{loop.index0}}[0, 0], &lda{{loop.index0}},
-           &eigenvalues{{loop.index0}}[0],
-           &work{{loop.index0}}[0], &lwork{{loop.index0}},
-           &iwork{{loop.index0}}[0], &liwork{{loop.index0}},
+           &n{{ i }},
+           &scalarMassMatrix{{ i }}[0, 0], &lda{{ i }},
+           &eigenvalues{{ i }}[0],
+           &work{{ i }}[0], &lwork{{ i }},
+           &iwork{{ i }}[0], &liwork{{ i }},
            &info)
+    if not info:
+        if info < 0: 
+            print(f"Element {info} of scalarMassMatrix ")
+
 {%- endfor %}
 
-
+    
 {%- if bEigenVectors %}
     eigenVectors = block_diag(
 {%- for scalarMassMatrix in scalarMassMatrices %}
@@ -243,6 +246,7 @@ cdef void computeMasses(double [::1] params):
 {%- if not scalarPermutationMatrix == none %}
     cdef int scalarPermutationMatrix[12][12]
     scalarPermutationMatrix = {{ scalarPermutationMatrix }}
+    ## TODO use fortran version
     eigenVectors = dgemm(1,  scalarPermutationMatrix, eigenVectors)
 {%- endif %}
 
