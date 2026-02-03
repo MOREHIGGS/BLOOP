@@ -246,8 +246,7 @@ cdef void computeMasses(double [::1] params):
     scalarPermutationMatrix = {{ scalarPermutationMatrix }}
     eigenVectors = dgemm(1,  scalarPermutationMatrix, eigenVectors)
 {%- endif %}
-    print(eigenVectors)
-    exit()
+
 {%- for symbol, indices in scalarRotationMatrix.items() %}
     params[{{allSymbols.index( symbol )}}] = eigenVectors[{{ indices[0] }}][{{ indices[1] }}]
     print(params[{{allSymbols.index( symbol )}}])
