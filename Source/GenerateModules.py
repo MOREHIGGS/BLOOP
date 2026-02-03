@@ -174,6 +174,10 @@ def generateComputeMassesModule(
 ):
     with open(scalarMassMatrixFile) as file:
         scalarMassMatrices = [convertMatrixToCythonSyntax(line) for line in file.readlines()]
+    
+    ## One [ per row and an extra [ to wrap all rows
+    scalarMassMatrixSizes = [scalarMassMatrix.count("[")-1 for scalarMassMatrix in scalarMassMatrices]
+
     if "none" in scalarPermutationMatrixFile.lower():
         scalarPermutationMatrix = None
     else:
@@ -201,22 +205,17 @@ cdef void computeMasses(double [::1] params):
     cdef char uplo = 'U' 
     ## TODO set to V if NNLO
     cdef char jobz = 'N'
-    ## Reports status of dsyevd 
     ## TODO use this to catch errors 
     cdef int info
-    ## Note Cython doesn't like 
-    # cdef int n1 = 6
-    # cdef int lda1 = n1
-    # as it doesn't treat n as a compile time const
 {%- for scalarMassMatrix in scalarMassMatrices %}
     ##TODO make this known at compile time
     cdef double [::1, :] scalarMassMatrix{{ loop.index0 }} 
-    cdef int n{{ loop.index0}} = 6
-    cdef int lda{{ loop.index0}} = 6
-    cdef double eigenvalues{{ loop.index0 }}[6]
-    cdef int lwork{{ loop.index0 }} = 13
+    cdef int n{{ loop.index0}} = {{scalarMassMatrixSizes[loop.index0]}}
+    cdef int lda{{ loop.index0}} =  {{scalarMassMatrixSizes[loop.index0]}} 
+    cdef double eigenvalues{{ loop.index0 }}[{{scalarMassMatrixSizes[loop.index0]}}]
+    cdef int lwork{{ loop.index0 }} = 2*{{scalarMassMatrixSizes[loop.index0]}}+1
     cdef int liwork{{ loop.index0 }} = 1 
-    cdef double work{{ loop.index0 }}[13]
+    cdef double work{{ loop.index0 }}[2*{{scalarMassMatrixSizes[loop.index0]}}+1]
     cdef int iwork{{ loop.index0 }}[1] 
 {%- endfor %}
 
@@ -269,6 +268,7 @@ cdef void computeMasses(double [::1] params):
         """)).render(
             allSymbols=allSymbols, 
             scalarMassMatrices = scalarMassMatrices,
+            scalarMassMatrixSizes = scalarMassMatrixSizes,
             scalarMassNames = scalarMassNames,
             scalarPermutationMatrix = scalarPermutationMatrix,
             scalarRotationMatrix = scalarRotationMatrix,
