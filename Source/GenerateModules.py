@@ -204,22 +204,22 @@ cdef void computeMasses(double [::1] params):
 {%- endfor %}
     cdef char uplo = 'U' 
     ## TODO set to V if NNLO
-    cdef char jobz = 'N'
+    cdef char jobz = {{"'V'" if bEigenVectors else "'N'"}} 
     ## TODO use this to catch errors 
     cdef int info
 {%- for scalarMassMatrix in scalarMassMatrices %}
     ##TODO make this known at compile time
+    {%- set n = scalarMassMatrixSizes[loop.index0] %}
     cdef double [::1, :] scalarMassMatrix{{ loop.index0 }} 
-    cdef int n{{ loop.index0}} = {{scalarMassMatrixSizes[loop.index0]}}
-    cdef int lda{{ loop.index0}} =  {{scalarMassMatrixSizes[loop.index0]}} 
-    cdef double eigenvalues{{ loop.index0 }}[{{scalarMassMatrixSizes[loop.index0]}}]
-    cdef int lwork{{ loop.index0 }} = 2*{{scalarMassMatrixSizes[loop.index0]}}+1
-    cdef int liwork{{ loop.index0 }} = 1 
-    cdef double work{{ loop.index0 }}[2*{{scalarMassMatrixSizes[loop.index0]}}+1]
-    cdef int iwork{{ loop.index0 }}[1] 
+    cdef int n{{ loop.index0}} = {{ n }}
+    cdef int lda{{ loop.index0}} =  {{ n }} 
+    cdef double eigenvalues{{ loop.index0 }}[{{ n }}]
+    cdef int lwork{{ loop.index0 }} = {{1 + 6*n +2*n*n if bEigenVectors else 2*n+1}}
+    cdef int liwork{{ loop.index0 }} = {{3+5*n if bEigenVectors else 1}} 
+    cdef double work{{ loop.index0 }}[{{1 + 6*n +2*n*n if bEigenVectors else 2*n+1}}]
+    cdef int iwork{{ loop.index0 }}[{{3+5*n if bEigenVectors else 1}}] 
 {%- endfor %}
 
-## Do we need to free any of this memory?
 {%- for scalarMassMatrix in scalarMassMatrices %}
     ## Only generate the upper right part of the matrix and do stuff like sMM[0] = expression
     scalarMassMatrix{{ loop.index0 }} = array({{ scalarMassMatrix -}}, dtype=float, order="F")
@@ -238,7 +238,7 @@ cdef void computeMasses(double [::1] params):
 {%- if bEigenVectors %}
     eigenVectors = block_diag(
 {%- for scalarMassMatrix in scalarMassMatrices %}
-        eigenVectors{{ loop.index0 }},
+        scalarMassMatrix{{ loop.index0 }},
 {%- endfor %}
     )
 
@@ -246,11 +246,12 @@ cdef void computeMasses(double [::1] params):
     scalarPermutationMatrix = {{ scalarPermutationMatrix }}
     eigenVectors = dgemm(1,  scalarPermutationMatrix, eigenVectors)
 {%- endif %}
-
+    print(eigenVectors)
+    exit()
 {%- for symbol, indices in scalarRotationMatrix.items() %}
     params[{{allSymbols.index( symbol )}}] = eigenVectors[{{ indices[0] }}][{{ indices[1] }}]
+    print(params[{{allSymbols.index( symbol )}}])
 {%- endfor %}
-
 {%- endif %}
 {% set scalarMassMatrixLength = (scalarMassNames | length) / (scalarMassMatrices | length) | int %}
 {%- for symbol in scalarMassNames %}
