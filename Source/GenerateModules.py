@@ -202,24 +202,25 @@ cdef void computeMasses(double [::1] params):
 {%- for symbol in allSymbols %}
     cdef double {{ symbol }} = params[{{ loop.index0 }}]
 {%- endfor %}
+    ## TODO(?) leaverage static or const? 
     cdef char uplo = 'U' 
     cdef char jobz = {{"'V'" if bEigenVectors else "'N'"}} 
-    ## TODO use this to catch errors 
     cdef int info
 {%- for scalarMassMatrix in scalarMassMatrices %}
     {%- set i = loop.index0 %}
     {%- set n = scalarMassMatrixSizes[loop.index0] %}
     ## TODO put on stack
     cdef double [::1, :] scalarMassMatrix{{ i }} 
+    cdef double eigenvalues{{ i }}[{{ n }}]
     cdef int n{{ i }} = {{ n }}
     cdef int lda{{ i }} =  {{ n }} 
-    cdef double eigenvalues{{ i }}[{{ n }}]
     cdef int lwork{{ i }} = {{1 + 6*n +2*n*n if bEigenVectors else 2*n+1}}
     cdef int liwork{{ i }} = {{3+5*n if bEigenVectors else 1}} 
     cdef double work{{ i }}[{{1 + 6*n +2*n*n if bEigenVectors else 2*n+1}}]
     cdef int iwork{{ i }}[{{3+5*n if bEigenVectors else 1}}] 
     
     ## TODO Only generate the upper right part of the matrix and do stuff like sMM[0] = expression
+    ## TODO(?) check for NaN and inf 
     scalarMassMatrix{{ i }} = array({{ scalarMassMatrix -}}, dtype=float, order="F")
 
     dsyevd(&jobz, &uplo,
@@ -229,14 +230,17 @@ cdef void computeMasses(double [::1] params):
            &work{{ i }}[0], &lwork{{ i }},
            &iwork{{ i }}[0], &liwork{{ i }},
            &info)
-    if not info:
+    
+    if info:
         if info < 0: 
-            print(f"Element {info} of scalarMassMatrix ")
-
+            raise ValueError(f"Argument {-info} to dsyevd had an illegal value for scalarMassMatrix{{i}}")
+        else:
+            raise RuntimeError(f"dsyevd failed to converge for scalarMassMatrix{{i}} (info={info})")
 {%- endfor %}
 
     
 {%- if bEigenVectors %}
+    ## TODO write this in C
     eigenVectors = block_diag(
 {%- for scalarMassMatrix in scalarMassMatrices %}
         scalarMassMatrix{{ loop.index0 }},
