@@ -36,12 +36,12 @@ def generateModules(
     loopOrder = args.loopOrder 
     
     veffFilePaths   = [args.loFilePath, args.nloFilePath]
-	
+    
     if loopOrder >1:
         veffFilePaths.append(args.nnloFilePath)
    
     veffModule = generateVeffModule(
-    	veffFilePaths, 
+        veffFilePaths, 
         allSymbols
         )
     
@@ -71,6 +71,7 @@ def generateModules(
         gccFlags,
         args.profile
     )
+    #exit()
     compileCythonModules(args.verbose, CythonModulesDir)
     
 def generateSetupFile(
@@ -94,6 +95,7 @@ def generateSetupFile(
                         compiler_directives={
                             "language_level": "3", 
                             "boundscheck": False,
+                            "nonecheck":False,
                             "wraparound": False,
                             "profile": {{profile}},
                             }
@@ -113,25 +115,26 @@ def generateEvaluatePotentialModule(
     computeMassesModule
 ):
     with open(filename, 'w') as file:
-        file.write(Environment().from_string(dedent(
-        """
-        from libc.complex cimport csqrt
-        from libc.complex cimport clog
+        file.write(Environment().from_string(dedent("""\
+from libc.complex cimport csqrt, clog
+cimport cython
+@cython.cdivision(True)
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cpdef evaluatePotential(const double [::1] fields, double [::1] parameters):
+{% for name in fieldNames %}
+    parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
+{%- endfor %}
 
-        cpdef evaluatePotential(fields, double [:] parameters):
-        
-        {% for name in fieldNames %}
-            parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
-         {%- endfor %}
-        
-            computeMasses(parameters)
-            
-            return veff(parameters)
-        
-        {{ veffSubModule }}
-        
-        {{computeMassesModule}}
-        
+    computeMasses(parameters)
+    
+    return veff(parameters)
+
+{{computeMassesModule}}
+
+{{ veffSubModule }}
+
+    
         """)).render(
         loopOrder=loopOrder, 
         allSymbols=allSymbols, 
@@ -147,16 +150,16 @@ def generateVeffModule(veffFilePaths, allSymbols):
     expressionTest = [item for result in results for item in result[1]]
     test = zip(opTest, expressionTest)
     return Environment().from_string(dedent("""\
-        cdef double complex veff(double [:] params):
-        {%- for symbol in allSymbols %}
-            cdef double {{ symbol }} = params[{{ loop.index0 }}]
-        {%- endfor %}
-            cdef double complex a = 0.0
-        {%- for op, term in opsAndExpressions %}
-            a {{ op }} {{ term }}
-        {%- endfor %}
-            return a
-            """)).render(allSymbols=allSymbols, opsAndExpressions=test)
+cdef double complex veff(double [::1] params):
+{%- for symbol in allSymbols %}
+    cdef double {{ symbol }} = params[{{ loop.index0 }}]
+{%- endfor %}
+    cdef double complex a = 0.0
+{%- for op, term in opsAndExpressions %}
+    a {{ op }} {{ term }}
+{%- endfor %}
+    return a
+    """)).render(allSymbols=allSymbols, opsAndExpressions=test)
 
 
 def generateComputeMassesModule(
@@ -171,6 +174,10 @@ def generateComputeMassesModule(
 ):
     with open(scalarMassMatrixFile) as file:
         scalarMassMatrices = [convertMatrixToCythonSyntax(line) for line in file.readlines()]
+    
+    ## One [ per row and an extra [ to wrap all rows
+    scalarMassMatrixSizes = [scalarMassMatrix.count("[")-1 for scalarMassMatrix in scalarMassMatrices]
+
     if "none" in scalarPermutationMatrixFile.lower():
         scalarPermutationMatrix = None
     else:
@@ -181,53 +188,93 @@ def generateComputeMassesModule(
         scalarRotationMatrix = json.loads(file.read())
     
     return Environment().from_string(dedent("""\
-        from scipy.linalg import lapack, block_diag
-        from numpy import array, sqrt
-        from scipy.linalg.blas import dgemm
-        
-        cdef void computeMasses(double [:] params):
-        {%- for symbol in allSymbols %}
-            cdef double {{ symbol }} = params[{{ loop.index0 }}]
-        {%- endfor %}
+## DEV note: netlib.org hosts documention for lapack/blas
+from scipy.linalg import block_diag
+from scipy.linalg.cython_lapack cimport dsyevd
+from numpy import array, empty, intc
+from scipy.linalg.blas import dgemm
+from libc.math cimport sqrt
 
-        {%- for expression in vectorMasses %}
-            params[{{allSymbols.index(expression.identifier)}}] = {{ expression.expression }}
-        {%- endfor %}
+@cython.cdivision(True)
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cdef void computeMasses(double [::1] params):
+{%- for symbol in allSymbols %}
+    cdef double {{ symbol }} = params[{{ loop.index0 }}]
+{%- endfor %}
+    ## TODO(?) leaverage static or const? 
+    cdef char uplo = 'U' 
+    cdef char jobz = {{"'V'" if bEigenVectors else "'N'"}} 
+    cdef int info
+{%- for scalarMassMatrix in scalarMassMatrices %}
+    {%- set i = loop.index0 %}
+    {%- set n = scalarMassMatrixSizes[loop.index0] %}
+    ## TODO put on stack
+    cdef double [::1, :] scalarMassMatrix{{ i }} 
+    cdef double eigenvalues{{ i }}[{{ n }}]
+    cdef int n{{ i }} = {{ n }}
+    cdef int lda{{ i }} =  {{ n }} 
+    cdef int lwork{{ i }} = {{1 + 6*n +2*n*n if bEigenVectors else 2*n+1}}
+    cdef int liwork{{ i }} = {{3+5*n if bEigenVectors else 1}} 
+    cdef double work{{ i }}[{{1 + 6*n +2*n*n if bEigenVectors else 2*n+1}}]
+    cdef int iwork{{ i }}[{{3+5*n if bEigenVectors else 1}}] 
+    
+    ## TODO Only generate the upper right part of the matrix and do stuff like sMM[0] = expression
+    ## TODO(?) check for NaN and inf 
+    scalarMassMatrix{{ i }} = array({{ scalarMassMatrix -}}, dtype=float, order="F")
 
-        {%- for expression in vectorShorthands %}
-            params[{{allSymbols.index(expression.identifier)}}] = {{ expression.expression }}
-        {%- endfor %}
-        {%- for scalarMassMatrix in scalarMassMatrices %}
-            scalarMassMatrix{{ loop.index0 }} = array({{ scalarMassMatrix -}}, dtype=float)
-            
-            eigenValues{{ loop.index0 }}, eigenVectors{{ loop.index0 }}, _ = lapack.dsyevd(scalarMassMatrix{{ loop.index0 }}, compute_v = {{bEigenVectors}})
-        {%- endfor %}
-        
-        {%- if bEigenVectors %}
-            eigenVectors = block_diag(
-        {%- for scalarMassMatrix in scalarMassMatrices %}
-                eigenVectors{{ loop.index0 }},
-        {%- endfor %}
-            )
-        
-        {%- if not scalarPermutationMatrix == none %}
-            scalarPermutationMatrix = {{ scalarPermutationMatrix }}
-            eigenVectors = dgemm(1,  scalarPermutationMatrix, eigenVectors)
-        {%- endif %}
-        
-        {%- for symbol, indices in scalarRotationMatrix.items() %}
-            params[{{allSymbols.index( symbol )}}] = eigenVectors[{{ indices[0] }}][{{ indices[1] }}]
-        {%- endfor %}
+    dsyevd(&jobz, &uplo,
+           &n{{ i }},
+           &scalarMassMatrix{{ i }}[0, 0], &lda{{ i }},
+           &eigenvalues{{ i }}[0],
+           &work{{ i }}[0], &lwork{{ i }},
+           &iwork{{ i }}[0], &liwork{{ i }},
+           &info)
+    
+    if info:
+        if info < 0: 
+            raise ValueError(f"Argument {-info} to dsyevd had an illegal value for scalarMassMatrix{{i}}")
+        else:
+            raise RuntimeError(f"dsyevd failed to converge for scalarMassMatrix{{i}} (info={info})")
+{%- endfor %}
 
-        {%- endif %}
-        {% set scalarMassMatrixLength = (scalarMassNames | length) / (scalarMassMatrices | length) | int %}
-        {%- for symbol in scalarMassNames %}
-            params[{{allSymbols.index( symbol )}}] = eigenValues{{ (loop.index0 / scalarMassMatrixLength) | int }}[{{ (loop.index0 % scalarMassMatrixLength) | int }}]
-        {%- endfor %}
+    
+{%- if bEigenVectors %}
+    ## TODO write this in C
+    eigenVectors = block_diag(
+{%- for scalarMassMatrix in scalarMassMatrices %}
+        scalarMassMatrix{{ loop.index0 }},
+{%- endfor %}
+    )
 
+{%- if not scalarPermutationMatrix == none %}
+    cdef int scalarPermutationMatrix[12][12]
+    scalarPermutationMatrix = {{ scalarPermutationMatrix }}
+    ## TODO use fortran version
+    eigenVectors = dgemm(1,  scalarPermutationMatrix, eigenVectors)
+{%- endif %}
+
+{%- for symbol, indices in scalarRotationMatrix.items() %}
+    params[{{allSymbols.index( symbol )}}] = eigenVectors[{{ indices[0] }}][{{ indices[1] }}]
+{%- endfor %}
+{%- endif %}
+{% set scalarMassMatrixLength = (scalarMassNames | length) / (scalarMassMatrices | length) | int %}
+{%- for symbol in scalarMassNames %}
+    params[{{allSymbols.index( symbol )}}] = eigenvalues{{ (loop.index0 / scalarMassMatrixLength) | int }}[{{ (loop.index0 % scalarMassMatrixLength) | int }}]
+{%- endfor %}
+
+{%- for expression in vectorMasses %}
+    params[{{allSymbols.index(expression.identifier)}}] = {{ expression.expression }}
+{%- endfor %}
+
+{%- for expression in vectorShorthands %}
+    params[{{allSymbols.index(expression.identifier)}}] = {{ expression.expression }}
+{%- endfor %}
+    
         """)).render(
             allSymbols=allSymbols, 
             scalarMassMatrices = scalarMassMatrices,
+            scalarMassMatrixSizes = scalarMassMatrixSizes,
             scalarMassNames = scalarMassNames,
             scalarPermutationMatrix = scalarPermutationMatrix,
             scalarRotationMatrix = scalarRotationMatrix,
