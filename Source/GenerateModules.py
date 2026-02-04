@@ -121,7 +121,7 @@ cimport cython
 @cython.cdivision(True)
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cpdef evaluatePotential(const double [::1] fields, double [::1] parameters):
+cpdef double complex evaluatePotential(const double [::1] fields, double [::1] parameters):
 {% for name in fieldNames %}
     parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
 {%- endfor %}
