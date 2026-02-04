@@ -122,13 +122,18 @@ def processData(
                        - np.linalg.norm(allFieldValuesT[idx+1]) 
                        for idx in range(len(allFieldValuesT)-1) ])  
     
-    PTIndices = (fieldLengthDiff >= strengthCutOff).nonzero()[0]
+    ## Use 0.1 here to catch all PT including 'crossover'
+    ## A bit dangerous with large T steps or noisy data
+    ## TODO make safer by doing something clever e.g. binary search 
+    PTIndices = (fieldLengthDiff >= 0.1).nonzero()[0]
     if len(PTIndices) > 0:
         processedResult["steps"] = len(fieldLengthDiff[PTIndices])
-        processedResult["strong"] = True
         results = []
         
         for idx in PTIndices:
+            if not processedResult["strong"]:
+                processedResult["strong"] = "true" if fieldLengthDiff[idx] > strengthCutOff else "false"
+
             resultDic = {
                 "Tc": result["T"][idx], 
                 "strength": fieldLengthDiff[idx]
@@ -140,7 +145,6 @@ def processData(
             results.append(resultDic)
         
         processedResult["PTData"] = results
-    
     return processedResult
 
 
