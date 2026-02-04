@@ -122,29 +122,40 @@ def processData(
                        - np.linalg.norm(allFieldValuesT[idx+1]) 
                        for idx in range(len(allFieldValuesT)-1) ])  
     
-    ## Use 0.1 here to catch all PT including 'crossover'
+    #print(fieldLengthDiff[0])
+    #exit()
+    ## Try to catch all PT 
     ## A bit dangerous with large T steps or noisy data
-    ## TODO make safer by doing something clever e.g. binary search 
-    PTIndices = (fieldLengthDiff >= 0.1).nonzero()[0]
+    PTIndices = (fieldLengthDiff >= 0.2).nonzero()[0]
     if len(PTIndices) > 0:
-        processedResult["steps"] = len(fieldLengthDiff[PTIndices])
-        results = []
+        PTIndices = [int(idx) for idx in PTIndices]
+        symmetricIndex = -np.argmax(fieldLengthDiff[::-1] > 0.1) -1
+        Ts = False
+        if not symmetricIndex == PTIndices[-1]:
+            Ts = True
+            PTIndices.append(symmetricIndex)
         
-        for idx in PTIndices:
+        processedResult["steps"] = len(PTIndices)
+        results = []
+         
+        for count, idx in enumerate(PTIndices):
             if not processedResult["strong"]:
-                processedResult["strong"] = "true" if fieldLengthDiff[idx] > strengthCutOff else "false"
-
+                processedResult["strong"] = bool(fieldLengthDiff[idx] > strengthCutOff)
+            
+            tempType = "Ts" if (Ts and count == len(PTIndices)-1 ) else "Tc"
+            
             resultDic = {
-                "Tc": result["T"][idx], 
-                "strength": fieldLengthDiff[idx]
+                f"{tempType}": result["T"][idx], 
+                "strength": float(fieldLengthDiff[idx])
             }
             
             for fieldNameIdx, fieldJumps in enumerate(allFieldValuesD):
                 if abs(fieldJumps[idx]) > 0.1:
                     resultDic[fieldNames[fieldNameIdx]] = float(fieldJumps[idx])
             results.append(resultDic)
-        
+         
         processedResult["PTData"] = results
+    print(processedResult)
     return processedResult
 
 
