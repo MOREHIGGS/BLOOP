@@ -188,7 +188,7 @@ class TrackVEV:
             minimizationResults["vevDepthImag"].append(vevDepth.imag)
             minimizationResults["vevLocation"].append(vevLocation)
 
-            if np.all(np.abs(vevLocation) < 0.5):
+            if np.all(np.abs(vevLocation) < 0.1):
                 if self.verbose:
                     print(f"Symmetric phase found at temp {T}")
 
