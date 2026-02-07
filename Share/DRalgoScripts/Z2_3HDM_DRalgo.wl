@@ -18,7 +18,7 @@ exportPath = "../../Build/Z2_3HDM/DRalgoOutputFilesFresh";
 
 
 (* ::Text:: *)
-(*These are extra things needed for the Z2 3HDM not given by DRalgo (mass matrices not needed yet, boundedConditions are)*)
+(*Extra things needed for BLOOP not given by DRalgo*)
 
 
 exportUTF8[exportPath<>"/BoundedConditions.txt",
@@ -31,13 +31,6 @@ exportUTF8[exportPath<>"/BoundedConditions.txt",
 sqrt[\[Lambda]33]*(\[Lambda]12 + min[0, \[Lambda]12p - 2*Sqrt[\[Lambda]1Re^2 + \[Lambda]1Im^2] ]) + sqrt[\[Lambda]11]*(\[Lambda]23 + min[0, \[Lambda]23p - 2*Sqrt[\[Lambda]2Re^2 + \[Lambda]2Im^2] ]) + sqrt[\[Lambda]22]*(\[Lambda]31 + min[0, \[Lambda]31p - 2*Sqrt[\[Lambda]3Re^2 + \[Lambda]3Im^2] ]) >= 0 ||
 \[Lambda]33*(\[Lambda]12 + min[0, \[Lambda]12p - 2*Sqrt[\[Lambda]1Re^2 + \[Lambda]1Im^2] ])^2 + \[Lambda]11*(\[Lambda]23 + min[0, \[Lambda]23p - 2*Sqrt[\[Lambda]2Re^2 + \[Lambda]2Im^2] ])^2 + \[Lambda]22*(\[Lambda]31 + min[0, \[Lambda]31p - 2*Sqrt[\[Lambda]3Re^2 + \[Lambda]3Im^2] ])^2 - \[Lambda]11*\[Lambda]22*\[Lambda]33 - 2*(\[Lambda]12 + min[0, \[Lambda]12p - 2*Sqrt[\[Lambda]1Re^2 + \[Lambda]1Im^2] ])*(\[Lambda]31 + min[0, \[Lambda]31p - 2*Sqrt[\[Lambda]3Re^2 + \[Lambda]3Im^2] ])*(\[Lambda]23 + min[0, \[Lambda]23p - 2*Sqrt[\[Lambda]2Re^2 + \[Lambda]2Im^2] ]) < 0
 }];
-exportUTF8[exportPath<>"/NeutralMass.txt",ToString[InputForm[{{1/2 v3^2 (\[Lambda]23+\[Lambda]23p+2 \[Lambda]2Re)-\[Mu]2sq,v3^2 \[Lambda]2Im,-\[Mu]12sqIm,0,-\[Mu]12sqRe,0},
-{v3^2 \[Lambda]2Im,1/2 v3^2 (\[Lambda]23+\[Lambda]23p-2 \[Lambda]2Re)-\[Mu]2sq,-\[Mu]12sqRe,0,\[Mu]12sqIm,0},
-{-\[Mu]12sqIm,-\[Mu]12sqRe,1/2 v3^2 (\[Lambda]31+\[Lambda]31p-2 \[Lambda]3Re)-\[Mu]1sq,0,-v3^2 \[Lambda]3Im,0},
-{0,0,0,3 v3^2 \[Lambda]33-\[Mu]3sq,0,0},{-\[Mu]12sqRe,\[Mu]12sqIm,-v3^2 \[Lambda]3Im,0,1/2 v3^2 (\[Lambda]31+\[Lambda]31p+2 \[Lambda]3Re)-\[Mu]1sq,0},
-{0,0,0,0,0,v3^2 \[Lambda]33-\[Mu]3sq}}]]];
-exportUTF8[exportPath<>"/ChargedMass.txt",ToString[InputForm[{{(vv^2 \[Lambda]31)/2-\[Mu]1sq,-\[Mu]12sqRe},
-{-\[Mu]12sqRe,(vv^2 \[Lambda]23)/2-\[Mu]2sq}}]]];
 
 
 (* ::Section::Closed:: *)
