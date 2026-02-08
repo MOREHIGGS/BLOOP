@@ -14,7 +14,7 @@ SetDirectory[NotebookDirectory[]];
 
 Get["MathematicaToPythonHelper.m"]
 (*Fresh added so it doesn't overwrite the old expression files*)
-exportPath = "../../Build/Z2_3HDM/DRalgoOutputFilesFresh";
+exportPath = "../../Build/Z2_3HDM/DRalgoOutputFiles";
 
 
 (* ::Text:: *)
@@ -199,11 +199,7 @@ hardToSoftBLOOPED = RemoveSuffixes[sqrtSubRules[hardToSoft], {"3d"}]/.Lb->lb/.Lf
 exportUTF8[exportPath<>"/HardToSoft.txt", hardToSoftBLOOPED];
 
 
-RemoveSuffixes[solveRunning3D[BetaFunctions3DS[], softScale, hardScale],{"3d"}];
-
-
 runSoft = RemoveSuffixes[solveRunning3D[BetaFunctions3DS[], softScale, hardScale],{"3d"}];
-runSoft= Join[runSoft, {RGScale->T}];
 exportUTF8[exportPath<>"/SoftScaleRGE.txt", runSoft];
 
 
@@ -212,14 +208,12 @@ exportUTF8[exportPath<>"/SoftScaleRGE.txt", runSoft];
 
 
 PerformDRsoft[{}];
-(** This now works properly as of DRalgo 2023/11/24 update **)
 couplingsUS = PrintCouplingsUS[];
 scalarMassesUS = CombineSubstRules[PrintScalarMassUS["LO"], PrintScalarMassUS["NLO"]];
-(*Change \[Mu]3 to RGScale for easier arraynesss in python (we previously did this explicitly in python)*)
-allUltrasoftScaleParams = Join[couplingsUS, scalarMassesUS] /. \[Mu]3->RGScale;
+allUltrasoftScaleParams = Join[couplingsUS, scalarMassesUS] /. \[Mu]3->softScale;
 
 
-allUltrasoftScaleParamsSqrt = RemoveSuffixes[sqrtSubRules[allUltrasoftScaleParams], {"US", "3d"}];(*Some reduant sqrt operations here? e.g. g13dUS*)
+allUltrasoftScaleParamsSqrt = RemoveSuffixes[sqrtSubRules[allUltrasoftScaleParams], {"US", "3d"}];
 allUltrasoftScaleParamsSqrt= Join[allUltrasoftScaleParamsSqrt, {\[Mu]3US -> T}];
 
 
@@ -450,6 +444,7 @@ exportUTF8[
 
 exportUTF8[exportPath<>"/AllSymbols.json",
 	Sort[DeleteDuplicates[Join[
+	{"RGScale"},
 	extractSymbols[veffLO],
 	extractSymbols[veffNLO],
 	extractSymbols[veffNNLO],

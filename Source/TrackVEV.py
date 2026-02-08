@@ -112,6 +112,8 @@ class TrackVEV:
 
         params = np.zeros(len(self.allSymbols), dtype="float64")
         for key, value in benchmark["lagranianParameters"].items():
+            if key == "RGScale":
+                continue
             params[self.allSymbols.index(key)] = value
 
         ## What to do if user RGScale > 7.3TMax? Idk why someone might do this though
@@ -176,7 +178,7 @@ class TrackVEV:
             params = self.softScaleRGE.evaluate(params)
             if self.softToUltraSoft:
                 params = self.softToUltraSoft.evaluate(params)
-
+            
             ## Round needed because nlopt result sometimes fp out of bounds
             ## See https://github.com/stevengj/nlopt/issues/625
             vevLocation, vevDepth = self.findGlobalMinimum(

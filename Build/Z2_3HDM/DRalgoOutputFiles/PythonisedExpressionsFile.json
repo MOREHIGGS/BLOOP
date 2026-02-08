@@ -1016,13 +1016,6 @@
                     "lamdaVL9",
                     "mu3sq"
                 ]
-            },
-            {
-                "identifier": "RGScale",
-                "expression": "params[54]",
-                "symbols": [
-                    "T"
-                ]
             }
         ],
         "filePath": "../Build/Z2_3HDM/DRalgoOutputFiles/SoftScaleRGE.txt"
@@ -1414,9 +1407,9 @@
             },
             {
                 "identifier": "mu1sq",
-                "expression": "-0.009498860966469168*params[51]**2*params[27] + 0.01899772193293834*params[29]**2*log(params[91]/(sqrt(params[7]) + sqrt(params[5]))) + 0.009498860966469168*params[29]**2 + 0.003166286988823056*params[28]**2*log(params[91]/(2*sqrt(params[5]))) + 0.001583143494411528*params[28]**2 - 0.000791571747205764*params[28]*params[24] - 0.002374715241617292*params[28]*params[23]*sqrt(params[7])/sqrt(params[5]) - 0.006332573977646112*params[28]*params[21]*sqrt(params[6])/sqrt(params[5]) + 0.03978873577297384*params[28]*sqrt(params[5]) + 0.004749430483234584*params[27]**2 - 0.002374715241617292*params[27]*params[23]*sqrt(params[5])/sqrt(params[7]) - 0.01187357620808646*params[27]*params[22] - 0.01899772193293834*params[27]*params[20]*sqrt(params[6])/sqrt(params[7]) + 0.1193662073189215*params[27]*sqrt(params[7]) + params[11] + 0.004749430483234584*(params[51]**4 - 8*params[51]**2*params[27] + 2*params[27]**2)*log(params[91]/(2*sqrt(params[7])))",
+                "expression": "-0.009498860966469168*params[51]**2*params[27] + 0.01899772193293834*params[29]**2*log(params[54]/(sqrt(params[7]) + sqrt(params[5]))) + 0.009498860966469168*params[29]**2 + 0.003166286988823056*params[28]**2*log(params[54]/(2*sqrt(params[5]))) + 0.001583143494411528*params[28]**2 - 0.000791571747205764*params[28]*params[24] - 0.002374715241617292*params[28]*params[23]*sqrt(params[7])/sqrt(params[5]) - 0.006332573977646112*params[28]*params[21]*sqrt(params[6])/sqrt(params[5]) + 0.03978873577297384*params[28]*sqrt(params[5]) + 0.004749430483234584*params[27]**2 - 0.002374715241617292*params[27]*params[23]*sqrt(params[5])/sqrt(params[7]) - 0.01187357620808646*params[27]*params[22] - 0.01899772193293834*params[27]*params[20]*sqrt(params[6])/sqrt(params[7]) + 0.1193662073189215*params[27]*sqrt(params[7]) + params[11] + 0.004749430483234584*(params[51]**4 - 8*params[51]**2*params[27] + 2*params[27]**2)*log(params[54]/(2*sqrt(params[7])))",
                 "symbols": [
-                    "RGScale",
+                    "T",
                     "g2",
                     "lamdaVL5",
                     "lamdaVL6",
@@ -1434,9 +1427,9 @@
             },
             {
                 "identifier": "mu2sq",
-                "expression": "-0.009498860966469168*params[51]**2*params[30] + 0.01899772193293834*params[32]**2*log(params[91]/(sqrt(params[7]) + sqrt(params[5]))) + 0.009498860966469168*params[32]**2 + 0.003166286988823056*params[31]**2*log(params[91]/(2*sqrt(params[5]))) + 0.001583143494411528*params[31]**2 - 0.000791571747205764*params[31]*params[24] - 0.002374715241617292*params[31]*params[23]*sqrt(params[7])/sqrt(params[5]) - 0.006332573977646112*params[31]*params[21]*sqrt(params[6])/sqrt(params[5]) + 0.03978873577297384*params[31]*sqrt(params[5]) + 0.004749430483234584*params[30]**2 - 0.002374715241617292*params[30]*params[23]*sqrt(params[5])/sqrt(params[7]) - 0.01187357620808646*params[30]*params[22] - 0.01899772193293834*params[30]*params[20]*sqrt(params[6])/sqrt(params[7]) + 0.1193662073189215*params[30]*sqrt(params[7]) + params[10] + 0.004749430483234584*(params[51]**4 - 8*params[51]**2*params[30] + 2*params[30]**2)*log(params[91]/(2*sqrt(params[7])))",
+                "expression": "-0.009498860966469168*params[51]**2*params[30] + 0.01899772193293834*params[32]**2*log(params[54]/(sqrt(params[7]) + sqrt(params[5]))) + 0.009498860966469168*params[32]**2 + 0.003166286988823056*params[31]**2*log(params[54]/(2*sqrt(params[5]))) + 0.001583143494411528*params[31]**2 - 0.000791571747205764*params[31]*params[24] - 0.002374715241617292*params[31]*params[23]*sqrt(params[7])/sqrt(params[5]) - 0.006332573977646112*params[31]*params[21]*sqrt(params[6])/sqrt(params[5]) + 0.03978873577297384*params[31]*sqrt(params[5]) + 0.004749430483234584*params[30]**2 - 0.002374715241617292*params[30]*params[23]*sqrt(params[5])/sqrt(params[7]) - 0.01187357620808646*params[30]*params[22] - 0.01899772193293834*params[30]*params[20]*sqrt(params[6])/sqrt(params[7]) + 0.1193662073189215*params[30]*sqrt(params[7]) + params[10] + 0.004749430483234584*(params[51]**4 - 8*params[51]**2*params[30] + 2*params[30]**2)*log(params[54]/(2*sqrt(params[7])))",
                 "symbols": [
-                    "RGScale",
+                    "T",
                     "g2",
                     "lamdaVL2",
                     "lamdaVL3",
@@ -1454,9 +1447,9 @@
             },
             {
                 "identifier": "mu3sq",
-                "expression": "0.004749430483234584*params[51]**4*log(params[91]/(2*sqrt(params[7]))) - 0.009498860966469168*params[51]**2*params[33]*(4*log(params[91]/(2*sqrt(params[7]))) + 1) - 0.03799544386587667*params[50]**2*params[34]*(4*log(params[91]/(2*sqrt(params[6]))) + 1) + 0.01266514795529222*params[34]**2*(2*log(params[91]/(2*sqrt(params[6]))) + 1) + 0.3183098861837907*params[34]*sqrt(params[6]) - 0.006332573977646112*params[34]*(params[21]*sqrt(params[5]) + 3*params[20]*sqrt(params[7]) + 10*params[18]*sqrt(params[6]))/sqrt(params[6]) + 0.004749430483234584*params[33]**2*(2*log(params[91]/(2*sqrt(params[7]))) + 1) + 0.1193662073189215*params[33]*sqrt(params[7]) - 0.002374715241617292*params[33]*(params[23]*sqrt(params[5]) + 5*params[22]*sqrt(params[7]) + 8*params[20]*sqrt(params[6]))/sqrt(params[7]) + 0.009498860966469168*params[26]**2*(2*log(params[91]/(sqrt(params[7]) + sqrt(params[5]))) + 1) + 0.001583143494411528*params[25]**2*(2*log(params[91]/(2*sqrt(params[5]))) + 1) + 0.03978873577297384*params[25]*sqrt(params[5]) - 0.000791571747205764*params[25]*(params[24]*sqrt(params[5]) + 3*params[23]*sqrt(params[7]) + 8*params[21]*sqrt(params[6]))/sqrt(params[5]) + params[8]",
+                "expression": "0.004749430483234584*params[51]**4*log(params[54]/(2*sqrt(params[7]))) - 0.009498860966469168*params[51]**2*params[33]*(4*log(params[54]/(2*sqrt(params[7]))) + 1) - 0.03799544386587667*params[50]**2*params[34]*(4*log(params[54]/(2*sqrt(params[6]))) + 1) + 0.01266514795529222*params[34]**2*(2*log(params[54]/(2*sqrt(params[6]))) + 1) + 0.3183098861837907*params[34]*sqrt(params[6]) - 0.006332573977646112*params[34]*(params[21]*sqrt(params[5]) + 3*params[20]*sqrt(params[7]) + 10*params[18]*sqrt(params[6]))/sqrt(params[6]) + 0.004749430483234584*params[33]**2*(2*log(params[54]/(2*sqrt(params[7]))) + 1) + 0.1193662073189215*params[33]*sqrt(params[7]) - 0.002374715241617292*params[33]*(params[23]*sqrt(params[5]) + 5*params[22]*sqrt(params[7]) + 8*params[20]*sqrt(params[6]))/sqrt(params[7]) + 0.009498860966469168*params[26]**2*(2*log(params[54]/(sqrt(params[7]) + sqrt(params[5]))) + 1) + 0.001583143494411528*params[25]**2*(2*log(params[54]/(2*sqrt(params[5]))) + 1) + 0.03978873577297384*params[25]*sqrt(params[5]) - 0.000791571747205764*params[25]*(params[24]*sqrt(params[5]) + 3*params[23]*sqrt(params[7]) + 8*params[21]*sqrt(params[6]))/sqrt(params[5]) + params[8]",
                 "symbols": [
-                    "RGScale",
+                    "T",
                     "g2",
                     "g3",
                     "lamdaVL1",
