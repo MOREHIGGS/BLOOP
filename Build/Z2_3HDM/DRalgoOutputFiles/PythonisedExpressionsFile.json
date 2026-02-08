@@ -922,20 +922,6 @@
                     "mu3sq",
                     "yt3"
                 ]
-            },
-            {
-                "identifier": "T",
-                "expression": "params[54]",
-                "symbols": [
-                    "T"
-                ]
-            },
-            {
-                "identifier": "RGScale",
-                "expression": "params[91]",
-                "symbols": [
-                    "RGScale"
-                ]
             }
         ],
         "filePath": "../Build/Z2_3HDM/DRalgoOutputFiles/SoftScaleParams_NLO.txt"

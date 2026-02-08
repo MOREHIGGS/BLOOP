@@ -171,9 +171,7 @@ couplingsSoft = PrintCouplings[];
 temporalScalarCouplings = PrintTemporalScalarCouplings[];
 debyeMasses = PrintDebyeMass["LO"]; (** For Debyes we only take LO result, NLO not needed since we integrate these out anyway **)
 scalarMasses = CombineSubstRules[PrintScalarMass["LO"], PrintScalarMass["NLO"]];
-(*Sometimes compute these equations and put the results into a np.zeros, without T->T etc we would lose what T is *)
-(*We need to be careful here as with proper in place updating with cython we may no longer need this*)
-allSoftScaleMatching = Join[couplingsSoft, temporalScalarCouplings, debyeMasses, scalarMasses, {T->T,RGScale->RGScale}];
+allSoftScaleMatching = Join[couplingsSoft, temporalScalarCouplings, debyeMasses, scalarMasses];
 
 
 (*DRalgo gives temporal couplings with [] which is a function call which makes things awkward so remove the []*)
@@ -249,8 +247,8 @@ allUltrasoftScaleParamsSqrt= Join[allUltrasoftScaleParamsSqrt, {\[Mu]3US -> T}];
 exportUTF8[exportPath<>"/UltrasoftScaleParams_NLO.txt", allUltrasoftScaleParamsSqrt];
 
 
-runningUS = RemoveSuffixes[SolveRunning3D[BetaFunctions3DUS[]],{"US", "3d"}];
-exportUTF8[exportPath<>"/UltrasoftScaleRGE.txt", runningUS];
+(*runningUS = RemoveSuffixes[SolveRunning3D[BetaFunctions3DUS[]],{"US", "3d"}];
+exportUTF8[exportPath<>"/UltrasoftScaleRGE.txt", runningUS];*)
 
 
 (* ::Section:: *)
@@ -472,7 +470,7 @@ exportUTF8[
 
 
 exportUTF8[exportPath<>"/AllSymbols.json",
-	DeleteDuplicates[Join[
+	Sort[DeleteDuplicates[Join[
 	extractSymbols[veffLO],
 	extractSymbols[veffNLO],
 	extractSymbols[veffNNLO],
@@ -481,8 +479,8 @@ exportUTF8[exportPath<>"/AllSymbols.json",
 	extractSymbols[ScalarMassDiag],
 	extractSymbols[upperLeftMM],
 	extractSymbols[bottomRightMM],
-	extractSymbols[runningUS]["LHS"],
-	extractSymbols[runningUS]["RHS"],
+(*	extractSymbols[runningUS]["LHS"],
+	extractSymbols[runningUS]["RHS"],*)
 	extractSymbols[allUltrasoftScaleParamsSqrt]["RHS"],
 	extractSymbols[allUltrasoftScaleParamsSqrt]["LHS"],
 	extractSymbols[running3DSoft]["RHS"],
@@ -490,6 +488,6 @@ exportUTF8[exportPath<>"/AllSymbols.json",
 	extractSymbols[allSoftScaleParamsSqrtSuffixFreeNoLbLf]["RHS"],
 	extractSymbols[allSoftScaleParamsSqrtSuffixFreeNoLbLf]["LHS"],
 	extractSymbols[betaFunctions4DUnsquared]["RHS"],
-	extractSymbols[betaFunctions4DUnsquared]["LHS"]
+	extractSymbols[betaFunctions4DUnsquared]["LHS"]]
 ]]
 ];
