@@ -171,7 +171,7 @@ couplingsSoft = PrintCouplings[];
 temporalScalarCouplings = PrintTemporalScalarCouplings[];
 debyeMasses = PrintDebyeMass["LO"]; (** For Debyes we only take LO result, NLO not needed since we integrate these out anyway **)
 scalarMasses = CombineSubstRules[PrintScalarMass["LO"], PrintScalarMass["NLO"]];
-allSoftScaleMatching = Join[couplingsSoft, temporalScalarCouplings, debyeMasses, scalarMasses];
+hardToSoft = Join[couplingsSoft, temporalScalarCouplings, debyeMasses, scalarMasses];
 
 
 (*DRalgo gives temporal couplings with [] which is a function call which makes things awkward so remove the []*)
@@ -179,34 +179,24 @@ allSoftScaleMatching = Join[couplingsSoft, temporalScalarCouplings, debyeMasses,
 \[Lambda]VLL[i_]:=ToExpression["\[Lambda]VLL"<>ToString[i]];
 
 
-(*We want to do in place updating of parameters in the python code i.e. \[Lambda]14D gets updated to \[Lambda]13D which gets updated to \[Lambda]13DUS,
-it's easier to do this if we remove the suffices so its the same variable name throughout*)
-allSoftScaleParamsSqrtSuffixFree = RemoveSuffixes[sqrtSubRules[allSoftScaleMatching], {"3d"}];
-
-
-(* ##### IMPORTANT #####
-As far as I'm aware the hardscale is always best to be set as <float \[Epsilon] [1,4]> \[Pi]Exp[-EulerGamma] T
-As this will minimise Lb and Lf contributions. 
-We will therefore assume the hardscale is <float>*T -which means Lb, Lf are temperature independent and
-can be set at compile (or more accurately Mathematica) time.
-This can reduce the number of multipications (probably only if one of them is 0) and memory use.  
-If this assumption is not valid for your case please reach out over email or on the repo.
-Note: 
-Lb = 2Log[HardScale/T] - 2(Log[4.0\[Pi]] - eulerGamma)
-Lf = Lb + 4Log[2]
-DEV NOTE: Lb and Lf are used outside of NLOPT and so any simplication in expressions has (currently) minimal impact on perfomance
-HOWEVER, getting rid of Lb and Lf would reduce memory use inside NLOPT and so bring us one step closer to fitting in cache *)
-allSoftScaleParamsSqrtSuffixFreeNoLbLf = allSoftScaleParamsSqrtSuffixFree/.Lb->0/.Lf->N[4Log[2]];
-
-
-exportUTF8[exportPath<>"/SoftScaleParams_NLO.txt", allSoftScaleParamsSqrtSuffixFreeNoLbLf];
+(* ::Text:: *)
+(*Setting the scales. *)
+(*Each scale (and Lb and Lf) can be a function of T and parameters of the scale above it**)
+(*E.g. the soft scale could be g1(hard)*T *)
+(**In theory - I should really test that*)
 
 
 hardScale = N[4\[Pi]*Exp[-EulerGamma]*T];
+softScale = T;
+ultraSoftScale = T;
+lb=0;
+lf=N[4Log[2]];
 exportUTF8[exportPath<>"/HardScale.txt", hardScale];
 
 
-(*TODO give this more generic lagangue (or at least double check with someone)*)
+(* Removing the suffixes makes it easier to do in place updating in BLOOP (more efficent *)
+hardToSoftBLOOPED = RemoveSuffixes[sqrtSubRules[hardToSoft], {"3d"}]/.Lb->lb/.Lf->lf;
+exportUTF8[exportPath<>"/HardToSoft.txt", hardToSoftBLOOPED];
 
 
 (* 3D RG equations can be solved exactly, so do that here. 
@@ -485,8 +475,8 @@ exportUTF8[exportPath<>"/AllSymbols.json",
 	extractSymbols[allUltrasoftScaleParamsSqrt]["LHS"],
 	extractSymbols[running3DSoft]["RHS"],
 	extractSymbols[running3DSoft]["LHS"],
-	extractSymbols[allSoftScaleParamsSqrtSuffixFreeNoLbLf]["RHS"],
-	extractSymbols[allSoftScaleParamsSqrtSuffixFreeNoLbLf]["LHS"],
+	extractSymbols[hardToSoftBLOOPED]["RHS"],
+	extractSymbols[hardToSoftBLOOPED]["LHS"],
 	extractSymbols[betaFunctions4DUnsquared]["RHS"],
 	extractSymbols[betaFunctions4DUnsquared]["LHS"]]
 ]]

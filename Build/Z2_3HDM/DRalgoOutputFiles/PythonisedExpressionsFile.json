@@ -924,7 +924,7 @@
                 ]
             }
         ],
-        "filePath": "../Build/Z2_3HDM/DRalgoOutputFiles/SoftScaleParams_NLO.txt"
+        "filePath": "../Build/Z2_3HDM/DRalgoOutputFiles/HardToSoft.txt"
     },
     "hardScale": {
         "expressions": {
