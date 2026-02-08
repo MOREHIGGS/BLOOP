@@ -199,23 +199,12 @@ hardToSoftBLOOPED = RemoveSuffixes[sqrtSubRules[hardToSoft], {"3d"}]/.Lb->lb/.Lf
 exportUTF8[exportPath<>"/HardToSoft.txt", hardToSoftBLOOPED];
 
 
-(* 3D RG equations can be solved exactly, so do that here. 
-msq -> msq + \[Beta][msq] Log[\[Mu]3/\[Mu]] where RHS msq is the 3D mass at scale \[Mu] and LHS msq is the mass at scale \[Mu]3
-We have chosen \[Mu]3 to be T and \[Mu] to be the hardScale *)
-	
-SolveRunning3D[betaFunctions_] := Block[{exprList},
-	(* Extracting lhs and beta for each list element *)
-	exprList = {#[[1]], #[[2]]} & /@ betaFunctions;
-
-	(* Make new list with RGE solution on RHS *)
-	newRulesList = (#1 -> #1 + #2*Log[T/hardScale]) & @@@ exprList;
-	Return[newRulesList];
-];
+RemoveSuffixes[solveRunning3D[BetaFunctions3DS[], softScale, hardScale],{"3d"}];
 
 
-running3DSoft = RemoveSuffixes[SolveRunning3D[BetaFunctions3DS[]],{"3d"}];
-running3DSoft= Join[running3DSoft, {RGScale->T}];
-exportUTF8[exportPath<>"/SoftScaleRGE.txt", running3DSoft];
+runSoft = RemoveSuffixes[solveRunning3D[BetaFunctions3DS[], softScale, hardScale],{"3d"}];
+runSoft= Join[runSoft, {RGScale->T}];
+exportUTF8[exportPath<>"/SoftScaleRGE.txt", runSoft];
 
 
 (* ::Subsection:: *)
@@ -473,8 +462,8 @@ exportUTF8[exportPath<>"/AllSymbols.json",
 	extractSymbols[runningUS]["RHS"],*)
 	extractSymbols[allUltrasoftScaleParamsSqrt]["RHS"],
 	extractSymbols[allUltrasoftScaleParamsSqrt]["LHS"],
-	extractSymbols[running3DSoft]["RHS"],
-	extractSymbols[running3DSoft]["LHS"],
+	extractSymbols[runSoft]["RHS"],
+	extractSymbols[runSoft]["LHS"],
 	extractSymbols[hardToSoftBLOOPED]["RHS"],
 	extractSymbols[hardToSoftBLOOPED]["LHS"],
 	extractSymbols[betaFunctions4DUnsquared]["RHS"],
