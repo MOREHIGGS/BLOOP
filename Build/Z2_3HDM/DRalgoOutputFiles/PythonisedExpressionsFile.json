@@ -1466,15 +1466,8 @@
                     "musqSU3",
                     "musqU1"
                 ]
-            },
-            {
-                "identifier": "mu3US",
-                "expression": "params[54]",
-                "symbols": [
-                    "T"
-                ]
             }
         ],
-        "filePath": "../Build/Z2_3HDM/DRalgoOutputFiles/UltrasoftScaleParams_NLO.txt"
+        "filePath": "../Build/Z2_3HDM/DRalgoOutputFiles/SoftToUltraSoft.txt"
     }
 }
