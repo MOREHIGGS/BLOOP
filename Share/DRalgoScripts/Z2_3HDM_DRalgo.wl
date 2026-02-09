@@ -171,7 +171,6 @@ couplingsSoft = PrintCouplings[];
 temporalScalarCouplings = PrintTemporalScalarCouplings[];
 debyeMasses = PrintDebyeMass["LO"]; (** For Debyes we only take LO result, NLO not needed since we integrate these out anyway **)
 scalarMasses = CombineSubstRules[PrintScalarMass["LO"], PrintScalarMass["NLO"]];
-hardToSoft = Join[couplingsSoft, temporalScalarCouplings, debyeMasses, scalarMasses];
 
 
 (*DRalgo gives temporal couplings with [] which is a function call which makes things awkward so remove the []*)
@@ -195,8 +194,11 @@ exportUTF8[exportPath<>"/HardScale.txt", hardScale];
 
 
 (* Removing the suffixes makes it easier to do in place updating in BLOOP (more efficent) *)
-hardToSoftBLOOPED = RemoveSuffixes[sqrtSubRules[hardToSoft], {"3d"}]/.Lb->lb/.Lf->lf;
-exportUTF8[exportPath<>"/HardToSoft.txt", hardToSoftBLOOPED];
+(* NOTE: Because we take the sqrt of the gauge couplings there is a sign ambiguity - we only consider the positive root
+In theory this could also make the gauge couplings complex (very bad) but this would likely be in a non-pert regime i.e.
+g1(soft) = T*g1*sqrt[1 - ((g1^2) (3Lb+40Lf) )/(96 \[Pi]^2)](hard) the correction has to be larger than 1*) 
+hardToSoft = RemoveSuffixes[sqrtSubRules[Join[couplingsSoft, temporalScalarCouplings, debyeMasses, scalarMasses]], {"3d"}]/.Lb->lb/.Lf->lf;
+exportUTF8[exportPath<>"/HardToSoft.txt", hardToSoft];
 
 
 softParamsRGE = RemoveSuffixes[solveRunning3D[BetaFunctions3DS[], softScale, hardScale],{"3d"}];
@@ -454,10 +456,9 @@ exportUTF8[exportPath<>"/AllSymbols.json",
 	extractSymbols[ultrasoftScaleParams]["LHS"],
 	extractSymbols[softParamsRGE]["RHS"],
 	extractSymbols[softParamsRGE]["LHS"],
-	extractSymbols[hardToSoftBLOOPED]["RHS"],
-	extractSymbols[hardToSoftBLOOPED]["LHS"],
+	extractSymbols[hardToSoft]["RHS"],
+	extractSymbols[hardToSoft]["LHS"],
 	extractSymbols[betaFunctions4DUnsquared]["RHS"],
 	extractSymbols[betaFunctions4DUnsquared]["LHS"]
 	]]]
 ];
-
