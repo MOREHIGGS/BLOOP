@@ -112,6 +112,8 @@ class TrackVEV:
 
         params = np.zeros(len(self.allSymbols), dtype="float64")
         for key, value in benchmark["lagranianParameters"].items():
+            if key == "RGScale":
+                continue
             params[self.allSymbols.index(key)] = value
 
         ## What to do if user RGScale > 7.3TMax? Idk why someone might do this though
@@ -122,10 +124,11 @@ class TrackVEV:
             len(self.TRange) * 10,
         )
 
-        ## (Maybe) Important note:
+        ## Dev note on solve_ivp numerical instability:
         ## Any none-zero value in initalConditions will be updated even if not
-        ## included in beta function - leads to differences at the level of the tol
-        ## of solve_ivp (default 1e-3%)
+        ## included in beta function 
+        ## The number of symbols in all symbols also affects the result
+        ## These differences are at or below the tol of sol_ivp
         def betaFunction(
                 mu, 
                 initialConditions
@@ -163,7 +166,7 @@ class TrackVEV:
             
             for key, spline in betaSpline4D.items():
                 params[self.allSymbols.index(key)] = spline(self.hardScale.evaluate(params))
-                
+            
             if not np.all(self.bounded.evaluateUnordered(params)):
                 return minimizationResults | {"failureReason": "unBounded"}
             
@@ -176,7 +179,7 @@ class TrackVEV:
             params = self.softScaleRGE.evaluate(params)
             if self.softToUltraSoft:
                 params = self.softToUltraSoft.evaluate(params)
-
+            
             ## Round needed because nlopt result sometimes fp out of bounds
             ## See https://github.com/stevengj/nlopt/issues/625
             vevLocation, vevDepth = self.findGlobalMinimum(

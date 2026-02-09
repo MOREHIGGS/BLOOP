@@ -14,11 +14,11 @@ SetDirectory[NotebookDirectory[]];
 
 Get["MathematicaToPythonHelper.m"]
 (*Fresh added so it doesn't overwrite the old expression files*)
-exportPath = "../../Build/Z2_3HDM/DRalgoOutputFilesFresh";
+exportPath = "../../Build/Z2_3HDM/DRalgoOutputFiles";
 
 
 (* ::Text:: *)
-(*These are extra things needed for the Z2 3HDM not given by DRalgo (mass matrices not needed yet, boundedConditions are)*)
+(*Extra things needed for BLOOP not given by DRalgo*)
 
 
 exportUTF8[exportPath<>"/BoundedConditions.txt",
@@ -31,13 +31,6 @@ exportUTF8[exportPath<>"/BoundedConditions.txt",
 sqrt[\[Lambda]33]*(\[Lambda]12 + min[0, \[Lambda]12p - 2*Sqrt[\[Lambda]1Re^2 + \[Lambda]1Im^2] ]) + sqrt[\[Lambda]11]*(\[Lambda]23 + min[0, \[Lambda]23p - 2*Sqrt[\[Lambda]2Re^2 + \[Lambda]2Im^2] ]) + sqrt[\[Lambda]22]*(\[Lambda]31 + min[0, \[Lambda]31p - 2*Sqrt[\[Lambda]3Re^2 + \[Lambda]3Im^2] ]) >= 0 ||
 \[Lambda]33*(\[Lambda]12 + min[0, \[Lambda]12p - 2*Sqrt[\[Lambda]1Re^2 + \[Lambda]1Im^2] ])^2 + \[Lambda]11*(\[Lambda]23 + min[0, \[Lambda]23p - 2*Sqrt[\[Lambda]2Re^2 + \[Lambda]2Im^2] ])^2 + \[Lambda]22*(\[Lambda]31 + min[0, \[Lambda]31p - 2*Sqrt[\[Lambda]3Re^2 + \[Lambda]3Im^2] ])^2 - \[Lambda]11*\[Lambda]22*\[Lambda]33 - 2*(\[Lambda]12 + min[0, \[Lambda]12p - 2*Sqrt[\[Lambda]1Re^2 + \[Lambda]1Im^2] ])*(\[Lambda]31 + min[0, \[Lambda]31p - 2*Sqrt[\[Lambda]3Re^2 + \[Lambda]3Im^2] ])*(\[Lambda]23 + min[0, \[Lambda]23p - 2*Sqrt[\[Lambda]2Re^2 + \[Lambda]2Im^2] ]) < 0
 }];
-exportUTF8[exportPath<>"/NeutralMass.txt",ToString[InputForm[{{1/2 v3^2 (\[Lambda]23+\[Lambda]23p+2 \[Lambda]2Re)-\[Mu]2sq,v3^2 \[Lambda]2Im,-\[Mu]12sqIm,0,-\[Mu]12sqRe,0},
-{v3^2 \[Lambda]2Im,1/2 v3^2 (\[Lambda]23+\[Lambda]23p-2 \[Lambda]2Re)-\[Mu]2sq,-\[Mu]12sqRe,0,\[Mu]12sqIm,0},
-{-\[Mu]12sqIm,-\[Mu]12sqRe,1/2 v3^2 (\[Lambda]31+\[Lambda]31p-2 \[Lambda]3Re)-\[Mu]1sq,0,-v3^2 \[Lambda]3Im,0},
-{0,0,0,3 v3^2 \[Lambda]33-\[Mu]3sq,0,0},{-\[Mu]12sqRe,\[Mu]12sqIm,-v3^2 \[Lambda]3Im,0,1/2 v3^2 (\[Lambda]31+\[Lambda]31p+2 \[Lambda]3Re)-\[Mu]1sq,0},
-{0,0,0,0,0,v3^2 \[Lambda]33-\[Mu]3sq}}]]];
-exportUTF8[exportPath<>"/ChargedMass.txt",ToString[InputForm[{{(vv^2 \[Lambda]31)/2-\[Mu]1sq,-\[Mu]12sqRe},
-{-\[Mu]12sqRe,(vv^2 \[Lambda]23)/2-\[Mu]2sq}}]]];
 
 
 (* ::Section::Closed:: *)
@@ -178,9 +171,6 @@ couplingsSoft = PrintCouplings[];
 temporalScalarCouplings = PrintTemporalScalarCouplings[];
 debyeMasses = PrintDebyeMass["LO"]; (** For Debyes we only take LO result, NLO not needed since we integrate these out anyway **)
 scalarMasses = CombineSubstRules[PrintScalarMass["LO"], PrintScalarMass["NLO"]];
-(*Sometimes compute these equations and put the results into a np.zeros, without T->T etc we would lose what T is *)
-(*We need to be careful here as with proper in place updating with cython we may no longer need this*)
-allSoftScaleMatching = Join[couplingsSoft, temporalScalarCouplings, debyeMasses, scalarMasses, {T->T,RGScale->RGScale}];
 
 
 (*DRalgo gives temporal couplings with [] which is a function call which makes things awkward so remove the []*)
@@ -188,53 +178,31 @@ allSoftScaleMatching = Join[couplingsSoft, temporalScalarCouplings, debyeMasses,
 \[Lambda]VLL[i_]:=ToExpression["\[Lambda]VLL"<>ToString[i]];
 
 
-(*We want to do in place updating of parameters in the python code i.e. \[Lambda]14D gets updated to \[Lambda]13D which gets updated to \[Lambda]13DUS,
-it's easier to do this if we remove the suffices so its the same variable name throughout*)
-allSoftScaleParamsSqrtSuffixFree = RemoveSuffixes[sqrtSubRules[allSoftScaleMatching], {"3d"}];
-
-
-(* ##### IMPORTANT #####
-As far as I'm aware the hardscale is always best to be set as <float \[Epsilon] [1,4]> \[Pi]Exp[-EulerGamma] T
-As this will minimise Lb and Lf contributions. 
-We will therefore assume the hardscale is <float>*T -which means Lb, Lf are temperature independent and
-can be set at compile (or more accurately Mathematica) time.
-This can reduce the number of multipications (probably only if one of them is 0) and memory use.  
-If this assumption is not valid for your case please reach out over email or on the repo.
-Note: 
-Lb = 2Log[HardScale/T] - 2(Log[4.0\[Pi]] - eulerGamma)
-Lf = Lb + 4Log[2]
-DEV NOTE: Lb and Lf are used outside of NLOPT and so any simplication in expressions has (currently) minimal impact on perfomance
-HOWEVER, getting rid of Lb and Lf would reduce memory use inside NLOPT and so bring us one step closer to fitting in cache *)
-allSoftScaleParamsSqrtSuffixFreeNoLbLf = allSoftScaleParamsSqrtSuffixFree/.Lb->0/.Lf->N[4Log[2]];
-
-
-exportUTF8[exportPath<>"/SoftScaleParams_NLO.txt", allSoftScaleParamsSqrtSuffixFreeNoLbLf];
+(* ::Text:: *)
+(*Setting the scales. *)
+(*Each scale (and Lb and Lf) can be a function of T and parameters of the scale above it**)
+(*E.g. the soft scale could be g1(hard)*T *)
+(**In theory - I should really test that*)
 
 
 hardScale = N[4\[Pi]*Exp[-EulerGamma]*T];
+softScale = T;
+ultraSoftScale = T;
+lb=0;
+lf=N[4Log[2]];
 exportUTF8[exportPath<>"/HardScale.txt", hardScale];
 
 
-(*TODO give this more generic lagangue (or at least double check with someone)*)
+(* Removing the suffixes makes it easier to do in place updating in BLOOP (more efficent) *)
+(* NOTE: Because we take the sqrt of the gauge couplings there is a sign ambiguity - we only consider the positive root
+In theory this could also make the gauge couplings complex (very bad) but this would likely be in a non-pert regime i.e.
+g1(soft) = T*g1*sqrt[1 - ((g1^2) (3Lb+40Lf) )/(96 \[Pi]^2)](hard) the correction has to be larger than 1*) 
+hardToSoft = RemoveSuffixes[sqrtSubRules[Join[couplingsSoft, temporalScalarCouplings, debyeMasses, scalarMasses]], {"3d"}]/.Lb->lb/.Lf->lf;
+exportUTF8[exportPath<>"/HardToSoft.txt", hardToSoft];
 
 
-(* 3D RG equations can be solved exactly, so do that here. 
-msq -> msq + \[Beta][msq] Log[\[Mu]3/\[Mu]] where RHS msq is the 3D mass at scale \[Mu] and LHS msq is the mass at scale \[Mu]3
-We have chosen \[Mu]3 to be T and \[Mu] to be the hardScale *)
-	
-SolveRunning3D[betaFunctions_] := Block[{exprList},
-	(* Extracting lhs and beta for each list element *)
-	exprList = {#[[1]], #[[2]]} & /@ betaFunctions;
-
-	(* Make new list with RGE solution on RHS *)
-	newRulesList = (#1 -> #1 + #2*Log[T/hardScale]) & @@@ exprList;
-	Return[newRulesList];
-];
-
-
-running3DSoft = RemoveSuffixes[SolveRunning3D[BetaFunctions3DS[]],{"3d"}];
-running3DSoft= Join[running3DSoft, {RGScale->T}];
-exportUTF8[exportPath<>"/SoftScaleRGE.txt", running3DSoft];
+softParamsRGE = RemoveSuffixes[solveRunning3D[BetaFunctions3DS[], softScale, hardScale],{"3d"}];
+exportUTF8[exportPath<>"/SoftScaleRGE.txt", softParamsRGE];
 
 
 (* ::Subsection:: *)
@@ -242,22 +210,15 @@ exportUTF8[exportPath<>"/SoftScaleRGE.txt", running3DSoft];
 
 
 PerformDRsoft[{}];
-(** This now works properly as of DRalgo 2023/11/24 update **)
 couplingsUS = PrintCouplingsUS[];
 scalarMassesUS = CombineSubstRules[PrintScalarMassUS["LO"], PrintScalarMassUS["NLO"]];
-(*Change \[Mu]3 to RGScale for easier arraynesss in python (we previously did this explicitly in python)*)
-allUltrasoftScaleParams = Join[couplingsUS, scalarMassesUS] /. \[Mu]3->RGScale;
+ultrasoftScaleParams = RemoveSuffixes[sqrtSubRules[Join[couplingsUS, scalarMassesUS]], {"US", "3d"}]/. \[Mu]3->softScale;
+exportUTF8[exportPath<>"/SoftToUltraSoft.txt", ultrasoftScaleParams];
 
 
-allUltrasoftScaleParamsSqrt = RemoveSuffixes[sqrtSubRules[allUltrasoftScaleParams], {"US", "3d"}];(*Some reduant sqrt operations here? e.g. g13dUS*)
-allUltrasoftScaleParamsSqrt= Join[allUltrasoftScaleParamsSqrt, {\[Mu]3US -> T}];
-
-
-exportUTF8[exportPath<>"/UltrasoftScaleParams_NLO.txt", allUltrasoftScaleParamsSqrt];
-
-
-runningUS = RemoveSuffixes[SolveRunning3D[BetaFunctions3DUS[]],{"US", "3d"}];
-exportUTF8[exportPath<>"/UltrasoftScaleRGE.txt", runningUS];
+(* NOTE: with our choice of scales this is a trivial RGE and so isn't a step in BLOOP, on the TODO list*)
+ultraSoftParamsRGE = RemoveSuffixes[solveRunning3D[BetaFunctions3DUS[], ultraSoftScale, softScale],{"US", "3d"}];
+exportUTF8[exportPath<>"/UltrasoftScaleRGE.txt", ultraSoftParamsRGE];
 
 
 (* ::Section:: *)
@@ -453,14 +414,14 @@ CalculatePotentialUS[]
 (*We get (ctW^2*g2^2*Sqrt[mVsq0]*Sqrt[mVsq1])/(12*Pi^2) = g2^5 v^2/(48\[Pi]^2 \[Sqrt]g1^2+g2^2)*)
 (*In the SM example it is g2^6 v^2/(48\[Pi]^2(g1^2+g2^2))*)
 (* The difference can be explained if you cube ctW instead of square.*)
-(* Based on integration tests this has a minor impact on numerics which is somewhat expected since the gauge couplings are small. *)
+(* Based on integration tests this has a minor impact on numerics which is expected since the gauge couplings are small. *)
 (* Note this bug is not present in the version used for the Z2 3HDM paper*)
 (*Until I fix the bug I would suggest just manually changing the NNLO txt file*)
 
 
 veffLO = PrintEffectivePotential["LO"]//Simplify; (* Simplify to get rid of possible imaginaryDetailed units *)
 veffNLO = PrintEffectivePotential["NLO"]//Simplify; (* Simplify to factor 1/pi division for tiny speed up *)
-veffNNLO = PrintEffectivePotential["NNLO"]; (* NOT simplified as seems to change numerical result for unknown reasons *)
+veffNNLO = PrintEffectivePotential["NNLO"]/.\[Mu]3US->ultraSoftScale; (* NOT simplified as seems to change numerical result for unknown reasons *)
 
 
 exportUTF8[exportPath<>"/Veff_LO.txt", veffLO];
@@ -475,11 +436,12 @@ exportUTF8[
 	"twoPointSymbols"-> extractSymbols[\[Mu]ij],
 	"gaugeSymbols"-> extractSymbols[GaugeCouplings],
 	"yukawaSymbols" -> extractSymbols[Ysff],
-	"fieldSymbols" -> extractSymbols[backgroundFieldsFull]}];
+	"fieldSymbols" -> extractSymbols[backgroundFieldsFull]}
+];
 
 
 exportUTF8[exportPath<>"/AllSymbols.json",
-	DeleteDuplicates[Join[
+	Sort[DeleteDuplicates[Join[
 	extractSymbols[veffLO],
 	extractSymbols[veffNLO],
 	extractSymbols[veffNNLO],
@@ -488,15 +450,15 @@ exportUTF8[exportPath<>"/AllSymbols.json",
 	extractSymbols[ScalarMassDiag],
 	extractSymbols[upperLeftMM],
 	extractSymbols[bottomRightMM],
-	extractSymbols[runningUS]["LHS"],
-	extractSymbols[runningUS]["RHS"],
-	extractSymbols[allUltrasoftScaleParamsSqrt]["RHS"],
-	extractSymbols[allUltrasoftScaleParamsSqrt]["LHS"],
-	extractSymbols[running3DSoft]["RHS"],
-	extractSymbols[running3DSoft]["LHS"],
-	extractSymbols[allSoftScaleParamsSqrtSuffixFreeNoLbLf]["RHS"],
-	extractSymbols[allSoftScaleParamsSqrtSuffixFreeNoLbLf]["LHS"],
+	extractSymbols[ultraSoftParamsRGE]["LHS"],
+	extractSymbols[ultraSoftParamsRGE]["RHS"],
+	extractSymbols[ultrasoftScaleParams]["RHS"],
+	extractSymbols[ultrasoftScaleParams]["LHS"],
+	extractSymbols[softParamsRGE]["RHS"],
+	extractSymbols[softParamsRGE]["LHS"],
+	extractSymbols[hardToSoft]["RHS"],
+	extractSymbols[hardToSoft]["LHS"],
 	extractSymbols[betaFunctions4DUnsquared]["RHS"],
 	extractSymbols[betaFunctions4DUnsquared]["LHS"]
-]]
+	]]]
 ];

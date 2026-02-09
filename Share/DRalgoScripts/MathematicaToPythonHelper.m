@@ -10,6 +10,16 @@ Most (all?) of the code here is written by claude v4
 
 
 
+solveRunning3D[betaFunctions_,newScale_,oldScale_] := Block[{exprList},
+	(* Extracting lhs and beta for each list element *)
+	exprList = {#[[1]], #[[2]]} & /@ betaFunctions;
+
+	(* Make new list with RGE solution on RHS *)
+	newRulesList = (#1 -> #1 + #2*Log[newScale/oldScale]) & @@@ exprList;
+	Return[newRulesList];
+];
+
+
 exportUTF8[fileName_, expr_] := Module[{},
   If[StringQ[expr],
     Export[fileName, expr, "Text", CharacterEncoding -> "UTF-8"],

@@ -314,7 +314,7 @@ class UserInput(argparse.ArgumentParser):
        filesGroup.add_argument(
            "--hardToSoftFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/SoftScaleParams_NLO.txt",
+           default="../Build/Z2_3HDM/DRalgoOutputFiles/HardToSoft.txt",
        )
        filesGroup.add_argument(
            "--hardScaleFilePath",
@@ -329,7 +329,7 @@ class UserInput(argparse.ArgumentParser):
        filesGroup.add_argument(
            "--softToUltraSoftFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/UltrasoftScaleParams_NLO.txt",
+           default="../Build/Z2_3HDM/DRalgoOutputFiles/SoftToUltraSoft.txt",
        )
        filesGroup.add_argument(
            "--scalarPermutationMatrixFilePath",

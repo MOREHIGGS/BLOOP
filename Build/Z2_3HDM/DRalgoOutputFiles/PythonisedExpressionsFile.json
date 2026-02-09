@@ -3,28 +3,28 @@
         "expressions": [
             {
                 "identifier": "missing",
-                "expression": "params[49] > 0",
+                "expression": "params[48] > 0",
                 "symbols": [
                     "lamda11"
                 ]
             },
             {
                 "identifier": "missing",
-                "expression": "params[44] > 0",
+                "expression": "params[43] > 0",
                 "symbols": [
                     "lamda22"
                 ]
             },
             {
                 "identifier": "missing",
-                "expression": "params[37] > 0",
+                "expression": "params[36] > 0",
                 "symbols": [
                     "lamda33"
                 ]
             },
             {
                 "identifier": "missing",
-                "expression": "params[48] + min(0, params[47] - 2*sqrt(params[46]**2 + params[45]**2)) > -2*sqrt(params[49]*params[44])",
+                "expression": "params[47] + min(0, params[46] - 2*sqrt(params[45]**2 + params[44]**2)) > -2*sqrt(params[48]*params[43])",
                 "symbols": [
                     "lamda11",
                     "lamda12",
@@ -36,7 +36,7 @@
             },
             {
                 "identifier": "missing",
-                "expression": "params[39] + min(0, params[38] - 2*sqrt(params[36]**2 + params[35]**2)) > -2*sqrt(params[49]*params[37])",
+                "expression": "params[38] + min(0, params[37] - 2*sqrt(params[35]**2 + params[34]**2)) > -2*sqrt(params[48]*params[36])",
                 "symbols": [
                     "lamda11",
                     "lamda31",
@@ -48,7 +48,7 @@
             },
             {
                 "identifier": "missing",
-                "expression": "params[43] + min(0, params[42] - 2*sqrt(params[41]**2 + params[40]**2)) > -2*sqrt(params[44]*params[37])",
+                "expression": "params[42] + min(0, params[41] - 2*sqrt(params[40]**2 + params[39]**2)) > -2*sqrt(params[43]*params[36])",
                 "symbols": [
                     "lamda22",
                     "lamda23",
@@ -60,7 +60,7 @@
             },
             {
                 "identifier": "missing",
-                "expression": "((params[48] + min(0, params[47] - 2*sqrt(params[46]**2 + params[45]**2)))*sqrt(params[37]) + (params[43] + min(0, params[42] - 2*sqrt(params[41]**2 + params[40]**2)))*sqrt(params[49]) + (params[39] + min(0, params[38] - 2*sqrt(params[36]**2 + params[35]**2)))*sqrt(params[44]) >= 0) | (-params[49]*params[44]*params[37] + params[49]*(params[43] + min(0, params[42] - 2*sqrt(params[41]**2 + params[40]**2)))**2 + params[44]*(params[39] + min(0, params[38] - 2*sqrt(params[36]**2 + params[35]**2)))**2 + params[37]*(params[48] + min(0, params[47] - 2*sqrt(params[46]**2 + params[45]**2)))**2 - 2*(params[48] + min(0, params[47] - 2*sqrt(params[46]**2 + params[45]**2)))*(params[43] + min(0, params[42] - 2*sqrt(params[41]**2 + params[40]**2)))*(params[39] + min(0, params[38] - 2*sqrt(params[36]**2 + params[35]**2))) < 0)",
+                "expression": "((params[47] + min(0, params[46] - 2*sqrt(params[45]**2 + params[44]**2)))*sqrt(params[36]) + (params[42] + min(0, params[41] - 2*sqrt(params[40]**2 + params[39]**2)))*sqrt(params[48]) + (params[38] + min(0, params[37] - 2*sqrt(params[35]**2 + params[34]**2)))*sqrt(params[43]) >= 0) | (-params[48]*params[43]*params[36] + params[48]*(params[42] + min(0, params[41] - 2*sqrt(params[40]**2 + params[39]**2)))**2 + params[43]*(params[38] + min(0, params[37] - 2*sqrt(params[35]**2 + params[34]**2)))**2 + params[36]*(params[47] + min(0, params[46] - 2*sqrt(params[45]**2 + params[44]**2)))**2 - 2*(params[47] + min(0, params[46] - 2*sqrt(params[45]**2 + params[44]**2)))*(params[42] + min(0, params[41] - 2*sqrt(params[40]**2 + params[39]**2)))*(params[38] + min(0, params[37] - 2*sqrt(params[35]**2 + params[34]**2))) < 0)",
                 "symbols": [
                     "lamda11",
                     "lamda12",
@@ -86,28 +86,28 @@
         "expressions": [
             {
                 "identifier": "g1",
-                "expression": "0.04538344683979713*params[52]**3",
+                "expression": "0.04538344683979713*params[51]**3",
                 "symbols": [
                     "g1"
                 ]
             },
             {
                 "identifier": "g2",
-                "expression": "-0.01794229293666398*params[51]**3",
+                "expression": "-0.01794229293666398*params[50]**3",
                 "symbols": [
                     "g2"
                 ]
             },
             {
                 "identifier": "g3",
-                "expression": "-0.04432801784352278*params[50]**3",
+                "expression": "-0.04432801784352278*params[49]**3",
                 "symbols": [
                     "g3"
                 ]
             },
             {
                 "identifier": "lamda11",
-                "expression": "0.002374715241617292*params[52]**4 + 0.004749430483234584*params[52]**2*(params[51]**2 - 4*params[49]) + 0.007124145724851876*params[51]**4 - 0.05699316579881501*params[51]**2*params[49] + 0.1519817754635067*params[49]**2 + 0.01266514795529222*params[48]**2 + 0.01266514795529222*params[48]*params[47] + 0.006332573977646112*params[47]**2 + 0.02533029591058445*params[46]**2 + 0.02533029591058445*params[45]**2 + 0.01266514795529222*params[39]**2 + 0.01266514795529222*params[39]*params[38] + 0.006332573977646112*params[38]**2 + 0.02533029591058445*params[36]**2 + 0.02533029591058445*params[35]**2",
+                "expression": "0.002374715241617292*params[51]**4 + 0.004749430483234584*params[51]**2*(params[50]**2 - 4*params[48]) + 0.007124145724851876*params[50]**4 - 0.05699316579881501*params[50]**2*params[48] + 0.1519817754635067*params[48]**2 + 0.01266514795529222*params[47]**2 + 0.01266514795529222*params[47]*params[46] + 0.006332573977646112*params[46]**2 + 0.02533029591058445*params[45]**2 + 0.02533029591058445*params[44]**2 + 0.01266514795529222*params[38]**2 + 0.01266514795529222*params[38]*params[37] + 0.006332573977646112*params[37]**2 + 0.02533029591058445*params[35]**2 + 0.02533029591058445*params[34]**2",
                 "symbols": [
                     "g1",
                     "g2",
@@ -124,7 +124,7 @@
             },
             {
                 "identifier": "lamda12p",
-                "expression": "0.01899772193293834*params[52]**2*(params[51]**2 - params[47]) - 0.05699316579881501*params[51]**2*params[47] + 0.02533029591058445*params[47]*(params[49] + 2*params[48] + params[47] + params[44]) + 0.2026423672846756*params[46]**2 + 0.2026423672846756*params[45]**2 + 0.01266514795529222*params[42]*params[38]",
+                "expression": "0.01899772193293834*params[51]**2*(params[50]**2 - params[46]) - 0.05699316579881501*params[50]**2*params[46] + 0.02533029591058445*params[46]*(params[48] + 2*params[47] + params[46] + params[43]) + 0.2026423672846756*params[45]**2 + 0.2026423672846756*params[44]**2 + 0.01266514795529222*params[41]*params[37]",
                 "symbols": [
                     "g1",
                     "g2",
@@ -140,7 +140,7 @@
             },
             {
                 "identifier": "lamda12",
-                "expression": "0.004749430483234584*params[52]**4 - 0.009498860966469168*params[52]**2*(params[51]**2 + 2*params[48]) + 0.01424829144970375*params[51]**4 - 0.05699316579881501*params[51]**2*params[48] + 0.07599088773175334*params[49]*params[48] + 0.02533029591058445*params[49]*params[47] + 0.02533029591058445*params[48]**2 + 0.07599088773175334*params[48]*params[44] + 0.01266514795529222*params[47]**2 + 0.02533029591058445*params[47]*params[44] + 0.05066059182116889*params[46]**2 + 0.05066059182116889*params[45]**2 + 0.02533029591058445*params[43]*params[39] + 0.01266514795529222*params[43]*params[38] + 0.01266514795529222*params[42]*params[39]",
+                "expression": "0.004749430483234584*params[51]**4 - 0.009498860966469168*params[51]**2*(params[50]**2 + 2*params[47]) + 0.01424829144970375*params[50]**4 - 0.05699316579881501*params[50]**2*params[47] + 0.07599088773175334*params[48]*params[47] + 0.02533029591058445*params[48]*params[46] + 0.02533029591058445*params[47]**2 + 0.07599088773175334*params[47]*params[43] + 0.01266514795529222*params[46]**2 + 0.02533029591058445*params[46]*params[43] + 0.05066059182116889*params[45]**2 + 0.05066059182116889*params[44]**2 + 0.02533029591058445*params[42]*params[38] + 0.01266514795529222*params[42]*params[37] + 0.01266514795529222*params[41]*params[38]",
                 "symbols": [
                     "g1",
                     "g2",
@@ -158,7 +158,7 @@
             },
             {
                 "identifier": "lamda1Im",
-                "expression": "-0.01899772193293834*params[52]**2*params[46] - 0.05699316579881501*params[51]**2*params[46] + 0.02533029591058445*params[46]*(params[49] + 2*params[48] + 3*params[47] + params[44]) - 0.02533029591058445*params[41]*params[35] - 0.02533029591058445*params[40]*params[36]",
+                "expression": "-0.01899772193293834*params[51]**2*params[45] - 0.05699316579881501*params[50]**2*params[45] + 0.02533029591058445*params[45]*(params[48] + 2*params[47] + 3*params[46] + params[43]) - 0.02533029591058445*params[40]*params[34] - 0.02533029591058445*params[39]*params[35]",
                 "symbols": [
                     "g1",
                     "g2",
@@ -175,7 +175,7 @@
             },
             {
                 "identifier": "lamda1Re",
-                "expression": "-0.01899772193293834*params[52]**2*params[45] - 0.05699316579881501*params[51]**2*params[45] + 0.02533029591058445*params[45]*(params[49] + 2*params[48] + 3*params[47] + params[44]) - 0.02533029591058445*params[41]*params[36] + 0.02533029591058445*params[40]*params[35]",
+                "expression": "-0.01899772193293834*params[51]**2*params[44] - 0.05699316579881501*params[50]**2*params[44] + 0.02533029591058445*params[44]*(params[48] + 2*params[47] + 3*params[46] + params[43]) - 0.02533029591058445*params[40]*params[35] + 0.02533029591058445*params[39]*params[34]",
                 "symbols": [
                     "g1",
                     "g2",
@@ -192,7 +192,7 @@
             },
             {
                 "identifier": "lamda22",
-                "expression": "0.002374715241617292*params[52]**4 + 0.004749430483234584*params[52]**2*(params[51]**2 - 4*params[44]) + 0.007124145724851876*params[51]**4 - 0.05699316579881501*params[51]**2*params[44] + 0.01266514795529222*params[48]**2 + 0.01266514795529222*params[48]*params[47] + 0.006332573977646112*params[47]**2 + 0.02533029591058445*params[46]**2 + 0.02533029591058445*params[45]**2 + 0.1519817754635067*params[44]**2 + 0.01266514795529222*params[43]**2 + 0.01266514795529222*params[43]*params[42] + 0.006332573977646112*params[42]**2 + 0.02533029591058445*params[41]**2 + 0.02533029591058445*params[40]**2",
+                "expression": "0.002374715241617292*params[51]**4 + 0.004749430483234584*params[51]**2*(params[50]**2 - 4*params[43]) + 0.007124145724851876*params[50]**4 - 0.05699316579881501*params[50]**2*params[43] + 0.01266514795529222*params[47]**2 + 0.01266514795529222*params[47]*params[46] + 0.006332573977646112*params[46]**2 + 0.02533029591058445*params[45]**2 + 0.02533029591058445*params[44]**2 + 0.1519817754635067*params[43]**2 + 0.01266514795529222*params[42]**2 + 0.01266514795529222*params[42]*params[41] + 0.006332573977646112*params[41]**2 + 0.02533029591058445*params[40]**2 + 0.02533029591058445*params[39]**2",
                 "symbols": [
                     "g1",
                     "g2",
@@ -209,7 +209,7 @@
             },
             {
                 "identifier": "lamda23p",
-                "expression": "0.01899772193293834*params[52]**2*(params[51]**2 - params[42]) - 0.05699316579881501*params[51]**2*params[42] + 0.01266514795529222*params[47]*params[38] + 0.03799544386587667*params[42]*params[0]**2 + 0.02533029591058445*params[42]*(params[44] + 2*params[43] + params[42] + params[37]) + 0.2026423672846756*params[41]**2 + 0.2026423672846756*params[40]**2",
+                "expression": "0.01899772193293834*params[51]**2*(params[50]**2 - params[41]) - 0.05699316579881501*params[50]**2*params[41] + 0.01266514795529222*params[46]*params[37] + 0.03799544386587667*params[41]*params[0]**2 + 0.02533029591058445*params[41]*(params[43] + 2*params[42] + params[41] + params[36]) + 0.2026423672846756*params[40]**2 + 0.2026423672846756*params[39]**2",
                 "symbols": [
                     "g1",
                     "g2",
@@ -226,7 +226,7 @@
             },
             {
                 "identifier": "lamda23",
-                "expression": "0.004749430483234584*params[52]**4 - 0.009498860966469168*params[52]**2*(params[51]**2 + 2*params[43]) + 0.01424829144970375*params[51]**4 - 0.05699316579881501*params[51]**2*params[43] + 0.02533029591058445*params[48]*params[39] + 0.01266514795529222*params[48]*params[38] + 0.01266514795529222*params[47]*params[39] + 0.07599088773175334*params[44]*params[43] + 0.02533029591058445*params[44]*params[42] + 0.02533029591058445*params[43]**2 + 0.07599088773175334*params[43]*params[37] + 0.03799544386587667*params[43]*params[0]**2 + 0.01266514795529222*params[42]**2 + 0.02533029591058445*params[42]*params[37] + 0.05066059182116889*params[41]**2 + 0.05066059182116889*params[40]**2",
+                "expression": "0.004749430483234584*params[51]**4 - 0.009498860966469168*params[51]**2*(params[50]**2 + 2*params[42]) + 0.01424829144970375*params[50]**4 - 0.05699316579881501*params[50]**2*params[42] + 0.02533029591058445*params[47]*params[38] + 0.01266514795529222*params[47]*params[37] + 0.01266514795529222*params[46]*params[38] + 0.07599088773175334*params[43]*params[42] + 0.02533029591058445*params[43]*params[41] + 0.02533029591058445*params[42]**2 + 0.07599088773175334*params[42]*params[36] + 0.03799544386587667*params[42]*params[0]**2 + 0.01266514795529222*params[41]**2 + 0.02533029591058445*params[41]*params[36] + 0.05066059182116889*params[40]**2 + 0.05066059182116889*params[39]**2",
                 "symbols": [
                     "g1",
                     "g2",
@@ -245,7 +245,7 @@
             },
             {
                 "identifier": "lamda2Im",
-                "expression": "-0.02533029591058445*params[46]*params[35] - 0.02533029591058445*params[45]*params[36] + 0.006332573977646112*params[41]*(-3*params[52]**2 - 9*params[51]**2 + 4*params[44] + 8*params[43] + 12*params[42] + 4*params[37] + 6*params[0]**2)",
+                "expression": "-0.02533029591058445*params[45]*params[34] - 0.02533029591058445*params[44]*params[35] + 0.006332573977646112*params[40]*(-3*params[51]**2 - 9*params[50]**2 + 4*params[43] + 8*params[42] + 12*params[41] + 4*params[36] + 6*params[0]**2)",
                 "symbols": [
                     "g1",
                     "g2",
@@ -263,7 +263,7 @@
             },
             {
                 "identifier": "lamda2Re",
-                "expression": "-0.02533029591058445*params[46]*params[36] + 0.02533029591058445*params[45]*params[35] + 0.006332573977646112*params[40]*(-3*params[52]**2 - 9*params[51]**2 + 4*params[44] + 8*params[43] + 12*params[42] + 4*params[37] + 6*params[0]**2)",
+                "expression": "-0.02533029591058445*params[45]*params[35] + 0.02533029591058445*params[44]*params[34] + 0.006332573977646112*params[39]*(-3*params[51]**2 - 9*params[50]**2 + 4*params[43] + 8*params[42] + 12*params[41] + 4*params[36] + 6*params[0]**2)",
                 "symbols": [
                     "g1",
                     "g2",
@@ -281,7 +281,7 @@
             },
             {
                 "identifier": "lamda31p",
-                "expression": "0.01899772193293834*params[52]**2*(params[51]**2 - params[38]) + 0.01266514795529222*params[47]*params[42] + 0.006332573977646112*params[38]*(-9*params[51]**2 + 4*params[49] + 8*params[39] + 4*params[38] + 4*params[37] + 6*params[0]**2) + 0.2026423672846756*params[36]**2 + 0.2026423672846756*params[35]**2",
+                "expression": "0.01899772193293834*params[51]**2*(params[50]**2 - params[37]) + 0.01266514795529222*params[46]*params[41] + 0.006332573977646112*params[37]*(-9*params[50]**2 + 4*params[48] + 8*params[38] + 4*params[37] + 4*params[36] + 6*params[0]**2) + 0.2026423672846756*params[35]**2 + 0.2026423672846756*params[34]**2",
                 "symbols": [
                     "g1",
                     "g2",
@@ -298,7 +298,7 @@
             },
             {
                 "identifier": "lamda31",
-                "expression": "0.004749430483234584*params[52]**4 - 0.009498860966469168*params[52]**2*(params[51]**2 + 2*params[39]) + 0.01424829144970375*params[51]**4 - 0.05699316579881501*params[51]**2*params[39] + 0.07599088773175334*params[49]*params[39] + 0.02533029591058445*params[49]*params[38] + 0.02533029591058445*params[48]*params[43] + 0.01266514795529222*params[48]*params[42] + 0.01266514795529222*params[47]*params[43] + 0.02533029591058445*params[39]**2 + 0.07599088773175334*params[39]*params[37] + 0.03799544386587667*params[39]*params[0]**2 + 0.01266514795529222*params[38]**2 + 0.02533029591058445*params[38]*params[37] + 0.05066059182116889*params[36]**2 + 0.05066059182116889*params[35]**2",
+                "expression": "0.004749430483234584*params[51]**4 - 0.009498860966469168*params[51]**2*(params[50]**2 + 2*params[38]) + 0.01424829144970375*params[50]**4 - 0.05699316579881501*params[50]**2*params[38] + 0.07599088773175334*params[48]*params[38] + 0.02533029591058445*params[48]*params[37] + 0.02533029591058445*params[47]*params[42] + 0.01266514795529222*params[47]*params[41] + 0.01266514795529222*params[46]*params[42] + 0.02533029591058445*params[38]**2 + 0.07599088773175334*params[38]*params[36] + 0.03799544386587667*params[38]*params[0]**2 + 0.01266514795529222*params[37]**2 + 0.02533029591058445*params[37]*params[36] + 0.05066059182116889*params[35]**2 + 0.05066059182116889*params[34]**2",
                 "symbols": [
                     "g1",
                     "g2",
@@ -317,7 +317,7 @@
             },
             {
                 "identifier": "lamda33",
-                "expression": "0.002374715241617292*params[52]**4 + 0.004749430483234584*params[52]**2*(params[51]**2 - 4*params[37]) + 0.007124145724851876*params[51]**4 - 0.05699316579881501*params[51]**2*params[37] + 0.01266514795529222*params[43]**2 + 0.01266514795529222*params[43]*params[42] + 0.006332573977646112*params[42]**2 + 0.02533029591058445*params[41]**2 + 0.02533029591058445*params[40]**2 + 0.01266514795529222*params[39]**2 + 0.01266514795529222*params[39]*params[38] + 0.006332573977646112*params[38]**2 + 0.07599088773175334*params[37]*(2*params[37] + params[0]**2) + 0.02533029591058445*params[36]**2 + 0.02533029591058445*params[35]**2 - 0.03799544386587667*params[0]**4",
+                "expression": "0.002374715241617292*params[51]**4 + 0.004749430483234584*params[51]**2*(params[50]**2 - 4*params[36]) + 0.007124145724851876*params[50]**4 - 0.05699316579881501*params[50]**2*params[36] + 0.01266514795529222*params[42]**2 + 0.01266514795529222*params[42]*params[41] + 0.006332573977646112*params[41]**2 + 0.02533029591058445*params[40]**2 + 0.02533029591058445*params[39]**2 + 0.01266514795529222*params[38]**2 + 0.01266514795529222*params[38]*params[37] + 0.006332573977646112*params[37]**2 + 0.07599088773175334*params[36]*(2*params[36] + params[0]**2) + 0.02533029591058445*params[35]**2 + 0.02533029591058445*params[34]**2 - 0.03799544386587667*params[0]**4",
                 "symbols": [
                     "g1",
                     "g2",
@@ -335,7 +335,7 @@
             },
             {
                 "identifier": "lamda3Im",
-                "expression": "-0.02533029591058445*params[46]*params[40] - 0.02533029591058445*params[45]*params[41] + 0.006332573977646112*params[36]*(-3*params[52]**2 - 9*params[51]**2 + 4*params[49] + 8*params[39] + 12*params[38] + 4*params[37] + 6*params[0]**2)",
+                "expression": "-0.02533029591058445*params[45]*params[39] - 0.02533029591058445*params[44]*params[40] + 0.006332573977646112*params[35]*(-3*params[51]**2 - 9*params[50]**2 + 4*params[48] + 8*params[38] + 12*params[37] + 4*params[36] + 6*params[0]**2)",
                 "symbols": [
                     "g1",
                     "g2",
@@ -353,7 +353,7 @@
             },
             {
                 "identifier": "lamda3Re",
-                "expression": "-0.02533029591058445*params[46]*params[41] + 0.02533029591058445*params[45]*params[40] + 0.006332573977646112*params[35]*(-3*params[52]**2 - 9*params[51]**2 + 4*params[49] + 8*params[39] + 12*params[38] + 4*params[37] + 6*params[0]**2)",
+                "expression": "-0.02533029591058445*params[45]*params[40] + 0.02533029591058445*params[44]*params[39] + 0.006332573977646112*params[34]*(-3*params[51]**2 - 9*params[50]**2 + 4*params[48] + 8*params[38] + 12*params[37] + 4*params[36] + 6*params[0]**2)",
                 "symbols": [
                     "g1",
                     "g2",
@@ -371,7 +371,7 @@
             },
             {
                 "identifier": "yt3",
-                "expression": "0.000527714498137176*params[0]*(-17*params[52]**2 - 27*params[51]**2 - 96*params[50]**2 + 54*params[0]**2)",
+                "expression": "0.000527714498137176*params[0]*(-17*params[51]**2 - 27*params[50]**2 - 96*params[49]**2 + 54*params[0]**2)",
                 "symbols": [
                     "g1",
                     "g2",
@@ -381,7 +381,7 @@
             },
             {
                 "identifier": "mu12sqIm",
-                "expression": "-0.009498860966469168*params[52]**2*params[13] - 0.0284965828994075*params[51]**2*params[13] + 0.07599088773175334*params[46]*params[12] + 0.01266514795529222*params[13]*(params[48] + 2*params[47] - 6*params[45])",
+                "expression": "-0.009498860966469168*params[51]**2*params[12] - 0.0284965828994075*params[50]**2*params[12] + 0.07599088773175334*params[45]*params[11] + 0.01266514795529222*params[12]*(params[47] + 2*params[46] - 6*params[44])",
                 "symbols": [
                     "g1",
                     "g2",
@@ -395,7 +395,7 @@
             },
             {
                 "identifier": "mu12sqRe",
-                "expression": "0.07599088773175334*params[46]*params[13] + 0.003166286988823056*params[12]*(-3*params[52]**2 - 9*params[51]**2 + 4*params[48] + 8*params[47] + 24*params[45])",
+                "expression": "0.07599088773175334*params[45]*params[12] + 0.003166286988823056*params[11]*(-3*params[51]**2 - 9*params[50]**2 + 4*params[47] + 8*params[46] + 24*params[44])",
                 "symbols": [
                     "g1",
                     "g2",
@@ -409,7 +409,7 @@
             },
             {
                 "identifier": "mu1sq",
-                "expression": "0.02533029591058445*params[48]*params[10] + 0.01266514795529222*params[47]*params[10] - 0.009498860966469168*params[11]*(params[52]**2 + 3*params[51]**2 - 8*params[49]) + 0.01266514795529222*params[8]*(2*params[39] + params[38])",
+                "expression": "0.02533029591058445*params[47]*params[9] + 0.01266514795529222*params[46]*params[9] - 0.009498860966469168*params[10]*(params[51]**2 + 3*params[50]**2 - 8*params[48]) + 0.01266514795529222*params[8]*(2*params[38] + params[37])",
                 "symbols": [
                     "g1",
                     "g2",
@@ -425,7 +425,7 @@
             },
             {
                 "identifier": "mu2sq",
-                "expression": "0.02533029591058445*params[48]*params[11] + 0.01266514795529222*params[47]*params[11] - 0.009498860966469168*params[10]*(params[52]**2 + 3*params[51]**2 - 8*params[44]) + 0.01266514795529222*params[8]*(2*params[43] + params[42])",
+                "expression": "0.02533029591058445*params[47]*params[10] + 0.01266514795529222*params[46]*params[10] - 0.009498860966469168*params[9]*(params[51]**2 + 3*params[50]**2 - 8*params[43]) + 0.01266514795529222*params[8]*(2*params[42] + params[41])",
                 "symbols": [
                     "g1",
                     "g2",
@@ -441,7 +441,7 @@
             },
             {
                 "identifier": "mu3sq",
-                "expression": "0.02533029591058445*params[39]*params[11] + 0.01266514795529222*params[38]*params[11] + 0.01266514795529222*params[10]*(2*params[43] + params[42]) - 0.009498860966469168*params[8]*(params[52]**2 + 3*params[51]**2 - 8*params[37] - 4*params[0]**2)",
+                "expression": "0.02533029591058445*params[38]*params[10] + 0.01266514795529222*params[37]*params[10] + 0.01266514795529222*params[9]*(2*params[42] + params[41]) - 0.009498860966469168*params[8]*(params[51]**2 + 3*params[50]**2 - 8*params[36] - 4*params[0]**2)",
                 "symbols": [
                     "g1",
                     "g2",
@@ -463,7 +463,7 @@
         "expressions": [
             {
                 "identifier": "g1",
-                "expression": "sqrt(-0.1170508212878048*params[54]*params[52]**4 + params[54]*params[52]**2)",
+                "expression": "sqrt(-0.1170508212878048*params[53]*params[51]**4 + params[53]*params[51]**2)",
                 "symbols": [
                     "T",
                     "g1"
@@ -471,7 +471,7 @@
             },
             {
                 "identifier": "g2",
-                "expression": "sqrt(-0.06600877678758546*params[54]*params[51]**4 + params[54]*params[51]**2)",
+                "expression": "sqrt(-0.06600877678758546*params[53]*params[50]**4 + params[53]*params[50]**2)",
                 "symbols": [
                     "T",
                     "g2"
@@ -479,7 +479,7 @@
             },
             {
                 "identifier": "g3",
-                "expression": "sqrt(-0.06389791879503677*params[54]*params[50]**4 + params[54]*params[50]**2)",
+                "expression": "sqrt(-0.06389791879503677*params[53]*params[49]**4 + params[53]*params[49]**2)",
                 "symbols": [
                     "T",
                     "g3"
@@ -487,7 +487,7 @@
             },
             {
                 "identifier": "lamda11",
-                "expression": "0.000395785873602882*params[54]*(2*params[52]**4 + 4*params[52]**2*params[51]**2 + 6*params[51]**4 + 2526.618726678875*params[49])",
+                "expression": "0.000395785873602882*params[53]*(2*params[51]**4 + 4*params[51]**2*params[50]**2 + 6*params[50]**4 + 2526.618726678875*params[48])",
                 "symbols": [
                     "T",
                     "g1",
@@ -497,7 +497,7 @@
             },
             {
                 "identifier": "lamda12",
-                "expression": "0.000791571747205764*params[54]*(2*params[52]**4 - 4*params[52]**2*params[51]**2 + 6*params[51]**4 + 1263.309363339438*params[48])",
+                "expression": "0.000791571747205764*params[53]*(2*params[51]**4 - 4*params[51]**2*params[50]**2 + 6*params[50]**4 + 1263.309363339438*params[47])",
                 "symbols": [
                     "T",
                     "g1",
@@ -507,7 +507,7 @@
             },
             {
                 "identifier": "lamda12p",
-                "expression": "-0.003166286988823056*params[54]*(-2*params[52]**2*params[51]**2 - 315.8273408348594*params[47])",
+                "expression": "-0.003166286988823056*params[53]*(-2*params[51]**2*params[50]**2 - 315.8273408348594*params[46])",
                 "symbols": [
                     "T",
                     "g1",
@@ -517,7 +517,7 @@
             },
             {
                 "identifier": "lamda1Im",
-                "expression": "params[54]*params[46]",
+                "expression": "params[53]*params[45]",
                 "symbols": [
                     "T",
                     "lamda1Im"
@@ -525,7 +525,7 @@
             },
             {
                 "identifier": "lamda1Re",
-                "expression": "params[54]*params[45]",
+                "expression": "params[53]*params[44]",
                 "symbols": [
                     "T",
                     "lamda1Re"
@@ -533,7 +533,7 @@
             },
             {
                 "identifier": "lamda22",
-                "expression": "0.000395785873602882*params[54]*(2*params[52]**4 + 4*params[52]**2*params[51]**2 + 6*params[51]**4 + 2526.618726678875*params[44])",
+                "expression": "0.000395785873602882*params[53]*(2*params[51]**4 + 4*params[51]**2*params[50]**2 + 6*params[50]**4 + 2526.618726678875*params[43])",
                 "symbols": [
                     "T",
                     "g1",
@@ -543,7 +543,7 @@
             },
             {
                 "identifier": "lamda23",
-                "expression": "-0.000791571747205764*params[54]*(-2*params[52]**4 + 4*params[52]**2*params[51]**2 - 6*params[51]**4 + 66.54212933375474*params[43]*params[0]**2 - 1263.309363339438*params[43])",
+                "expression": "-0.000791571747205764*params[53]*(-2*params[51]**4 + 4*params[51]**2*params[50]**2 - 6*params[50]**4 + 66.54212933375474*params[42]*params[0]**2 - 1263.309363339438*params[42])",
                 "symbols": [
                     "T",
                     "g1",
@@ -554,7 +554,7 @@
             },
             {
                 "identifier": "lamda23p",
-                "expression": "-0.003166286988823056*params[54]*(-2*params[52]**2*params[51]**2 + 16.635532333438686*params[42]*params[0]**2 - 315.8273408348594*params[42])",
+                "expression": "-0.003166286988823056*params[53]*(-2*params[51]**2*params[50]**2 + 16.635532333438686*params[41]*params[0]**2 - 315.8273408348594*params[41])",
                 "symbols": [
                     "T",
                     "g1",
@@ -565,7 +565,7 @@
             },
             {
                 "identifier": "lamda2Im",
-                "expression": "0.003166286988823056*params[54]*(-16.635532333438686*params[41]*params[0]**2 + 315.8273408348594*params[41])",
+                "expression": "0.003166286988823056*params[53]*(-16.635532333438686*params[40]*params[0]**2 + 315.8273408348594*params[40])",
                 "symbols": [
                     "T",
                     "lamda2Im",
@@ -574,7 +574,7 @@
             },
             {
                 "identifier": "lamda2Re",
-                "expression": "0.003166286988823056*params[54]*(-16.635532333438686*params[40]*params[0]**2 + 315.8273408348594*params[40])",
+                "expression": "0.003166286988823056*params[53]*(-16.635532333438686*params[39]*params[0]**2 + 315.8273408348594*params[39])",
                 "symbols": [
                     "T",
                     "lamda2Re",
@@ -583,7 +583,7 @@
             },
             {
                 "identifier": "lamda31",
-                "expression": "-0.000791571747205764*params[54]*(-2*params[52]**4 + 4*params[52]**2*params[51]**2 - 6*params[51]**4 + 66.54212933375474*params[39]*params[0]**2 - 1263.309363339438*params[39])",
+                "expression": "-0.000791571747205764*params[53]*(-2*params[51]**4 + 4*params[51]**2*params[50]**2 - 6*params[50]**4 + 66.54212933375474*params[38]*params[0]**2 - 1263.309363339438*params[38])",
                 "symbols": [
                     "T",
                     "g1",
@@ -594,7 +594,7 @@
             },
             {
                 "identifier": "lamda31p",
-                "expression": "-0.003166286988823056*params[54]*(-2*params[52]**2*params[51]**2 + 16.635532333438686*params[38]*params[0]**2 - 315.8273408348594*params[38])",
+                "expression": "-0.003166286988823056*params[53]*(-2*params[51]**2*params[50]**2 + 16.635532333438686*params[37]*params[0]**2 - 315.8273408348594*params[37])",
                 "symbols": [
                     "T",
                     "g1",
@@ -605,7 +605,7 @@
             },
             {
                 "identifier": "lamda33",
-                "expression": "-0.000395785873602882*params[54]*(-2*params[52]**4 - 4*params[52]**2*params[51]**2 - 6*params[51]**4 + 266.16851733501898*params[37]*params[0]**2 - 2526.618726678875*params[37] - 133.08425866750949*params[0]**4)",
+                "expression": "-0.000395785873602882*params[53]*(-2*params[51]**4 - 4*params[51]**2*params[50]**2 - 6*params[50]**4 + 266.16851733501898*params[36]*params[0]**2 - 2526.618726678875*params[36] - 133.08425866750949*params[0]**4)",
                 "symbols": [
                     "T",
                     "g1",
@@ -616,7 +616,7 @@
             },
             {
                 "identifier": "lamda3Im",
-                "expression": "0.003166286988823056*params[54]*(-16.635532333438686*params[36]*params[0]**2 + 315.8273408348594*params[36])",
+                "expression": "0.003166286988823056*params[53]*(-16.635532333438686*params[35]*params[0]**2 + 315.8273408348594*params[35])",
                 "symbols": [
                     "T",
                     "lamda3Im",
@@ -625,7 +625,7 @@
             },
             {
                 "identifier": "lamda3Re",
-                "expression": "0.003166286988823056*params[54]*(-16.635532333438686*params[35]*params[0]**2 + 315.8273408348594*params[35])",
+                "expression": "0.003166286988823056*params[53]*(-16.635532333438686*params[34]*params[0]**2 + 315.8273408348594*params[34])",
                 "symbols": [
                     "T",
                     "lamda3Re",
@@ -634,7 +634,7 @@
             },
             {
                 "identifier": "lamdaVLL1",
-                "expression": "-0.496755247579795*params[54]*params[52]**4",
+                "expression": "-0.496755247579795*params[53]*params[51]**4",
                 "symbols": [
                     "T",
                     "g1"
@@ -642,7 +642,7 @@
             },
             {
                 "identifier": "lamdaVLL2",
-                "expression": "-0.01266514795529222*params[54]*params[52]**2*params[51]**2",
+                "expression": "-0.01266514795529222*params[53]*params[51]**2*params[50]**2",
                 "symbols": [
                     "T",
                     "g1",
@@ -651,7 +651,7 @@
             },
             {
                 "identifier": "lamdaVLL3",
-                "expression": "0.02955201189568185*params[54]*params[51]**4",
+                "expression": "0.02955201189568185*params[53]*params[50]**4",
                 "symbols": [
                     "T",
                     "g2"
@@ -659,7 +659,7 @@
             },
             {
                 "identifier": "lamdaVLL4",
-                "expression": "-0.09287775167214297*params[54]*params[52]**2*params[50]**2",
+                "expression": "-0.09287775167214297*params[53]*params[51]**2*params[49]**2",
                 "symbols": [
                     "T",
                     "g1",
@@ -668,7 +668,7 @@
             },
             {
                 "identifier": "lamdaVLL5",
-                "expression": "-0.07599088773175334*params[54]*params[51]**2*params[50]**2",
+                "expression": "-0.07599088773175334*params[53]*params[50]**2*params[49]**2",
                 "symbols": [
                     "T",
                     "g2",
@@ -677,7 +677,7 @@
             },
             {
                 "identifier": "lamdaVLL6",
-                "expression": "-0.02533029591058445*params[54]*params[52]*params[50]**3",
+                "expression": "-0.02533029591058445*params[53]*params[51]*params[49]**3",
                 "symbols": [
                     "T",
                     "g1",
@@ -686,7 +686,7 @@
             },
             {
                 "identifier": "lamdaVLL7",
-                "expression": "0.02533029591058445*params[54]*params[50]**4",
+                "expression": "0.02533029591058445*params[53]*params[49]**4",
                 "symbols": [
                     "T",
                     "g3"
@@ -694,7 +694,7 @@
             },
             {
                 "identifier": "lamdaVL1",
-                "expression": "-0.02533029591058445*params[54]*params[50]**2*params[0]**2",
+                "expression": "-0.02533029591058445*params[53]*params[49]**2*params[0]**2",
                 "symbols": [
                     "T",
                     "g3",
@@ -703,7 +703,7 @@
             },
             {
                 "identifier": "lamdaVL2",
-                "expression": "-0.000263857249068588*params[54]*params[52]*params[51]*(70.90354888959125*params[52]**2 + 58.542129333754744*params[51]**2 - 24*params[47] - 48*params[44] - 24*params[42] - 1894.964045009157)",
+                "expression": "-0.000263857249068588*params[53]*params[51]*params[50]*(70.90354888959125*params[51]**2 + 58.542129333754744*params[50]**2 - 24*params[46] - 48*params[43] - 24*params[41] - 1894.964045009157)",
                 "symbols": [
                     "T",
                     "g1",
@@ -715,7 +715,7 @@
             },
             {
                 "identifier": "lamdaVL3",
-                "expression": "-0.000527714498137176*params[54]*params[52]**2*(73.90354888959125*params[52]**2 - 9*params[51]**2 - 24*params[48] - 12*params[47] - 72*params[44] - 24*params[43] - 12*params[42] - 947.4820225045783)",
+                "expression": "-0.000527714498137176*params[53]*params[51]**2*(73.90354888959125*params[51]**2 - 9*params[50]**2 - 24*params[47] - 12*params[46] - 72*params[43] - 24*params[42] - 12*params[41] - 947.4820225045783)",
                 "symbols": [
                     "T",
                     "g1",
@@ -729,7 +729,7 @@
             },
             {
                 "identifier": "lamdaVL4",
-                "expression": "0.000527714498137176*params[54]*params[51]**2*(3*params[52]**2 + 4.457870666245256*params[51]**2 + 24*params[48] + 12*params[47] + 72*params[44] + 24*params[43] + 12*params[42] + 947.4820225045783)",
+                "expression": "0.000527714498137176*params[53]*params[50]**2*(3*params[51]**2 + 4.457870666245256*params[50]**2 + 24*params[47] + 12*params[46] + 72*params[43] + 24*params[42] + 12*params[41] + 947.4820225045783)",
                 "symbols": [
                     "T",
                     "g1",
@@ -743,7 +743,7 @@
             },
             {
                 "identifier": "lamdaVL5",
-                "expression": "-0.000263857249068588*params[54]*params[52]*params[51]*(70.90354888959125*params[52]**2 + 58.542129333754744*params[51]**2 - 48*params[49] - 24*params[47] - 24*params[38] - 1894.964045009157)",
+                "expression": "-0.000263857249068588*params[53]*params[51]*params[50]*(70.90354888959125*params[51]**2 + 58.542129333754744*params[50]**2 - 48*params[48] - 24*params[46] - 24*params[37] - 1894.964045009157)",
                 "symbols": [
                     "T",
                     "g1",
@@ -755,7 +755,7 @@
             },
             {
                 "identifier": "lamdaVL6",
-                "expression": "-0.000527714498137176*params[54]*params[52]**2*(73.90354888959125*params[52]**2 - 9*params[51]**2 - 72*params[49] - 24*params[48] - 12*params[47] - 24*params[39] - 12*params[38] - 947.4820225045783)",
+                "expression": "-0.000527714498137176*params[53]*params[51]**2*(73.90354888959125*params[51]**2 - 9*params[50]**2 - 72*params[48] - 24*params[47] - 12*params[46] - 24*params[38] - 12*params[37] - 947.4820225045783)",
                 "symbols": [
                     "T",
                     "g1",
@@ -769,7 +769,7 @@
             },
             {
                 "identifier": "lamdaVL7",
-                "expression": "0.000527714498137176*params[54]*params[51]**2*(3*params[52]**2 + 4.457870666245256*params[51]**2 + 72*params[49] + 24*params[48] + 12*params[47] + 24*params[39] + 12*params[38] + 947.4820225045783)",
+                "expression": "0.000527714498137176*params[53]*params[50]**2*(3*params[51]**2 + 4.457870666245256*params[50]**2 + 72*params[48] + 24*params[47] + 12*params[46] + 24*params[38] + 12*params[37] + 947.4820225045783)",
                 "symbols": [
                     "T",
                     "g1",
@@ -783,7 +783,7 @@
             },
             {
                 "identifier": "lamdaVL8",
-                "expression": "-0.000263857249068588*params[54]*params[52]*params[51]*(70.90354888959125*params[52]**2 + 58.542129333754744*params[51]**2 - 24*params[42] - 24*params[38] - 48*params[37] - 24*params[0]**2 - 1894.964045009157)",
+                "expression": "-0.000263857249068588*params[53]*params[51]*params[50]*(70.90354888959125*params[51]**2 + 58.542129333754744*params[50]**2 - 24*params[41] - 24*params[37] - 48*params[36] - 24*params[0]**2 - 1894.964045009157)",
                 "symbols": [
                     "T",
                     "g1",
@@ -796,7 +796,7 @@
             },
             {
                 "identifier": "lamdaVL9",
-                "expression": "-0.000527714498137176*params[54]*params[52]**2*(73.90354888959125*params[52]**2 - 9*params[51]**2 - 24*params[43] - 12*params[42] - 24*params[39] - 12*params[38] - 72*params[37] + 68*params[0]**2 - 947.4820225045783)",
+                "expression": "-0.000527714498137176*params[53]*params[51]**2*(73.90354888959125*params[51]**2 - 9*params[50]**2 - 24*params[42] - 12*params[41] - 24*params[38] - 12*params[37] - 72*params[36] + 68*params[0]**2 - 947.4820225045783)",
                 "symbols": [
                     "T",
                     "g1",
@@ -811,7 +811,7 @@
             },
             {
                 "identifier": "lamdaVL10",
-                "expression": "0.000527714498137176*params[54]*params[51]**2*(3*params[52]**2 + 4.457870666245256*params[51]**2 + 24*params[43] + 12*params[42] + 24*params[39] + 12*params[38] + 72*params[37] - 36*params[0]**2 + 947.4820225045783)",
+                "expression": "0.000527714498137176*params[53]*params[50]**2*(3*params[51]**2 + 4.457870666245256*params[50]**2 + 24*params[42] + 12*params[41] + 24*params[38] + 12*params[37] + 72*params[36] - 36*params[0]**2 + 947.4820225045783)",
                 "symbols": [
                     "T",
                     "g1",
@@ -826,7 +826,7 @@
             },
             {
                 "identifier": "musqSU2",
-                "expression": "13*params[54]**2*params[51]**2/6",
+                "expression": "13*params[53]**2*params[50]**2/6",
                 "symbols": [
                     "T",
                     "g2"
@@ -834,7 +834,7 @@
             },
             {
                 "identifier": "musqSU3",
-                "expression": "2*params[54]**2*params[50]**2",
+                "expression": "2*params[53]**2*params[49]**2",
                 "symbols": [
                     "T",
                     "g3"
@@ -842,7 +842,7 @@
             },
             {
                 "identifier": "musqU1",
-                "expression": "13*params[54]**2*params[52]**2/6",
+                "expression": "13*params[53]**2*params[51]**2/6",
                 "symbols": [
                     "T",
                     "g1"
@@ -850,21 +850,21 @@
             },
             {
                 "identifier": "mu12sqIm",
-                "expression": "params[13]",
+                "expression": "params[12]",
                 "symbols": [
                     "mu12sqIm"
                 ]
             },
             {
                 "identifier": "mu12sqRe",
-                "expression": "params[12]",
+                "expression": "params[11]",
                 "symbols": [
                     "mu12sqRe"
                 ]
             },
             {
                 "identifier": "mu1sq",
-                "expression": "-0.01024054810898845*params[54]**2*params[52]**4 - params[54]**2*params[52]**2/16 + 0.01237551741488083*params[54]**2*params[51]**4 + 0.01064428773129424*params[54]**2*params[51]**2*(6*params[49] + 2*params[48] + params[47] + 2*params[39] + params[38]) - 3*params[54]**2*params[51]**2/16 - params[54]**2*(6*params[49] + 2*params[48] + params[47] + 2*params[39] + params[38])/12 + 0.003655260899045145*params[54]**2*(6*params[49]**2 + params[48]**2 + params[48]*params[47] + params[47]**2 + 6*params[46]**2 + 6*params[45]**2 + params[39]**2 + params[39]*params[38] + params[38]**2 + 6*params[36]**2 + 6*params[35]**2) - 0.000791571747205764*params[54]**2*(143.282578771459*params[49]**2 + 23.8804297952431*params[48]**2 + 23.8804297952431*params[48]*params[47] + 23.8804297952431*params[47]**2 + 143.282578771459*params[46]**2 + 143.282578771459*params[45]**2 + 23.8804297952431*params[39]**2 + 23.8804297952431*params[39]*params[38] + 23.8804297952431*params[38]**2 + 143.282578771459*params[36]**2 + 143.282578771459*params[35]**2 + 2.772588722239781*params[0]**2*(2*params[39] + params[38])) + 0.000131928624534294*params[52]**2*(-99.35271267767339*params[54]**2*params[51]**2 + 26.89405671404624*params[54]**2*(6*params[49] + 2*params[48] + params[47] + 2*params[39] + params[38])) + params[11]",
+                "expression": "-0.01024054810898845*params[53]**2*params[51]**4 - params[53]**2*params[51]**2/16 + 0.01237551741488083*params[53]**2*params[50]**4 + 0.01064428773129424*params[53]**2*params[50]**2*(6*params[48] + 2*params[47] + params[46] + 2*params[38] + params[37]) - 3*params[53]**2*params[50]**2/16 - params[53]**2*(6*params[48] + 2*params[47] + params[46] + 2*params[38] + params[37])/12 + 0.003655260899045145*params[53]**2*(6*params[48]**2 + params[47]**2 + params[47]*params[46] + params[46]**2 + 6*params[45]**2 + 6*params[44]**2 + params[38]**2 + params[38]*params[37] + params[37]**2 + 6*params[35]**2 + 6*params[34]**2) - 0.000791571747205764*params[53]**2*(143.282578771459*params[48]**2 + 23.8804297952431*params[47]**2 + 23.8804297952431*params[47]*params[46] + 23.8804297952431*params[46]**2 + 143.282578771459*params[45]**2 + 143.282578771459*params[44]**2 + 23.8804297952431*params[38]**2 + 23.8804297952431*params[38]*params[37] + 23.8804297952431*params[37]**2 + 143.282578771459*params[35]**2 + 143.282578771459*params[34]**2 + 2.772588722239781*params[0]**2*(2*params[38] + params[37])) + 0.000131928624534294*params[51]**2*(-99.35271267767339*params[53]**2*params[50]**2 + 26.89405671404624*params[53]**2*(6*params[48] + 2*params[47] + params[46] + 2*params[38] + params[37])) + params[10]",
                 "symbols": [
                     "T",
                     "g1",
@@ -884,7 +884,7 @@
             },
             {
                 "identifier": "mu2sq",
-                "expression": "-0.01024054810898845*params[54]**2*params[52]**4 - params[54]**2*params[52]**2/16 + 0.01237551741488083*params[54]**2*params[51]**4 + 0.01064428773129424*params[54]**2*params[51]**2*(2*params[48] + params[47] + 6*params[44] + 2*params[43] + params[42]) - 3*params[54]**2*params[51]**2/16 - params[54]**2*(2*params[48] + params[47] + 6*params[44] + 2*params[43] + params[42])/12 + 0.000791571747205764*params[54]**2*(-19.26270447603083*params[48]**2 - 19.26270447603083*params[48]*params[47] - 19.26270447603083*params[47]**2 - 115.576226856185*params[46]**2 - 115.576226856185*params[45]**2 - 115.576226856185*params[44]**2 - 19.26270447603083*params[43]**2 - 19.26270447603083*params[43]*params[42] - 19.26270447603083*params[42]**2 - 115.576226856185*params[41]**2 - 115.576226856185*params[40]**2 - 2.772588722239781*params[0]**2*(2*params[43] + params[42])) + 0.000131928624534294*params[52]**2*(-99.35271267767339*params[54]**2*params[51]**2 + 26.89405671404624*params[54]**2*(2*params[48] + params[47] + 6*params[44] + 2*params[43] + params[42])) + params[10]",
+                "expression": "-0.01024054810898845*params[53]**2*params[51]**4 - params[53]**2*params[51]**2/16 + 0.01237551741488083*params[53]**2*params[50]**4 + 0.01064428773129424*params[53]**2*params[50]**2*(2*params[47] + params[46] + 6*params[43] + 2*params[42] + params[41]) - 3*params[53]**2*params[50]**2/16 - params[53]**2*(2*params[47] + params[46] + 6*params[43] + 2*params[42] + params[41])/12 + 0.000791571747205764*params[53]**2*(-19.26270447603083*params[47]**2 - 19.26270447603083*params[47]*params[46] - 19.26270447603083*params[46]**2 - 115.576226856185*params[45]**2 - 115.576226856185*params[44]**2 - 115.576226856185*params[43]**2 - 19.26270447603083*params[42]**2 - 19.26270447603083*params[42]*params[41] - 19.26270447603083*params[41]**2 - 115.576226856185*params[40]**2 - 115.576226856185*params[39]**2 - 2.772588722239781*params[0]**2*(2*params[42] + params[41])) + 0.000131928624534294*params[51]**2*(-99.35271267767339*params[53]**2*params[50]**2 + 26.89405671404624*params[53]**2*(2*params[47] + params[46] + 6*params[43] + 2*params[42] + params[41])) + params[9]",
                 "symbols": [
                     "T",
                     "g1",
@@ -904,7 +904,7 @@
             },
             {
                 "identifier": "mu3sq",
-                "expression": "-0.01024054810898845*params[54]**2*params[52]**4 - params[54]**2*params[52]**2/16 + 0.01237551741488083*params[54]**2*params[51]**4 - 0.000197892936801441*params[54]**2*params[51]**2*(-107.576226856185*params[43] - 53.78811342809248*params[42] - 107.576226856185*params[39] - 53.78811342809248*params[38] - 322.7286805685549*params[37] - 14.317766166719345*params[0]**2) - 3*params[54]**2*params[51]**2/16 - 0.0341551805598297*params[54]**2*params[50]**2*params[0]**2 - params[54]**2*(2*params[43] + params[42] + 2*params[39] + params[38] + 6*params[37] + 3*params[0]**2)/12 - 0.01524781263800001*params[54]**2*(params[43]**2 + params[43]*params[42] + params[42]**2 + 6*params[41]**2 + 6*params[40]**2 + params[39]**2 + params[39]*params[38] + params[38]**2 + 6*params[37]**2 + 6*params[36]**2 + 6*params[35]**2) + 2.1988104089049e-5*params[52]**2*(-596.1162760660404*params[54]**2*params[51]**2 + params[54]**2*(322.7286805685549*params[43] + 161.3643402842774*params[42] + 322.7286805685549*params[39] + 161.3643402842774*params[38] + 968.1860417056646*params[37] - 86.49237972318795*params[0]**2)) + params[8] + 0.00438940579829268*params[0]**2*(params[54]**2*(2*params[43] + params[42] + 2*params[39] + params[38] + 3*params[37]) - 12*params[8])",
+                "expression": "-0.01024054810898845*params[53]**2*params[51]**4 - params[53]**2*params[51]**2/16 + 0.01237551741488083*params[53]**2*params[50]**4 - 0.000197892936801441*params[53]**2*params[50]**2*(-107.576226856185*params[42] - 53.78811342809248*params[41] - 107.576226856185*params[38] - 53.78811342809248*params[37] - 322.7286805685549*params[36] - 14.317766166719345*params[0]**2) - 3*params[53]**2*params[50]**2/16 - 0.0341551805598297*params[53]**2*params[49]**2*params[0]**2 - params[53]**2*(2*params[42] + params[41] + 2*params[38] + params[37] + 6*params[36] + 3*params[0]**2)/12 - 0.01524781263800001*params[53]**2*(params[42]**2 + params[42]*params[41] + params[41]**2 + 6*params[40]**2 + 6*params[39]**2 + params[38]**2 + params[38]*params[37] + params[37]**2 + 6*params[36]**2 + 6*params[35]**2 + 6*params[34]**2) + 2.1988104089049e-5*params[51]**2*(-596.1162760660404*params[53]**2*params[50]**2 + params[53]**2*(322.7286805685549*params[42] + 161.3643402842774*params[41] + 322.7286805685549*params[38] + 161.3643402842774*params[37] + 968.1860417056646*params[36] - 86.49237972318795*params[0]**2)) + params[8] + 0.00438940579829268*params[0]**2*(params[53]**2*(2*params[42] + params[41] + 2*params[38] + params[37] + 3*params[36]) - 12*params[8])",
                 "symbols": [
                     "T",
                     "g1",
@@ -922,28 +922,14 @@
                     "mu3sq",
                     "yt3"
                 ]
-            },
-            {
-                "identifier": "T",
-                "expression": "params[54]",
-                "symbols": [
-                    "T"
-                ]
-            },
-            {
-                "identifier": "RGScale",
-                "expression": "params[91]",
-                "symbols": [
-                    "RGScale"
-                ]
             }
         ],
-        "filePath": "../Build/Z2_3HDM/DRalgoOutputFiles/SoftScaleParams_NLO.txt"
+        "filePath": "../Build/Z2_3HDM/DRalgoOutputFiles/HardToSoft.txt"
     },
     "hardScale": {
         "expressions": {
             "identifier": "missing",
-            "expression": "7.055507955448182*params[54]",
+            "expression": "7.055507955448182*params[53]",
             "symbols": [
                 "T"
             ]
@@ -954,21 +940,21 @@
         "expressions": [
             {
                 "identifier": "mu12sqIm",
-                "expression": "params[13]",
+                "expression": "params[12]",
                 "symbols": [
                     "mu12sqIm"
                 ]
             },
             {
                 "identifier": "mu12sqRe",
-                "expression": "params[12]",
+                "expression": "params[11]",
                 "symbols": [
                     "mu12sqRe"
                 ]
             },
             {
                 "identifier": "mu1sq",
-                "expression": "0.00695960852855846*params[52]**4 + 0.001546579673012991*params[52]**2*(9*params[51]**2 - 24*params[49] - 8*params[48] - 4*params[47] - 8*params[39] - 4*params[38]) - 0.02087882558567538*params[51]**4 - 0.01855895607615589*params[51]**2*(6*params[49] + 2*params[48] + params[47] + 2*params[39] + params[38] + 4*params[27]) + 0.1484716486092471*params[49]**2 + 0.02474527476820786*params[48]**2 + 0.02474527476820786*params[48]*params[47] + 0.02474527476820786*params[47]**2 + 0.1484716486092471*params[46]**2 + 0.1484716486092471*params[45]**2 + 0.02474527476820786*params[39]**2 + 0.02474527476820786*params[39]*params[38] + 0.02474527476820786*params[38]**2 + 0.1484716486092471*params[36]**2 + 0.1484716486092471*params[35]**2 + 0.03711791215231178*params[29]**2 + 0.006186318692051964*params[28]**2 + 0.01855895607615589*params[27]**2 + params[11]",
+                "expression": "0.00695960852855846*params[51]**4 + 0.001546579673012991*params[51]**2*(9*params[50]**2 - 24*params[48] - 8*params[47] - 4*params[46] - 8*params[38] - 4*params[37]) - 0.02087882558567538*params[50]**4 - 0.01855895607615589*params[50]**2*(6*params[48] + 2*params[47] + params[46] + 2*params[38] + params[37] + 4*params[26]) + 0.1484716486092471*params[48]**2 + 0.02474527476820786*params[47]**2 + 0.02474527476820786*params[47]*params[46] + 0.02474527476820786*params[46]**2 + 0.1484716486092471*params[45]**2 + 0.1484716486092471*params[44]**2 + 0.02474527476820786*params[38]**2 + 0.02474527476820786*params[38]*params[37] + 0.02474527476820786*params[37]**2 + 0.1484716486092471*params[35]**2 + 0.1484716486092471*params[34]**2 + 0.03711791215231178*params[28]**2 + 0.006186318692051964*params[27]**2 + 0.01855895607615589*params[26]**2 + params[10]",
                 "symbols": [
                     "g1",
                     "g2",
@@ -989,7 +975,7 @@
             },
             {
                 "identifier": "mu2sq",
-                "expression": "0.00695960852855846*params[52]**4 + 0.001546579673012991*params[52]**2*(9*params[51]**2 - 8*params[48] - 4*params[47] - 24*params[44] - 8*params[43] - 4*params[42]) - 0.02087882558567538*params[51]**4 - 0.01855895607615589*params[51]**2*(2*params[48] + params[47] + 6*params[44] + 2*params[43] + params[42] + 4*params[30]) + 0.02474527476820786*params[48]**2 + 0.02474527476820786*params[48]*params[47] + 0.02474527476820786*params[47]**2 + 0.1484716486092471*params[46]**2 + 0.1484716486092471*params[45]**2 + 0.1484716486092471*params[44]**2 + 0.02474527476820786*params[43]**2 + 0.02474527476820786*params[43]*params[42] + 0.02474527476820786*params[42]**2 + 0.1484716486092471*params[41]**2 + 0.1484716486092471*params[40]**2 + 0.03711791215231178*params[32]**2 + 0.006186318692051964*params[31]**2 + 0.01855895607615589*params[30]**2 + params[10]",
+                "expression": "0.00695960852855846*params[51]**4 + 0.001546579673012991*params[51]**2*(9*params[50]**2 - 8*params[47] - 4*params[46] - 24*params[43] - 8*params[42] - 4*params[41]) - 0.02087882558567538*params[50]**4 - 0.01855895607615589*params[50]**2*(2*params[47] + params[46] + 6*params[43] + 2*params[42] + params[41] + 4*params[29]) + 0.02474527476820786*params[47]**2 + 0.02474527476820786*params[47]*params[46] + 0.02474527476820786*params[46]**2 + 0.1484716486092471*params[45]**2 + 0.1484716486092471*params[44]**2 + 0.1484716486092471*params[43]**2 + 0.02474527476820786*params[42]**2 + 0.02474527476820786*params[42]*params[41] + 0.02474527476820786*params[41]**2 + 0.1484716486092471*params[40]**2 + 0.1484716486092471*params[39]**2 + 0.03711791215231178*params[31]**2 + 0.006186318692051964*params[30]**2 + 0.01855895607615589*params[29]**2 + params[9]",
                 "symbols": [
                     "g1",
                     "g2",
@@ -1010,7 +996,7 @@
             },
             {
                 "identifier": "mu3sq",
-                "expression": "0.00695960852855846*params[52]**4 - 0.001546579673012991*params[52]**2*(-9*params[51]**2 + 8*params[43] + 4*params[42] + 8*params[39] + 4*params[38] + 24*params[37]) - 0.02087882558567538*params[51]**4 - 0.01855895607615589*params[51]**2*(2*params[43] + params[42] + 2*params[39] + params[38] + 6*params[37] + 4*params[33]) + 0.02474527476820786*params[43]**2 + 0.02474527476820786*params[43]*params[42] + 0.02474527476820786*params[42]**2 + 0.1484716486092471*params[41]**2 + 0.1484716486092471*params[40]**2 + 0.02474527476820786*params[39]**2 + 0.02474527476820786*params[39]*params[38] + 0.02474527476820786*params[38]**2 + 0.1484716486092471*params[37]**2 + 0.1484716486092471*params[36]**2 + 0.1484716486092471*params[35]**2 + 0.04949054953641571*params[34]*(-6*params[50]**2 + params[34]) + 0.01855895607615589*params[33]**2 + 0.03711791215231178*params[26]**2 + 0.006186318692051964*params[25]**2 + params[8]",
+                "expression": "0.00695960852855846*params[51]**4 - 0.001546579673012991*params[51]**2*(-9*params[50]**2 + 8*params[42] + 4*params[41] + 8*params[38] + 4*params[37] + 24*params[36]) - 0.02087882558567538*params[50]**4 - 0.01855895607615589*params[50]**2*(2*params[42] + params[41] + 2*params[38] + params[37] + 6*params[36] + 4*params[32]) + 0.02474527476820786*params[42]**2 + 0.02474527476820786*params[42]*params[41] + 0.02474527476820786*params[41]**2 + 0.1484716486092471*params[40]**2 + 0.1484716486092471*params[39]**2 + 0.02474527476820786*params[38]**2 + 0.02474527476820786*params[38]*params[37] + 0.02474527476820786*params[37]**2 + 0.1484716486092471*params[36]**2 + 0.1484716486092471*params[35]**2 + 0.1484716486092471*params[34]**2 + 0.04949054953641571*params[33]*(-6*params[49]**2 + params[33]) + 0.01855895607615589*params[32]**2 + 0.03711791215231178*params[25]**2 + 0.006186318692051964*params[24]**2 + params[8]",
                 "symbols": [
                     "g1",
                     "g2",
@@ -1030,13 +1016,6 @@
                     "lamdaVL9",
                     "mu3sq"
                 ]
-            },
-            {
-                "identifier": "RGScale",
-                "expression": "params[54]",
-                "symbols": [
-                    "T"
-                ]
             }
         ],
         "filePath": "../Build/Z2_3HDM/DRalgoOutputFiles/SoftScaleRGE.txt"
@@ -1052,7 +1031,6 @@
             "musqSU3",
             "musqSU2",
             "mu3sq",
-            "mu3US",
             "mu2sq",
             "mu1sq",
             "mu12sqRe",
@@ -1134,7 +1112,6 @@
             "RUL02",
             "RUL01",
             "RUL00",
-            "RGScale",
             "RBR55",
             "RBR54",
             "RBR53",
@@ -1233,7 +1210,7 @@
         "expressions": [
             {
                 "identifier": "lamda11",
-                "expression": "params[49] - 0.03978873577297384*params[29]**2/(sqrt(params[7]) + sqrt(params[5])) - 0.009947183943243459*params[28]**2/sqrt(params[5]) - 0.02984155182973038*params[27]**2/sqrt(params[7])",
+                "expression": "params[48] - 0.03978873577297384*params[28]**2/(sqrt(params[7]) + sqrt(params[5])) - 0.009947183943243459*params[27]**2/sqrt(params[5]) - 0.02984155182973038*params[26]**2/sqrt(params[7])",
                 "symbols": [
                     "lamda11",
                     "lamdaVL5",
@@ -1245,7 +1222,7 @@
             },
             {
                 "identifier": "lamda12",
-                "expression": "params[48] + 0.07957747154594767*params[32]*params[29]/(sqrt(params[7]) + sqrt(params[5])) - 0.01989436788648692*params[31]*params[28]/sqrt(params[5]) - 0.05968310365946076*params[30]*params[27]/sqrt(params[7])",
+                "expression": "params[47] + 0.07957747154594767*params[31]*params[28]/(sqrt(params[7]) + sqrt(params[5])) - 0.01989436788648692*params[30]*params[27]/sqrt(params[5]) - 0.05968310365946076*params[29]*params[26]/sqrt(params[7])",
                 "symbols": [
                     "lamda12",
                     "lamdaVL2",
@@ -1260,7 +1237,7 @@
             },
             {
                 "identifier": "lamda12p",
-                "expression": "params[47] - params[32]*params[29]/(6.283185307179586*sqrt(params[7]) + 6.283185307179586*sqrt(params[5]))",
+                "expression": "params[46] - params[31]*params[28]/(6.283185307179586*sqrt(params[7]) + 6.283185307179586*sqrt(params[5]))",
                 "symbols": [
                     "lamda12p",
                     "lamdaVL2",
@@ -1271,21 +1248,21 @@
             },
             {
                 "identifier": "lamda1Im",
-                "expression": "params[46]",
+                "expression": "params[45]",
                 "symbols": [
                     "lamda1Im"
                 ]
             },
             {
                 "identifier": "lamda1Re",
-                "expression": "params[45]",
+                "expression": "params[44]",
                 "symbols": [
                     "lamda1Re"
                 ]
             },
             {
                 "identifier": "lamda22",
-                "expression": "params[44] - 0.03978873577297384*params[32]**2/(sqrt(params[7]) + sqrt(params[5])) - 0.009947183943243459*params[31]**2/sqrt(params[5]) - 0.02984155182973038*params[30]**2/sqrt(params[7])",
+                "expression": "params[43] - 0.03978873577297384*params[31]**2/(sqrt(params[7]) + sqrt(params[5])) - 0.009947183943243459*params[30]**2/sqrt(params[5]) - 0.02984155182973038*params[29]**2/sqrt(params[7])",
                 "symbols": [
                     "lamda22",
                     "lamdaVL2",
@@ -1297,7 +1274,7 @@
             },
             {
                 "identifier": "lamda23",
-                "expression": "params[43] - 0.05968310365946076*params[33]*params[30]/sqrt(params[7]) + 0.07957747154594767*params[32]*params[26]/(sqrt(params[7]) + sqrt(params[5])) - 0.01989436788648692*params[31]*params[25]/sqrt(params[5])",
+                "expression": "params[42] - 0.05968310365946076*params[32]*params[29]/sqrt(params[7]) + 0.07957747154594767*params[31]*params[25]/(sqrt(params[7]) + sqrt(params[5])) - 0.01989436788648692*params[30]*params[24]/sqrt(params[5])",
                 "symbols": [
                     "lamda23",
                     "lamdaVL10",
@@ -1312,7 +1289,7 @@
             },
             {
                 "identifier": "lamda23p",
-                "expression": "params[42] - params[32]*params[26]/(6.283185307179586*sqrt(params[7]) + 6.283185307179586*sqrt(params[5]))",
+                "expression": "params[41] - params[31]*params[25]/(6.283185307179586*sqrt(params[7]) + 6.283185307179586*sqrt(params[5]))",
                 "symbols": [
                     "lamda23p",
                     "lamdaVL2",
@@ -1323,21 +1300,21 @@
             },
             {
                 "identifier": "lamda2Im",
-                "expression": "params[41]",
+                "expression": "params[40]",
                 "symbols": [
                     "lamda2Im"
                 ]
             },
             {
                 "identifier": "lamda2Re",
-                "expression": "params[40]",
+                "expression": "params[39]",
                 "symbols": [
                     "lamda2Re"
                 ]
             },
             {
                 "identifier": "lamda31",
-                "expression": "params[39] - 0.05968310365946076*params[33]*params[27]/sqrt(params[7]) + 0.07957747154594767*params[29]*params[26]/(sqrt(params[7]) + sqrt(params[5])) - 0.01989436788648692*params[28]*params[25]/sqrt(params[5])",
+                "expression": "params[38] - 0.05968310365946076*params[32]*params[26]/sqrt(params[7]) + 0.07957747154594767*params[28]*params[25]/(sqrt(params[7]) + sqrt(params[5])) - 0.01989436788648692*params[27]*params[24]/sqrt(params[5])",
                 "symbols": [
                     "lamda31",
                     "lamdaVL10",
@@ -1352,7 +1329,7 @@
             },
             {
                 "identifier": "lamda31p",
-                "expression": "params[38] - params[29]*params[26]/(6.283185307179586*sqrt(params[7]) + 6.283185307179586*sqrt(params[5]))",
+                "expression": "params[37] - params[28]*params[25]/(6.283185307179586*sqrt(params[7]) + 6.283185307179586*sqrt(params[5]))",
                 "symbols": [
                     "lamda31p",
                     "lamdaVL5",
@@ -1363,7 +1340,7 @@
             },
             {
                 "identifier": "lamda33",
-                "expression": "params[37] - 0.07957747154594767*params[34]**2/sqrt(params[6]) - 0.02984155182973038*params[33]**2/sqrt(params[7]) - 0.03978873577297384*params[26]**2/(sqrt(params[7]) + sqrt(params[5])) - 0.009947183943243459*params[25]**2/sqrt(params[5])",
+                "expression": "params[36] - 0.07957747154594767*params[33]**2/sqrt(params[6]) - 0.02984155182973038*params[32]**2/sqrt(params[7]) - 0.03978873577297384*params[25]**2/(sqrt(params[7]) + sqrt(params[5])) - 0.009947183943243459*params[24]**2/sqrt(params[5])",
                 "symbols": [
                     "lamda33",
                     "lamdaVL1",
@@ -1377,28 +1354,28 @@
             },
             {
                 "identifier": "lamda3Im",
-                "expression": "params[36]",
+                "expression": "params[35]",
                 "symbols": [
                     "lamda3Im"
                 ]
             },
             {
                 "identifier": "lamda3Re",
-                "expression": "params[35]",
+                "expression": "params[34]",
                 "symbols": [
                     "lamda3Re"
                 ]
             },
             {
                 "identifier": "g1",
-                "expression": "sqrt(params[52]**2)",
+                "expression": "sqrt(params[51]**2)",
                 "symbols": [
                     "g1"
                 ]
             },
             {
                 "identifier": "g2",
-                "expression": "sqrt(-0.01326291192432461*params[51]**4/sqrt(params[7]) + params[51]**2)",
+                "expression": "sqrt(-0.01326291192432461*params[50]**4/sqrt(params[7]) + params[50]**2)",
                 "symbols": [
                     "g2",
                     "musqSU2"
@@ -1406,7 +1383,7 @@
             },
             {
                 "identifier": "g3",
-                "expression": "sqrt(-0.01989436788648692*params[50]**4/sqrt(params[6]) + params[50]**2)",
+                "expression": "sqrt(-0.01989436788648692*params[49]**4/sqrt(params[6]) + params[49]**2)",
                 "symbols": [
                     "g3",
                     "musqSU3"
@@ -1414,23 +1391,23 @@
             },
             {
                 "identifier": "mu12sqIm",
-                "expression": "params[13]",
+                "expression": "params[12]",
                 "symbols": [
                     "mu12sqIm"
                 ]
             },
             {
                 "identifier": "mu12sqRe",
-                "expression": "params[12]",
+                "expression": "params[11]",
                 "symbols": [
                     "mu12sqRe"
                 ]
             },
             {
                 "identifier": "mu1sq",
-                "expression": "-0.009498860966469168*params[51]**2*params[27] + 0.01899772193293834*params[29]**2*log(params[91]/(sqrt(params[7]) + sqrt(params[5]))) + 0.009498860966469168*params[29]**2 + 0.003166286988823056*params[28]**2*log(params[91]/(2*sqrt(params[5]))) + 0.001583143494411528*params[28]**2 - 0.000791571747205764*params[28]*params[24] - 0.002374715241617292*params[28]*params[23]*sqrt(params[7])/sqrt(params[5]) - 0.006332573977646112*params[28]*params[21]*sqrt(params[6])/sqrt(params[5]) + 0.03978873577297384*params[28]*sqrt(params[5]) + 0.004749430483234584*params[27]**2 - 0.002374715241617292*params[27]*params[23]*sqrt(params[5])/sqrt(params[7]) - 0.01187357620808646*params[27]*params[22] - 0.01899772193293834*params[27]*params[20]*sqrt(params[6])/sqrt(params[7]) + 0.1193662073189215*params[27]*sqrt(params[7]) + params[11] + 0.004749430483234584*(params[51]**4 - 8*params[51]**2*params[27] + 2*params[27]**2)*log(params[91]/(2*sqrt(params[7])))",
+                "expression": "-0.009498860966469168*params[50]**2*params[26] + 0.01899772193293834*params[28]**2*log(params[53]/(sqrt(params[7]) + sqrt(params[5]))) + 0.009498860966469168*params[28]**2 + 0.003166286988823056*params[27]**2*log(params[53]/(2*sqrt(params[5]))) + 0.001583143494411528*params[27]**2 - 0.000791571747205764*params[27]*params[23] - 0.002374715241617292*params[27]*params[22]*sqrt(params[7])/sqrt(params[5]) - 0.006332573977646112*params[27]*params[20]*sqrt(params[6])/sqrt(params[5]) + 0.03978873577297384*params[27]*sqrt(params[5]) + 0.004749430483234584*params[26]**2 - 0.002374715241617292*params[26]*params[22]*sqrt(params[5])/sqrt(params[7]) - 0.01187357620808646*params[26]*params[21] - 0.01899772193293834*params[26]*params[19]*sqrt(params[6])/sqrt(params[7]) + 0.1193662073189215*params[26]*sqrt(params[7]) + params[10] + 0.004749430483234584*(params[50]**4 - 8*params[50]**2*params[26] + 2*params[26]**2)*log(params[53]/(2*sqrt(params[7])))",
                 "symbols": [
-                    "RGScale",
+                    "T",
                     "g2",
                     "lamdaVL5",
                     "lamdaVL6",
@@ -1448,9 +1425,9 @@
             },
             {
                 "identifier": "mu2sq",
-                "expression": "-0.009498860966469168*params[51]**2*params[30] + 0.01899772193293834*params[32]**2*log(params[91]/(sqrt(params[7]) + sqrt(params[5]))) + 0.009498860966469168*params[32]**2 + 0.003166286988823056*params[31]**2*log(params[91]/(2*sqrt(params[5]))) + 0.001583143494411528*params[31]**2 - 0.000791571747205764*params[31]*params[24] - 0.002374715241617292*params[31]*params[23]*sqrt(params[7])/sqrt(params[5]) - 0.006332573977646112*params[31]*params[21]*sqrt(params[6])/sqrt(params[5]) + 0.03978873577297384*params[31]*sqrt(params[5]) + 0.004749430483234584*params[30]**2 - 0.002374715241617292*params[30]*params[23]*sqrt(params[5])/sqrt(params[7]) - 0.01187357620808646*params[30]*params[22] - 0.01899772193293834*params[30]*params[20]*sqrt(params[6])/sqrt(params[7]) + 0.1193662073189215*params[30]*sqrt(params[7]) + params[10] + 0.004749430483234584*(params[51]**4 - 8*params[51]**2*params[30] + 2*params[30]**2)*log(params[91]/(2*sqrt(params[7])))",
+                "expression": "-0.009498860966469168*params[50]**2*params[29] + 0.01899772193293834*params[31]**2*log(params[53]/(sqrt(params[7]) + sqrt(params[5]))) + 0.009498860966469168*params[31]**2 + 0.003166286988823056*params[30]**2*log(params[53]/(2*sqrt(params[5]))) + 0.001583143494411528*params[30]**2 - 0.000791571747205764*params[30]*params[23] - 0.002374715241617292*params[30]*params[22]*sqrt(params[7])/sqrt(params[5]) - 0.006332573977646112*params[30]*params[20]*sqrt(params[6])/sqrt(params[5]) + 0.03978873577297384*params[30]*sqrt(params[5]) + 0.004749430483234584*params[29]**2 - 0.002374715241617292*params[29]*params[22]*sqrt(params[5])/sqrt(params[7]) - 0.01187357620808646*params[29]*params[21] - 0.01899772193293834*params[29]*params[19]*sqrt(params[6])/sqrt(params[7]) + 0.1193662073189215*params[29]*sqrt(params[7]) + params[9] + 0.004749430483234584*(params[50]**4 - 8*params[50]**2*params[29] + 2*params[29]**2)*log(params[53]/(2*sqrt(params[7])))",
                 "symbols": [
-                    "RGScale",
+                    "T",
                     "g2",
                     "lamdaVL2",
                     "lamdaVL3",
@@ -1468,9 +1445,9 @@
             },
             {
                 "identifier": "mu3sq",
-                "expression": "0.004749430483234584*params[51]**4*log(params[91]/(2*sqrt(params[7]))) - 0.009498860966469168*params[51]**2*params[33]*(4*log(params[91]/(2*sqrt(params[7]))) + 1) - 0.03799544386587667*params[50]**2*params[34]*(4*log(params[91]/(2*sqrt(params[6]))) + 1) + 0.01266514795529222*params[34]**2*(2*log(params[91]/(2*sqrt(params[6]))) + 1) + 0.3183098861837907*params[34]*sqrt(params[6]) - 0.006332573977646112*params[34]*(params[21]*sqrt(params[5]) + 3*params[20]*sqrt(params[7]) + 10*params[18]*sqrt(params[6]))/sqrt(params[6]) + 0.004749430483234584*params[33]**2*(2*log(params[91]/(2*sqrt(params[7]))) + 1) + 0.1193662073189215*params[33]*sqrt(params[7]) - 0.002374715241617292*params[33]*(params[23]*sqrt(params[5]) + 5*params[22]*sqrt(params[7]) + 8*params[20]*sqrt(params[6]))/sqrt(params[7]) + 0.009498860966469168*params[26]**2*(2*log(params[91]/(sqrt(params[7]) + sqrt(params[5]))) + 1) + 0.001583143494411528*params[25]**2*(2*log(params[91]/(2*sqrt(params[5]))) + 1) + 0.03978873577297384*params[25]*sqrt(params[5]) - 0.000791571747205764*params[25]*(params[24]*sqrt(params[5]) + 3*params[23]*sqrt(params[7]) + 8*params[21]*sqrt(params[6]))/sqrt(params[5]) + params[8]",
+                "expression": "0.004749430483234584*params[50]**4*log(params[53]/(2*sqrt(params[7]))) - 0.009498860966469168*params[50]**2*params[32]*(4*log(params[53]/(2*sqrt(params[7]))) + 1) - 0.03799544386587667*params[49]**2*params[33]*(4*log(params[53]/(2*sqrt(params[6]))) + 1) + 0.01266514795529222*params[33]**2*(2*log(params[53]/(2*sqrt(params[6]))) + 1) + 0.3183098861837907*params[33]*sqrt(params[6]) - 0.006332573977646112*params[33]*(params[20]*sqrt(params[5]) + 3*params[19]*sqrt(params[7]) + 10*params[17]*sqrt(params[6]))/sqrt(params[6]) + 0.004749430483234584*params[32]**2*(2*log(params[53]/(2*sqrt(params[7]))) + 1) + 0.1193662073189215*params[32]*sqrt(params[7]) - 0.002374715241617292*params[32]*(params[22]*sqrt(params[5]) + 5*params[21]*sqrt(params[7]) + 8*params[19]*sqrt(params[6]))/sqrt(params[7]) + 0.009498860966469168*params[25]**2*(2*log(params[53]/(sqrt(params[7]) + sqrt(params[5]))) + 1) + 0.001583143494411528*params[24]**2*(2*log(params[53]/(2*sqrt(params[5]))) + 1) + 0.03978873577297384*params[24]*sqrt(params[5]) - 0.000791571747205764*params[24]*(params[23]*sqrt(params[5]) + 3*params[22]*sqrt(params[7]) + 8*params[20]*sqrt(params[6]))/sqrt(params[5]) + params[8]",
                 "symbols": [
-                    "RGScale",
+                    "T",
                     "g2",
                     "g3",
                     "lamdaVL1",
@@ -1488,15 +1465,8 @@
                     "musqSU3",
                     "musqU1"
                 ]
-            },
-            {
-                "identifier": "mu3US",
-                "expression": "params[54]",
-                "symbols": [
-                    "T"
-                ]
             }
         ],
-        "filePath": "../Build/Z2_3HDM/DRalgoOutputFiles/UltrasoftScaleParams_NLO.txt"
+        "filePath": "../Build/Z2_3HDM/DRalgoOutputFiles/SoftToUltraSoft.txt"
     }
 }
