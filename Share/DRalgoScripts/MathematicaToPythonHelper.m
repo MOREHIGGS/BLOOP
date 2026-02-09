@@ -4,10 +4,32 @@
 (*
 This is a collection of functions we use to manipulate mathematica
 outputs into a form we can easily work with in BLOOP.
-Most (all?) of the code here is written by claude v4
+A lot of the code here is written by claude v4+ (I'm not a big fan of mathematica)
 *)
 (************************************************************************)
 
+
+
+(* Magic code to convert x^(n/2) to csqrt(x*x*x..., doesn't work on (x+y)^(n/2) but that doesn't seem to come out of DRalgo*)
+optimiseForCompiler[expr_] := Module[{str},
+  str = ToString[expr, InputForm];
+  
+  str = StringReplace[str, 
+    RegularExpression["(\\w+)\\^(\\d+)"] :> 
+      Module[{var = "$1", pow = ToExpression["$2"]},
+        StringJoin[Riffle[Table[var, pow], "*"]]
+      ]
+  ];
+  
+  str = StringReplace[str, 
+    RegularExpression["(\\w+)\\^\\((\\d+)/2\\)"] :> 
+      Module[{var = "$1", n = ToExpression["$2"]},
+        "csqrt[" <> StringJoin[Riffle[Table[var, n], "*"]] <> "]"
+      ]
+  ];
+  
+  str
+]
 
 
 solveRunning3D[betaFunctions_,newScale_,oldScale_] := Block[{exprList},
@@ -75,7 +97,6 @@ toSymbolicMatrix[matrix_, elementSymbol_, bIsSymmetric_: False] := Block[
 ];
 
 
-(* Written by Claude v4, bug fixed by ChatGPT o4-mini-high*)
 extractSymbols[expr_, includeProtected_: False, asStrings_: True] :=
  Module[{syms, lhs, rhs, keepQ, toStr},
 
@@ -114,7 +135,6 @@ symbolsFromDict[rules_List] :=
   ]
 
 
-(*Claude 3.5*)
 (* Helper function to remove any suffix from a symbol *)
 RemoveSymbolSuffix[expr_Symbol, suffix_String] := 
   If[StringEndsQ[ToString[expr], suffix],

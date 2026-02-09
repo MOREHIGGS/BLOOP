@@ -424,9 +424,9 @@ veffNLO = PrintEffectivePotential["NLO"]//Simplify; (* Simplify to factor 1/pi d
 veffNNLO = PrintEffectivePotential["NNLO"]/.\[Mu]3US->ultraSoftScale; (* NOT simplified as seems to change numerical result for unknown reasons *)
 
 
-exportUTF8[exportPath<>"/Veff_LO.txt", veffLO];
-exportUTF8[exportPath<>"/Veff_NLO.txt", veffNLO];
-exportUTF8[exportPath<>"/Veff_NNLO.txt", veffNNLO];
+exportUTF8[exportPath<>"/Veff_LO.txt", optimiseForCompiler[veffLO]];
+exportUTF8[exportPath<>"/Veff_NLO.txt", optimiseForCompiler[veffNLO]];
+exportUTF8[exportPath<>"/Veff_NNLO.txt", optimiseForCompiler[veffNNLO]];
 
 
 exportUTF8[
