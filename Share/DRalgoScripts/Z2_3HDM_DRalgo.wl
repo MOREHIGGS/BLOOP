@@ -194,13 +194,13 @@ lf=N[4Log[2]];
 exportUTF8[exportPath<>"/HardScale.txt", hardScale];
 
 
-(* Removing the suffixes makes it easier to do in place updating in BLOOP (more efficent *)
+(* Removing the suffixes makes it easier to do in place updating in BLOOP (more efficent) *)
 hardToSoftBLOOPED = RemoveSuffixes[sqrtSubRules[hardToSoft], {"3d"}]/.Lb->lb/.Lf->lf;
 exportUTF8[exportPath<>"/HardToSoft.txt", hardToSoftBLOOPED];
 
 
-runSoft = RemoveSuffixes[solveRunning3D[BetaFunctions3DS[], softScale, hardScale],{"3d"}];
-exportUTF8[exportPath<>"/SoftScaleRGE.txt", runSoft];
+softParamsRGE = RemoveSuffixes[solveRunning3D[BetaFunctions3DS[], softScale, hardScale],{"3d"}];
+exportUTF8[exportPath<>"/SoftScaleRGE.txt", softParamsRGE];
 
 
 (* ::Subsection:: *)
@@ -210,15 +210,13 @@ exportUTF8[exportPath<>"/SoftScaleRGE.txt", runSoft];
 PerformDRsoft[{}];
 couplingsUS = PrintCouplingsUS[];
 scalarMassesUS = CombineSubstRules[PrintScalarMassUS["LO"], PrintScalarMassUS["NLO"]];
-allUltrasoftScaleParams = Join[couplingsUS, scalarMassesUS] /. \[Mu]3->softScale;
+ultrasoftScaleParams = RemoveSuffixes[sqrtSubRules[Join[couplingsUS, scalarMassesUS]], {"US", "3d"}]/. \[Mu]3->softScale;
+exportUTF8[exportPath<>"/SoftToUltraSoft.txt", ultrasoftScaleParams];
 
 
-allUltrasoftScaleParamsSqrt = RemoveSuffixes[sqrtSubRules[allUltrasoftScaleParams], {"US", "3d"}];
-exportUTF8[exportPath<>"/UltrasoftScaleParams_NLO.txt", allUltrasoftScaleParamsSqrt];
-
-
-(*runningUS = RemoveSuffixes[SolveRunning3D[BetaFunctions3DUS[]],{"US", "3d"}];
-exportUTF8[exportPath<>"/UltrasoftScaleRGE.txt", runningUS];*)
+(* NOTE: with our choice of scales this is a trivial RGE and so isn't a step in BLOOP, on the TODO list*)
+ultraSoftParamsRGE = RemoveSuffixes[solveRunning3D[BetaFunctions3DUS[], ultraSoftScale, softScale],{"US", "3d"}];
+exportUTF8[exportPath<>"/UltrasoftScaleRGE.txt", ultraSoftParamsRGE];
 
 
 (* ::Section:: *)
@@ -414,7 +412,7 @@ CalculatePotentialUS[]
 (*We get (ctW^2*g2^2*Sqrt[mVsq0]*Sqrt[mVsq1])/(12*Pi^2) = g2^5 v^2/(48\[Pi]^2 \[Sqrt]g1^2+g2^2)*)
 (*In the SM example it is g2^6 v^2/(48\[Pi]^2(g1^2+g2^2))*)
 (* The difference can be explained if you cube ctW instead of square.*)
-(* Based on integration tests this has a minor impact on numerics which is somewhat expected since the gauge couplings are small. *)
+(* Based on integration tests this has a minor impact on numerics which is expected since the gauge couplings are small. *)
 (* Note this bug is not present in the version used for the Z2 3HDM paper*)
 (*Until I fix the bug I would suggest just manually changing the NNLO txt file*)
 
@@ -436,7 +434,8 @@ exportUTF8[
 	"twoPointSymbols"-> extractSymbols[\[Mu]ij],
 	"gaugeSymbols"-> extractSymbols[GaugeCouplings],
 	"yukawaSymbols" -> extractSymbols[Ysff],
-	"fieldSymbols" -> extractSymbols[backgroundFieldsFull]}];
+	"fieldSymbols" -> extractSymbols[backgroundFieldsFull]}
+];
 
 
 exportUTF8[exportPath<>"/AllSymbols.json",
@@ -449,15 +448,16 @@ exportUTF8[exportPath<>"/AllSymbols.json",
 	extractSymbols[ScalarMassDiag],
 	extractSymbols[upperLeftMM],
 	extractSymbols[bottomRightMM],
-(*	extractSymbols[runningUS]["LHS"],
-	extractSymbols[runningUS]["RHS"],*)
-	extractSymbols[allUltrasoftScaleParamsSqrt]["RHS"],
-	extractSymbols[allUltrasoftScaleParamsSqrt]["LHS"],
-	extractSymbols[runSoft]["RHS"],
-	extractSymbols[runSoft]["LHS"],
+	extractSymbols[ultraSoftParamsRGE]["LHS"],
+	extractSymbols[ultraSoftParamsRGE]["RHS"],
+	extractSymbols[ultrasoftScaleParams]["RHS"],
+	extractSymbols[ultrasoftScaleParams]["LHS"],
+	extractSymbols[softParamsRGE]["RHS"],
+	extractSymbols[softParamsRGE]["LHS"],
 	extractSymbols[hardToSoftBLOOPED]["RHS"],
 	extractSymbols[hardToSoftBLOOPED]["LHS"],
 	extractSymbols[betaFunctions4DUnsquared]["RHS"],
-	extractSymbols[betaFunctions4DUnsquared]["LHS"]]
-]]
+	extractSymbols[betaFunctions4DUnsquared]["LHS"]
+	]]]
 ];
+
