@@ -10,10 +10,34 @@ A lot of the code here is written by claude v4+ (I'm not a big fan of mathematic
 
 
 
-(* Magic code to convert x^(n/2) to csqrt(x*x*x..., doesn't work on (x+y)^(n/2) but that doesn't seem to come out of DRalgo*)
 optimiseForCompiler[expr_] := Module[{str},
   str = ToString[expr, InputForm];
   
+  (* Replace x^(n/2) in denominator with ((x*x*x...)^(1/2)) *)
+  str = StringReplace[str, 
+    RegularExpression["/(\\w+)\\^\\((\\d+)/2\\)"] :> 
+      Module[{var = "$1", n = ToExpression["$2"]},
+        "/((" <> StringJoin[Riffle[Table[var, n], "*"]] <> ")^(1/2))"
+      ]
+  ];
+  
+  (* Replace x^(n/2) elsewhere with Sqrt[x*x*x...] *)
+  str = StringReplace[str, 
+    RegularExpression["(\\w+)\\^\\((\\d+)/2\\)"] :> 
+      Module[{var = "$1", n = ToExpression["$2"]},
+        "csqrt[" <> StringJoin[Riffle[Table[var, n], "*"]] <> "]"
+      ]
+  ];
+  
+  (* Replace x^n in denominator with (x*x*x...) *)
+  str = StringReplace[str, 
+    RegularExpression["/(\\w+)\\^(\\d+)"] :> 
+      Module[{var = "$1", pow = ToExpression["$2"]},
+        "/(" <> StringJoin[Riffle[Table[var, pow], "*"]] <> ")"
+      ]
+  ];
+  
+  (* Replace x^n elsewhere with x*x*x... (n times) for integer powers *)
   str = StringReplace[str, 
     RegularExpression["(\\w+)\\^(\\d+)"] :> 
       Module[{var = "$1", pow = ToExpression["$2"]},
@@ -21,10 +45,26 @@ optimiseForCompiler[expr_] := Module[{str},
       ]
   ];
   
+  str
+]
+
+
+optimiseForCompiler2[expr_] := Module[{str},
+  str = ToString[expr, InputForm];
+  
+  (* Replace x^(n/2) with (x*x*x...)^(1/2) where there are n factors of x *)
   str = StringReplace[str, 
     RegularExpression["(\\w+)\\^\\((\\d+)/2\\)"] :> 
       Module[{var = "$1", n = ToExpression["$2"]},
-        "csqrt[" <> StringJoin[Riffle[Table[var, n], "*"]] <> "]"
+        "(" <> StringJoin[Riffle[Table[var, n], "*"]] <> ")^(1/2)"
+      ]
+  ];
+  
+  (* Replace x^n with x*x*x... (n times) for integer powers *)
+  str = StringReplace[str, 
+    RegularExpression["(\\w+)\\^(\\d+)"] :> 
+      Module[{var = "$1", pow = ToExpression["$2"]},
+        StringJoin[Riffle[Table[var, pow], "*"]]
       ]
   ];
   
