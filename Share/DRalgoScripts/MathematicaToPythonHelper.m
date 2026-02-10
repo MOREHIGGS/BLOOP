@@ -4,10 +4,41 @@
 (*
 This is a collection of functions we use to manipulate mathematica
 outputs into a form we can easily work with in BLOOP.
-Most (all?) of the code here is written by claude v4
+A lot of the code here is written by claude v4+ (I'm not a big fan of mathematica)
 *)
 (************************************************************************)
 
+
+
+optimiseForCompiler[expr_] := Module[{str, repeatVar},
+  str = ToString[expr, InputForm];
+  
+  (* Helper function to repeat a variable name n times with * separator *)
+  repeatVar[var_, n_] := StringJoin[Riffle[Table[var, n], "*"]];
+  
+  (* Replace x^(n/2) with csqrt[x*x*x...] *)
+  str = StringReplace[str, 
+    RegularExpression["(\\w+)\\^\\((\\d+)/2\\)"] :> 
+      Module[{var = "$1", n = ToExpression["$2"]},
+        "csqrt[" <> repeatVar[var, n] <> "]"
+      ]
+  ];
+  
+  (* Replace x^n with (x*x*x...) *)
+  str = StringReplace[str, 
+    RegularExpression["(\\w+)\\^(\\d+)"] :> 
+      Module[{var = "$1", pow = ToExpression["$2"]},
+        "(" <> repeatVar[var, pow] <> ")"
+      ]
+  ];
+  
+  (* Convert int/int to float/int *)
+  str = StringReplace[str, 
+    RegularExpression["\\b(\\d+)/(\\d+)\\b"] :> "$1.0/$2"
+  ];
+  
+  str
+]
 
 
 solveRunning3D[betaFunctions_,newScale_,oldScale_] := Block[{exprList},
@@ -75,7 +106,6 @@ toSymbolicMatrix[matrix_, elementSymbol_, bIsSymmetric_: False] := Block[
 ];
 
 
-(* Written by Claude v4, bug fixed by ChatGPT o4-mini-high*)
 extractSymbols[expr_, includeProtected_: False, asStrings_: True] :=
  Module[{syms, lhs, rhs, keepQ, toStr},
 
@@ -114,7 +144,6 @@ symbolsFromDict[rules_List] :=
   ]
 
 
-(*Claude 3.5*)
 (* Helper function to remove any suffix from a symbol *)
 RemoveSymbolSuffix[expr_Symbol, suffix_String] := 
   If[StringEndsQ[ToString[expr], suffix],

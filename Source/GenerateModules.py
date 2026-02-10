@@ -71,7 +71,7 @@ def generateModules(
         gccFlags,
         args.profile
     )
-    #exit()
+    
     compileCythonModules(args.verbose, CythonModulesDir)
     
 def generateSetupFile(
@@ -150,6 +150,9 @@ def generateVeffModule(veffFilePaths, allSymbols):
     expressionTest = [item for result in results for item in result[1]]
     test = zip(opTest, expressionTest)
     return Environment().from_string(dedent("""\
+@cython.cdivision(True)
+@cython.boundscheck(False)
+@cython.wraparound(False)
 cdef double complex veff(double [::1] params):
 {%- for symbol in allSymbols %}
     cdef double {{ symbol }} = params[{{ loop.index0 }}]
