@@ -71,7 +71,7 @@ def generateModules(
         gccFlags,
         args.profile
     )
-    #exit()
+    
     compileCythonModules(args.verbose, CythonModulesDir)
     
 def generateSetupFile(

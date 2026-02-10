@@ -10,67 +10,31 @@ A lot of the code here is written by claude v4+ (I'm not a big fan of mathematic
 
 
 
-optimiseForCompiler[expr_] := Module[{str},
+optimiseForCompiler[expr_] := Module[{str, repeatVar},
   str = ToString[expr, InputForm];
   
-  (* Replace x^(n/2) in denominator with ((x*x*x...)^(1/2)) *)
-  str = StringReplace[str, 
-    RegularExpression["/(\\w+)\\^\\((\\d+)/2\\)"] :> 
-      Module[{var = "$1", n = ToExpression["$2"]},
-        "/((" <> StringJoin[Riffle[Table[var, n], "*"]] <> ")^(1.0/2.0))"
-      ]
-  ];
+  (* Helper function to repeat a variable name n times with * separator *)
+  repeatVar[var_, n_] := StringJoin[Riffle[Table[var, n], "*"]];
   
-  (* Replace x^(n/2) elsewhere with Sqrt[x*x*x...] *)
+  (* Replace x^(n/2) with csqrt[x*x*x...] *)
   str = StringReplace[str, 
     RegularExpression["(\\w+)\\^\\((\\d+)/2\\)"] :> 
       Module[{var = "$1", n = ToExpression["$2"]},
-        "Sqrt[" <> StringJoin[Riffle[Table[var, n], "*"]] <> "]"
+        "csqrt[" <> repeatVar[var, n] <> "]"
       ]
   ];
   
-  (* Replace x^n in denominator with (x*x*x...) *)
-  str = StringReplace[str, 
-    RegularExpression["/(\\w+)\\^(\\d+)"] :> 
-      Module[{var = "$1", pow = ToExpression["$2"]},
-        "/(" <> StringJoin[Riffle[Table[var, pow], "*"]] <> ")"
-      ]
-  ];
-  
-  (* Replace x^n elsewhere with x*x*x... (n times) for integer powers *)
+  (* Replace x^n with (x*x*x...) *)
   str = StringReplace[str, 
     RegularExpression["(\\w+)\\^(\\d+)"] :> 
       Module[{var = "$1", pow = ToExpression["$2"]},
-        StringJoin[Riffle[Table[var, pow], "*"]]
+        "(" <> repeatVar[var, pow] <> ")"
       ]
   ];
   
-  (* Convert integer/integer to float division *)
+  (* Convert int/int to float/int *)
   str = StringReplace[str, 
     RegularExpression["\\b(\\d+)/(\\d+)\\b"] :> "$1.0/$2"
-  ];
-  
-  str
-]
-
-
-optimiseForCompiler2[expr_] := Module[{str},
-  str = ToString[expr, InputForm];
-  
-  (* Replace x^(n/2) with (x*x*x...)^(1/2) where there are n factors of x *)
-  str = StringReplace[str, 
-    RegularExpression["(\\w+)\\^\\((\\d+)/2\\)"] :> 
-      Module[{var = "$1", n = ToExpression["$2"]},
-        "(" <> StringJoin[Riffle[Table[var, n], "*"]] <> ")^(1/2)"
-      ]
-  ];
-  
-  (* Replace x^n with x*x*x... (n times) for integer powers *)
-  str = StringReplace[str, 
-    RegularExpression["(\\w+)\\^(\\d+)"] :> 
-      Module[{var = "$1", pow = ToExpression["$2"]},
-        StringJoin[Riffle[Table[var, pow], "*"]]
-      ]
   ];
   
   str
