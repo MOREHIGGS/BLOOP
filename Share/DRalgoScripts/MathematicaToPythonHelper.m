@@ -17,7 +17,7 @@ optimiseForCompiler[expr_] := Module[{str},
   str = StringReplace[str, 
     RegularExpression["/(\\w+)\\^\\((\\d+)/2\\)"] :> 
       Module[{var = "$1", n = ToExpression["$2"]},
-        "/((" <> StringJoin[Riffle[Table[var, n], "*"]] <> ")^(1/2))"
+        "/((" <> StringJoin[Riffle[Table[var, n], "*"]] <> ")^(1.0/2.0))"
       ]
   ];
   
@@ -25,7 +25,7 @@ optimiseForCompiler[expr_] := Module[{str},
   str = StringReplace[str, 
     RegularExpression["(\\w+)\\^\\((\\d+)/2\\)"] :> 
       Module[{var = "$1", n = ToExpression["$2"]},
-        "csqrt[" <> StringJoin[Riffle[Table[var, n], "*"]] <> "]"
+        "Sqrt[" <> StringJoin[Riffle[Table[var, n], "*"]] <> "]"
       ]
   ];
   
@@ -43,6 +43,11 @@ optimiseForCompiler[expr_] := Module[{str},
       Module[{var = "$1", pow = ToExpression["$2"]},
         StringJoin[Riffle[Table[var, pow], "*"]]
       ]
+  ];
+  
+  (* Convert integer/integer to float division *)
+  str = StringReplace[str, 
+    RegularExpression["\\b(\\d+)/(\\d+)\\b"] :> "$1.0/$2"
   ];
   
   str
