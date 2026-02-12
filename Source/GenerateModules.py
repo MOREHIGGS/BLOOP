@@ -215,9 +215,10 @@ cdef void computeMasses(double [::1] params):
     cdef char uplo = 'L' 
     cdef char jobz = {{"'V'" if bEigenVectors else "'N'"}} 
     cdef int info
-{%- for scalarMassMatrix in test %}
+{%- for scalarMatrixExpressions in scalarMatricesExpressions %}
     {%- set i = loop.index0 %}
     {%- set n = scalarMassMatrixSizes[loop.index0] %}
+    cdef double scalarMM{{i}}[{{n}}][{{n}}]
     cdef double eigenvalues{{ i }}[{{ n }}]
     cdef int n{{ i }} = {{ n }}
     cdef int lda{{ i }} =  {{ n }} 
@@ -225,14 +226,13 @@ cdef void computeMasses(double [::1] params):
     cdef int liwork{{ i }} = {{3+5*n if bEigenVectors else 1}} 
     cdef double work{{ i }}[{{1 + 6*n +2*n*n if bEigenVectors else 2*n+1}}]
     cdef int iwork{{ i }}[{{3+5*n if bEigenVectors else 1}}] 
-    cdef double testUpper{{i}}[{{n}}][{{n}}]
     ## TODO(?) check for NaN and inf 
-    {% for expressionList in test[loop.index0] %}
-    testUpper{{i}}{{expressionList.identifier}}= {{expressionList.expression}}
+    {% for expression in scalarMatrixExpressions %}
+    scalarMM{{i}}{{expression.identifier}}= {{expression.expression}}
     {% endfor %}
     dsyevd(&jobz, &uplo,
            &n{{ i }},
-           &testUpper{{ i }}[0][0], &lda{{ i }},
+           &scalarMM{{ i }}[0][0], &lda{{ i }},
            &eigenvalues{{ i }}[0],
            &work{{ i }}[0], &lwork{{ i }},
            &iwork{{ i }}[0], &liwork{{ i }},
@@ -244,8 +244,6 @@ cdef void computeMasses(double [::1] params):
         else:
             raise RuntimeError(f"dsyevd failed to converge for scalarMassMatrix{{i}} (info={info})")
 {%- endfor %}
-
-    
 {%- if bEigenVectors %}
     ##Eigenvectors come back transposed from fortran
     ## TODO work out how much of these tranpose, block diag etc can be factored
@@ -255,15 +253,14 @@ cdef void computeMasses(double [::1] params):
 {%- for n in scalarMassMatrixSizes %}
     for i in range({{n}}):
         for j in range(i+1, {{n}}):
-            temp = testUpper{{loop.index0}}[i][j]
-            testUpper{{loop.index0}}[i][j] = testUpper{{loop.index0}}[j][i]
-            testUpper{{loop.index0}}[j][i] = temp
-
+            temp = scalarMM{{loop.index0}}[i][j]
+            scalarMM{{loop.index0}}[i][j] = scalarMM{{loop.index0}}[j][i]
+            scalarMM{{loop.index0}}[j][i] = temp
 {%- endfor %}
     ## TODO write this in C
     eigenVectors = block_diag(
-{%- for scalarMassMatrix in test %}
-        testUpper{{ loop.index0 }},
+{%- for _ in scalarMatricesExpressions %}
+        scalarMM{{ loop.index0 }},
 {%- endfor %}
     )
    
@@ -300,7 +297,7 @@ cdef void computeMasses(double [::1] params):
             vectorMasses = vectorMasses,
             vectorShorthands = vectorShorthands,
             bEigenVectors = 0 if loopOrder ==1 else 1,
-            test=test,
+            scalarMatricesExpressions=test,
             eigenvalueAssignment = eigenvalueAssignment
             )
 
