@@ -174,7 +174,19 @@ def generateComputeMassesModule(
     vectorShorthands,
     loopOrder,
 ):
-    scalarMassMatrixSizes = [6,6]
+
+    scalarMassMatrixSizes = []
+    ## Reverse engineer the size of a matrix 
+    ## based on how many elements in the upper diagonal
+    for expressions in scalarMatricesExpressions:
+        size = len(expressions)
+        for n in range(1,100):
+            if size - n ==0:
+                scalarMassMatrixSizes.append(n)
+                break
+            size -= n
+
+
     eigenvalueAssignment = []
     for idxSym, symbol in enumerate(scalarMassNames):
         idxShift = 0
