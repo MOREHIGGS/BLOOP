@@ -347,8 +347,7 @@ def bPhysicalMinimum(params):
         [299, 299, 299],
         [-299, 299, 299],
     ]
-    nloptInst = cNlopt(
-        config={
+    nloptInst = cNlopt({
             "nbrVars": 3,
             "absGlobalTol": 0.5,
             "relGlobalTol": 0.5,
