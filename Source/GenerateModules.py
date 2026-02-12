@@ -21,6 +21,7 @@ def generateModules(
     scalarRotationMatrixFilePath,
     vectorMasses,
     vectorShorthands,
+    idk,
     gccFlags,
     fieldNames
 ):
@@ -54,6 +55,7 @@ def generateModules(
         vectorMasses,
         vectorShorthands,
         loopOrder,
+        idk,
     )
     
     generateEvaluatePotentialModule(
@@ -71,7 +73,7 @@ def generateModules(
         gccFlags,
         args.profile
     )
-    
+    #exit()
     compileCythonModules(args.verbose, CythonModulesDir)
     
 def generateSetupFile(
@@ -127,7 +129,8 @@ cpdef double complex evaluatePotential(const double [::1] fields, double [::1] p
 {%- endfor %}
 
     computeMasses(parameters)
-    
+    print(veff(parameters))
+    input() 
     return veff(parameters)
 
 {{computeMassesModule}}
@@ -173,14 +176,14 @@ def generateComputeMassesModule(
     scalarRotationMatrixFile,
     vectorMasses,
     vectorShorthands,
-    loopOrder
+    loopOrder,
+    test,
 ):
     with open(scalarMassMatrixFile) as file:
         scalarMassMatrices = [convertMatrixToCythonSyntax(line) for line in file.readlines()]
     
     ## One [ per row and an extra [ to wrap all rows
     scalarMassMatrixSizes = [scalarMassMatrix.count("[")-1 for scalarMassMatrix in scalarMassMatrices]
-
     if "none" in scalarPermutationMatrixFile.lower():
         scalarPermutationMatrix = None
     else:
@@ -206,14 +209,12 @@ cdef void computeMasses(double [::1] params):
     cdef double {{ symbol }} = params[{{ loop.index0 }}]
 {%- endfor %}
     ## TODO(?) leaverage static or const? 
-    cdef char uplo = 'U' 
+    cdef char uplo = 'L' 
     cdef char jobz = {{"'V'" if bEigenVectors else "'N'"}} 
     cdef int info
 {%- for scalarMassMatrix in scalarMassMatrices %}
     {%- set i = loop.index0 %}
     {%- set n = scalarMassMatrixSizes[loop.index0] %}
-    ## TODO put on stack
-    cdef double [::1, :] scalarMassMatrix{{ i }} 
     cdef double eigenvalues{{ i }}[{{ n }}]
     cdef int n{{ i }} = {{ n }}
     cdef int lda{{ i }} =  {{ n }} 
@@ -221,14 +222,16 @@ cdef void computeMasses(double [::1] params):
     cdef int liwork{{ i }} = {{3+5*n if bEigenVectors else 1}} 
     cdef double work{{ i }}[{{1 + 6*n +2*n*n if bEigenVectors else 2*n+1}}]
     cdef int iwork{{ i }}[{{3+5*n if bEigenVectors else 1}}] 
-    
+    cdef double testUpper{{i}}[{{n}}][{{n}}]
     ## TODO Only generate the upper right part of the matrix and do stuff like sMM[0] = expression
     ## TODO(?) check for NaN and inf 
-    scalarMassMatrix{{ i }} = array({{ scalarMassMatrix -}}, dtype=float, order="F")
-
+    
+    {% for expressionList in test[loop.index0] %}
+    testUpper{{i}}{{expressionList.identifier}}= {{expressionList.expression}}
+    {% endfor %}
     dsyevd(&jobz, &uplo,
            &n{{ i }},
-           &scalarMassMatrix{{ i }}[0, 0], &lda{{ i }},
+           &testUpper{{ i }}[0][0], &lda{{ i }},
            &eigenvalues{{ i }}[0],
            &work{{ i }}[0], &lwork{{ i }},
            &iwork{{ i }}[0], &liwork{{ i }},
@@ -246,7 +249,7 @@ cdef void computeMasses(double [::1] params):
     ## TODO write this in C
     eigenVectors = block_diag(
 {%- for scalarMassMatrix in scalarMassMatrices %}
-        scalarMassMatrix{{ loop.index0 }},
+        testUpper{{ loop.index0 }},
 {%- endfor %}
     )
 
@@ -284,6 +287,7 @@ cdef void computeMasses(double [::1] params):
             vectorMasses = vectorMasses,
             vectorShorthands = vectorShorthands,
             bEigenVectors = 0 if loopOrder ==1 else 1,
+            test=test,
         )
 
 def mutliLineExpression(filePointer):

@@ -98,13 +98,19 @@ def pythoniseExpressionSystemArray(lines, allSymbols):
 def pythoniseExpressionSystem(lines):
     return [pythoniseExpression(line) for line in lines]
 
+def loadMassMatrices(filePath):
+    with open(filePath, 'r') as file:
+        matrices = file.read()
+    
+    return [matrix.strip().split('\n') for matrix in matrices.strip().split('\n---\n')]
 
 def pythoniseMathematica(args):
     allSymbols = getLinesJSON(args.allSymbolsFilePath) + ["missing"]
     allSymbols = sorted(
         [replaceGreekSymbols(symbol) for symbol in allSymbols], reverse=True
     )
-    
+    matrixExpressions = [pythoniseExpressionSystem(matrix) for matrix in loadMassMatrices("../Build/Z2_3HDM/DRalgoOutputFiles/test.txt")]
+
     expressionDict = {
         "bounded": {
             "expressions": pythoniseExpressionSystemArray(
@@ -168,6 +174,7 @@ def pythoniseMathematica(args):
         args.scalarRotationMatrixFilePath, 
         pythoniseExpressionSystem(getLines(args.vectorMassesSquaredFilePath)),
         pythoniseExpressionSystem(getLines(args.vectorShortHandsFilePath)),
+        matrixExpressions,
         args.gccFlags,
         [replaceGreekSymbols(name) for name in getLinesJSON(args.lagranianVariablesFilePath)["fieldSymbols"]]
     )
