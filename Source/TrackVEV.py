@@ -15,23 +15,24 @@ class cNlopt:
         optG.set_upper_bounds(nloptConfig["varUpperBounds"])
         optG.set_xtol_abs(nloptConfig["absGlobalTol"])
         optG.set_xtol_rel(nloptConfig["relGlobalTol"])
-        self.optG = optG 
+        self.optG = optG
+
         optL = nlopt.opt(nlopt.LN_BOBYQA, nloptConfig["nbrVars"])
         optL.set_lower_bounds(nloptConfig["varLowerBounds"])
         optL.set_upper_bounds(nloptConfig["varUpperBounds"])
         optL.set_xtol_abs(nloptConfig["absLocalTol"])
         optL.set_xtol_rel(nloptConfig["relLocalTol"])
         self.optL = optL
-
-
-    def nloptGlobal(self, func: callable, initialGuess: list[float]):
+    
+    def funcInit(self, func):
         self.optG.set_min_objective(func)
-        return self.nloptLocal(func, self.optG.optimize(initialGuess))
-
-    def nloptLocal(self, func: callable, initialGuess: list[float]):
         self.optL.set_min_objective(func)
-        return self.optL.optimize(initialGuess), self.optL.last_optimum_value()
+    
+    def nloptGlobal(self, initialGuess: list[float]):
+        return self.nloptLocal(self.optG.optimize(initialGuess))
 
+    def nloptLocal(self, initialGuess: list[float]):
+        return self.optL.optimize(initialGuess), self.optL.last_optimum_value()
 
 def bIsPerturbative(params, pertSymbols, allSymbols):
     for pertSymbol in pertSymbols:
@@ -203,15 +204,16 @@ class TrackVEV:
         from evaluatePotential  import evaluatePotential
         """For physics reasons we only minimise the real part,
         for nlopt reasons we need to give a redunant grad arg"""
-        def VeffWrapper(fields, grad):
+        def veffWrapper(fields, grad):
             return np.real(
                     evaluatePotential(fields, params)
                 )
 
-        bestResult = self.nloptInst.nloptGlobal(VeffWrapper, minimumCandidates[0])
+        self.nloptInst.funcInit(veffWrapper)     
+        bestResult = self.nloptInst.nloptGlobal(minimumCandidates[0])
 
         for candidate in minimumCandidates:
-            result = self.nloptInst.nloptLocal(VeffWrapper, candidate)
+            result = self.nloptInst.nloptLocal(candidate)
             if result[1] < bestResult[1]:
                 bestResult = result
 
