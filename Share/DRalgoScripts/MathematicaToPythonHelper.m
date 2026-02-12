@@ -10,6 +10,26 @@ A lot of the code here is written by claude v4+ (I'm not a big fan of mathematic
 
 
 
+MatrixToRulesUpperLeft[mat_] := 
+  StringRiffle[
+    Flatten[
+      MapIndexed[
+        If[#2[[2]] >= #2[[1]], 
+          "[" <> ToString[#2[[1]] - 1] <> "][" <> ToString[#2[[2]] - 1] <> "] -> " <> ToString[#1, InputForm], 
+          Nothing
+        ] &, 
+        mat, 
+        {2}
+      ]
+    ], 
+    "\n"
+  ]
+exportMatrices[fileName_, matrices_List] := 
+	exportUTF8[fileName, 
+	StringRiffle[MatrixToRulesUpperLeft /@ matrices, "\n---\n"]
+]
+
+
 optimiseForCompiler[expr_] := Module[{str, repeatVar},
   str = ToString[expr, InputForm];
   

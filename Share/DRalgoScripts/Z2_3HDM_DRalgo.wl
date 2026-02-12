@@ -308,37 +308,7 @@ bottomRightMM = Take[blockDiagonalMM,{7,12},{7,12}];
 If[!SymmetricMatrixQ[upperLeftMM] || !SymmetricMatrixQ[bottomRightMM], Print["Error, block not symmetric!"]];
 
 
-MatrixToRulesUpperLeft[mat_] := 
-  StringRiffle[
-    Flatten[
-      MapIndexed[
-        If[#2[[2]] >= #2[[1]], 
-          "[" <> ToString[#2[[1]] - 1] <> "][" <> ToString[#2[[2]] - 1] <> "] -> " <> ToString[#1, InputForm], 
-          Nothing
-        ] &, 
-        mat, 
-        {2}
-      ]
-    ], 
-    "\n"
-  ]
-
-
-exportMatrices[fileName_, matrices_List] := 
-  exportUTF8[fileName, 
-    StringRiffle[MatrixToRulesUpperLeft /@ matrices, "\n---\n"]
-  ]
-
-
-exportMatrices[exportPath<>"/test.txt", {upperLeftMM, bottomRightMM}];
-
-
-exportUTF8[
-exportPath<>"/ScalarMassMatrix.txt", 
-{ToString[InputForm[upperLeftMM]], 
-ToString[InputForm[bottomRightMM]]
-}
-];
+exportMatrices[exportPath<>"/ScalarMassMatrix.txt", {upperLeftMM, bottomRightMM}];
 
 
 (* ::Subsubsection:: *)

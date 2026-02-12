@@ -167,7 +167,7 @@ def pythoniseMathematica(args):
     generateModules(
         args, 
         allSymbols, 
-        [pythoniseExpressionSystem(matrix) for matrix in loadMassMatrices("../Build/Z2_3HDM/DRalgoOutputFiles/test.txt")],
+        [pythoniseExpressionSystem(matrix) for matrix in loadMassMatrices(args.scalarMassMatrixFilePath)],
         getLinesJSON(args.scalarMassNamesFilePath),
         args.scalarPermutationMatrixFilePath, 
         args.scalarRotationMatrixFilePath, 
