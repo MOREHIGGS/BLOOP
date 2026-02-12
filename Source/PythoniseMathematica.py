@@ -109,7 +109,6 @@ def pythoniseMathematica(args):
     allSymbols = sorted(
         [replaceGreekSymbols(symbol) for symbol in allSymbols], reverse=True
     )
-    matrixExpressions = [pythoniseExpressionSystem(matrix) for matrix in loadMassMatrices("../Build/Z2_3HDM/DRalgoOutputFiles/test.txt")]
 
     expressionDict = {
         "bounded": {
@@ -168,13 +167,12 @@ def pythoniseMathematica(args):
     generateModules(
         args, 
         allSymbols, 
-        args.scalarMassMatrixFilePath, 
+        [pythoniseExpressionSystem(matrix) for matrix in loadMassMatrices("../Build/Z2_3HDM/DRalgoOutputFiles/test.txt")],
         getLinesJSON(args.scalarMassNamesFilePath),
         args.scalarPermutationMatrixFilePath, 
         args.scalarRotationMatrixFilePath, 
         pythoniseExpressionSystem(getLines(args.vectorMassesSquaredFilePath)),
         pythoniseExpressionSystem(getLines(args.vectorShortHandsFilePath)),
-        matrixExpressions,
         args.gccFlags,
         [replaceGreekSymbols(name) for name in getLinesJSON(args.lagranianVariablesFilePath)["fieldSymbols"]]
     )

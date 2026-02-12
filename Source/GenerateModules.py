@@ -71,7 +71,7 @@ def generateModules(
         gccFlags,
         args.profile
     )
-    #exit()
+    
     compileCythonModules(args.verbose, CythonModulesDir)
     
 def generateSetupFile(
@@ -211,9 +211,6 @@ cdef void computeMasses(double [::1] params):
 {%- for symbol in allSymbols %}
     cdef double {{ symbol }} = params[{{ loop.index0 }}]
 {%- endfor %}
-    ## TODO(?) leaverage static or const? 
-    cdef char uplo = 'L' 
-    cdef char jobz = {{"'V'" if bEigenVectors else "'N'"}} 
     cdef int info
 {%- for scalarMatrixExpressions in scalarMatricesExpressions %}
     {%- set i = loop.index0 %}
@@ -230,8 +227,8 @@ cdef void computeMasses(double [::1] params):
     {% for expression in scalarMatrixExpressions %}
     scalarMM{{i}}{{expression.identifier}}= {{expression.expression}}
     {% endfor %}
-    dsyevd(&jobz, &uplo,
-           &n{{ i }},
+    dsyevd({{"'V'" if bEigenVectors else "'N'"}}, 
+            'L', &n{{ i }},
            &scalarMM{{ i }}[0][0], &lda{{ i }},
            &eigenvalues{{ i }}[0],
            &work{{ i }}[0], &lwork{{ i }},
@@ -246,8 +243,7 @@ cdef void computeMasses(double [::1] params):
 {%- endfor %}
 {%- if bEigenVectors %}
     ##Eigenvectors come back transposed from fortran
-    ## TODO work out how much of these tranpose, block diag etc can be factored
-    ## into mathematica
+    ## This transpose can be dropped when we get fortran dgemm
     cdef int i,j 
     cdef float temp
 {%- for n in scalarMassMatrixSizes %}
@@ -293,7 +289,6 @@ cdef void computeMasses(double [::1] params):
             eigenvalueAssignment = eigenvalueAssignment,
             scalarMassMatrixSizes = scalarMassMatrixSizes,
             bEigenVectors = 0 if loopOrder ==1 else 1,
-            scalarMassNames = scalarMassNames,
             scalarPermutationMatrix = scalarPermutationMatrix,
             scalarRotationMatrix = scalarRotationMatrix,
             vectorMasses = vectorMasses,
