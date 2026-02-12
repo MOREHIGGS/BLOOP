@@ -221,9 +221,7 @@ cdef void computeMasses(double [::1] params):
     cdef double work{{ i }}[{{1 + 6*n +2*n*n if bEigenVectors else 2*n+1}}]
     cdef int iwork{{ i }}[{{3+5*n if bEigenVectors else 1}}] 
     cdef double testUpper{{i}}[{{n}}][{{n}}]
-    ## TODO Only generate the upper right part of the matrix and do stuff like sMM[0] = expression
     ## TODO(?) check for NaN and inf 
-    
     {% for expressionList in test[loop.index0] %}
     testUpper{{i}}{{expressionList.identifier}}= {{expressionList.expression}}
     {% endfor %}
@@ -244,10 +242,23 @@ cdef void computeMasses(double [::1] params):
 
     
 {%- if bEigenVectors %}
+    ##Eigenvectors come back transposed from fortran
+    ## TODO work out how much of these tranpose, block diag etc can be factored
+    ## into mathematica
+    cdef int i,j 
+    cdef float temp
+{%- for n in scalarMassMatrixSizes %}
+    for i in range({{n}}):
+        for j in range(i+1, {{n}}):
+            temp = testUpper{{loop.index0}}[i][j]
+            testUpper{{loop.index0}}[i][j] = testUpper{{loop.index0}}[j][i]
+            testUpper{{loop.index0}}[j][i] = temp
+
+{%- endfor %}
     ## TODO write this in C
     eigenVectors = block_diag(
 {%- for scalarMassMatrix in scalarMassMatrices %}
-        transpose(testUpper{{ loop.index0 }}),
+        testUpper{{ loop.index0 }},
 {%- endfor %}
     )
    
