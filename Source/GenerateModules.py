@@ -268,7 +268,8 @@ cdef void computeMasses(double [::1] params):
     )
    
 {%- if not scalarPermutationMatrix == none %}
-    cdef int scalarPermutationMatrix[12][12]
+    {% set n = scalarMassMatrixSizes|sum %}
+    cdef int scalarPermutationMatrix[{{n}}][{{n}}]
     scalarPermutationMatrix = {{ scalarPermutationMatrix }}
     ## TODO use fortran version
     eigenVectors = dgemm(1,  scalarPermutationMatrix, eigenVectors)
