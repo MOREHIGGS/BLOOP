@@ -15,13 +15,12 @@ import PythoniseMathematica as PythoniseMathematica
 def generateModules(
     args, 
     allSymbols, 
-    scalarMassMatrixFilePath,
+    idk,
     scalarMassNames,
     scalarPermutationMatrixFilePath,
     scalarRotationMatrixFilePath,
     vectorMasses,
     vectorShorthands,
-    idk,
     gccFlags,
     fieldNames
 ):
@@ -48,14 +47,13 @@ def generateModules(
     
     computeMassesModule = generateComputeMassesModule(
         allSymbols,
-        scalarMassMatrixFilePath,
+        idk,
         scalarMassNames,
         scalarPermutationMatrixFilePath,
         scalarRotationMatrixFilePath,
         vectorMasses,
         vectorShorthands,
         loopOrder,
-        idk,
     )
     
     generateEvaluatePotentialModule(
@@ -168,14 +166,13 @@ cdef double complex veff(double [::1] params):
 
 def generateComputeMassesModule(
     allSymbols, 
-    scalarMassMatrixFile, 
+    scalarMatricesExpressions,
     scalarMassNames,
     scalarPermutationMatrixFile,
     scalarRotationMatrixFile,
     vectorMasses,
     vectorShorthands,
     loopOrder,
-    test,
 ):
     scalarMassMatrixSizes = [6,6]
     eigenvalueAssignment = []
@@ -287,18 +284,17 @@ cdef void computeMasses(double [::1] params):
 {%- for expression in vectorShorthands %}
     params[{{allSymbols.index(expression.identifier)}}] = {{ expression.expression }}
 {%- endfor %}
-    
         """)).render(
             allSymbols=allSymbols, 
+            scalarMatricesExpressions=scalarMatricesExpressions,
+            eigenvalueAssignment = eigenvalueAssignment,
             scalarMassMatrixSizes = scalarMassMatrixSizes,
+            bEigenVectors = 0 if loopOrder ==1 else 1,
             scalarMassNames = scalarMassNames,
             scalarPermutationMatrix = scalarPermutationMatrix,
             scalarRotationMatrix = scalarRotationMatrix,
             vectorMasses = vectorMasses,
             vectorShorthands = vectorShorthands,
-            bEigenVectors = 0 if loopOrder ==1 else 1,
-            scalarMatricesExpressions=test,
-            eigenvalueAssignment = eigenvalueAssignment
             )
 
 def mutliLineExpression(filePointer):
