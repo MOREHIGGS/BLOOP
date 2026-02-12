@@ -129,8 +129,6 @@ cpdef double complex evaluatePotential(const double [::1] fields, double [::1] p
 {%- endfor %}
 
     computeMasses(parameters)
-    print(veff(parameters))
-    input() 
     return veff(parameters)
 
 {{computeMassesModule}}
@@ -197,7 +195,7 @@ def generateComputeMassesModule(
 ## DEV note: netlib.org hosts documention for lapack/blas
 from scipy.linalg import block_diag
 from scipy.linalg.cython_lapack cimport dsyevd
-from numpy import array, empty, intc
+from numpy import array, empty, intc, transpose
 from scipy.linalg.blas import dgemm
 from libc.math cimport sqrt
 
@@ -249,10 +247,10 @@ cdef void computeMasses(double [::1] params):
     ## TODO write this in C
     eigenVectors = block_diag(
 {%- for scalarMassMatrix in scalarMassMatrices %}
-        testUpper{{ loop.index0 }},
+        transpose(testUpper{{ loop.index0 }}),
 {%- endfor %}
     )
-
+   
 {%- if not scalarPermutationMatrix == none %}
     cdef int scalarPermutationMatrix[12][12]
     scalarPermutationMatrix = {{ scalarPermutationMatrix }}
