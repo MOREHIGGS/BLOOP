@@ -302,19 +302,13 @@ blockDiagonalMM = Transpose[scalarPermutationMatrix] . scalarMM . scalarPermutat
 Print["Block diagonal mass matrix:"];
 blockDiagonalMM//MatrixForm
 
-(*Extract permutation matrix and do consistency check*)
 upperLeftMM = Take[blockDiagonalMM,{1,6},{1,6}];
 bottomRightMM = Take[blockDiagonalMM,{7,12},{7,12}];
-
+(* We only handle symmetric mass matrices at the moment *)
 If[!SymmetricMatrixQ[upperLeftMM] || !SymmetricMatrixQ[bottomRightMM], Print["Error, block not symmetric!"]];
 
 
-exportUTF8[
-exportPath<>"/ScalarMassMatrix.txt", 
-{ToString[InputForm[upperLeftMM]], 
-ToString[InputForm[bottomRightMM]]
-}
-];
+exportMatrices[exportPath<>"/ScalarMassMatrix.txt", {upperLeftMM, bottomRightMM}];
 
 
 (* ::Subsubsection:: *)

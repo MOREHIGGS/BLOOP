@@ -98,13 +98,18 @@ def pythoniseExpressionSystemArray(lines, allSymbols):
 def pythoniseExpressionSystem(lines):
     return [pythoniseExpression(line) for line in lines]
 
+def loadMassMatrices(filePath):
+    with open(filePath, 'r') as file:
+        matrices = file.read()
+    
+    return [matrix.strip().split('\n') for matrix in matrices.strip().split('\n---\n')]
 
 def pythoniseMathematica(args):
     allSymbols = getLinesJSON(args.allSymbolsFilePath) + ["missing"]
     allSymbols = sorted(
         [replaceGreekSymbols(symbol) for symbol in allSymbols], reverse=True
     )
-    
+
     expressionDict = {
         "bounded": {
             "expressions": pythoniseExpressionSystemArray(
@@ -162,7 +167,7 @@ def pythoniseMathematica(args):
     generateModules(
         args, 
         allSymbols, 
-        args.scalarMassMatrixFilePath, 
+        [pythoniseExpressionSystem(matrix) for matrix in loadMassMatrices(args.scalarMassMatrixFilePath)],
         getLinesJSON(args.scalarMassNamesFilePath),
         args.scalarPermutationMatrixFilePath, 
         args.scalarRotationMatrixFilePath, 

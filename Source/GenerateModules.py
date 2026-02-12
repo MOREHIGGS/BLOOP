@@ -15,7 +15,7 @@ import PythoniseMathematica as PythoniseMathematica
 def generateModules(
     args, 
     allSymbols, 
-    scalarMassMatrixFilePath,
+    idk,
     scalarMassNames,
     scalarPermutationMatrixFilePath,
     scalarRotationMatrixFilePath,
@@ -47,7 +47,7 @@ def generateModules(
     
     computeMassesModule = generateComputeMassesModule(
         allSymbols,
-        scalarMassMatrixFilePath,
+        idk,
         scalarMassNames,
         scalarPermutationMatrixFilePath,
         scalarRotationMatrixFilePath,
@@ -127,7 +127,6 @@ cpdef double complex evaluatePotential(const double [::1] fields, double [::1] p
 {%- endfor %}
 
     computeMasses(parameters)
-    
     return veff(parameters)
 
 {{computeMassesModule}}
@@ -167,20 +166,27 @@ cdef double complex veff(double [::1] params):
 
 def generateComputeMassesModule(
     allSymbols, 
-    scalarMassMatrixFile, 
+    scalarMatricesExpressions,
     scalarMassNames,
     scalarPermutationMatrixFile,
     scalarRotationMatrixFile,
     vectorMasses,
     vectorShorthands,
-    loopOrder
+    loopOrder,
 ):
-    with open(scalarMassMatrixFile) as file:
-        scalarMassMatrices = [convertMatrixToCythonSyntax(line) for line in file.readlines()]
-    
-    ## One [ per row and an extra [ to wrap all rows
-    scalarMassMatrixSizes = [scalarMassMatrix.count("[")-1 for scalarMassMatrix in scalarMassMatrices]
+    from math import sqrt 
+    ## Proving this works is left as an excerise for the reader :)    
+    scalarMassMatrixSizes = [int(-0.5 +sqrt(1+8*len(expressions))/2) for expressions in scalarMatricesExpressions ]
 
+    eigenvalueAssignment = []
+    for idxSym, symbol in enumerate(scalarMassNames):
+        idxShift = 0
+        for idxSize, n in enumerate(scalarMassMatrixSizes):
+            if idxSym < n + idxShift:
+                eigenvalueAssignment.append((symbol, idxSym - idxShift, idxSize))
+                break
+            idxShift += n 
+    
     if "none" in scalarPermutationMatrixFile.lower():
         scalarPermutationMatrix = None
     else:
@@ -194,7 +200,7 @@ def generateComputeMassesModule(
 ## DEV note: netlib.org hosts documention for lapack/blas
 from scipy.linalg import block_diag
 from scipy.linalg.cython_lapack cimport dsyevd
-from numpy import array, empty, intc
+from numpy import array, empty, intc, transpose
 from scipy.linalg.blas import dgemm
 from libc.math cimport sqrt
 
@@ -205,15 +211,11 @@ cdef void computeMasses(double [::1] params):
 {%- for symbol in allSymbols %}
     cdef double {{ symbol }} = params[{{ loop.index0 }}]
 {%- endfor %}
-    ## TODO(?) leaverage static or const? 
-    cdef char uplo = 'U' 
-    cdef char jobz = {{"'V'" if bEigenVectors else "'N'"}} 
     cdef int info
-{%- for scalarMassMatrix in scalarMassMatrices %}
+{%- for scalarMatrixExpressions in scalarMatricesExpressions %}
     {%- set i = loop.index0 %}
     {%- set n = scalarMassMatrixSizes[loop.index0] %}
-    ## TODO put on stack
-    cdef double [::1, :] scalarMassMatrix{{ i }} 
+    cdef double scalarMM{{i}}[{{n}}][{{n}}]
     cdef double eigenvalues{{ i }}[{{ n }}]
     cdef int n{{ i }} = {{ n }}
     cdef int lda{{ i }} =  {{ n }} 
@@ -221,14 +223,13 @@ cdef void computeMasses(double [::1] params):
     cdef int liwork{{ i }} = {{3+5*n if bEigenVectors else 1}} 
     cdef double work{{ i }}[{{1 + 6*n +2*n*n if bEigenVectors else 2*n+1}}]
     cdef int iwork{{ i }}[{{3+5*n if bEigenVectors else 1}}] 
-    
-    ## TODO Only generate the upper right part of the matrix and do stuff like sMM[0] = expression
     ## TODO(?) check for NaN and inf 
-    scalarMassMatrix{{ i }} = array({{ scalarMassMatrix -}}, dtype=float, order="F")
-
-    dsyevd(&jobz, &uplo,
-           &n{{ i }},
-           &scalarMassMatrix{{ i }}[0, 0], &lda{{ i }},
+    {% for expression in scalarMatrixExpressions %}
+    scalarMM{{i}}{{expression.identifier}}= {{expression.expression}}
+    {% endfor %}
+    dsyevd({{"'V'" if bEigenVectors else "'N'"}}, 
+            'L', &n{{ i }},
+           &scalarMM{{ i }}[0][0], &lda{{ i }},
            &eigenvalues{{ i }}[0],
            &work{{ i }}[0], &lwork{{ i }},
            &iwork{{ i }}[0], &liwork{{ i }},
@@ -240,18 +241,28 @@ cdef void computeMasses(double [::1] params):
         else:
             raise RuntimeError(f"dsyevd failed to converge for scalarMassMatrix{{i}} (info={info})")
 {%- endfor %}
-
-    
 {%- if bEigenVectors %}
+    ##Eigenvectors come back transposed from fortran
+    ## This transpose can be dropped when we get fortran dgemm
+    cdef int i,j 
+    cdef float temp
+{%- for n in scalarMassMatrixSizes %}
+    for i in range({{n}}):
+        for j in range(i+1, {{n}}):
+            temp = scalarMM{{loop.index0}}[i][j]
+            scalarMM{{loop.index0}}[i][j] = scalarMM{{loop.index0}}[j][i]
+            scalarMM{{loop.index0}}[j][i] = temp
+{%- endfor %}
     ## TODO write this in C
     eigenVectors = block_diag(
-{%- for scalarMassMatrix in scalarMassMatrices %}
-        scalarMassMatrix{{ loop.index0 }},
+{%- for _ in scalarMatricesExpressions %}
+        scalarMM{{ loop.index0 }},
 {%- endfor %}
     )
-
+   
 {%- if not scalarPermutationMatrix == none %}
-    cdef int scalarPermutationMatrix[12][12]
+    {% set n = scalarMassMatrixSizes|sum %}
+    cdef int scalarPermutationMatrix[{{n}}][{{n}}]
     scalarPermutationMatrix = {{ scalarPermutationMatrix }}
     ## TODO use fortran version
     eigenVectors = dgemm(1,  scalarPermutationMatrix, eigenVectors)
@@ -261,9 +272,8 @@ cdef void computeMasses(double [::1] params):
     params[{{allSymbols.index( symbol )}}] = eigenVectors[{{ indices[0] }}][{{ indices[1] }}]
 {%- endfor %}
 {%- endif %}
-{% set scalarMassMatrixLength = (scalarMassNames | length) / (scalarMassMatrices | length) | int %}
-{%- for symbol in scalarMassNames %}
-    params[{{allSymbols.index( symbol )}}] = eigenvalues{{ (loop.index0 / scalarMassMatrixLength) | int }}[{{ (loop.index0 % scalarMassMatrixLength) | int }}]
+{%- for symbol, localIdx, blockIdx in eigenvalueAssignment %}
+    params[{{allSymbols.index( symbol )}}] = eigenvalues{{ blockIdx }}[{{localIdx }}]
 {%- endfor %}
 
 {%- for expression in vectorMasses %}
@@ -273,18 +283,17 @@ cdef void computeMasses(double [::1] params):
 {%- for expression in vectorShorthands %}
     params[{{allSymbols.index(expression.identifier)}}] = {{ expression.expression }}
 {%- endfor %}
-    
         """)).render(
             allSymbols=allSymbols, 
-            scalarMassMatrices = scalarMassMatrices,
+            scalarMatricesExpressions=scalarMatricesExpressions,
+            eigenvalueAssignment = eigenvalueAssignment,
             scalarMassMatrixSizes = scalarMassMatrixSizes,
-            scalarMassNames = scalarMassNames,
+            bEigenVectors = 0 if loopOrder ==1 else 1,
             scalarPermutationMatrix = scalarPermutationMatrix,
             scalarRotationMatrix = scalarRotationMatrix,
             vectorMasses = vectorMasses,
             vectorShorthands = vectorShorthands,
-            bEigenVectors = 0 if loopOrder ==1 else 1,
-        )
+            )
 
 def mutliLineExpression(filePointer):
     ## Takes an expressions and breaks it down into a mutli line expression
