@@ -198,9 +198,7 @@ def generateComputeMassesModule(
     
     return Environment().from_string(dedent("""\
 ## DEV note: netlib.org hosts documention for lapack/blas
-from scipy.linalg import block_diag
 from scipy.linalg.cython_lapack cimport dsyevd
-from numpy import array, empty, intc, transpose
 from scipy.linalg.blas import dgemm
 from libc.math cimport sqrt
 
@@ -242,34 +240,31 @@ cdef void computeMasses(double [::1] params):
             raise RuntimeError(f"dsyevd failed to converge for scalarMassMatrix{{i}} (info={info})")
 {%- endfor %}
 {%- if bEigenVectors %}
-    ##Eigenvectors come back transposed from fortran
-    ## This transpose can be dropped when we get fortran dgemm
-    cdef int i,j 
-    cdef float temp
-{%- for n in scalarMassMatrixSizes %}
+    cdef int i = 0
+    cdef int j = 0
+
+    {% set n = scalarMassMatrixSizes|sum %}
+    cdef double eigenvectors[{{n}}][{{n}}]
     for i in range({{n}}):
-        for j in range(i+1, {{n}}):
-            temp = scalarMM{{loop.index0}}[i][j]
-            scalarMM{{loop.index0}}[i][j] = scalarMM{{loop.index0}}[j][i]
-            scalarMM{{loop.index0}}[j][i] = temp
-{%- endfor %}
-    ## TODO write this in C
-    eigenVectors = block_diag(
-{%- for _ in scalarMatricesExpressions %}
-        scalarMM{{ loop.index0 }},
-{%- endfor %}
-    )
-   
+        for j in range({{n}}):
+            {% set offset = namespace(value=0) %}
+            {% for size in scalarMassMatrixSizes %}
+            {% if loop.first %}if{% else %}elif{% endif %} 0<=i-{{offset.value}} < {{size}} and 0<=j-{{offset.value}} < {{size}}:
+                eigenvectors[i][j] = scalarMM{{loop.index0}}[j-{{offset.value}}][i-{{offset.value}}]
+            {% set offset.value = offset.value + size %}
+            {% endfor %}
+            else:
+                eigenvectors[i][j] = 0
 {%- if not scalarPermutationMatrix == none %}
     {% set n = scalarMassMatrixSizes|sum %}
     cdef int scalarPermutationMatrix[{{n}}][{{n}}]
     scalarPermutationMatrix = {{ scalarPermutationMatrix }}
     ## TODO use fortran version
-    eigenVectors = dgemm(1,  scalarPermutationMatrix, eigenVectors)
+    eigenvectors = dgemm(1,  scalarPermutationMatrix, eigenvectors)
 {%- endif %}
 
 {%- for symbol, indices in scalarRotationMatrix.items() %}
-    params[{{allSymbols.index( symbol )}}] = eigenVectors[{{ indices[0] }}][{{ indices[1] }}]
+    params[{{allSymbols.index( symbol )}}] = eigenvectors[{{ indices[0] }}][{{ indices[1] }}]
 {%- endfor %}
 {%- endif %}
 {%- for symbol, localIdx, blockIdx in eigenvalueAssignment %}
