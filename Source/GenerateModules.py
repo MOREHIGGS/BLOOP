@@ -192,6 +192,15 @@ def generateComputeMassesModule(
     else:
         with open(scalarPermutationMatrixFile) as file:
             scalarPermutationMatrix = file.readline()
+        print(type(scalarPermutationMatrix)) 
+        PMAssignment = []
+        for i, row in enumerate(scalarPermutationMatrix):
+            for j, ele in enumerate(row):
+                print(i, j, ele)
+                input()
+                PMAssignment.append([j,i, ele])
+        print(PMAssignment)
+        exit()
 
     with open(scalarRotationMatrixFile) as file:
         scalarRotationMatrix = json.loads(file.read())
@@ -199,7 +208,7 @@ def generateComputeMassesModule(
     return Environment().from_string(dedent("""\
 ## DEV note: netlib.org hosts documention for lapack/blas
 from scipy.linalg.cython_lapack cimport dsyevd
-from scipy.linalg.blas import dgemm
+from scipy.linalg.cython_blas import dgemm
 from libc.math cimport sqrt
 
 @cython.cdivision(True)
@@ -259,8 +268,19 @@ cdef void computeMasses(double [::1] params):
     {% set n = scalarMassMatrixSizes|sum %}
     cdef int scalarPermutationMatrix[{{n}}][{{n}}]
     scalarPermutationMatrix = {{ scalarPermutationMatrix }}
-    ## TODO use fortran version
+    cdef double permutatedEV[{{n}}][{{n}}]
+    dgemm('N', 'N', 
+          {{n}}, {{n}}, {{n}}, 1.0,  
+          &scalarPermutationMatrix[0][0], {{n}}
+          &eigenvectors[0][0], {{n}},
+          0, &permutatedEV[0][0], {{n}})
+
+
     eigenvectors = dgemm(1,  scalarPermutationMatrix, eigenvectors)
+    for i in range(12):
+        for j in range(12):
+            print(i, j, eigenvectors[i][j], permutatedEV[i][j])
+            input()
 {%- endif %}
 
 {%- for symbol, indices in scalarRotationMatrix.items() %}
