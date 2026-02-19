@@ -122,17 +122,13 @@ def processData(
                        - np.linalg.norm(allFieldValuesT[idx+1]) 
                        for idx in range(len(allFieldValuesT)-1) ])  
     
-    #print(fieldLengthDiff[0])
-    #exit()
     ## Try to catch all PT 
     ## A bit dangerous with large T steps or noisy data
     PTIndices = (fieldLengthDiff >= 0.2).nonzero()[0]
     if len(PTIndices) > 0:
         PTIndices = [int(idx) for idx in PTIndices]
         symmetricIndex = -np.argmax(fieldLengthDiff[::-1] > 0.1) -1
-        Ts = False
         if not symmetricIndex == PTIndices[-1]:
-            Ts = True
             PTIndices.append(symmetricIndex)
         
         processedResult["steps"] = len(PTIndices)
@@ -142,10 +138,8 @@ def processData(
             if not processedResult["strong"]:
                 processedResult["strong"] = bool(fieldLengthDiff[idx] > strengthCutOff)
             
-            tempType = "Ts" if (Ts and count == len(PTIndices)-1 ) else "Tc"
-            
             resultDic = {
-                f"{tempType}": result["T"][idx], 
+                "Tc": result["T"][idx], 
                 "strength": float(fieldLengthDiff[idx])
             }
             
@@ -155,7 +149,6 @@ def processData(
             results.append(resultDic)
          
         processedResult["PTData"] = results
-    print(processedResult)
     return processedResult
 
 
