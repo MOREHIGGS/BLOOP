@@ -190,8 +190,8 @@ class TrackVEV:
             minimizationResults["vevDepthReal"].append(vevDepth.real)
             minimizationResults["vevDepthImag"].append(vevDepth.imag)
             minimizationResults["vevLocation"].append(vevLocation)
-
-            if np.all(np.abs(vevLocation) < 0.5):
+            ## TODO add a catch for bad behaviour e.g. dipping in and out symmetric 
+            if np.all(np.abs(vevLocation) < 0.1):
                 if self.verbose:
                     print(f"Symmetric phase found at temp {T}")
 

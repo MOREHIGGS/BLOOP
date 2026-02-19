@@ -101,7 +101,6 @@ def processData(
         "failureReason": result["failureReason"],
         "PTData": None,
         "strong": False,
-        "steps": 0
     }
 
     if result["failureReason"]:
@@ -122,25 +121,29 @@ def processData(
                        - np.linalg.norm(allFieldValuesT[idx+1]) 
                        for idx in range(len(allFieldValuesT)-1) ])  
     
-    PTIndices = (fieldLengthDiff >= strengthCutOff).nonzero()[0]
+    ## Symmetric index should be the last jump above 0.1 in the length list
+    PTIndices = {int(len(fieldLengthDiff) -np.argmax(fieldLengthDiff[::-1] > 0.1) -1)}
+    ## Get the rest of the large jumps 
+    PTIndices.update(int(idx) for idx in (fieldLengthDiff >= 0.2).nonzero()[0])
+    processedResult["steps"] = len(PTIndices)
     if len(PTIndices) > 0:
-        processedResult["steps"] = len(fieldLengthDiff[PTIndices])
-        processedResult["strong"] = True
         results = []
-        
+         
         for idx in PTIndices:
+            if not processedResult["strong"]:
+                processedResult["strong"] = bool(fieldLengthDiff[idx] > strengthCutOff)
+            
             resultDic = {
                 "Tc": result["T"][idx], 
-                "strength": fieldLengthDiff[idx]
+                "strength": float(fieldLengthDiff[idx])
             }
             
             for fieldNameIdx, fieldJumps in enumerate(allFieldValuesD):
                 if abs(fieldJumps[idx]) > 0.1:
                     resultDic[fieldNames[fieldNameIdx]] = float(fieldJumps[idx])
             results.append(resultDic)
-        
+         
         processedResult["PTData"] = results
-    
     return processedResult
 
 
