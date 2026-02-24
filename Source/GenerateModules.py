@@ -25,7 +25,7 @@ def generateModules(
     fieldNames
 ):
     
-    (CythonModulesDir := Path("../Build/CythonModules")).mkdir(
+    (CythonModulesDir := Path("../Build/")).mkdir(
         exist_ok=True, 
         parents=True
     )   
@@ -55,38 +55,40 @@ def generateModules(
         vectorShorthands,
         loopOrder,
     )
-    
+    userString = "Z2_3HDM" 
+    evaluatePotentialFP = CythonModulesDir/userString/f"evaluatePotenital{loopOrder}.pyx"
     generateEvaluatePotentialModule(
-        CythonModulesDir / "evaluatePotential.pyx", 
+        CythonModulesDir/userString/f"EvaluatePotenital{loopOrder}.pyx", 
         loopOrder,
         allSymbols, 
         fieldNames,
         veffModule,
         computeMassesModule,
     )
-    
     generateSetupFile(
-        CythonModulesDir / "Setup.py",
+        CythonModulesDir/userString/f"Setup.py", 
         loopOrder, 
         gccFlags,
-        args.profile
+        args.profile,
+        evaluatePotentialFP,
     )
     
-    compileCythonModules(args.verbose, CythonModulesDir)
+    compileCythonModules(args.verbose, CythonModulesDir/userString)
     
 def generateSetupFile(
     fileName, 
     loopOrder, 
     gccFlags,
-    profile
-):  
+    profile,
+    evaluatePotentialFP,
+): 
     with open(fileName, 'w') as file:
         file.writelines(Environment().from_string(dedent("""\
             #!/usr/bin/env python3
             # -*- coding: utf-8 -*-
             from setuptools import setup, Extension
             from Cython.Build import cythonize
-            extensions = [Extension("evaluatePotential", ["evaluatePotential.pyx"], extra_compile_args = {{gccFlags}})]
+            extensions = [Extension("evaluatePotential", ["EvaluatePotenital1.pyx"], extra_compile_args = {{gccFlags}})]
 
             setup(
                 name="Veff_cython",
@@ -104,7 +106,9 @@ def generateSetupFile(
             """
         )).render(loopOrder = loopOrder, 
         gccFlags = [f"-{flag}" for flag in gccFlags],
-        profile = profile))
+        profile = profile,
+        evaluatePotentialFP = evaluatePotentialFP,
+        ))
     
 def generateEvaluatePotentialModule(
     filename, 
