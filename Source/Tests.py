@@ -16,9 +16,7 @@ def runTests():
         print("Unit tests failed. Skipping integration tests.")
         return
 
-    loopOrderList = ["NLO", "NNLO"]
-    for idx, loopOrder in enumerate(loopOrderList):
-        print(loopOrder)
+    for idx, loopOrder in enumerate(["NLO", "NNLO"]):
         print(f"Running {loopOrder} integration test:")
         for file in glob.glob("integrationTestDirectory/{loopOrder}/OutputResult/*"):
             os.remove(file)
