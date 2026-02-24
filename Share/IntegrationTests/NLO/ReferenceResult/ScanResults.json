@@ -19,9 +19,9 @@
       }
     ],
     "strong": true,
-    "steps": 1,
     "isPerturbative": true,
-    "complex": false
+    "complex": false,
+    "steps": 1
   },
   {
     "bmNumber": 1,
@@ -35,11 +35,17 @@
       "darkHieracy": 1
     },
     "failureReason": false,
-    "PTData": null,
+    "PTData": [
+      {
+        "Tc": 151.0,
+        "strength": 0.1809098171521947,
+        "v3": -0.18091492098827
+      }
+    ],
     "strong": false,
-    "steps": 0,
     "isPerturbative": true,
-    "complex": false
+    "complex": false,
+    "steps": 1
   },
   {
     "bmNumber": 2,
@@ -53,11 +59,16 @@
       "darkHieracy": 1
     },
     "failureReason": false,
-    "PTData": null,
+    "PTData": [
+      {
+        "Tc": 198.0,
+        "strength": 0.13260253619928364
+      }
+    ],
     "strong": false,
-    "steps": 0,
     "isPerturbative": true,
-    "complex": false
+    "complex": false,
+    "steps": 1
   },
   {
     "bmNumber": 3,
@@ -71,10 +82,15 @@
       "darkHieracy": 1
     },
     "failureReason": false,
-    "PTData": null,
+    "PTData": [
+      {
+        "Tc": 199.0,
+        "strength": 0.018039658023823346
+      }
+    ],
     "strong": false,
-    "steps": 0,
     "isPerturbative": true,
-    "complex": false
+    "complex": false,
+    "steps": 1
   }
 ]
