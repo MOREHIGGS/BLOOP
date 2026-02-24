@@ -19,9 +19,9 @@
       }
     ],
     "strong": true,
-    "steps": 1,
     "isPerturbative": true,
-    "complex": false
+    "complex": false,
+    "steps": 1
   },
   {
     "bmNumber": 1,
@@ -35,11 +35,17 @@
       "darkHieracy": 1
     },
     "failureReason": false,
-    "PTData": null,
+    "PTData": [
+      {
+        "Tc": 146.0,
+        "strength": 0.4582051843013668,
+        "v3": -0.45822318161427794
+      }
+    ],
     "strong": false,
-    "steps": 0,
     "isPerturbative": true,
-    "complex": false
+    "complex": false,
+    "steps": 1
   },
   {
     "bmNumber": 2,
@@ -53,11 +59,18 @@
       "darkHieracy": 1
     },
     "failureReason": false,
-    "PTData": null,
+    "PTData": [
+      {
+        "Tc": 175.0,
+        "strength": 0.34656074129399783,
+        "v1": -0.24780916837011674,
+        "v2": -0.2422832390598964
+      }
+    ],
     "strong": false,
-    "steps": 0,
     "isPerturbative": true,
-    "complex": false
+    "complex": false,
+    "steps": 1
   },
   {
     "bmNumber": 3,
@@ -71,10 +84,17 @@
       "darkHieracy": 1
     },
     "failureReason": false,
-    "PTData": null,
+    "PTData": [
+      {
+        "Tc": 181.0,
+        "strength": 0.3153851543363478,
+        "v1": -0.22577031217893934,
+        "v2": -0.22022045744165772
+      }
+    ],
     "strong": false,
-    "steps": 0,
     "isPerturbative": true,
-    "complex": false
+    "complex": false,
+    "steps": 1
   }
 ]
