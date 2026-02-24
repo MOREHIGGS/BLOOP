@@ -25,7 +25,7 @@ def generateModules(
     fieldNames
 ):
     
-    (CythonModulesDir := Path("../Build/")).mkdir(
+    (BuildDir := Path("../Build/")).mkdir(
         exist_ok=True, 
         parents=True
     )   
@@ -56,9 +56,9 @@ def generateModules(
         loopOrder,
     )
     userString = "Z2_3HDM" 
-    evaluatePotentialFP = CythonModulesDir/userString/f"evaluatePotenital{loopOrder}.pyx"
+    evaluatePotentialFP = BuildDir/userString/f"evaluatePotenital{loopOrder}.pyx"
     generateEvaluatePotentialModule(
-        CythonModulesDir/userString/f"EvaluatePotenital{loopOrder}.pyx", 
+        BuildDir/userString/f"EvaluatePotenital{loopOrder}.pyx", 
         loopOrder,
         allSymbols, 
         fieldNames,
@@ -66,14 +66,14 @@ def generateModules(
         computeMassesModule,
     )
     generateSetupFile(
-        CythonModulesDir/userString/f"Setup.py", 
+        BuildDir/userString/f"Setup.py", 
         loopOrder, 
         gccFlags,
         args.profile,
         evaluatePotentialFP,
     )
     
-    compileCythonModules(args.verbose, CythonModulesDir/userString)
+    compileCythonModules(args.verbose, BuildDir/userString)
     
 def generateSetupFile(
     fileName, 
@@ -81,14 +81,14 @@ def generateSetupFile(
     gccFlags,
     profile,
     evaluatePotentialFP,
-): 
+):
     with open(fileName, 'w') as file:
         file.writelines(Environment().from_string(dedent("""\
             #!/usr/bin/env python3
             # -*- coding: utf-8 -*-
             from setuptools import setup, Extension
             from Cython.Build import cythonize
-            extensions = [Extension("evaluatePotential", ["EvaluatePotenital1.pyx"], extra_compile_args = {{gccFlags}})]
+            extensions = [Extension("EvaluatePotential{{loopOrder}}", ["EvaluatePotenital{{loopOrder}}.pyx"], extra_compile_args = {{gccFlags}})]
 
             setup(
                 name="Veff_cython",
@@ -351,9 +351,9 @@ def convertToCythonSyntax(term):
     term = PythoniseMathematica.replaceSymbolsConst(term)
     return PythoniseMathematica.replaceGreekSymbols(term)
 
-def compileCythonModules(verbose, cythonModuleDir):
-    if not os.path.isfile(cythonModuleDir / "Setup.py"):
-        raise FileNotFoundError(f"No Setup.py found in {cythonModuleDir}")
+def compileCythonModules(verbose, cythonFP):
+    if not os.path.isfile(cythonFP / "Setup.py"):
+        raise FileNotFoundError(f"No Setup.py found in {cythonFP}")
     
     if verbose:
         print("Compiling cython modules")
@@ -361,7 +361,7 @@ def compileCythonModules(verbose, cythonModuleDir):
     ti = time.time()
     result = subprocess.run(
         [sys.executable, "Setup.py", "build_ext", "--inplace"],
-        cwd=cythonModuleDir,
+        cwd=cythonFP,
         capture_output=True,
         text=True,
     )
@@ -371,10 +371,9 @@ def compileCythonModules(verbose, cythonModuleDir):
         print("Compilation failed:")
         print(result.stderr)
         raise RuntimeError("Cython build failed")
-    else:
-        if verbose:        
-            print("Cython compilation succeeded:")
-            print(result.stdout)
-            print(f'Compilation took {tf - ti} seconds.')
-        
+    if verbose:        
+        print("Cython compilation succeeded:")
+        print(result.stdout)
+        print(f'Compilation took {tf - ti} seconds.')
+    
     # TODO: Add a clean up step to remove any compilation artifacts.
