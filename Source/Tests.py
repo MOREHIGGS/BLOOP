@@ -18,6 +18,7 @@ def runTests():
 
     loopOrderList = ["NLO", "NNLO"]
     for idx, loopOrder in enumerate(loopOrderList):
+        print(loopOrder)
         print(f"Running {loopOrder} integration test:")
         for file in glob.glob("integrationTestDirectory/{loopOrder}/OutputResult/*"):
             os.remove(file)
@@ -59,7 +60,7 @@ def runTests():
 
         if scanResults ==  pytest.approx(scanResultsRef, rel=0.):
             print(f"Summary of results at {loopOrder} is exactly what we expect")
-            break
+            continue
         
         print(f"Summary of results at {loopOrder} is not exactly what we expect")
         with open(f"{loopOrder}Diff.txt", "w") as fp:
