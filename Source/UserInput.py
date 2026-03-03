@@ -284,17 +284,17 @@ class UserInput(argparse.ArgumentParser):
        filesGroup.add_argument(
            "--loFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/Veff_LO.txt",
+           default="DRalgoOutputFiles/Veff_LO.txt",
        )
        filesGroup.add_argument(
            "--nloFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/Veff_NLO.txt",
+           default="DRalgoOutputFiles/Veff_NLO.txt",
        )
        filesGroup.add_argument(
            "--nnloFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/Veff_NNLO.txt",
+           default="DRalgoOutputFiles/Veff_NNLO.txt",
        )
        filesGroup.add_argument(
            "--betaFunctions4DFilePath",

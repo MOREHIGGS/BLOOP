@@ -158,10 +158,13 @@ def pythoniseMathematica(args):
         
     scalarPermutationMatrix = (getLinesJSON(args.scalarPermutationMatrixFilePath) 
         if not args.scalarPermutationMatrixFilePath.lower() == "none" else "none")
+    
+    veffExpressions = [getLines(veff) for veff in [args.loFilePath, args.nloFilePath] + (
+                    [args.nnloFilePath] if args.loopOrder > 1 else []
+                    )]        
+    
     generateModules(
-        args.loFilePath,
-        args.nloFilePath,
-        args.nnloFilePath,
+        veffExpressions,
         args.verbose,
         args.loopOrder,
         args.profile,

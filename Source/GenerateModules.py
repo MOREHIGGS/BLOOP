@@ -13,9 +13,7 @@ import importlib.util
 import PythoniseMathematica as PythoniseMathematica
 
 def generateModules(
-    loFilePath,
-    nloFilePath,
-    nnloFilePath,
+    veffExpressions,
     verbose,
     loopOrder,
     profile,
@@ -31,12 +29,8 @@ def generateModules(
     modelDirectory,
 ):
     
-    veffFilePaths = [loFilePath, nloFilePath] + (
-                    [nnloFilePath] if loopOrder > 1 else []
-                    )        
-    
     veffModule = generateVeffModule(
-        veffFilePaths, 
+        veffExpressions, 
         allSymbols
         )
     
@@ -158,9 +152,9 @@ cpdef double complex evaluatePotential(const double [::1] fields, double [::1] p
         computeMassesModule = computeMassesModule
         )
 
-def generateVeffModule(veffFilePaths, allSymbols):
+def generateVeffModule(veffExpressions, allSymbols):
     ## NOTE this is the one thing the can return complex
-    results = [mutliLineExpression(veffFP) for veffFP in veffFilePaths]
+    results = [mutliLineExpression(expression) for expression in veffExpressions]
     opTest = [item for result in results for item in result[0]]
     expressionTest = [item for result in results for item in result[1]]
     test = zip(opTest, expressionTest)
@@ -309,27 +303,21 @@ cdef void computeMasses(double [::1] params):
             vectorShorthands = vectorShorthands,
             )
 
-def mutliLineExpression(filePointer):
-    ## Takes an expressions and breaks it down into a mutli line expression
-    ## (Cython seems to struggle with the one line NNLO veff)
-    
-    with open(filePointer, 'r') as file:
-        veff = file.read()
-    
+def mutliLineExpression(expression):
     operations = ["+="]
     expressions = []
     
     netBrackets = 0
     start = 0
     
-    for i, char in enumerate(veff):
+    for i, char in enumerate(expression):
         if char == '(':
             netBrackets += 1
         elif char == ')':
             netBrackets -= 1
         if char == ' ' and netBrackets == 0:
             ##+1 to catch space
-            line = veff[start:i+1]
+            line = expression[start:i+1]
             if line in ["+ ", "- "]:
                 operations.append("+=" if line == "+ " else "-=")
             else:
@@ -337,8 +325,8 @@ def mutliLineExpression(filePointer):
             start = i + 1
     
     # Any remaining characters should just be expressions
-    if start < len(veff):
-        line = veff[start:]
+    if start < len(expression):
+        line = expression[start:]
         expressions.append(convertToCythonSyntax(line))
     return operations, expressions
 
