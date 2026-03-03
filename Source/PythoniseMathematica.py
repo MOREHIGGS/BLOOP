@@ -4,24 +4,9 @@ from numpy import euler_gamma, pi
 from pathlib import Path
 import unicodedata
 import re
+from pathlib import Path
 
 from GenerateModules import generateModules
-
-def getLines(relativePathToResource):
-    with open(relativePathToResource, "r", encoding="utf-8") as fp:
-        ## This is a hack to deal with adding hardScale super late to this part of the code
-        ## Would be better to do something like  fp.read().strip()
-        ## But that breaks existing code and I don't wanna fix that right now, 
-        ## especially with our plans of replacing these parsed expressions with meta cython code
-        data = fp.readlines()
-        if len(data) == 1:
-            return data[0]
-        return data
-
-def getLinesJSON(relativePathToResource):
-    with open(relativePathToResource, "r") as fp:
-        return json.load(fp)
-
 
 def replaceGreekSymbols(string):
     def replaceGreekCharacter(match):
@@ -33,11 +18,7 @@ def replaceGreekSymbols(string):
         elif 'CAPITAL' in characterData:
             return characterData[-1].capitalize()
     
-    greekCharacters = r'[\u0391-\u03A9\u03B1-\u03C9]'
-    result = re.sub(greekCharacters, replaceGreekCharacter, string)
-    
-    return result
-
+    return  re.sub(r'[\u0391-\u03A9\u03B1-\u03C9]', replaceGreekCharacter, string)
 
 def replaceSymbolsConst(string):
     return (
@@ -46,10 +27,8 @@ def replaceSymbolsConst(string):
         .replace("Glaisher", "1.28242712910062")
     )
 
-
 def removeSuffices(string):
     return string.replace("^2", "sq")
-
 
 def replaceSymbolsWithIndices(expression, symbols):
     expression = replaceGreekSymbols(expression)
@@ -58,7 +37,6 @@ def replaceSymbolsWithIndices(expression, symbols):
         expression = expression.replace(symbol, f"params[{idx}]")
 
     return expression
-
 
 def pythoniseExpressionArray(line, allSymbols):
     identifier, line = (
@@ -90,7 +68,6 @@ def pythoniseExpression(line):
         "symbols": sorted(symbols),
     }
 
-
 def pythoniseExpressionSystemArray(lines, allSymbols):
     return [pythoniseExpressionArray(line, allSymbols) for line in lines]
 
@@ -98,13 +75,30 @@ def pythoniseExpressionSystemArray(lines, allSymbols):
 def pythoniseExpressionSystem(lines):
     return [pythoniseExpression(line) for line in lines]
 
-def loadMassMatrices(filePath):
-    with open(filePath, 'r') as file:
-        matrices = file.read()
-    
-    return [matrix.strip().split('\n') for matrix in matrices.strip().split('\n---\n')]
-
 def pythoniseMathematica(args):
+    moduleDirectory = Path(__file__).resolve().parent/args.modelDirectory 
+    def loadMassMatrices(filePath):
+        with open(moduleDirectory/filePath, 'r') as file:
+            matrices = file.read()
+    
+        return [matrix.strip().split('\n') for matrix in matrices.strip().split('\n---\n')]
+
+   
+    def getLinesJSON(filePath):
+        with open(moduleDirectory/filePath, "r") as fp:
+            return json.load(fp)
+
+    def getLines(filePath):
+        with open(moduleDirectory/filePath, "r") as fp:
+            data = fp.readlines()
+            ## This is a hack to deal with adding hardScale super late to this part of the code
+            ## Would be better to do something like  fp.read().strip()
+            ## But that breaks existing code and I don't wanna fix that right now, 
+            ## especially with our plans of replacing these with cython code
+            if len(data) == 1:
+                return data[0]
+            return data
+
     allSymbols = getLinesJSON(args.allSymbolsFilePath) + ["missing"]
     allSymbols = sorted(
         [replaceGreekSymbols(symbol) for symbol in allSymbols], reverse=True
