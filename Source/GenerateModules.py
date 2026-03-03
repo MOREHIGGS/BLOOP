@@ -22,7 +22,8 @@ def generateModules(
     vectorMasses,
     vectorShorthands,
     gccFlags,
-    fieldNames
+    fieldNames,
+    modelDirectory,
 ):
     if args.verbose:
         print("Generating cython modules")
@@ -47,10 +48,9 @@ def generateModules(
         args.loopOrder,
     )
     
-    userString = "../Build/Z2_3HDM" 
     
     generateEvaluatePotentialModule(
-        f"{userString}/EvaluatePotenital{args.loopOrder}.pyx", 
+        f"{modelDirectory}/EvaluatePotential{args.loopOrder}.pyx", 
         args.loopOrder,
         allSymbols, 
         fieldNames,
@@ -59,14 +59,14 @@ def generateModules(
     )
     
     generateSetupFile(
-        f"{userString}/Setup.py", 
+        f"{modelDirectory}/Setup.py", 
         args.loopOrder, 
         gccFlags,
         args.profile,
-        f"{userString}/evaluatePotenital{args.loopOrder}.pyx",
+        f"{modelDirectory}/evaluatePotential{args.loopOrder}.pyx",
     )
     
-    compileCythonModules(args.verbose, userString)
+    compileCythonModules(args.verbose, modelDirectory)
     
 def generateSetupFile(
     fileName, 
@@ -81,7 +81,7 @@ def generateSetupFile(
             # -*- coding: utf-8 -*-
             from setuptools import setup, Extension
             from Cython.Build import cythonize
-            extensions = [Extension("EvaluatePotential{{loopOrder}}", ["EvaluatePotenital{{loopOrder}}.pyx"], extra_compile_args = {{gccFlags}})]
+            extensions = [Extension("EvaluatePotential{{loopOrder}}", ["EvaluatePotential{{loopOrder}}.pyx"], extra_compile_args = {{gccFlags}})]
 
             setup(
                 name="Veff_cython",

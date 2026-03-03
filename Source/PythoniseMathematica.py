@@ -174,7 +174,8 @@ def pythoniseMathematica(args):
         pythoniseExpressionSystem(getLines(args.vectorMassesSquaredFilePath)),
         pythoniseExpressionSystem(getLines(args.vectorShortHandsFilePath)),
         args.gccFlags,
-        [replaceGreekSymbols(name) for name in getLinesJSON(args.lagranianVariablesFilePath)["fieldSymbols"]]
+        [replaceGreekSymbols(name) for name in getLinesJSON(args.lagranianVariablesFilePath)["fieldSymbols"]],
+        args.modelDirectory,
     )
     (outputFile := Path(args.pythonisedExpressionsFilePath)).parent.mkdir(
         exist_ok=True, parents=True
