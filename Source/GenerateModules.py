@@ -24,22 +24,13 @@ def generateModules(
     gccFlags,
     fieldNames
 ):
-    
-    (BuildDir := Path("../Build/")).mkdir(
-        exist_ok=True, 
-        parents=True
-    )   
-    
     if args.verbose:
         print("Generating cython modules")
     
-    loopOrder = args.loopOrder 
+    veffFilePaths = [args.loFilePath, args.nloFilePath] + (
+                    [args.nnloFilePath] if args.loopOrder > 1 else []
+                    )        
     
-    veffFilePaths   = [args.loFilePath, args.nloFilePath]
-    
-    if loopOrder >1:
-        veffFilePaths.append(args.nnloFilePath)
-   
     veffModule = generateVeffModule(
         veffFilePaths, 
         allSymbols
@@ -53,27 +44,29 @@ def generateModules(
         scalarRotationMatrixFilePath,
         vectorMasses,
         vectorShorthands,
-        loopOrder,
+        args.loopOrder,
     )
-    userString = "Z2_3HDM" 
-    evaluatePotentialFP = BuildDir/userString/f"evaluatePotenital{loopOrder}.pyx"
+    
+    userString = "../Build/Z2_3HDM" 
+    
     generateEvaluatePotentialModule(
-        BuildDir/userString/f"EvaluatePotenital{loopOrder}.pyx", 
-        loopOrder,
+        f"{userString}/EvaluatePotenital{args.loopOrder}.pyx", 
+        args.loopOrder,
         allSymbols, 
         fieldNames,
         veffModule,
         computeMassesModule,
     )
+    
     generateSetupFile(
-        BuildDir/userString/f"Setup.py", 
-        loopOrder, 
+        f"{userString}/Setup.py", 
+        args.loopOrder, 
         gccFlags,
         args.profile,
-        evaluatePotentialFP,
+        f"{userString}/evaluatePotenital{args.loopOrder}.pyx",
     )
     
-    compileCythonModules(args.verbose, BuildDir/userString)
+    compileCythonModules(args.verbose, userString)
     
 def generateSetupFile(
     fileName, 
@@ -352,9 +345,6 @@ def convertToCythonSyntax(term):
     return PythoniseMathematica.replaceGreekSymbols(term)
 
 def compileCythonModules(verbose, cythonFP):
-    if not os.path.isfile(cythonFP / "Setup.py"):
-        raise FileNotFoundError(f"No Setup.py found in {cythonFP}")
-    
     if verbose:
         print("Compiling cython modules")
     
