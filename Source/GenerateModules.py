@@ -62,23 +62,20 @@ def generateModules(
         args.profile,
         f"{modelDirectory}/evaluatePotential{args.loopOrder}.pyx",
     )
-    try:
-        with open(f"{modelDirectory}/CythonModules/EvaluatePotential{args.loopOrder}.pyx", 'r') as f:
-            oldPotentialHash = md5(f.read().encode()).hexdigest()
-    except FileNotFoundError:
-        oldPotentialHash = None
-      
-    try:
-        with open(f"{modelDirectory}/CythonModules/Setup{args.loopOrder}.py", 'r') as f:
-            oldSetupHash = md5(f.read().encode()).hexdigest()
-    except FileNotFoundError:
-        oldSetupHash = None
     
+    def getHash(filePath):
+        try:
+            with open(filePath, "r") as f:
+                return md5(f.read().encode()).hexdigest()
+        except FileNotFoundError:
+            print(filePath)
+            return None
+
     os.makedirs(f"{modelDirectory}/CythonModules", exist_ok=True) 
     sys.path.insert(0, f"{modelDirectory}/CythonModules")
     
-    if (md5(evaluatePotentialModule.encode()).hexdigest() == oldPotentialHash and
-        md5(setupModule.encode()).hexdigest() == oldSetupHash and
+    if (md5(evaluatePotentialModule.encode()).hexdigest() == getHash(f"{modelDirectory}/CythonModules/EvaluatePotential{args.loopOrder}.pyx") and
+        md5(setupModule.encode()).hexdigest() == getHash(f"{modelDirectory}/CythonModules/Setup{args.loopOrder}.py") and
         importlib.util.find_spec(f"EvaluatePotential{args.loopOrder}") is not None):
         
         if args.verbose:
