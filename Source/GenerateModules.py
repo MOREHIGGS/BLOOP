@@ -7,6 +7,8 @@ import os
 import sys
 import time
 import subprocess
+from hashlib import md5
+import importlib.util
 ## Cannot import things from this module as gives cicular import
 import PythoniseMathematica as PythoniseMathematica
 
@@ -48,8 +50,7 @@ def generateModules(
         args.loopOrder,
     )
     
-    
-    generateEvaluatePotentialModule(
+    a = generateEvaluatePotentialModule(
         f"{modelDirectory}/EvaluatePotential{args.loopOrder}.pyx", 
         args.loopOrder,
         allSymbols, 
@@ -58,15 +59,41 @@ def generateModules(
         computeMassesModule,
     )
     
-    generateSetupFile(
+    b = generateSetupFile(
         f"{modelDirectory}/Setup.py", 
         args.loopOrder, 
         gccFlags,
         args.profile,
         f"{modelDirectory}/evaluatePotential{args.loopOrder}.pyx",
     )
+    try:
+        with open(f"{modelDirectory}/EvaluatePotential{args.loopOrder}.pyx", 'r') as f:
+            oldPotentialHash = md5(f.read().encode()).hexdigest()
+    except FileNotFoundError:
+        oldPotentialHash = None
+      
+    try:
+        with open(f"{modelDirectory}/Setup{args.loopOrder}.py", 'r') as f:
+            oldSetupHash = md5(f.read().encode()).hexdigest()
+    except FileNotFoundError:
+        oldSetupHash = None
     
-    compileCythonModules(args.verbose, modelDirectory)
+    sys.path.insert(0, modelDirectory)
+    if (md5(a.encode()).hexdigest() == oldPotentialHash and
+        md5(b.encode()).hexdigest() == oldSetupHash and
+        importlib.util.find_spec(f"EvaluatePotential{args.loopOrder}") is not None):
+        
+        if args.verbose:
+            print("Setup and evaluate potential are unchaged. Skipping compilation")
+        return
+    
+    with open(f"{modelDirectory}/EvaluatePotential{args.loopOrder}.pyx", "w") as fp:
+        fp.write(a)
+
+    with open(f"{modelDirectory}/Setup{args.loopOrder}.py", "w") as fp:
+        fp.write(b)
+    
+    compileCythonModules(args.verbose, modelDirectory, args.loopOrder)
     
 def generateSetupFile(
     fileName, 
@@ -75,8 +102,7 @@ def generateSetupFile(
     profile,
     evaluatePotentialFP,
 ):
-    with open(fileName, 'w') as file:
-        file.writelines(Environment().from_string(dedent("""\
+    return Environment().from_string(dedent("""\
             #!/usr/bin/env python3
             # -*- coding: utf-8 -*-
             from setuptools import setup, Extension
@@ -101,7 +127,7 @@ def generateSetupFile(
         gccFlags = [f"-{flag}" for flag in gccFlags],
         profile = profile,
         evaluatePotentialFP = evaluatePotentialFP,
-        ))
+        )
     
 def generateEvaluatePotentialModule(
     filename, 
@@ -111,8 +137,7 @@ def generateEvaluatePotentialModule(
     veffSubModules, 
     computeMassesModule
 ):
-    with open(filename, 'w') as file:
-        file.write(Environment().from_string(dedent("""\
+    return Environment().from_string(dedent("""\
 from libc.complex cimport csqrt, clog
 cimport cython
 @cython.cdivision(True)
@@ -138,7 +163,7 @@ cpdef double complex evaluatePotential(const double [::1] fields, double [::1] p
         veffSubModule = veffSubModules, 
         computeMassesModule = computeMassesModule
         )
-        )
+
 def generateVeffModule(veffFilePaths, allSymbols):
     ## NOTE this is the one thing the can return complex
     results = [mutliLineExpression(veffFP) for veffFP in veffFilePaths]
@@ -344,13 +369,13 @@ def convertToCythonSyntax(term):
     term = PythoniseMathematica.replaceSymbolsConst(term)
     return PythoniseMathematica.replaceGreekSymbols(term)
 
-def compileCythonModules(verbose, cythonFP):
+def compileCythonModules(verbose, cythonFP, loopOrder):
     if verbose:
         print("Compiling cython modules")
     
     ti = time.time()
     result = subprocess.run(
-        [sys.executable, "Setup.py", "build_ext", "--inplace"],
+        [sys.executable, f"Setup{loopOrder}.py", "build_ext", "--inplace"],
         cwd=cythonFP,
         capture_output=True,
         text=True,

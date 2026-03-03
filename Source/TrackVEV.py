@@ -2,6 +2,7 @@ import numpy as np
 import scipy
 import nlopt
 from dataclasses import dataclass, InitVar
+import importlib
 
 from PythoniseMathematica import replaceGreekSymbols
 from ParsedExpression import ParsedExpression, ParsedExpressionSystem
@@ -100,9 +101,7 @@ class TrackVEV:
                              pythonisedExpressions["bounded"],
                              self.allSymbols,
                          )
-        import sys, importlib
 
-        sys.path.insert(0, "../Build/Z2_3HDM")
         self.evaluatePotential = importlib.import_module(f"EvaluatePotential{loopOrder}").evaluatePotential
 
 
