@@ -359,7 +359,7 @@ class UserInput(argparse.ArgumentParser):
        filesGroup.add_argument(
            "--pythonisedExpressionsFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/PythonisedExpressionsFile.json",
+           default="../Build/Z2_3HDM/PythonisedExpressionsFile.json",
        )
 
        filesGroup.add_argument(
