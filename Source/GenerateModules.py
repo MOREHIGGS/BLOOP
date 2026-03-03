@@ -20,7 +20,7 @@ def generateModules(
     loopOrder,
     profile,
     allSymbols, 
-    idk,
+    scalarMatricesExpression,
     scalarMassNames,
     scalarPermutationMatrixFilePath,
     scalarRotationMatrixFilePath,
@@ -42,7 +42,7 @@ def generateModules(
     
     computeMassesModule = generateComputeMassesModule(
         allSymbols,
-        idk,
+        scalarMatricesExpression,
         scalarMassNames,
         scalarPermutationMatrixFilePath,
         scalarRotationMatrixFilePath,
