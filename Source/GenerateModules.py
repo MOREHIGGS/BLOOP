@@ -52,7 +52,6 @@ def generateModules(
     )
     
     evaluatePotentialModule = generateEvaluatePotentialModule(
-        f"{modelDirectory}/EvaluatePotential{loopOrder}.pyx", 
         loopOrder,
         allSymbols, 
         fieldNames,
@@ -61,11 +60,9 @@ def generateModules(
     )
     
     setupModule = generateSetupFile(
-        f"{modelDirectory}/Setup.py", 
         loopOrder, 
         gccFlags,
         profile,
-        f"{modelDirectory}/evaluatePotential{loopOrder}.pyx",
     )
     
     def getHash(filePath):
@@ -97,11 +94,9 @@ def generateModules(
     compileCythonModules(verbose, cythonModulesDir, loopOrder)
     
 def generateSetupFile(
-    fileName, 
     loopOrder, 
     gccFlags,
     profile,
-    evaluatePotentialFP,
 ):
     return Environment().from_string(dedent("""\
             #!/usr/bin/env python3
@@ -127,11 +122,9 @@ def generateSetupFile(
         )).render(loopOrder = loopOrder, 
         gccFlags = [f"-{flag}" for flag in gccFlags],
         profile = profile,
-        evaluatePotentialFP = evaluatePotentialFP,
         )
     
 def generateEvaluatePotentialModule(
-    filename, 
     loopOrder, 
     allSymbols, 
     fieldNames, 
