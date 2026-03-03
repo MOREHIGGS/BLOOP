@@ -71,24 +71,26 @@ def generateModules(
             print(filePath)
             return None
 
-    os.makedirs(f"{modelDirectory}/CythonModules", exist_ok=True) 
-    sys.path.insert(0, f"{modelDirectory}/CythonModules")
-    
-    if (md5(evaluatePotentialModule.encode()).hexdigest() == getHash(f"{modelDirectory}/CythonModules/EvaluatePotential{args.loopOrder}.pyx") and
-        md5(setupModule.encode()).hexdigest() == getHash(f"{modelDirectory}/CythonModules/Setup{args.loopOrder}.py") and
+    cythonModulesDir = Path(f"{modelDirectory}/CythonModules")
+    cythonModulesDir.mkdir(exist_ok=True, parents=True)
+    cythonModulesDir = str(cythonModulesDir)
+    sys.path.insert(0, cythonModulesDir)
+
+    if (md5(evaluatePotentialModule.encode()).hexdigest() == getHash(f"{cythonModulesDir}/EvaluatePotential{args.loopOrder}.pyx") and
+        md5(setupModule.encode()).hexdigest() == getHash(f"{cythonModulesDir}/Setup{args.loopOrder}.py") and
         importlib.util.find_spec(f"EvaluatePotential{args.loopOrder}") is not None):
         
         if args.verbose:
             print("Using previous compiled code")
         return
     
-    with open(f"{modelDirectory}/CythonModules/EvaluatePotential{args.loopOrder}.pyx", "w") as fp:
+    with open(f"{cythonModulesDir}/EvaluatePotential{args.loopOrder}.pyx", "w") as fp:
         fp.write(evaluatePotentialModule)
 
-    with open(f"{modelDirectory}/CythonModules/Setup{args.loopOrder}.py", "w") as fp:
+    with open(f"{cythonModulesDir}/Setup{args.loopOrder}.py", "w") as fp:
         fp.write(setupModule)
     
-    compileCythonModules(args.verbose, f"{modelDirectory}/CythonModules", args.loopOrder)
+    compileCythonModules(args.verbose, cythonModulesDir, args.loopOrder)
     
 def generateSetupFile(
     fileName, 
