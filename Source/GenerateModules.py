@@ -7,39 +7,34 @@ import os
 import sys
 import time
 import subprocess
+from hashlib import md5
+import importlib.util
 ## Cannot import things from this module as gives cicular import
 import PythoniseMathematica as PythoniseMathematica
 
-
-
 def generateModules(
-    args, 
+    loFilePath,
+    nloFilePath,
+    nnloFilePath,
+    verbose,
+    loopOrder,
+    profile,
     allSymbols, 
-    idk,
+    scalarMatricesExpression,
     scalarMassNames,
     scalarPermutationMatrixFilePath,
     scalarRotationMatrixFilePath,
     vectorMasses,
     vectorShorthands,
     gccFlags,
-    fieldNames
+    fieldNames,
+    modelDirectory,
 ):
     
-    (CythonModulesDir := Path("../Build/CythonModules")).mkdir(
-        exist_ok=True, 
-        parents=True
-    )   
+    veffFilePaths = [loFilePath, nloFilePath] + (
+                    [nnloFilePath] if loopOrder > 1 else []
+                    )        
     
-    if args.verbose:
-        print("Generating cython modules")
-    
-    loopOrder = args.loopOrder 
-    
-    veffFilePaths   = [args.loFilePath, args.nloFilePath]
-    
-    if loopOrder >1:
-        veffFilePaths.append(args.nnloFilePath)
-   
     veffModule = generateVeffModule(
         veffFilePaths, 
         allSymbols
@@ -47,7 +42,7 @@ def generateModules(
     
     computeMassesModule = generateComputeMassesModule(
         allSymbols,
-        idk,
+        scalarMatricesExpression,
         scalarMassNames,
         scalarPermutationMatrixFilePath,
         scalarRotationMatrixFilePath,
@@ -56,8 +51,7 @@ def generateModules(
         loopOrder,
     )
     
-    generateEvaluatePotentialModule(
-        CythonModulesDir / "evaluatePotential.pyx", 
+    evaluatePotentialModule = generateEvaluatePotentialModule(
         loopOrder,
         allSymbols, 
         fieldNames,
@@ -65,29 +59,52 @@ def generateModules(
         computeMassesModule,
     )
     
-    generateSetupFile(
-        CythonModulesDir / "Setup.py",
+    setupModule = generateSetupFile(
         loopOrder, 
         gccFlags,
-        args.profile
+        profile,
     )
     
-    compileCythonModules(args.verbose, CythonModulesDir)
+    def getHash(filePath):
+        try:
+            with open(filePath, "r") as f:
+                return md5(f.read().encode()).hexdigest()
+        except FileNotFoundError:
+            return None
+
+    cythonModulesDir = Path(f"{modelDirectory}/CythonModules")
+    cythonModulesDir.mkdir(exist_ok=True, parents=True)
+    cythonModulesDir = str(cythonModulesDir)
+    sys.path.insert(0, cythonModulesDir)
+
+    if (md5(evaluatePotentialModule.encode()).hexdigest() == getHash(f"{cythonModulesDir}/EvaluatePotential{loopOrder}.pyx") and
+        md5(setupModule.encode()).hexdigest() == getHash(f"{cythonModulesDir}/Setup{loopOrder}.py") and
+        importlib.util.find_spec(f"EvaluatePotential{loopOrder}") is not None):
+        
+        if verbose:
+            print("Using previous compiled code")
+        return
+    
+    with open(f"{cythonModulesDir}/EvaluatePotential{loopOrder}.pyx", "w") as fp:
+        fp.write(evaluatePotentialModule)
+
+    with open(f"{cythonModulesDir}/Setup{loopOrder}.py", "w") as fp:
+        fp.write(setupModule)
+    
+    compileCythonModules(verbose, cythonModulesDir, loopOrder)
     
 def generateSetupFile(
-    fileName, 
     loopOrder, 
     gccFlags,
-    profile
-):  
-    with open(fileName, 'w') as file:
-        file.writelines(Environment().from_string(dedent("""\
+    profile,
+):
+    return Environment().from_string(dedent("""\
             #!/usr/bin/env python3
             # -*- coding: utf-8 -*-
             from setuptools import setup, Extension
             from Cython.Build import cythonize
-            extensions = [Extension("evaluatePotential", ["evaluatePotential.pyx"], extra_compile_args = {{gccFlags}})]
-
+            extensions = [Extension("EvaluatePotential{{loopOrder}}", ["EvaluatePotential{{loopOrder}}.pyx"], extra_compile_args = {{gccFlags}})]
+            
             setup(
                 name="Veff_cython",
                 ext_modules = cythonize(
@@ -104,18 +121,17 @@ def generateSetupFile(
             """
         )).render(loopOrder = loopOrder, 
         gccFlags = [f"-{flag}" for flag in gccFlags],
-        profile = profile))
+        profile = profile,
+        )
     
 def generateEvaluatePotentialModule(
-    filename, 
     loopOrder, 
     allSymbols, 
     fieldNames, 
     veffSubModules, 
     computeMassesModule
 ):
-    with open(filename, 'w') as file:
-        file.write(Environment().from_string(dedent("""\
+    return Environment().from_string(dedent("""\
 from libc.complex cimport csqrt, clog
 cimport cython
 @cython.cdivision(True)
@@ -141,7 +157,7 @@ cpdef double complex evaluatePotential(const double [::1] fields, double [::1] p
         veffSubModule = veffSubModules, 
         computeMassesModule = computeMassesModule
         )
-        )
+
 def generateVeffModule(veffFilePaths, allSymbols):
     ## NOTE this is the one thing the can return complex
     results = [mutliLineExpression(veffFP) for veffFP in veffFilePaths]
@@ -347,17 +363,14 @@ def convertToCythonSyntax(term):
     term = PythoniseMathematica.replaceSymbolsConst(term)
     return PythoniseMathematica.replaceGreekSymbols(term)
 
-def compileCythonModules(verbose, cythonModuleDir):
-    if not os.path.isfile(cythonModuleDir / "Setup.py"):
-        raise FileNotFoundError(f"No Setup.py found in {cythonModuleDir}")
-    
+def compileCythonModules(verbose, cythonFP, loopOrder):
     if verbose:
         print("Compiling cython modules")
     
     ti = time.time()
     result = subprocess.run(
-        [sys.executable, "Setup.py", "build_ext", "--inplace"],
-        cwd=cythonModuleDir,
+        [sys.executable, f"Setup{loopOrder}.py", "build_ext", "--inplace"],
+        cwd=cythonFP,
         capture_output=True,
         text=True,
     )
@@ -367,10 +380,9 @@ def compileCythonModules(verbose, cythonModuleDir):
         print("Compilation failed:")
         print(result.stderr)
         raise RuntimeError("Cython build failed")
-    else:
-        if verbose:        
-            print("Cython compilation succeeded:")
-            print(result.stdout)
-            print(f'Compilation took {tf - ti} seconds.')
-        
+    if verbose:        
+        print("Cython compilation succeeded:")
+        print(result.stdout)
+        print(f'Compilation took {tf - ti} seconds.')
+    
     # TODO: Add a clean up step to remove any compilation artifacts.

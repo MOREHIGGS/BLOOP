@@ -17,7 +17,6 @@ RUN if [ "$DEV" = "true" ] ; then \
     fi
 
 ENV PATH="/Bloop/Share:${PATH}"
-ENV PYTHONPATH "/Bloop/Source:/Bloop/Build/CythonModules"
 
 RUN activate-global-python-argcomplete
 

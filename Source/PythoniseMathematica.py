@@ -165,7 +165,12 @@ def pythoniseMathematica(args):
                 }}
         
     generateModules(
-        args, 
+        args.loFilePath,
+        args.nloFilePath,
+        args.nnloFilePath,
+        args.verbose,
+        args.loopOrder,
+        args.profile,
         allSymbols, 
         [pythoniseExpressionSystem(matrix) for matrix in loadMassMatrices(args.scalarMassMatrixFilePath)],
         getLinesJSON(args.scalarMassNamesFilePath),
@@ -174,7 +179,8 @@ def pythoniseMathematica(args):
         pythoniseExpressionSystem(getLines(args.vectorMassesSquaredFilePath)),
         pythoniseExpressionSystem(getLines(args.vectorShortHandsFilePath)),
         args.gccFlags,
-        [replaceGreekSymbols(name) for name in getLinesJSON(args.lagranianVariablesFilePath)["fieldSymbols"]]
+        [replaceGreekSymbols(name) for name in getLinesJSON(args.lagranianVariablesFilePath)["fieldSymbols"]],
+        args.modelDirectory,
     )
     (outputFile := Path(args.pythonisedExpressionsFilePath)).parent.mkdir(
         exist_ok=True, parents=True

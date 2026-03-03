@@ -361,6 +361,12 @@ class UserInput(argparse.ArgumentParser):
            action="store",
            default="../Build/Z2_3HDM/DRalgoOutputFiles/PythonisedExpressionsFile.json",
        )
+
+       filesGroup.add_argument(
+            "--modelDirectory",
+            action="store",
+            default="../Build/Z2_3HDM"
+       )
        
        argcomplete.autocomplete(self)
        

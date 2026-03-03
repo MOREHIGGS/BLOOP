@@ -2,6 +2,7 @@ import numpy as np
 import scipy
 import nlopt
 from dataclasses import dataclass, InitVar
+import importlib
 
 from PythoniseMathematica import replaceGreekSymbols
 from ParsedExpression import ParsedExpression, ParsedExpressionSystem
@@ -52,6 +53,7 @@ class TrackVEV:
              initialGuesses,
              verbose,
              pythonisedExpressions,
+             loopOrder,
              nloptConfig,
         ):
         
@@ -99,7 +101,10 @@ class TrackVEV:
                              pythonisedExpressions["bounded"],
                              self.allSymbols,
                          )
-        
+
+        self.evaluatePotential = importlib.import_module(f"EvaluatePotential{loopOrder}").evaluatePotential
+
+
     def trackVEV(self, benchmark):
         minimizationResults = {
             "T": [],
@@ -207,12 +212,11 @@ class TrackVEV:
         return minimizationResults
     
     def findGlobalMinimum(self, params, minimumCandidates):
-        from evaluatePotential  import evaluatePotential
         """For physics reasons we only minimise the real part,
         for nlopt reasons we need to give a redunant grad arg"""
         def VeffWrapper(fields, grad):
             return np.real(
-                    evaluatePotential(fields, params)
+                    self.evaluatePotential(fields, params)
                 )
 
         bestResult = self.nloptInst.nloptGlobal(VeffWrapper, minimumCandidates[0])
@@ -223,7 +227,7 @@ class TrackVEV:
                 bestResult = result
 
         ## Potential computed again in case its complex
-        return bestResult[0], evaluatePotential(bestResult[0], params)
+        return bestResult[0], self.evaluatePotential(bestResult[0], params)
     
 
 
