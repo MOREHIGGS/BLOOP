@@ -12,8 +12,6 @@ import importlib.util
 ## Cannot import things from this module as gives cicular import
 import PythoniseMathematica as PythoniseMathematica
 
-
-
 def generateModules(
     args, 
     allSymbols, 
@@ -27,8 +25,6 @@ def generateModules(
     fieldNames,
     modelDirectory,
 ):
-    if args.verbose:
-        print("Generating cython modules")
     
     veffFilePaths = [args.loFilePath, args.nloFilePath] + (
                     [args.nnloFilePath] if args.loopOrder > 1 else []
@@ -50,7 +46,7 @@ def generateModules(
         args.loopOrder,
     )
     
-    a = generateEvaluatePotentialModule(
+    evaluatePotentialModule = generateEvaluatePotentialModule(
         f"{modelDirectory}/EvaluatePotential{args.loopOrder}.pyx", 
         args.loopOrder,
         allSymbols, 
@@ -59,7 +55,7 @@ def generateModules(
         computeMassesModule,
     )
     
-    b = generateSetupFile(
+    setupModule = generateSetupFile(
         f"{modelDirectory}/Setup.py", 
         args.loopOrder, 
         gccFlags,
@@ -67,33 +63,35 @@ def generateModules(
         f"{modelDirectory}/evaluatePotential{args.loopOrder}.pyx",
     )
     try:
-        with open(f"{modelDirectory}/EvaluatePotential{args.loopOrder}.pyx", 'r') as f:
+        with open(f"{modelDirectory}/CythonModules/EvaluatePotential{args.loopOrder}.pyx", 'r') as f:
             oldPotentialHash = md5(f.read().encode()).hexdigest()
     except FileNotFoundError:
         oldPotentialHash = None
       
     try:
-        with open(f"{modelDirectory}/Setup{args.loopOrder}.py", 'r') as f:
+        with open(f"{modelDirectory}/CythonModules/Setup{args.loopOrder}.py", 'r') as f:
             oldSetupHash = md5(f.read().encode()).hexdigest()
     except FileNotFoundError:
         oldSetupHash = None
     
-    sys.path.insert(0, modelDirectory)
-    if (md5(a.encode()).hexdigest() == oldPotentialHash and
-        md5(b.encode()).hexdigest() == oldSetupHash and
+    os.makedirs(f"{modelDirectory}/CythonModules", exist_ok=True) 
+    sys.path.insert(0, f"{modelDirectory}/CythonModules")
+    
+    if (md5(evaluatePotentialModule.encode()).hexdigest() == oldPotentialHash and
+        md5(setupModule.encode()).hexdigest() == oldSetupHash and
         importlib.util.find_spec(f"EvaluatePotential{args.loopOrder}") is not None):
         
         if args.verbose:
-            print("Setup and evaluate potential are unchaged. Skipping compilation")
+            print("Using previous compiled code")
         return
     
-    with open(f"{modelDirectory}/EvaluatePotential{args.loopOrder}.pyx", "w") as fp:
-        fp.write(a)
+    with open(f"{modelDirectory}/CythonModules/EvaluatePotential{args.loopOrder}.pyx", "w") as fp:
+        fp.write(evaluatePotentialModule)
 
-    with open(f"{modelDirectory}/Setup{args.loopOrder}.py", "w") as fp:
-        fp.write(b)
+    with open(f"{modelDirectory}/CythonModules/Setup{args.loopOrder}.py", "w") as fp:
+        fp.write(setupModule)
     
-    compileCythonModules(args.verbose, modelDirectory, args.loopOrder)
+    compileCythonModules(args.verbose, f"{modelDirectory}/CythonModules", args.loopOrder)
     
 def generateSetupFile(
     fileName, 
@@ -108,7 +106,7 @@ def generateSetupFile(
             from setuptools import setup, Extension
             from Cython.Build import cythonize
             extensions = [Extension("EvaluatePotential{{loopOrder}}", ["EvaluatePotential{{loopOrder}}.pyx"], extra_compile_args = {{gccFlags}})]
-
+            
             setup(
                 name="Veff_cython",
                 ext_modules = cythonize(
