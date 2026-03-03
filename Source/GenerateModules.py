@@ -210,8 +210,7 @@ def generateComputeMassesModule(
             scalarPermutationMatrix = json.load(file)
         PMAssignment = [[j, i, ele] for i, row in enumerate(scalarPermutationMatrix) for j, ele in enumerate(row)] 
     with open(scalarRotationMatrixFile) as file:
-        scalarRotationMatrix = json.loads(file.read())
-    
+        scalarRotationMatrix = json.load(file)
     return Environment().from_string(dedent("""\
 ## DEV note: netlib.org hosts documention for lapack/blas
 ## DEV note: REMINDER THAT FORTRAN IS TRANPOSE RELATIVE TO C

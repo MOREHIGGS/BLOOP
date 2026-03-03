@@ -52,7 +52,6 @@ def pythoniseExpressionArray(line, allSymbols):
         "symbols": sorted(symbols),
     }
 
-
 def pythoniseExpression(line):
     identifier, line = (
         map(str.strip, line.split("->")) if ("->" in line) else ("missing", line)
@@ -70,7 +69,6 @@ def pythoniseExpression(line):
 
 def pythoniseExpressionSystemArray(lines, allSymbols):
     return [pythoniseExpressionArray(line, allSymbols) for line in lines]
-
 
 def pythoniseExpressionSystem(lines):
     return [pythoniseExpression(line) for line in lines]
