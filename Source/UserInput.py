@@ -334,12 +334,12 @@ class UserInput(argparse.ArgumentParser):
        filesGroup.add_argument(
            "--scalarPermutationMatrixFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/ScalarPermutationMatrix.txt",
+           default="DRalgoOutputFiles/ScalarPermutationMatrix.txt",
        )
        filesGroup.add_argument(
            "--scalarRotationMatrixFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/ScalarRotationMatrix.json",
+           default="DRalgoOutputFiles/ScalarRotationMatrix.json",
        )
        filesGroup.add_argument(
            "--scalarMassMatrixFilePath",

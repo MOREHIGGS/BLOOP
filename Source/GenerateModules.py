@@ -22,8 +22,8 @@ def generateModules(
     allSymbols, 
     scalarMatricesExpression,
     scalarMassNames,
-    scalarPermutationMatrixFilePath,
-    scalarRotationMatrixFilePath,
+    scalarPermutationMatrix,
+    scalarRotationMatrix,
     vectorMasses,
     vectorShorthands,
     gccFlags,
@@ -44,8 +44,8 @@ def generateModules(
         allSymbols,
         scalarMatricesExpression,
         scalarMassNames,
-        scalarPermutationMatrixFilePath,
-        scalarRotationMatrixFilePath,
+        scalarPermutationMatrix,
+        scalarRotationMatrix,
         vectorMasses,
         vectorShorthands,
         loopOrder,
@@ -184,8 +184,8 @@ def generateComputeMassesModule(
     allSymbols, 
     scalarMatricesExpressions,
     scalarMassNames,
-    scalarPermutationMatrixFile,
-    scalarRotationMatrixFile,
+    scalarPermutationMatrix,
+    scalarRotationMatrix,
     vectorMasses,
     vectorShorthands,
     loopOrder,
@@ -203,14 +203,7 @@ def generateComputeMassesModule(
                 break
             idxShift += n 
     
-    if "none" in scalarPermutationMatrixFile.lower():
-        scalarPermutationMatrix = None
-    else:
-        with open(scalarPermutationMatrixFile) as file:
-            scalarPermutationMatrix = json.load(file)
-        PMAssignment = [[j, i, ele] for i, row in enumerate(scalarPermutationMatrix) for j, ele in enumerate(row)] 
-    with open(scalarRotationMatrixFile) as file:
-        scalarRotationMatrix = json.load(file)
+    PMAssignment = [[j, i, ele] for i, row in enumerate(scalarPermutationMatrix) for j, ele in enumerate(row)] 
     return Environment().from_string(dedent("""\
 ## DEV note: netlib.org hosts documention for lapack/blas
 ## DEV note: REMINDER THAT FORTRAN IS TRANPOSE RELATIVE TO C
