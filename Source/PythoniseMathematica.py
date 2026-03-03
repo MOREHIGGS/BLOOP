@@ -165,7 +165,12 @@ def pythoniseMathematica(args):
                 }}
         
     generateModules(
-        args, 
+        args.loFilePath,
+        args.nloFilePath,
+        args.nnloFilePath,
+        args.verbose,
+        args.loopOrder,
+        args.profile,
         allSymbols, 
         [pythoniseExpressionSystem(matrix) for matrix in loadMassMatrices(args.scalarMassMatrixFilePath)],
         getLinesJSON(args.scalarMassNamesFilePath),

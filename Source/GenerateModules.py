@@ -13,7 +13,12 @@ import importlib.util
 import PythoniseMathematica as PythoniseMathematica
 
 def generateModules(
-    args, 
+    loFilePath,
+    nloFilePath,
+    nnloFilePath,
+    verbose,
+    loopOrder,
+    profile,
     allSymbols, 
     idk,
     scalarMassNames,
@@ -26,8 +31,8 @@ def generateModules(
     modelDirectory,
 ):
     
-    veffFilePaths = [args.loFilePath, args.nloFilePath] + (
-                    [args.nnloFilePath] if args.loopOrder > 1 else []
+    veffFilePaths = [loFilePath, nloFilePath] + (
+                    [nnloFilePath] if loopOrder > 1 else []
                     )        
     
     veffModule = generateVeffModule(
@@ -43,12 +48,12 @@ def generateModules(
         scalarRotationMatrixFilePath,
         vectorMasses,
         vectorShorthands,
-        args.loopOrder,
+        loopOrder,
     )
     
     evaluatePotentialModule = generateEvaluatePotentialModule(
-        f"{modelDirectory}/EvaluatePotential{args.loopOrder}.pyx", 
-        args.loopOrder,
+        f"{modelDirectory}/EvaluatePotential{loopOrder}.pyx", 
+        loopOrder,
         allSymbols, 
         fieldNames,
         veffModule,
@@ -57,10 +62,10 @@ def generateModules(
     
     setupModule = generateSetupFile(
         f"{modelDirectory}/Setup.py", 
-        args.loopOrder, 
+        loopOrder, 
         gccFlags,
-        args.profile,
-        f"{modelDirectory}/evaluatePotential{args.loopOrder}.pyx",
+        profile,
+        f"{modelDirectory}/evaluatePotential{loopOrder}.pyx",
     )
     
     def getHash(filePath):
@@ -68,7 +73,6 @@ def generateModules(
             with open(filePath, "r") as f:
                 return md5(f.read().encode()).hexdigest()
         except FileNotFoundError:
-            print(filePath)
             return None
 
     cythonModulesDir = Path(f"{modelDirectory}/CythonModules")
@@ -76,21 +80,21 @@ def generateModules(
     cythonModulesDir = str(cythonModulesDir)
     sys.path.insert(0, cythonModulesDir)
 
-    if (md5(evaluatePotentialModule.encode()).hexdigest() == getHash(f"{cythonModulesDir}/EvaluatePotential{args.loopOrder}.pyx") and
-        md5(setupModule.encode()).hexdigest() == getHash(f"{cythonModulesDir}/Setup{args.loopOrder}.py") and
-        importlib.util.find_spec(f"EvaluatePotential{args.loopOrder}") is not None):
+    if (md5(evaluatePotentialModule.encode()).hexdigest() == getHash(f"{cythonModulesDir}/EvaluatePotential{loopOrder}.pyx") and
+        md5(setupModule.encode()).hexdigest() == getHash(f"{cythonModulesDir}/Setup{loopOrder}.py") and
+        importlib.util.find_spec(f"EvaluatePotential{loopOrder}") is not None):
         
-        if args.verbose:
+        if verbose:
             print("Using previous compiled code")
         return
     
-    with open(f"{cythonModulesDir}/EvaluatePotential{args.loopOrder}.pyx", "w") as fp:
+    with open(f"{cythonModulesDir}/EvaluatePotential{loopOrder}.pyx", "w") as fp:
         fp.write(evaluatePotentialModule)
 
-    with open(f"{cythonModulesDir}/Setup{args.loopOrder}.py", "w") as fp:
+    with open(f"{cythonModulesDir}/Setup{loopOrder}.py", "w") as fp:
         fp.write(setupModule)
     
-    compileCythonModules(args.verbose, cythonModulesDir, args.loopOrder)
+    compileCythonModules(verbose, cythonModulesDir, loopOrder)
     
 def generateSetupFile(
     fileName, 
