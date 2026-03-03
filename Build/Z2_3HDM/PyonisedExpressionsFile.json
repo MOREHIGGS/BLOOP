@@ -80,7 +80,7 @@
                 ]
             }
         ],
-        "filePath": "../Build/Z2_3HDM/DRalgoOutputFiles/BoundedConditions.txt"
+        "filePath": "DRalgoOutputFiles/BoundedConditions.txt"
     },
     "betaFunctions4D": {
         "expressions": [
@@ -457,7 +457,7 @@
                 ]
             }
         ],
-        "filePath": "../Build/Z2_3HDM/DRalgoOutputFiles/BetaFunctions4D.txt"
+        "filePath": "DRalgoOutputFiles/BetaFunctions4D.txt"
     },
     "hardToSoft": {
         "expressions": [
@@ -924,7 +924,7 @@
                 ]
             }
         ],
-        "filePath": "../Build/Z2_3HDM/DRalgoOutputFiles/HardToSoft.txt"
+        "filePath": "DRalgoOutputFiles/HardToSoft.txt"
     },
     "hardScale": {
         "expressions": {
@@ -934,7 +934,7 @@
                 "T"
             ]
         },
-        "filePath": "../Build/Z2_3HDM/DRalgoOutputFiles/HardScale.txt"
+        "filePath": "DRalgoOutputFiles/HardScale.txt"
     },
     "softScaleRGE": {
         "expressions": [
@@ -1018,7 +1018,7 @@
                 ]
             }
         ],
-        "filePath": "../Build/Z2_3HDM/DRalgoOutputFiles/SoftScaleRGE.txt"
+        "filePath": "DRalgoOutputFiles/SoftScaleRGE.txt"
     },
     "allSymbols": {
         "allSymbols": [
@@ -1161,7 +1161,7 @@
             "MSsq1",
             "MSsq0"
         ],
-        "fileName": "../Build/Z2_3HDM/DRalgoOutputFiles/AllSymbols.json"
+        "fileName": "DRalgoOutputFiles/AllSymbols.json"
     },
     "lagranianVariables": {
         "lagranianVariables": {
@@ -1204,7 +1204,7 @@
                 "v3"
             ]
         },
-        "fileName": "../Build/Z2_3HDM/DRalgoOutputFiles/LagranianSymbols.json"
+        "fileName": "DRalgoOutputFiles/LagranianSymbols.json"
     },
     "softToUltraSoft": {
         "expressions": [
@@ -1467,6 +1467,6 @@
                 ]
             }
         ],
-        "filePath": "../Build/Z2_3HDM/DRalgoOutputFiles/SoftToUltraSoft.txt"
+        "filePath": "DRalgoOutputFiles/SoftToUltraSoft.txt"
     }
 }

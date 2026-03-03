@@ -94,7 +94,7 @@ class UserInput(argparse.ArgumentParser):
        benchmarkGroup.add_argument(
            "--benchmarkFilePath",
            action="store",
-           default="../Build/Z2_3HDM/handPickedBenchmarks.json",
+           default="handPickedBenchmarks.json",
            help="Str: Relative (to src) name to where benchmarks are saved to"
        )
        benchmarkGroup.add_argument(

@@ -10,7 +10,8 @@ import numpy as np
 from TrackVEV import TrackVEV
 
 def loopBenchmarks(args):
-    moduleDirectory = Path(__file__).resolve().parent/args.modelDirectory 
+    sourceDirectory = Path(__file__).resolve().parent
+    moduleDirectory = sourceDirectory/args.modelDirectory 
     with open(moduleDirectory/args.pythonisedExpressionsFilePath, "r") as fp:
         pythonisedExpressions = json.load(fp)
         
@@ -33,7 +34,7 @@ def loopBenchmarks(args):
     
     doBenchmarkWrapper = partial(doBenchmark, trackVEV, args, fieldNames)
     
-    with open(args.benchmarkFilePath, "r") as benchmarkFile:
+    with open(moduleDirectory/args.benchmarkFilePath, "r") as benchmarkFile:
         benchmarkData = [benchmark for benchmark in json.load(benchmarkFile) 
                          if args.firstBenchmark <= benchmark["bmNumber"] <= args.lastBenchmark]
         
@@ -48,7 +49,7 @@ def loopBenchmarks(args):
     else:
         scanResults = [doBenchmarkWrapper(benchmark) for benchmark in tqdm(benchmarkData)]
         
-    with open(f"{args.resultsDirectory}/{args.scanResultsName}.json","w") as fp:
+    with open(f"{str(sourceDirectory)}/../Run/{args.resultsDirectory}/{args.scanResultsName}.json","w") as fp:
          json.dump(
          scanResults, 
          fp,
