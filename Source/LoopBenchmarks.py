@@ -10,7 +10,8 @@ import numpy as np
 from TrackVEV import TrackVEV
 
 def loopBenchmarks(args):
-    with open(args.pythonisedExpressionsFilePath, "r") as fp:
+    moduleDirectory = Path(__file__).resolve().parent/args.modelDirectory 
+    with open(moduleDirectory/args.pythonisedExpressionsFilePath, "r") as fp:
         pythonisedExpressions = json.load(fp)
         
     fieldNames = pythonisedExpressions["lagranianVariables"]["lagranianVariables"]["fieldSymbols"]

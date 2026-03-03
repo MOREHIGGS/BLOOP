@@ -179,10 +179,8 @@ def pythoniseMathematica(args):
         [replaceGreekSymbols(name) for name in getLinesJSON(args.lagranianVariablesFilePath)["fieldSymbols"]],
         args.modelDirectory,
     )
-    (outputFile := Path(args.pythonisedExpressionsFilePath)).parent.mkdir(
-        exist_ok=True, parents=True
-    )   
-    with open(outputFile, "w") as fp:
+    
+    with open(moduleDirectory/args.pythonisedExpressionsFilePath, "w") as fp:
         json.dump(expressionDict, fp, indent=4)
     
 

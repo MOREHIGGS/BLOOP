@@ -66,7 +66,7 @@ def generateModules(
         except FileNotFoundError:
             return None
 
-    cythonModulesDir = Path(__file__).resolve().parent/args.modelDirectory/"CythonModules" 
+    cythonModulesDir = Path(__file__).resolve().parent/modelDirectory/"CythonModules" 
     cythonModulesDir.mkdir(exist_ok=True, parents=True)
     cythonModulesDir = str(cythonModulesDir)
     sys.path.insert(0, cythonModulesDir)
