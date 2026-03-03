@@ -156,6 +156,8 @@ def pythoniseMathematica(args):
                     "filePath": args.softToUltraSoftFilePath,
                 }}
         
+    scalarPermutationMatrix = (getLinesJSON(args.scalarPermutationMatrixFilePath) 
+        if not args.scalarPermutationMatrixFilePath.lower() == "none" else "none")
     generateModules(
         args.loFilePath,
         args.nloFilePath,
@@ -166,7 +168,7 @@ def pythoniseMathematica(args):
         allSymbols, 
         [pythoniseExpressionSystem(matrix) for matrix in loadMassMatrices(args.scalarMassMatrixFilePath)],
         getLinesJSON(args.scalarMassNamesFilePath),
-        getLinesJSON(args.scalarPermutationMatrixFilePath), 
+        scalarPermutationMatrix,
         getLinesJSON(args.scalarRotationMatrixFilePath), 
         pythoniseExpressionSystem(getLines(args.vectorMassesSquaredFilePath)),
         pythoniseExpressionSystem(getLines(args.vectorShortHandsFilePath)),
