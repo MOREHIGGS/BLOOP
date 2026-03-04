@@ -11,7 +11,9 @@ from TrackVEV import TrackVEV
 
 def loopBenchmarks(args):
     sourceDirectory = Path(__file__).resolve().parent
-    moduleDirectory = sourceDirectory/args.modelDirectory 
+    moduleDirectory = sourceDirectory/"../Build"/args.modelDirectory 
+    resultsDir = sourceDirectory/f"../Run/{args.resultsDirectory}"
+    resultsDir.mkdir(exist_ok=True, parents=True)   
     with open(moduleDirectory/args.pythonisedExpressionsFilePath, "r") as fp:
         pythonisedExpressions = json.load(fp)
         
@@ -32,7 +34,7 @@ def loopBenchmarks(args):
                      },
                      )
     
-    doBenchmarkWrapper = partial(doBenchmark, trackVEV, args, fieldNames)
+    doBenchmarkWrapper = partial(doBenchmark, trackVEV, args, fieldNames, resultsDir)
     
     with open(moduleDirectory/args.benchmarkFilePath, "r") as benchmarkFile:
         benchmarkData = [benchmark for benchmark in json.load(benchmarkFile) 
@@ -49,8 +51,6 @@ def loopBenchmarks(args):
     else:
         scanResults = [doBenchmarkWrapper(benchmark) for benchmark in tqdm(benchmarkData)]
     
-    resultsDir = Path(args.resultsDirectory)
-    resultsDir.mkdir(exist_ok=True, parents=True)   
     with open(resultsDir/f"{args.scanResultsName}.json","w") as fp:
          json.dump(
          scanResults, 
@@ -62,16 +62,16 @@ def doBenchmark(
     trackVEV, 
     args, 
     fieldNames, 
-    benchmark
+    resultsDirectory,
+    benchmark,
 ):
     if args.verbose:
         print(f"Starting benchmark: {benchmark['bmNumber']}")
 
     minimizationResult = trackVEV.trackVEV(benchmark)
 
-    filename = f"{args.resultsDirectory}/BM_{benchmark['bmNumber']}"
+    filename = resultsDirectory/"BM_{benchmark['bmNumber']}"
 
-    Path(args.resultsDirectory).mkdir(parents=True, exist_ok=True)
     if args.bSave:
         if args.verbose:
             print(f"Saving raw data of {benchmark['bmNumber']} to {filename}.json")

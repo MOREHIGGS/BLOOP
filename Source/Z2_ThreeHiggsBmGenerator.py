@@ -16,7 +16,7 @@ def generateBenchmarks(args):
     if args.benchmarkType == "load":
         return 
      
-    moduleDirectory = Path(__file__).resolve().parent/args.modelDirectory 
+    moduleDirectory = Path(__file__).resolve().parent/"../Build"/args.modelDirectory 
     (outputFilePath := Path(moduleDirectory/args.benchmarkFilePath)).parent.mkdir(exist_ok=True, parents=True)
     
     if args.benchmarkType == "randomSSS":

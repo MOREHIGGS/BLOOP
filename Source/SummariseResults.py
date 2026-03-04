@@ -3,7 +3,7 @@ from textwrap import dedent
 from collections import defaultdict
 from matplotlib import pylab as plt
 import numpy as np
-
+from pathlib import Path
 def summariseResults(args):
     multiStepCount = 0
     complexCount = 0
@@ -14,12 +14,12 @@ def summariseResults(args):
     bmInputList = []
     TcList = []
     bmNumberList = []
-
-    with open(f"{args.resultsDirectory}/{args.scanResultsName}.json","r") as fp:
+    resultsDir = Path(__file__).resolve().parent/f"../Run/{args.resultsDirectory}"
+    with open(resultsDir/f"{args.scanResultsName}.json","r") as fp:
         data = load(fp)
 
     if len(data) == 0:
-        print("{args.resultsDirectory}/{args.scanResultsName} contains no data, exiting")
+        print(resultsDir/f"{args.scanResultsName} contains no data, exiting")
         exit()
 
     for result in data:
@@ -56,7 +56,7 @@ def summariseResults(args):
     dataSorted =  np.transpose(np.asarray(sorted(zip(strengthList, bmNumberList, TcList, *np.transpose(bmInputList))))) 
     
     if len(dataSorted) > 0:
-        with open(f"{args.resultsDirectory}/summary.txt", "w") as fp:
+        with open(resultsDir/"summary.txt", "w") as fp:
             fp.writelines(dedent(f"""\
                 Summary of the results: 
                 Tc min/max is: {min(dataSorted[2])}, {max(dataSorted[2])} 
@@ -91,7 +91,7 @@ def summariseResults(args):
             ## +1 needed to skip zeroth element
             plt.ylabel(axisLabels[inputIdx+1], labelpad=5, fontsize=12)
             plt.colorbar(label="strength")
-            plt.savefig(f"{args.resultsDirectory}/{fileNames[inputIdx+1]}")
+            plt.savefig(resultsDir/f"{fileNames[inputIdx+1]}")
             plt.close()
         
         # Makes plots of bm inputs vs Tc
@@ -100,6 +100,6 @@ def summariseResults(args):
             plt.xlabel(axisLabels[inputIdx], labelpad=5, fontsize=12)
             plt.ylabel("$T_c$ (GeV)", labelpad=5, fontsize=12)
             plt.colorbar(label="strength")
-            plt.savefig(f"{args.resultsDirectory}/Tc{fileNames[inputIdx]}")
+            plt.savefig(resultsDir/f"Tc{fileNames[inputIdx]}")
             plt.close()
 

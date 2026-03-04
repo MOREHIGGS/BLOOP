@@ -233,7 +233,7 @@ class UserInput(argparse.ArgumentParser):
            "--resultsDirectory",
            action="store",
            default="Results",
-           help="Str: Path (relative to cwd) to directory to store output files",
+           help="Str: Path (relative to Run) to directory to store output files",
        )      
        outputGroup.add_argument(
            "--bSave",

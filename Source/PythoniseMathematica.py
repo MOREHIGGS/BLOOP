@@ -74,7 +74,7 @@ def pythoniseExpressionSystem(lines):
     return [pythoniseExpression(line) for line in lines]
 
 def pythoniseMathematica(args):
-    moduleDirectory = Path(__file__).resolve().parent/args.modelDirectory 
+    moduleDirectory = Path(__file__).resolve().parent/"../Build"/args.modelDirectory 
     def loadMassMatrices(filePath):
         with open(moduleDirectory/filePath, 'r') as file:
             matrices = file.read()
