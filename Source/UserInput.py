@@ -32,7 +32,7 @@ class UserInput(argparse.ArgumentParser):
            "--configFilePath",
            action="store",
            type=str,
-           help="Str: Load cmd line args from json",
+           help="Str: Load cmd line args from json (path relative to cwd)",
        )
        configGroup.add_argument(
            "--gccFlags",
@@ -95,7 +95,7 @@ class UserInput(argparse.ArgumentParser):
            "--benchmarkFilePath",
            action="store",
            default="handPickedBenchmarks.json",
-           help="Str: Relative (to src) name to where benchmarks are saved to"
+           help="Str: File path (relative to --modelDirectory) used for saving benchmarks"
        )
        benchmarkGroup.add_argument(
            "--benchmarkType",
@@ -132,7 +132,7 @@ class UserInput(argparse.ArgumentParser):
        benchmarkGroup.add_argument(
            "--previousResultDirectory",
            action="store",
-           help="str: Load previous results to do a strong sub set with.",
+           help="str: File path (relative to cwd) used to load previously generated results to perfom another scan only using the points tagged as strong.",
        )
        
        ########################################################################
@@ -227,7 +227,7 @@ class UserInput(argparse.ArgumentParser):
        )
        
        ########################################################################
-       outputGroup = self.add_argument_group('Output Options')
+       outputGroup = self.add_argument_group("Output Options")
        outputGroup.add_argument = self.addArgumentNoMetaVar(outputGroup)
        outputGroup.add_argument(
            "--resultsDirectory",
@@ -239,7 +239,7 @@ class UserInput(argparse.ArgumentParser):
            "--bSave",
            action="store_true",
            default=False,
-           help="Bool: If activated the results of the minimisation will be saved to --results directory",
+           help="Bool: If activated the results of the minimisation will be saved to --resultsDirectory",
        )
        outputGroup.add_argument(
            "--bPlot",
@@ -258,7 +258,7 @@ class UserInput(argparse.ArgumentParser):
            "--scanResultsName",
            action="store",
            default="ScanResults",
-           help="Str: File name for processed results",
+           help="Str: File name for the scan results (lives inside --resultsDirectory)",
        )
        outputGroup.add_argument(
            "--strengthCutOff",
@@ -268,13 +268,13 @@ class UserInput(argparse.ArgumentParser):
            help="float: Lowest strength of phase transition which we will label as strong",
        )
        ########################################################################
-       filesGroup = self.add_argument_group('Model File Paths', 'Give a path model directory (relative to Source), then all other paths are relative to this directory')
+       filesGroup = self.add_argument_group('Model File Paths', 'Give the path for your model directory (relative to Build), then all other files are relative to the model directory')
        filesGroup.add_argument = self.addArgumentNoMetaVar(filesGroup)
        
        filesGroup.add_argument(
             "--modelDirectory",
             action="store",
-            default="../Build/Z2_3HDM"
+            default="Z2_3HDM"
        )      
        filesGroup.add_argument(
            "--boundedConditionsFilePath",
