@@ -70,7 +70,7 @@ def doBenchmark(
 
     minimizationResult = trackVEV.trackVEV(benchmark)
 
-    filename = resultsDirectory/"BM_{benchmark['bmNumber']}"
+    filename = resultsDirectory/f"BM_{benchmark['bmNumber']}"
 
     if args.bSave:
         if args.verbose:
