@@ -229,7 +229,12 @@ class UserInput(argparse.ArgumentParser):
        ########################################################################
        outputGroup = self.add_argument_group('Output Options')
        outputGroup.add_argument = self.addArgumentNoMetaVar(outputGroup)
-       
+       outputGroup.add_argument(
+           "--resultsDirectory",
+           action="store",
+           default="Results",
+           help="Str: Path (relative to cwd) to directory to store output files",
+       )      
        outputGroup.add_argument(
            "--bSave",
            action="store_true",
@@ -246,19 +251,14 @@ class UserInput(argparse.ArgumentParser):
            "--plotDataModule",
            action="store",
            default="PlotData",
-           help="Str: Module name of python module to generate plots, invoked by --bPlot (don't include the .py extension here)"
+           help="Str: Module name of python module (living in Source) to generate plots, invoked by --bPlot (don't include the .py extension here)"
        )
-       outputGroup.add_argument(
-           "--resultsDirectory",
-           action="store",
-           default="Results",
-           help="Str: Directory to save files to",
-       )
+
        outputGroup.add_argument(
            "--scanResultsName",
            action="store",
            default="ScanResults",
-           help="Str: File name to save interpreted to",
+           help="Str: File name for processed results",
        )
        outputGroup.add_argument(
            "--strengthCutOff",
@@ -268,9 +268,14 @@ class UserInput(argparse.ArgumentParser):
            help="float: Lowest strength of phase transition which we will label as strong",
        )
        ########################################################################
-       filesGroup = self.add_argument_group('Model File Paths', 'These paths are all relative to Source (See config for example path)')
+       filesGroup = self.add_argument_group('Model File Paths', 'Give a path model directory (relative to Source), then all other paths are relative to this directory')
        filesGroup.add_argument = self.addArgumentNoMetaVar(filesGroup)
        
+       filesGroup.add_argument(
+            "--modelDirectory",
+            action="store",
+            default="../Build/Z2_3HDM"
+       )      
        filesGroup.add_argument(
            "--boundedConditionsFilePath",
            action="store",
@@ -362,12 +367,6 @@ class UserInput(argparse.ArgumentParser):
            default="PythonisedExpressionsFile.json",
        )
 
-       filesGroup.add_argument(
-            "--modelDirectory",
-            action="store",
-            default="../Build/Z2_3HDM"
-       )
-       
        argcomplete.autocomplete(self)
        
     noMetaVar = {"store_true", "store_false", "help", "version"}

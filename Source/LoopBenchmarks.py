@@ -48,8 +48,10 @@ def loopBenchmarks(args):
                 ))
     else:
         scanResults = [doBenchmarkWrapper(benchmark) for benchmark in tqdm(benchmarkData)]
-        
-    with open(f"{str(sourceDirectory)}/../Run/{args.resultsDirectory}/{args.scanResultsName}.json","w") as fp:
+    
+    resultsDir = Path(args.resultsDirectory)
+    resultsDir.mkdir(exist_ok=True, parents=True)   
+    with open(resultsDir/f"{args.scanResultsName}.json","w") as fp:
          json.dump(
          scanResults, 
          fp,
@@ -157,5 +159,4 @@ def _drange(start, end, jump):
     while start <= end:
         yield float(start)
         start += decimal.Decimal(jump)
-
 
