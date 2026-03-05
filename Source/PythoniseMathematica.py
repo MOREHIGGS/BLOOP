@@ -33,7 +33,7 @@ def removeSuffices(string):
 def replaceSymbolsWithIndices(expression, symbols):
     expression = replaceGreekSymbols(expression)
     ## Reverse needed to deal with lam23 and lam23p i.e. substring replaces larger full string
-    for idx, symbol in enumerate(sorted(symbols, reverse=True)):
+    for idx, symbol in enumerate(sorted(symbols, key=len, reverse=True)):
         expression = expression.replace(symbol, f"params[{idx}]")
 
     return expression
@@ -99,7 +99,7 @@ def pythoniseMathematica(args):
 
     allSymbols = getLinesJSON(args.allSymbolsFilePath) + ["missing"]
     allSymbols = sorted(
-        [replaceGreekSymbols(symbol) for symbol in allSymbols], reverse=True
+        [replaceGreekSymbols(symbol) for symbol in allSymbols], reverse=True, key=len
     )
 
     expressionDict = {
@@ -196,6 +196,12 @@ class PythoniseMathematicaUnitTests(TestCase):
         self.assertEqual(
             reference, [replaceGreekSymbols(sourceString) for sourceString in source]
         )
+
+    def test_subStringArray(self):
+        reference = "params[1]*params[0]"
+        source = "u*mu"
+        allSymbols = ["mu", "u"]
+        self.assertEqual(reference, replaceSymbolsWithIndices(source, allSymbols))
 
     def test_removeSuffices(self):
         reference = ["myVarsq", "sqmyVar"]
