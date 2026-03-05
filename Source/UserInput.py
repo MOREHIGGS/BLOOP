@@ -335,11 +335,18 @@ class UserInput(argparse.ArgumentParser):
            "--softToUltraSoftFilePath",
            action="store",
            default="DRalgoOutputFiles/SoftToUltraSoft.txt",
+           help="Set to none if working at the soft scale (don't worry about the ultrasoft scale RGE)"
+       )
+       filesGroup.add_argument(
+           "--ultraSoftScaleRGEFilePath",
+           action="store",
+           default="DRalgoOutputFiles/UltraSoftScaleRGE.txt",
        )
        filesGroup.add_argument(
            "--scalarPermutationMatrixFilePath",
            action="store",
            default="DRalgoOutputFiles/ScalarPermutationMatrix.txt",
+           help="Set to none if no permutation matrix used"
        )
        filesGroup.add_argument(
            "--scalarRotationMatrixFilePath",
