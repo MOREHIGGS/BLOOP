@@ -31,47 +31,30 @@ def removeSuffices(string):
     return string.replace("^2", "sq")
 
 def replaceSymbolsWithIndices(expression, symbols):
-    expression = replaceGreekSymbols(expression)
-    ## Reverse needed to deal with lam23 and lam23p i.e. substring replaces larger full string
-    for idx, symbol in enumerate(sorted(symbols, key=len, reverse=True)):
+    for idx, symbol in enumerate(symbols):
         expression = expression.replace(symbol, f"params[{idx}]")
-
-    return expression
+    return expression 
 
 def pythoniseExpressionArray(line, allSymbols):
-    identifier, line = (
-        map(str.strip, line.split("->")) if ("->" in line) else ("missing", line)
-    )
-    identifier = removeSuffices(replaceGreekSymbols(identifier))
-    expression = parse_mathematica(replaceSymbolsConst(replaceGreekSymbols(line)))
-    symbols = [str(symbol) for symbol in expression.free_symbols]
-
-    return {
-        "identifier": identifier,
-        "expression": replaceSymbolsWithIndices(str(expression), allSymbols),
-        "symbols": sorted(symbols),
-    }
+    expressionDict = pythoniseExpression(line)
+    expressionDict["expression"] = replaceSymbolsWithIndices(expressionDict["expression"], allSymbols)
+    return expressionDict
 
 def pythoniseExpression(line):
-    identifier, line = (
+    identifier, expression = (
         map(str.strip, line.split("->")) if ("->" in line) else ("missing", line)
     )
 
-    identifier = removeSuffices(replaceGreekSymbols(identifier))
-    expression = parse_mathematica(replaceSymbolsConst(replaceGreekSymbols(line)))
-    symbols = [str(symbol) for symbol in expression.free_symbols]
-
     return {
-        "identifier": identifier,
-        "expression": str(expression),
-        "symbols": sorted(symbols),
+        "identifier": removeSuffices(replaceGreekSymbols(identifier)),
+        "expression": str(parse_mathematica(replaceSymbolsConst(replaceGreekSymbols(expression))))
     }
 
-def pythoniseExpressionSystemArray(lines, allSymbols):
-    return [pythoniseExpressionArray(line, allSymbols) for line in lines]
+def pythoniseExpressionSystemArray(expressions, allSymbols):
+    return [pythoniseExpressionArray(expression, allSymbols) for expression in expressions]
 
-def pythoniseExpressionSystem(lines):
-    return [pythoniseExpression(line) for line in lines]
+def pythoniseExpressionSystem(expressions):
+    return [pythoniseExpression(expression) for expression in expressions]
 
 def pythoniseMathematica(args):
     moduleDirectory = Path(__file__).resolve().parent/"../Build"/args.modelDirectory 
@@ -90,9 +73,6 @@ def pythoniseMathematica(args):
         with open(moduleDirectory/filePath, "r") as fp:
             data = fp.readlines()
             ## This is a hack to deal with adding hardScale super late to this part of the code
-            ## Would be better to do something like  fp.read().strip()
-            ## But that breaks existing code and I don't wanna fix that right now, 
-            ## especially with our plans of replacing these with cython code
             if len(data) == 1:
                 return data[0]
             return data
@@ -160,8 +140,7 @@ def pythoniseMathematica(args):
         if not args.scalarPermutationMatrixFilePath.lower() == "none" else "none")
     
     veffExpressions = [getLines(veff) for veff in [args.loFilePath, args.nloFilePath] + (
-                    [args.nnloFilePath] if args.loopOrder > 1 else []
-                    )]        
+                    [args.nnloFilePath] if args.loopOrder > 1 else [])]        
     
     generateModules(
         veffExpressions,
@@ -200,7 +179,7 @@ class PythoniseMathematicaUnitTests(TestCase):
     def test_subStringArray(self):
         reference = "params[1]*params[0]"
         source = "u*mu"
-        allSymbols = ["mu", "u"]
+        allSymbols = sorted(["u", "mu"], key=len, reverse =True)
         self.assertEqual(reference, replaceSymbolsWithIndices(source, allSymbols))
 
     def test_removeSuffices(self):
@@ -216,7 +195,6 @@ class PythoniseMathematicaUnitTests(TestCase):
         reference = {
             "expression": "0.07957747154594767*sqrt(lamda) + log(mssq)",
             "identifier": "Identifier",
-            "symbols": ["lamda", "mssq"],
         }
 
         source = "Identifier -> Sqrt[λ] / (4 * Pi) + Log[mssq]"
@@ -228,17 +206,14 @@ class PythoniseMathematicaUnitTests(TestCase):
             {
                 "expression": "0.07957747154594767*sqrt(lamda) + log(mssq)",
                 "identifier": "Identifier",
-                "symbols": ["lamda", "mssq"],
             },
             {
                 "expression": "0.07957747154594767*sqrt(lamda) + log(mssq)",
                 "identifier": "Identifier",
-                "symbols": ["lamda", "mssq"],
             },
             {
                 "expression": "0.07957747154594767*sqrt(lamda) + log(mssq)",
                 "identifier": "Identifier",
-                "symbols": ["lamda", "mssq"],
             },
         ]
 
