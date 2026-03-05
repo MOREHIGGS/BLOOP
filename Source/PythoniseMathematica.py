@@ -126,15 +126,20 @@ def pythoniseMathematica(args):
         },
     }
     if args.softToUltraSoftFilePath.lower() == "none":
-        expressionDict |= {"softToUltraSoft": "none"}
+        expressionDict |= {"softToUltraSoft": "none", 
+                           "ultraSoftRGE": "none"}
         
     else:
-        expressionDict |= {"softToUltraSoft": {
-                    "expressions": pythoniseExpressionSystemArray(
-                        getLines(args.softToUltraSoftFilePath), allSymbols
-                    ),
-                    "filePath": args.softToUltraSoftFilePath,
-                }}
+        expressionDict |= {
+            "softToUltraSoft": {
+                "expressions": pythoniseExpressionSystemArray(getLines(args.softToUltraSoftFilePath), allSymbols),
+                "filePath": args.softToUltraSoftFilePath,
+                },
+            "ultraSoftScaleRGE": {
+                "expressions": pythoniseExpressionSystemArray(getLines(args.ultraSoftScaleRGEFilePath), allSymbols),
+                "filePath": args.ultraSoftScaleRGEFilePath,
+                }
+                }
         
     scalarPermutationMatrix = (getLinesJSON(args.scalarPermutationMatrixFilePath) 
         if not args.scalarPermutationMatrixFilePath.lower() == "none" else "none")

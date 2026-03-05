@@ -91,6 +91,12 @@ class TrackVEV:
                              pythonisedExpressions["softToUltraSoft"],
                              self.allSymbols,
                          )
+
+            self.ultraSoftScaleRGE = ParsedExpressionSystem(
+                             pythonisedExpressions["ultraSoftScaleRGE"],
+                             self.allSymbols,
+                         )
+
         
         self.betaFunction4DExpression = ParsedExpressionSystem(
                              pythonisedExpressions["betaFunctions4D"],
@@ -184,6 +190,7 @@ class TrackVEV:
             params = self.softScaleRGE.evaluate(params)
             if self.softToUltraSoft:
                 params = self.softToUltraSoft.evaluate(params)
+                params = self.ultraSoftScaleRGE.evaluate(params)
             
             ## Round needed because nlopt result sometimes fp out of bounds
             ## See https://github.com/stevengj/nlopt/issues/625

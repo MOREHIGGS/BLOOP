@@ -624,5 +624,30 @@
             }
         ],
         "filePath": "DRalgoOutputFiles/SoftToUltraSoft.txt"
+    },
+    "ultraSoftScaleRGE": {
+        "expressions": [
+            {
+                "identifier": "mu12sqIm",
+                "expression": "params[26]"
+            },
+            {
+                "identifier": "mu12sqRe",
+                "expression": "params[27]"
+            },
+            {
+                "identifier": "mu1sq",
+                "expression": "params[125]"
+            },
+            {
+                "identifier": "mu2sq",
+                "expression": "params[126]"
+            },
+            {
+                "identifier": "mu3sq",
+                "expression": "params[127]"
+            }
+        ],
+        "filePath": "DRalgoOutputFiles/UltraSoftScaleRGE.txt"
     }
 }
