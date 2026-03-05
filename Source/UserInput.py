@@ -32,7 +32,7 @@ class UserInput(argparse.ArgumentParser):
            "--configFilePath",
            action="store",
            type=str,
-           help="Str: Load cmd line args from json",
+           help="Str: Load cmd line args from json (path relative to cwd)",
        )
        configGroup.add_argument(
            "--gccFlags",
@@ -94,8 +94,8 @@ class UserInput(argparse.ArgumentParser):
        benchmarkGroup.add_argument(
            "--benchmarkFilePath",
            action="store",
-           default="../Build/Z2_3HDM/handPickedBenchmarks.json",
-           help="Str: Relative (to src) name to where benchmarks are saved to"
+           default="handPickedBenchmarks.json",
+           help="Str: File path (relative to --modelDirectory) used for saving benchmarks"
        )
        benchmarkGroup.add_argument(
            "--benchmarkType",
@@ -132,7 +132,7 @@ class UserInput(argparse.ArgumentParser):
        benchmarkGroup.add_argument(
            "--previousResultDirectory",
            action="store",
-           help="str: Load previous results to do a strong sub set with.",
+           help="str: File path (relative to cwd) used to load previously generated results to perfom another scan only using the points tagged as strong.",
        )
        
        ########################################################################
@@ -227,14 +227,19 @@ class UserInput(argparse.ArgumentParser):
        )
        
        ########################################################################
-       outputGroup = self.add_argument_group('Output Options')
+       outputGroup = self.add_argument_group("Output Options")
        outputGroup.add_argument = self.addArgumentNoMetaVar(outputGroup)
-       
+       outputGroup.add_argument(
+           "--resultsDirectory",
+           action="store",
+           default="Results",
+           help="Str: Path (relative to Run) to directory to store output files",
+       )      
        outputGroup.add_argument(
            "--bSave",
            action="store_true",
            default=False,
-           help="Bool: If activated the results of the minimisation will be saved to --results directory",
+           help="Bool: If activated the results of the minimisation will be saved to --resultsDirectory",
        )
        outputGroup.add_argument(
            "--bPlot",
@@ -246,19 +251,14 @@ class UserInput(argparse.ArgumentParser):
            "--plotDataModule",
            action="store",
            default="PlotData",
-           help="Str: Module name of python module to generate plots, invoked by --bPlot (don't include the .py extension here)"
+           help="Str: Module name of python module (living in Source) to generate plots, invoked by --bPlot (don't include the .py extension here)"
        )
-       outputGroup.add_argument(
-           "--resultsDirectory",
-           action="store",
-           default="Results",
-           help="Str: Directory to save files to",
-       )
+
        outputGroup.add_argument(
            "--scanResultsName",
            action="store",
            default="ScanResults",
-           help="Str: File name to save interpreted to",
+           help="Str: File name for the scan results (lives inside --resultsDirectory)",
        )
        outputGroup.add_argument(
            "--strengthCutOff",
@@ -268,106 +268,105 @@ class UserInput(argparse.ArgumentParser):
            help="float: Lowest strength of phase transition which we will label as strong",
        )
        ########################################################################
-       filesGroup = self.add_argument_group('Model File Paths', 'These paths are all relative to Source (See config for example path)')
+       filesGroup = self.add_argument_group('Model File Paths', 'Give the path for your model directory (relative to Build), then all other files are relative to the model directory')
        filesGroup.add_argument = self.addArgumentNoMetaVar(filesGroup)
        
        filesGroup.add_argument(
+            "--modelDirectory",
+            action="store",
+            default="Z2_3HDM"
+       )      
+       filesGroup.add_argument(
            "--boundedConditionsFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/BoundedConditions.txt",
+           default="DRalgoOutputFiles/BoundedConditions.txt",
        )
        filesGroup.add_argument(
            "--allSymbolsFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/AllSymbols.json",
+           default="DRalgoOutputFiles/AllSymbols.json",
        )
        filesGroup.add_argument(
            "--loFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/Veff_LO.txt",
+           default="DRalgoOutputFiles/Veff_LO.txt",
        )
        filesGroup.add_argument(
            "--nloFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/Veff_NLO.txt",
+           default="DRalgoOutputFiles/Veff_NLO.txt",
        )
        filesGroup.add_argument(
            "--nnloFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/Veff_NNLO.txt",
+           default="DRalgoOutputFiles/Veff_NNLO.txt",
        )
        filesGroup.add_argument(
            "--betaFunctions4DFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/BetaFunctions4D.txt",
+           default="DRalgoOutputFiles/BetaFunctions4D.txt",
        )
        filesGroup.add_argument(
            "--vectorMassesSquaredFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/VectorMasses.txt",
+           default="DRalgoOutputFiles/VectorMasses.txt",
        )
        filesGroup.add_argument(
            "--vectorShortHandsFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/VectorShorthands.txt",
+           default="DRalgoOutputFiles/VectorShorthands.txt",
        )
        filesGroup.add_argument(
            "--hardToSoftFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/HardToSoft.txt",
+           default="DRalgoOutputFiles/HardToSoft.txt",
        )
        filesGroup.add_argument(
            "--hardScaleFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/HardScale.txt",
+           default="DRalgoOutputFiles/HardScale.txt",
        )
        filesGroup.add_argument(
            "--softScaleRGEFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/SoftScaleRGE.txt",
+           default="DRalgoOutputFiles/SoftScaleRGE.txt",
        )
        filesGroup.add_argument(
            "--softToUltraSoftFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/SoftToUltraSoft.txt",
+           default="DRalgoOutputFiles/SoftToUltraSoft.txt",
        )
        filesGroup.add_argument(
            "--scalarPermutationMatrixFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/ScalarPermutationMatrix.txt",
+           default="DRalgoOutputFiles/ScalarPermutationMatrix.txt",
        )
        filesGroup.add_argument(
            "--scalarRotationMatrixFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/ScalarRotationMatrix.json",
+           default="DRalgoOutputFiles/ScalarRotationMatrix.json",
        )
        filesGroup.add_argument(
            "--scalarMassMatrixFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/ScalarMassMatrix.txt",
+           default="DRalgoOutputFiles/ScalarMassMatrix.txt",
        )
        filesGroup.add_argument(
            "--lagranianVariablesFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/LagranianSymbols.json",
+           default="DRalgoOutputFiles/LagranianSymbols.json",
        )
        filesGroup.add_argument(
            "--scalarMassNamesFilePath",
            action="store",
-           default="../Build/Z2_3HDM/DRalgoOutputFiles/ScalarMassNames.json",
+           default="DRalgoOutputFiles/ScalarMassNames.json",
        )
        filesGroup.add_argument(
            "--pythonisedExpressionsFilePath",
            action="store",
-           default="../Build/Z2_3HDM/PythonisedExpressionsFile.json",
+           default="PythonisedExpressionsFile.json",
        )
 
-       filesGroup.add_argument(
-            "--modelDirectory",
-            action="store",
-            default="../Build/Z2_3HDM"
-       )
-       
        argcomplete.autocomplete(self)
        
     noMetaVar = {"store_true", "store_false", "help", "version"}

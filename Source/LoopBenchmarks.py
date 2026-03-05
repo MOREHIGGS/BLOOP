@@ -10,7 +10,11 @@ import numpy as np
 from TrackVEV import TrackVEV
 
 def loopBenchmarks(args):
-    with open(args.pythonisedExpressionsFilePath, "r") as fp:
+    sourceDirectory = Path(__file__).resolve().parent
+    moduleDirectory = sourceDirectory/"../Build"/args.modelDirectory 
+    resultsDir = sourceDirectory/f"../Run/{args.resultsDirectory}"
+    resultsDir.mkdir(exist_ok=True, parents=True)   
+    with open(moduleDirectory/args.pythonisedExpressionsFilePath, "r") as fp:
         pythonisedExpressions = json.load(fp)
         
     fieldNames = pythonisedExpressions["lagranianVariables"]["lagranianVariables"]["fieldSymbols"]
@@ -30,9 +34,9 @@ def loopBenchmarks(args):
                      },
                      )
     
-    doBenchmarkWrapper = partial(doBenchmark, trackVEV, args, fieldNames)
+    doBenchmarkWrapper = partial(doBenchmark, trackVEV, args, fieldNames, resultsDir)
     
-    with open(args.benchmarkFilePath, "r") as benchmarkFile:
+    with open(moduleDirectory/args.benchmarkFilePath, "r") as benchmarkFile:
         benchmarkData = [benchmark for benchmark in json.load(benchmarkFile) 
                          if args.firstBenchmark <= benchmark["bmNumber"] <= args.lastBenchmark]
         
@@ -46,8 +50,8 @@ def loopBenchmarks(args):
                 ))
     else:
         scanResults = [doBenchmarkWrapper(benchmark) for benchmark in tqdm(benchmarkData)]
-        
-    with open(f"{args.resultsDirectory}/{args.scanResultsName}.json","w") as fp:
+    
+    with open(resultsDir/f"{args.scanResultsName}.json","w") as fp:
          json.dump(
          scanResults, 
          fp,
@@ -58,16 +62,16 @@ def doBenchmark(
     trackVEV, 
     args, 
     fieldNames, 
-    benchmark
+    resultsDirectory,
+    benchmark,
 ):
     if args.verbose:
         print(f"Starting benchmark: {benchmark['bmNumber']}")
 
     minimizationResult = trackVEV.trackVEV(benchmark)
 
-    filename = f"{args.resultsDirectory}/BM_{benchmark['bmNumber']}"
+    filename = resultsDirectory/f"BM_{benchmark['bmNumber']}"
 
-    Path(args.resultsDirectory).mkdir(parents=True, exist_ok=True)
     if args.bSave:
         if args.verbose:
             print(f"Saving raw data of {benchmark['bmNumber']} to {filename}.json")
@@ -155,5 +159,4 @@ def _drange(start, end, jump):
     while start <= end:
         yield float(start)
         start += decimal.Decimal(jump)
-
 

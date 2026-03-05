@@ -15,8 +15,9 @@ from TrackVEV import cNlopt
 def generateBenchmarks(args):
     if args.benchmarkType == "load":
         return 
-    
-    (outputFilePath := Path(args.benchmarkFilePath)).parent.mkdir(exist_ok=True, parents=True)
+     
+    moduleDirectory = Path(__file__).resolve().parent/"../Build"/args.modelDirectory 
+    (outputFilePath := Path(moduleDirectory/args.benchmarkFilePath)).parent.mkdir(exist_ok=True, parents=True)
     
     if args.benchmarkType == "randomSSS":
         with open(outputFilePath, "w") as fp:
