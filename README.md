@@ -58,14 +58,13 @@ If the container hasn't already been built then run (from inside the Bloop direc
 ```bash 
 podman build . -t bloop
 ```
-
-With the container built we can enter the container with:
+The container needs to only be built once unless a new version of BLOOP requires the container to be rebuilt (this will be communicated via the release notes). With the container built we can enter the container with:
 
 ```bash 
 podman run --mount type=bind,src=$PWD,target=/Bloop -it bloop /bin/bash -c "cd /Bloop/Run && exec /bin/bash"
 ```
 
-This will put you in the Run directory inside Bloop for convience. The container only needs to be built once, and only needs to be rebuilt if a new dependency needs to be installed, or an old one updated.
+This will put you in the Run directory inside Bloop for convience. 
 </details>
 
 <details>
@@ -78,8 +77,6 @@ pip install -e .
  
 </details>
 
-From this point forward all commands are to be run from inside the Run directory
-
 ## Using BLOOP:
 Bloop can be run with default settings by excuting :
 
@@ -89,24 +86,24 @@ bloop
  
 from the cmd line. Default settings for bloop run the Z2-3HDM model. Details of which can be found here https://arxiv.org/abs/2511.04636. 
 
-BLOOP is intended to be controlled by command line arguments. To see a full list of arguments simply run  
+BLOOP is controlled by command line arguments. To see a full list of arguments simply run  
 
 ```bash
 bloop --help
 ```
 A brief outline of the most important flags:
 
-- Model file paths: --loFilePath etc (relative to Run) 
+- Model file paths: --modelDirectory (relative to Build) --loFilePath (relative to modelDirectory)
 - Generating benchmarks: --bmGeneratorModule
 - --loopOrder
 - --verbose
-- --configFilePath 
+- --configFilePath (relative to cwd)
 - --bPlot
 
 
 ## Implementing new models:
 Before we can get started with this code you need to first implement your own model in DRalgo following our examples laid out in the Mathematica directory. 
-Store the generated txt files inside build.
+Store the generated txt/JSON files inside build.
 
 BLOOP needs to be given the model file paths via the cmd line. To make this easier **we strongly recommend the use of a bash script or config file**. We have an example config file for the default Z2 case which can be found in Run. 
   
