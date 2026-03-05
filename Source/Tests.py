@@ -20,8 +20,8 @@ def runTests():
         print(f"Running {loopOrder} integration test:")
         loopDir = integrationTestsDirectory/f'{loopOrder}/'
         for file in loopDir.glob('OutputResult/*'):
-            print(file)
             os.remove(file)
+        
         integrationTest = subprocess.run([
             sys.executable,
             f'{sourceDirectory}/RunStages.py',
@@ -54,7 +54,7 @@ def runTests():
         if scanResults ==  pytest.approx(scanResultsRef, rel=0.):
             print(f"Summary of results at {loopOrder} is exactly what we expect")
             continue
-        exit()
+        
         print(f"Summary of results at {loopOrder} is not exactly what we expect")
         with open(f"{loopOrder}Diff.txt", "w") as fp:
             fp.write("Summary diff:")
@@ -66,9 +66,9 @@ def runTests():
         )))
 
         for i in range(4):
-            with open(f"{integrationTestsDirectory}/{loopOrder}/OutputResult/BM_{i}.json", "r") as fp:
+            with open(loopDir/f"OutputResult/BM_{i}.json", "r") as fp:
                 bm = json.load(fp)
-            with open(f"{integrationTestsDirectory}/{loopOrder}/ReferenceResult/BM_{i}.json", "r") as fp:
+            with open(loopDir/f"ReferenceResult/BM_{i}.json", "r") as fp:
                 bmRef = json.load(fp)
         
             if bm == pytest.approx(bmRef, rel=0.): 
@@ -80,7 +80,7 @@ def runTests():
             else:
                 print(f"BM{i} is outside 1% of what we expect")
     
-            with open(f"{loopOrder}Diff.txt", "a") as fp:
+            with open(sourceDirectory/f"../Run/{loopOrder}Diff.txt", "a") as fp:
                 fp.write(f"BM{i} diff:\n")
                 fp.write("".join(difflib.unified_diff(
                 json.dumps(bm, indent=2).splitlines(keepends=True),
@@ -89,7 +89,7 @@ def runTests():
                 tofile='reference'
             )))
 
-        print(f"See {loopOrder}Diff.txt for further details.")
+        print(f"See {loopOrder}Diff.txt (in Run) for further details.")
 
     return
 
