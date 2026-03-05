@@ -56,7 +56,7 @@ def runTests():
             continue
         
         print(f"Summary of results at {loopOrder} is not exactly what we expect")
-        with open(f"{loopOrder}Diff.txt", "w") as fp:
+        with open(sourceDirectory/f"../Run/{loopOrder}Diff.txt", "w") as fp:
             fp.write("Summary diff:")
             fp.write("".join(difflib.unified_diff(
             json.dumps(scanResults, indent=2).splitlines(keepends=True),
