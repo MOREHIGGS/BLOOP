@@ -126,7 +126,7 @@ class UserInput(argparse.ArgumentParser):
        benchmarkGroup.add_argument(
            "--bmGeneratorModule",
            action="store",
-           default="Z2_ThreeHiggsBmGenerator",
+           default="Z2_3HDMBmGenerator",
            help="Str: Module name to generate benchmarks with. Needs a function called generateBenchmarks."
        )
        benchmarkGroup.add_argument(
