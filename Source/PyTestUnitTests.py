@@ -1,5 +1,5 @@
 from TrackVEV import TrackVEVUnitTests
-from Z2_ThreeHiggsBmGenerator import BmGeneratorUnitTests 
+from Z2_3HDMBmGenerator import BmGeneratorUnitTests 
 from ParsedExpression import ParsedExpressionUnitTests
 from PythoniseMathematica import PythoniseMathematicaUnitTests  
 

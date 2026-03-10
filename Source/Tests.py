@@ -11,7 +11,7 @@ import shutil
 def runTests():
     sourceDirectory = Path(__file__).resolve().parent
     integrationTestsDirectory = sourceDirectory/"../Share/IntegrationTests"
-    unitResult = pytest.main([f"{sourceDirectory}/PyTestUnitTests.py"])
+    unitResult = pytest.main([f"{sourceDirectory}/PyTestUnitTests.py", "-rx"])
     if not unitResult == 0:
         print("Unit tests failed. Skipping integration tests.")
         return
