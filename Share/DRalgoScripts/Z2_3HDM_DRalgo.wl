@@ -378,11 +378,11 @@ VectorEigenvaluesSimp = Simplify[ VectorEigenvalues, Assumptions -> {g3>0, g2>0,
 
 (** Simplify with easier symbols **)
 gaugeRotationSubst = {g1/Sqrt[g1^2+g2^2] -> stW, g2/Sqrt[g1^2+g2^2] -> ctW};
+vectorShorthands = {stW-> g1/Sqrt[g1^2+g2^2], ctW-> g2/Sqrt[g1^2+g2^2]};
 DVRotSimp = DVRot /. gaugeRotationSubst;
 
-vectorShorthands = {stW-> g1/Sqrt[g1^2+g2^2], ctW-> g2/Sqrt[g1^2+g2^2]};
 
-(** Vector masses mVsq[i]. **)
+(** Easier for DRalgo to handle if we make the mass matrix just single symbols **)
 {VectorMassDiagSimple, VectorMassExpressions} = toSymbolicMatrix[DiagonalMatrix[VectorEigenvaluesSimp], mVsq];
 
 
