@@ -16,13 +16,16 @@ SetDirectory[NotebookDirectory[]];
 <<DRalgo`DRalgo`
 
 
+SetDirectory[NotebookDirectory[]];
+
+
 (* ::Text:: *)
 (*Import helper functions and setup export path*)
 
 
 Get["DRalgoToBLOOPHelper.m"]
 (*Fresh added so it doesn't overwrite the old expression files*)
-exportPath = "../../Build/Z2_3HDM/DRalgoOutputFilesFresh";
+exportPath = "../../Build/Z2_3HDM/DRalgoOutputFiles";
 
 
 (* ::Text:: *)
@@ -205,7 +208,7 @@ exportUTF8[exportPath<>"/HardScale.txt", hardScale];
 (* NOTE: Because we take the sqrt of the gauge couplings there is a sign ambiguity - we only consider the positive root
 In theory this could also make the gauge couplings complex (very bad) but this would likely be in a non-pert regime i.e.
 g1 = sqrt(T)*g1*sqrt[1 - ((g1^2) (3Lb+40Lf) )/(96 \[Pi]^2)] - the correction has to be larger than 1*) 
-hardToSoft = removeSuffixes[sqrtSubRules[Join[couplingsSoft, temporalScalarCouplings, debyeMasses, scalarMasses]], {"3d"}]/.Lb->lb/.Lf->lf;
+hardToSoft = removeDRalgoSuffixes[sqrtSubRules[Join[couplingsSoft, temporalScalarCouplings, debyeMasses, scalarMasses]]]/.Lb->lb/.Lf->lf;
 exportUTF8[exportPath<>"/HardToSoft.txt", hardToSoft];
 
 
@@ -225,7 +228,7 @@ exportUTF8[exportPath<>"/SoftToUltraSoft.txt", ultrasoftScaleParams];
 
 
 ultraSoftParamsRGE = removeDRalgoSuffixes[solveRunning3D[BetaFunctions3DUS[], ultraSoftScale, softScale]];
-exportUTF8[exportPath<>"/UltrasoftScaleRGE.txt", ultraSoftParamsRGE];
+exportUTF8[exportPath<>"/UltraSoftScaleRGE.txt", ultraSoftParamsRGE];
 
 
 (* ::Section:: *)
@@ -354,9 +357,6 @@ exportUTF8[exportPath<>"/ScalarRotationMatrix.json", matrixToJSON[DSRot]];
 exportUTF8[exportPath<>"/ScalarMassNames.json", extractSymbols[ScalarMassDiag]];
 
 
-extractSymbols[ScalarMassDiag]
-
-
 (* ::Subsection:: *)
 (*Gauge field diagonalization*)
 
@@ -369,23 +369,11 @@ extractSymbols[ScalarMassDiag]
 VectorMassMatrix = PrintTensorsVEV[2]//Normal;
 
 (** Take the only nontrivial 4x4 submatrix and diagonalize that **) 
-VectorMassMatrixNontrivial = VectorMassMatrix[[9;;12,9;;12]];
-{VectorEigenvalues, VectorEigenvectors} = Eigensystem[VectorMassMatrixNontrivial];
+{VectorEigenvalues, VectorEigenvectors} = Eigensystem[VectorMassMatrix];
 (*This is to match how DRalgo works internally based on SM example*)
 (*Tranpose needed as mathematica uses the convention D = SMS^-1 whereas DRalgo and python use the opposite*)
-VectorEigenvectorsSimp = Transpose[Simplify[ Normalize /@ VectorEigenvectors, Assumptions -> {g3>0, g2>0, g1>0}]];
+DVRot = Transpose[Simplify[ Normalize /@ VectorEigenvectors, Assumptions -> {g3>0, g2>0, g1>0}]];
 VectorEigenvaluesSimp = Simplify[ VectorEigenvalues, Assumptions -> {g3>0, g2>0, g1>0}];
-
-(** Diagonalizing rotation and resulting eigenvalues: **)
-(*Blockdiagonal matrices are weird (e.g. sub rules don't work), take normal*)
-DVRot = Normal[BlockDiagonalMatrix[{IdentityMatrix[8],VectorEigenvectorsSimp}]];
-VectorMassDiag=Normal[BlockDiagonalMatrix[{ConstantArray[0,{8,8}], DiagonalMatrix[VectorEigenvalues]}]];
-
-Print["Diagonalized vector mass matrix:"];
-VectorMassDiag // MatrixForm;
-
-
-MatrixForm[DVRot . VectorMassMatrix . Transpose[DVRot]]//Simplify;
 
 
 (** Simplify with easier symbols **)
@@ -395,7 +383,8 @@ DVRotSimp = DVRot /. gaugeRotationSubst;
 vectorShorthands = {stW-> g1/Sqrt[g1^2+g2^2], ctW-> g2/Sqrt[g1^2+g2^2]};
 
 (** Vector masses mVsq[i]. **)
-{VectorMassDiagSimple, VectorMassExpressions} = toSymbolicMatrix[VectorMassDiag, mVsq];
+{VectorMassDiagSimple, VectorMassExpressions} = toSymbolicMatrix[DiagonalMatrix[VectorEigenvaluesSimp], mVsq];
+
 
 exportUTF8[exportPath<>"/VectorMasses.txt", VectorMassExpressions];
 exportUTF8[exportPath<>"/VectorShorthands.txt", vectorShorthands];
@@ -405,20 +394,20 @@ exportUTF8[exportPath<>"/VectorShorthands.txt", vectorShorthands];
 (*Calculating the effective potential*)
 
 
-(** NB! RotateTensorsCustomMass[] is very very slow, this can run for hours!
-FastRotate does something to speed it up. Comes at the cost of accuracy **)
+(** RotateTensorsCustomMass[] is very very slow, this can run for hours!
+FastRotate does skips a rotation to make it much faster, made minimal difference to end numerical result (been a while double check) **)
 RotateTensorsCustomMass[DSRot,DVRotSimp,ScalarMassDiag,VectorMassDiagSimple, FastRotation-> True];
 CalculatePotentialUS[]
 
 
 (* ::Text:: *)
-(*##############       BUG     #################*)
-(*For reasons beyond me a SM term in NNLO is wrong.  *)
-(*We get (ctW^2*g2^2*Sqrt[mVsq0]*Sqrt[mVsq1])/(12*Pi^2) = g2^5 v^2/(48\[Pi]^2 \[Sqrt]g1^2+g2^2)*)
+(*##############       weird behaviour     #################*)
+(*For reasons beyond me a SM term in NNLO is different to the SM example.  *)
+(*We get (ctW^2*g2^2*Sqrt[mVsq0]*Sqrt[mVsq1])/(12*Pi^2) = g2^5 v^2/(48\[Pi]^2 \[Sqrt]g1^2+g2^2)*)*)
 (*In the SM example it is g2^6 v^2/(48\[Pi]^2(g1^2+g2^2)) *)
-(* Based on integration tests this has a minor impact on numerics which is expected since the gauge couplings are small. *)
-(* Note this bug is not present in the version used for the Z2 3HDM paper*)
-(*Until I fix the bug I would suggest just manually changing the NNLO txt file*)
+(*Unsure if bug or I implemented the rotation wrong or its because of BSM physics*)
+(*Based on integration tests this has a minor impact on results which is expected since just one term is a factor of ctW off*)
+(*I have just been manually changing that term in the NNLO txt file to match the SM case*)
 (*Note: NNLO is not friendly and often crashes things that try to open it. Vim handles it well enough. *)
 
 
