@@ -1,6 +1,12 @@
 (* ::Package:: *)
 
 (* ::Text:: *)
+(*DEV notes: Worth integrating some functions like removeDRalgoSuffixes and makeCythonFriendly into exportUTF8 to reduce the amount of front facing code? *)
+(*I wonder how much of this could be automated. User would still need to input model,  set scales and vevs *)
+(*but after that it seems simple enough apart from block diagonalising the scalar mass matrix*)
+
+
+(* ::Text:: *)
 (*Import DRalgo and group math (in paclet form, needs DRalgo 1.3+*)
 
 
@@ -14,7 +20,7 @@ SetDirectory[NotebookDirectory[]];
 
 Get["DRalgoToBLOOPHelper.m"]
 (*Fresh added so it doesn't overwrite the old expression files*)
-exportPath = "../../Build/Z2_3HDM/DRalgoOutputFiles";
+exportPath = "../../Build/Z2_3HDM/DRalgoOutputFilesFresh";
 
 
 (* ::Text:: *)
@@ -148,16 +154,13 @@ YsffC=SparseArray[Simplify[Conjugate[Ysff]//Normal,Assumptions->{yt3>0}]];
 
 (* ::Text:: *)
 (*Parametric accuracy goal of the EFT matchings need to be specified already in ImportModelDRalgo[] (Mode option). We need mode 2 to do 2 loop/NNLO effective potential*)
-(*Mode -> 0 : Match couplings at tree level and masses at 1-loop (full g^2)*)
-(*Mode -> 1 : Match everything at 1-loop (partial g^4)*)
-(*Mode -> 2 : Match couplings at 1-loop and masses at 2-loop (full g^4) *)
 
 
 (** Normalization4D flag = preserve 4D units so that the EFT path integral weight is e^{-S/T} 
-TODO?: Should we add an option for this?
+BLOOP assumes 3D units and all results are dimensionless ratios so I don't think we need to support this flag
 AutoRG->True means that 3D running is built in to the matching.
 This leads to the 3D masses being functions of two scales which is a pain. 
-To dodge this we match with AutoRG->False and do the RG running manually in an additional stage. **)
+Easy to just have AutoRG->False and do the RG running manually in an additional stage. **)
 ImportModelDRalgo[Group,gvvv,gvff,gvss,\[CapitalLambda]1,\[CapitalLambda]3,\[CapitalLambda]4,\[Mu]ij,\[Mu]IJ,\[Mu]IJC,Ysff,YsffC,Verbose->False, Mode->2, Normalization4D->False, AutoRG->False];
 
 
@@ -170,7 +173,9 @@ PerformDRhard[];
 
 couplingsSoft = PrintCouplings[];
 temporalScalarCouplings = PrintTemporalScalarCouplings[];
-debyeMasses = PrintDebyeMass["LO"]; (** For Debyes we only take LO result, NLO not needed since we integrate these out anyway **)
+(** For Debyes we only take LO result, NLO not needed since we integrate these out anyway.
+If NLO part needed be sure to use combineSubstRules as is done in scalarMasses **)
+debyeMasses = PrintDebyeMass["LO"];
 scalarMasses = combineSubstRules[PrintScalarMass["LO"], PrintScalarMass["NLO"]];
 
 
@@ -202,7 +207,7 @@ hardToSoft = removeSuffixes[sqrtSubRules[Join[couplingsSoft, temporalScalarCoupl
 exportUTF8[exportPath<>"/HardToSoft.txt", hardToSoft];
 
 
-softParamsRGE = removeSuffixes[solveRunning3D[BetaFunctions3DS[], softScale, hardScale],{"3d"}];
+softParamsRGE = removeDRalgoSuffixes[solveRunning3D[BetaFunctions3DS[], softScale, hardScale]];
 exportUTF8[exportPath<>"/SoftScaleRGE.txt", softParamsRGE];
 
 
@@ -213,11 +218,11 @@ exportUTF8[exportPath<>"/SoftScaleRGE.txt", softParamsRGE];
 PerformDRsoft[{}];
 couplingsUS = PrintCouplingsUS[];
 scalarMassesUS = combineSubstRules[PrintScalarMassUS["LO"], PrintScalarMassUS["NLO"]];
-ultrasoftScaleParams = removeSuffixes[sqrtSubRules[Join[couplingsUS, scalarMassesUS]], {"US", "3d"}]/. \[Mu]3->softScale;
+ultrasoftScaleParams = removeDRalgoSuffixes[sqrtSubRules[Join[couplingsUS, scalarMassesUS]]]/. \[Mu]3->softScale;
 exportUTF8[exportPath<>"/SoftToUltraSoft.txt", ultrasoftScaleParams];
 
 
-ultraSoftParamsRGE = removeSuffixes[solveRunning3D[BetaFunctions3DUS[], ultraSoftScale, softScale],{"US", "3d"}];
+ultraSoftParamsRGE = removeDRalgoSuffixes[solveRunning3D[BetaFunctions3DUS[], ultraSoftScale, softScale]];
 exportUTF8[exportPath<>"/UltrasoftScaleRGE.txt", ultraSoftParamsRGE];
 
 
@@ -299,12 +304,11 @@ exportUTF8[exportPath<>"/ScalarPermutationMatrix.txt", StringReplace[ToString[sc
 
 (*Our casescalarPermutationMatrix is symmetric but taking transpose anyway for consistency/future proofing*)
 blockDiagonalMM = Transpose[scalarPermutationMatrix] . scalarMM . scalarPermutationMatrix;
-Print["Block diagonal mass matrix:"];
-blockDiagonalMM//MatrixForm
 
 MMblock1 = Take[blockDiagonalMM,{1,6},{1,6}];
 MMblock2 = Take[blockDiagonalMM,{7,12},{7,12}];
-(* We only handle symmetric mass matrices at the moment *)
+(* We only handle symmetric mass matrices at the moment 
+shouldn't be hard to generalise to hermitian matrices *)
 If[!SymmetricMatrixQ[MMblock1] || !SymmetricMatrixQ[MMblock2], Print["Error, block not symmetric!"]];
 
 
@@ -346,6 +350,9 @@ DSRot = scalarPermutationMatrix . DSRotBlock;
 
 exportUTF8[exportPath<>"/ScalarRotationMatrix.json", matrixToJSON[DSRot]];
 exportUTF8[exportPath<>"/ScalarMassNames.json", extractSymbols[ScalarMassDiag]];
+
+
+extractSymbols[ScalarMassDiag]
 
 
 (* ::Subsection:: *)
@@ -406,23 +413,25 @@ CalculatePotentialUS[]
 (*##############       BUG     #################*)
 (*For reasons beyond me a SM term in NNLO is wrong.  *)
 (*We get (ctW^2*g2^2*Sqrt[mVsq0]*Sqrt[mVsq1])/(12*Pi^2) = g2^5 v^2/(48\[Pi]^2 \[Sqrt]g1^2+g2^2)*)
-(*In the SM example it is g2^6 v^2/(48\[Pi]^2(g1^2+g2^2))*)
-(* The difference can be explained if you cube ctW instead of square.*)
+(*In the SM example it is g2^6 v^2/(48\[Pi]^2(g1^2+g2^2)) *)
 (* Based on integration tests this has a minor impact on numerics which is expected since the gauge couplings are small. *)
 (* Note this bug is not present in the version used for the Z2 3HDM paper*)
 (*Until I fix the bug I would suggest just manually changing the NNLO txt file*)
+(*Note: NNLO is not friendly and often crashes things that try to open it. Vim handles it well enough. *)
 
 
-veffLO = PrintEffectivePotential["LO"]//Simplify; (* Simplify to get rid of possible imaginaryDetailed units *)
+veffLO = PrintEffectivePotential["LO"]//Simplify; (* Simplify needed to get rid of spurious imaginary units *)
 veffNLO = PrintEffectivePotential["NLO"]//Simplify;
-veffNNLO = PrintEffectivePotential["NNLO"]/.\[Mu]3US->ultraSoftScale; (* NOT simplified as seems to change numerical result for unknown reasons, also takes forever *)
+veffNNLO = PrintEffectivePotential["NNLO"]/.\[Mu]3US->ultraSoftScale; (* not simplified as takes forever - also I vaguely remember it changing the result *)
 
 
-exportUTF8[exportPath<>"/Veff_LO.txt", optimiseForCompiler[veffLO]];
-exportUTF8[exportPath<>"/Veff_NLO.txt", optimiseForCompiler[veffNLO]];
-exportUTF8[exportPath<>"/Veff_NNLO.txt", optimiseForCompiler[veffNNLO]];
+exportUTF8[exportPath<>"/Veff_LO.txt", makeCythonFriendly[veffLO]];
+exportUTF8[exportPath<>"/Veff_NLO.txt", makeCythonFriendly[veffNLO]];
+exportUTF8[exportPath<>"/Veff_NNLO.txt", makeCythonFriendly[veffNNLO]];
 
 
+(* I think this is using the \[CapitalLambda]4 at the (ultra)soft scale which may not have the same symbols as the hard scale.
+This could lead to problems in the pert check *)
 exportUTF8[
 	exportPath<>"/LagranianSymbols.json", 
 	{"fourPointSymbols"-> extractSymbols[\[CapitalLambda]4],
@@ -447,6 +456,6 @@ exportUTF8[exportPath<>"/AllSymbols.json",
 	extractSymbols[ultrasoftScaleParams],
 	extractSymbols[softParamsRGE],
 	extractSymbols[hardToSoft],
-	extractSymbols[betaFunctions4DUnsquared],
+	extractSymbols[betaFunctions4DUnsquared]
 	]]]
 ];

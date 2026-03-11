@@ -3,10 +3,11 @@
 (* ::Input:: *)
 (*(*************************************************************************)
 (*A collection of functions to transform DRalgo output into BLOOP input*)
-(*Basically of these functions are written by LLMs, as I (Jasmine) do not like Mathematica.  *)
+(*User note: All of these functions are written by LLMs, as I (Jasmine) do not like coding in Mathematica.  *)
 (*I have only verfifed they do the things I need them to so I *)
 (*apologise if they are unreadable or unoptimal.*)
 (*************************************************************************)*)
+(**)
 
 
 exportUTF8[fileName_, expr_] := Module[{},
@@ -27,7 +28,7 @@ exportMatrices[file_, mats_] :=
     "\n---\n"]]
 
 
-optimiseForCompiler[expr_] :=
+makeCythonFriendly[expr_] :=
  Module[{str, repeatVar},
   str = ToString[expr, InputForm];
   repeatVar[var_, n_] := StringRiffle[ConstantArray[var, n], "*"];
@@ -94,38 +95,25 @@ extractSymbols[expr_] :=
  ]
 
 
-removeSuffix[rules_, suffix_] :=
-  rules /. s_Symbol /; StringEndsQ[SymbolName[s], suffix] :>
-    Symbol[StringDrop[SymbolName[s], -StringLength[suffix]]]
+removeDRalgoSuffixes[rules_] :=
+  Fold[
+    (#1 /. s_Symbol /; StringEndsQ[SymbolName[s], #2] :>
+      Symbol[StringDrop[SymbolName[s], -StringLength[#2]]]) &,
+    rules, {"3dUS", "3d"}]
 
-removeSuffixes[rules_, suffixes_List] :=
-  Fold[removeSuffix, rules, suffixes]
 
-
-toSymbolicMatrix[matrix_, base_, symmetric_: False] :=
- Module[{count = 0, rules = {}, makeSym, mat},
+toSymbolicMatrix[matrix_, base_] :=
+ Module[{count = 0, rules = {}, makeSym, sym},
 
   makeSym[el_] :=
    If[NumericQ[el],
     el,
-    With[{sym = Symbol[SymbolName[base] <> ToString[count++]]},
-     AppendTo[rules, sym -> el];
-     sym
-     ]
-    ];
+    sym = Symbol[SymbolName[base] <> ToString[count++]];
+    rules = Append[rules, sym -> el];
+    sym
+   ];
 
-  mat =
-   If[! symmetric,
-    Map[makeSym, matrix, {2}],
-    Module[{tmp},
-     tmp = Table[makeSym[matrix[[i, j]]], {i, Length[matrix]},
-       {j, i}];
-     Table[If[j <= i, tmp[[i, j]], tmp[[j, i]]],
-      {i, Length[matrix]}, {j, Length[matrix]}]
-     ]
-    ];
-
-  {mat, rules}
+  {Map[makeSym, matrix, {2}], rules}
  ]
 
 
