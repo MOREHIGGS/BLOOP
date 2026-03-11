@@ -1,9 +1,11 @@
 (* ::Package:: *)
 
 (* ::Text:: *)
-(*DEV notes: Worth integrating some functions like removeDRalgoSuffixes and makeCythonFriendly into exportUTF8 to reduce the amount of front facing code? *)
-(*I wonder how much of this could be automated. User would still need to input model,  set scales and vevs *)
+(*DEV notes: *)
+(*1) Worth integrating some functions like removeDRalgoSuffixes and makeCythonFriendly into exportUTF8 to reduce the amount of front facing code? *)
+(*2)I wonder how much of this could be automated. User would still need to input model,  set scales and vevs *)
 (*but after that it seems simple enough apart from block diagonalising the scalar mass matrix*)
+(*3) A lot of complicated string manipulation was added last minute to Generate modules that should be moved here at some point*)
 
 
 (* ::Text:: *)
