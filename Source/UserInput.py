@@ -32,14 +32,14 @@ class UserInput(argparse.ArgumentParser):
            "--configFilePath",
            action="store",
            type=str,
-           help="Str: Load cmd line args from json (path relative to cwd)",
+           help="Str: Path (relative to cwd) to load cmd line args from json ",
        )
        configGroup.add_argument(
            "--gccFlags",
            nargs="*",
            action="store",
            default=[],
-           help="List[str]: Flags to pass to gcc. Recommended flags for perfomance 'O3 march=native'. Note native compiles it for your cpu and so the excutable is non-transferable.  To reduce memory 'O1'. Don't include the - or flags"
+           help="List[str]: Flags to pass to gcc. In theory setting to 'O3 march=native' will help with perfomance. However we are currently memory bound and it doesn't help in practice. O1 can be used to slightly reduce compile time (minimal impact on perfomance)"
        )
        configGroup.add_argument(
            "--profile",
@@ -59,7 +59,7 @@ class UserInput(argparse.ArgumentParser):
            default=1,
            choices=list(range(1, multiprocessing.cpu_count() + 1)),
            type=int,
-           help="Int: Specify how many workers pool uses to compute benchmarks (needs to be >1 for pool to be invoked)",
+           help="Int: Specify how many benchmarks to run in parallel",
        )
        configGroup.add_argument(
            "--loopOrder",
@@ -127,7 +127,7 @@ class UserInput(argparse.ArgumentParser):
            "--bmGeneratorModule",
            action="store",
            default="Z2_3HDMBmGenerator",
-           help="Str: Module name to generate benchmarks with. Needs a function called generateBenchmarks."
+           help="Str: Module (living in source) name to generate benchmarks with. Needs a function called generateBenchmarks."
        )
        benchmarkGroup.add_argument(
            "--previousResultDirectory",
