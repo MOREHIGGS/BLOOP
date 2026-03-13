@@ -5,8 +5,6 @@ import json
 from pathlib import Path
 import os
 import difflib
-import time
-import shutil
 
 def runTests():
     sourceDirectory = Path(__file__).resolve().parent
@@ -31,8 +29,8 @@ def runTests():
             '--resultsDirectory', f'../Share/IntegrationTests/{loopOrder}/OutputResult',
             '--benchmarkFile', "../../Share/IntegrationTests/benchmarks.json",
             '--TRangeStart', '90', 
-            '--TRangeStepSize', f'1',
-            '--TRangeEnd', f'200',
+            '--TRangeStepSize', '1',
+            '--TRangeEnd', '200',
             '--gccFlags', 'O1',
             '--lastStage', 'doMinimization',
             ], 
