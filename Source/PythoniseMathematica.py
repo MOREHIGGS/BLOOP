@@ -4,7 +4,6 @@ from numpy import euler_gamma, pi
 from pathlib import Path
 import unicodedata
 import re
-from pathlib import Path
 
 from GenerateModules import generateModules
 
