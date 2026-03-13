@@ -19,7 +19,7 @@ def runTests():
         loopDir = integrationTestsDirectory/f'{loopOrder}/'
         for file in loopDir.glob('OutputResult/*'):
             os.remove(file)
-        
+        gccFlags = ["O1", "flto","g0"] 
         integrationTest = subprocess.run([
             sys.executable,
             f'{sourceDirectory}/RunStages.py',
@@ -31,7 +31,7 @@ def runTests():
             '--TRangeStart', '90', 
             '--TRangeStepSize', '1',
             '--TRangeEnd', '200',
-            '--gccFlags', 'O1',
+            '--gccFlags', *gccFlags,
             '--lastStage', 'doMinimization',
             ], 
             capture_output=True,

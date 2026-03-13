@@ -38,8 +38,8 @@ class UserInput(argparse.ArgumentParser):
            "--gccFlags",
            nargs="*",
            action="store",
-           default=[],
-           help="List[str]: Flags to pass to gcc. In theory setting to 'O3 march=native' will help with perfomance. However we are currently memory bound and it doesn't help in practice. O1 can be used to slightly reduce compile time (minimal impact on perfomance)"
+           default=["O3", "flto", "g0","march=native"],
+           help="List[str]: Flags to pass to gcc. Defaults choosen to try to maximise perfomance and minimise binary size"
        )
        configGroup.add_argument(
            "--profile",
