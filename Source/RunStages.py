@@ -3,6 +3,7 @@ from UserInput import UserInput, Stages
 
 from PythoniseMathematica import pythoniseMathematica
 from SummariseResults import summariseResults
+from LoopBenchmarks import loopBenchmarks
 
 def main():
     args = UserInput().parse()
@@ -22,22 +23,13 @@ def main():
     if args.firstStage <= Stages.doMinimization <= args.lastStage:
         if args.verbose:
             print("Minimization stage started")
-        ##importing this before pythoniseMathematica fails integration test        
-        from LoopBenchmarks import loopBenchmarks
         loopBenchmarks(args)
+        
     if args.firstStage <= Stages.summariseResults <= args.lastStage:
         if args.verbose:
             print("Summarise Results stage started")
 
         summariseResults(args)
-
-
-    if args.firstStage <= Stages.summariseResults <= args.lastStage:
-        if args.verbose:
-            print("Summarise Results stage started")
-
-        summariseResults(args)
-
 
 if __name__ == "__main__":
-        main()
+    main()

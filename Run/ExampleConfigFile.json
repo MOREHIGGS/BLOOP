@@ -20,7 +20,7 @@
 "pythonisedExpressionsFilePath":"PythonisedExpressionsFile.json",
 "relLocalTolerance":"1e-4",
 "absLocalTolerance":"1e-4",
-"bmGeneratorModule": "Z2_ThreeHiggsBmGenerator",
+"bmGeneratorModule": "Z2_3HDMBmGenerator",
 "varLowerBounds": [-60, 1e-4, 1e-4],
 "varUpperBounds": [60, 60, 60],
 "initialGuesses":[
