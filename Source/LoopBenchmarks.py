@@ -111,12 +111,10 @@ def processData(
     if result["failureReason"]:
         return processedResult 
 
-    processedResult |= {"isPerturbative": bool(np.all(result["bIsPerturbative"])),
-                        "complex": bool(np.any(
+    processedResult["complex"] = bool(np.any(
                                  np.abs( np.array(result["vevDepthImag"]) / np.array(result["vevDepthReal"])
                                         ) > 1e-8
                                         ))
-                        }
       
     allFieldValues = result["vevLocation"] / np.sqrt(result["T"])
     allFieldValuesD = np.diff(allFieldValues)
