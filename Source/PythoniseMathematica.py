@@ -144,20 +144,20 @@ def pythoniseMathematica(args):
     scalarPermutationMatrix = (getLinesJSON(args.scalarPermutationMatrixFilePath) 
         if args.scalarPermutationMatrixFilePath else "none")
     
-    veffExpressions = [getLines(veff) for veff in [args.veffLOFilePath, args.veffNLOFilePath] + (
-                    [args.veffNNLOFilePath] if args.loopOrder > 1 else [])]        
+    veffExpressions = [pythoniseExpressionArray(getLines(veff), allSymbols)["expression"] for veff in [args.veffLOFilePath, args.veffNLOFilePath] + (
+                    [args.veffNNLOFilePath] if args.loopOrder > 1 else [])]
     generateModules(
         veffExpressions,
         args.verbose,
         args.loopOrder,
         args.profile,
         allSymbols, 
-        [pythoniseExpressionSystem(matrix) for matrix in loadMassMatrices(args.scalarMassMatrixFilePath)],
+        [pythoniseExpressionSystemArray(matrix, allSymbols) for matrix in loadMassMatrices(args.scalarMassMatrixFilePath)],
         getLinesJSON(args.scalarMassNamesFilePath),
         scalarPermutationMatrix,
         getLinesJSON(args.scalarRotationMatrixFilePath), 
-        pythoniseExpressionSystem(getLines(args.vectorMassesSquaredFilePath)),
-        pythoniseExpressionSystem(getLines(args.vectorShortHandsFilePath)),
+        pythoniseExpressionSystemArray(getLines(args.vectorMassesSquaredFilePath), allSymbols),
+        pythoniseExpressionSystemArray(getLines(args.vectorShortHandsFilePath), allSymbols),
         args.gccFlags,
         [replaceGreekSymbols(name) for name in getLinesJSON(args.lagranianVariablesFilePath)["fieldSymbols"]],
         args.modelDirectory,

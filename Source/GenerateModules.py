@@ -160,9 +160,6 @@ def generateVeffModule(veffExpressions, allSymbols):
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef double complex veff(double [::1] params):
-{%- for symbol in allSymbols %}
-    cdef double {{ symbol }} = params[{{ loop.index0 }}]
-{%- endfor %}
     cdef double complex a = 0.0
 {%- for op, term in opsAndExpressions %}
     a {{ op }} {{ term }}
@@ -184,7 +181,6 @@ def generateComputeMassesModule(
     from math import sqrt 
     ## Proving this works is left as an excerise for the reader :)    
     scalarMassMatrixSizes = [int(-0.5 +sqrt(1+8*len(expressions))/2) for expressions in scalarMatricesExpressions ]
-
     eigenvalueAssignment = []
     for idxSym, symbol in enumerate(scalarMassNames):
         idxShift = 0
@@ -207,9 +203,6 @@ from libc.math cimport sqrt
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef void computeMasses(double [::1] params):
-{%- for symbol in allSymbols %}
-    cdef double {{ symbol }} = params[{{ loop.index0 }}]
-{%- endfor %}
     cdef int info
 {%- for scalarMatrixExpressions in scalarMatricesExpressions %}
     {%- set i = loop.index0 %}
@@ -335,8 +328,9 @@ def convertMatrixToCythonSyntax(term):
 def convertToCythonSyntax(term):
     term = term.replace('Sqrt', 'csqrt')
     term = term.replace('Log', 'clog')
-    term = term.replace('[', '(')
-    term = term.replace(']', ')')
+    term = term.replace('log', 'clog')
+    #term = term.replace('[', '(')
+    #term = term.replace(']', ')')
     term = term.replace('^', '**')
     term = PythoniseMathematica.replaceSymbolsConst(term)
     return PythoniseMathematica.replaceGreekSymbols(term)
