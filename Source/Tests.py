@@ -32,30 +32,11 @@ def runTests():
             '--TRangeEnd', '200',
             '--gccFlags', "O1", "flto", "g",
             '--lastStage', 'doMinimization',
-            "--modelDirectory","Z2_3HDM",
-            "--boundedConditionsFilePath", "DRalgoOutputFiles/BoundedConditions.txt",
-            "--allSymbolsFilePath", "DRalgoOutputFiles/AllSymbols.json",
-            "--veffLOFilePath", "DRalgoOutputFiles/Veff_LO.txt",
-            "--veffNLOFilePath", "DRalgoOutputFiles/Veff_NLO.txt",
-            "--veffNNLOFilePath", "DRalgoOutputFiles/Veff_NNLO.txt",
-            "--betaFunctions4DFilePath", "DRalgoOutputFiles/BetaFunctions4D.txt",
-            "--vectorMassesSquaredFilePath", "DRalgoOutputFiles/VectorMasses.txt",
-            "--vectorShortHandsFilePath", "DRalgoOutputFiles/VectorShorthands.txt",
-            "--hardToSoftFilePath", "DRalgoOutputFiles/HardToSoft.txt",
-            "--hardScaleFilePath", "DRalgoOutputFiles/HardScale.txt",
-            "--softScaleRGEFilePath", "DRalgoOutputFiles/SoftScaleRGE.txt",
-            "--softToUltraSoftFilePath", "DRalgoOutputFiles/SoftToUltraSoft.txt",
-            "--ultraSoftScaleRGEFilePath", "DRalgoOutputFiles/UltraSoftScaleRGE.txt",
-            "--scalarPermutationMatrixFilePath", "DRalgoOutputFiles/ScalarPermutationMatrix.txt",
-            "--scalarRotationMatrixFilePath", "DRalgoOutputFiles/ScalarRotationMatrix.json",
-            "--scalarMassMatrixFilePath", "DRalgoOutputFiles/ScalarMassMatrix.txt",
-            "--lagranianVariablesFilePath","DRalgoOutputFiles/LagranianSymbols.json",
-            "--scalarMassNamesFilePath","DRalgoOutputFiles/ScalarMassNames.json",
+            '--configFilePath', f'{sourceDirectory}/../Run/Z2_3HDMConfigFile.json'
             ], 
             capture_output=True,
             text=True,
             )
-        
         if not integrationTest.returncode == 0:
             print(f"Error output: {integrationTest.stderr}")
             print(f"{loopOrder} integration test failed, exiting tests.")

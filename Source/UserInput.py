@@ -135,7 +135,12 @@ class UserInput(argparse.ArgumentParser):
        )
        
        ########################################################################
-       nloptGroup = self.add_argument_group('NLOPT controls')
+       nloptGroup = self.add_argument_group('NLOPT controls', """Important note:
+       bgf bounds and initial guesses are applied to bgf the length of the name, then aplhabetically,
+       i.e. if you have 4 bgf named v1, v1a, v1b, v2 and bounds [0, 1, 10, 50] then you have
+       v1a:0 v1b:1 v1:10, v2:50 
+       (you can get this order easily by doing sorted(fieldnames, reverse=True, key=len))
+       """)
        nloptGroup.add_argument = self.addArgumentNoMetaVar(nloptGroup)
        nloptGroup.add_argument(
            "--absGlobalTolerance", 
@@ -166,18 +171,16 @@ class UserInput(argparse.ArgumentParser):
            help="Float: Sets the relative tolerance for local minimisation routine in NLOPT"
        )
        nloptGroup.add_argument(
-           "--varLowerBounds",
+           "--bgfLowerBounds",
            nargs="*",
            action="store",
-           default=[-60, 1e-4, 1e-4],
            type=float,
            help="List[float]: Sets the lower bound on background fields for NLOPT. Bounds are in the same order as field names"
        )
        nloptGroup.add_argument(
-           "--varUpperBounds",
+           "--bgfUpperBounds",
            nargs="*",
            action="store",
-           default=[60, 60, 60],
            type=list,
            help="List[float]: Sets the upper bound on background fields for NLOPT. Bounds are in the same order as field names",
        )
@@ -185,17 +188,6 @@ class UserInput(argparse.ArgumentParser):
            "--initialGuesses",
            nargs="*",
            action="store",
-           default=[
-               [0.1, 0.1, 0.1],
-               [5, 5, 5],
-               [-5, 5, 5],
-               [0.1, 0.1, 10],
-               [0.1, 0.1, 20],
-               [40, 40, 40],
-               [-40, 40, 40],
-               [59, 59, 59],
-               [-59, 59, 59],
-           ],
            type=list,
            help="List[List[float]]: Initial values of background fields to be given to local minimisation routine in NLOPT",
        )
