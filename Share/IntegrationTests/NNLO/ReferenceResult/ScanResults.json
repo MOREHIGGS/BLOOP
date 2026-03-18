@@ -19,7 +19,6 @@
       }
     ],
     "strong": true,
-    "isPerturbative": true,
     "complex": false,
     "steps": 1
   },
@@ -43,7 +42,6 @@
       }
     ],
     "strong": false,
-    "isPerturbative": true,
     "complex": false,
     "steps": 1
   },
@@ -68,7 +66,6 @@
       }
     ],
     "strong": false,
-    "isPerturbative": true,
     "complex": false,
     "steps": 1
   },
@@ -93,7 +90,6 @@
       }
     ],
     "strong": false,
-    "isPerturbative": true,
     "complex": false,
     "steps": 1
   }
