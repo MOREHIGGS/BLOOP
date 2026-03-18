@@ -25,7 +25,7 @@ SetDirectory[NotebookDirectory[]];
 
 Get["DRalgoToBLOOPHelper.m"]
 (*Fresh added so it doesn't overwrite the old expression files*)
-exportPath = "../../Build/Z2_3HDM/DRalgoOutputFiles";
+exportPath = "../../Build/Z2_3HDM/DRalgoOutputFilesFresh";
 
 
 (* ::Text:: *)
@@ -413,7 +413,7 @@ CalculatePotentialUS[]
 
 veffLO = PrintEffectivePotential["LO"]//Simplify; (* Simplify needed to get rid of spurious imaginary units *)
 veffNLO = PrintEffectivePotential["NLO"]//Simplify;
-veffNNLO = PrintEffectivePotential["NNLO"]/.\[Mu]3US->ultraSoftScale; (* not simplified as takes forever - also I vaguely remember it changing the result *)
+veffNNLO = PrintEffectivePotential["NNLO"]/.\[Mu]3US->ultraSoftScale//Simplify; (* not simplified as takes forever - also I vaguely remember it changing the result *)
 
 
 exportUTF8[exportPath<>"/Veff_LO.txt", makeCythonFriendly[veffLO]];
