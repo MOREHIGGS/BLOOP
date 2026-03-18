@@ -69,6 +69,7 @@ def pythoniseMathematica(args):
             return json.load(fp)
 
     def getLines(filePath):
+        print(filePath)
         with open(moduleDirectory/filePath, "r") as fp:
             data = fp.readlines()
             ## This is a hack to deal with adding hardScale super late to this part of the code
@@ -80,7 +81,7 @@ def pythoniseMathematica(args):
     allSymbols = sorted(
         [replaceGreekSymbols(symbol) for symbol in allSymbols], reverse=True, key=len
     )
-
+    
     expressionDict = {
         "bounded": {
             "expressions": pythoniseExpressionSystemArray(
@@ -143,8 +144,8 @@ def pythoniseMathematica(args):
     scalarPermutationMatrix = (getLinesJSON(args.scalarPermutationMatrixFilePath) 
         if not args.scalarPermutationMatrixFilePath.lower() == "none" else "none")
     
-    veffExpressions = [getLines(veff) for veff in [args.loFilePath, args.nloFilePath] + (
-                    [args.nnloFilePath] if args.loopOrder > 1 else [])]        
+    veffExpressions = [getLines(veff) for veff in [args.veffLOFilePath, args.veffNLOFilePath] + (
+                    [args.veffNNLOFilePath] if args.loopOrder > 1 else [])]        
     
     generateModules(
         veffExpressions,
