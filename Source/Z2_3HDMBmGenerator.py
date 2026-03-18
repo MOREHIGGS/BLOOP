@@ -19,7 +19,7 @@ def generateBenchmarks(args):
     moduleDirectory = Path(__file__).resolve().parent/"../Build"/args.modelDirectory 
     (outputFilePath := Path(moduleDirectory/args.benchmarkFilePath)).parent.mkdir(exist_ok=True, parents=True)
     
-    if args.benchmarkType == "randomSSS":
+    if args.benchmarkType == "strongSubSet":
         with open(outputFilePath, "w") as fp:
             json.dump(strongSubSet(args.prevResultDir), fp, indent=4)
         return
@@ -32,14 +32,17 @@ def generateBenchmarks(args):
     elif args.benchmarkType == "random":
         bmGenerator = randomParameters()     
     
+    else:
+        print(f"{args.benchmarkType} isn't recongised as an option, exiting")
+        exit()
+
     for bmParams in bmGenerator:
         if len(bmdictList) == args.maxNumBenchmarks:
             break
         if bmParams:
-            ### IMPORTANT ###
             ## copy is needed otherwise the background fields enter the 4D beta function
             ## and lead to small numerical errors (~1e-3%) in the couplings
-            ## Note: The error is of order the tol of solve_ivp so maybe not important? 
+            ## This error is of order the tol of solve_ivp so maybe not important? 
                 if checkPhysical(
                     copy(bmParams["lagranianParameters"]),
                 ):

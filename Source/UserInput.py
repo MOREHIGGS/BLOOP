@@ -38,7 +38,7 @@ class UserInput(argparse.ArgumentParser):
            "--gccFlags",
            nargs="*",
            action="store",
-           default=["O3", "flto", "g0","march=native"],
+           default=["O3", "flto", "g2","march=native"],
            help="List[str]: Flags to pass to gcc. Defaults choosen to try to maximise perfomance and minimise binary size"
        )
        configGroup.add_argument(
@@ -101,7 +101,6 @@ class UserInput(argparse.ArgumentParser):
            "--benchmarkType",
            action="store",
            default="handPicked",
-           choices=["load", "handPicked", "random", "randomSSS"],
            help="Str: Specify the mode to generate bm with.",
        )
        benchmarkGroup.add_argument(
