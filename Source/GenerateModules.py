@@ -73,7 +73,7 @@ def generateModules(
         importlib.util.find_spec(f"EvaluatePotential{loopOrder}") is not None):
         
         if verbose:
-            print("Using previous compiled code")
+            print("Using previously compiled code")
         return
     
     with open(f"{cythonModulesDir}/EvaluatePotential{loopOrder}.pyx", "w") as fp:
