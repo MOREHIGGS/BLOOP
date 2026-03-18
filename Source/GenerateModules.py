@@ -161,7 +161,7 @@ def generateVeffModule(veffExpressions, allSymbols):
 @cython.wraparound(False)
 cdef double complex veff(double [::1] params):
 {%- for symbol in allSymbols %}
-    cdef double {{ symbol }} = params[{{ loop.index0 }}]
+    #cdef double {{ symbol }} = params[{{ loop.index0 }}]
 {%- endfor %}
     cdef double complex a = 0.0
 {%- for op, term in opsAndExpressions %}
@@ -335,8 +335,9 @@ def convertMatrixToCythonSyntax(term):
 def convertToCythonSyntax(term):
     term = term.replace('Sqrt', 'csqrt')
     term = term.replace('Log', 'clog')
-    term = term.replace('[', '(')
-    term = term.replace(']', ')')
+    term = term.replace('log', 'clog')
+    #term = term.replace('[', '(')
+    #term = term.replace(']', ')')
     term = term.replace('^', '**')
     term = PythoniseMathematica.replaceSymbolsConst(term)
     return PythoniseMathematica.replaceGreekSymbols(term)

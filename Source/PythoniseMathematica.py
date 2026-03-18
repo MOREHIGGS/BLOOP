@@ -144,8 +144,8 @@ def pythoniseMathematica(args):
     scalarPermutationMatrix = (getLinesJSON(args.scalarPermutationMatrixFilePath) 
         if args.scalarPermutationMatrixFilePath else "none")
     
-    veffExpressions = [getLines(veff) for veff in [args.veffLOFilePath, args.veffNLOFilePath] + (
-                    [args.veffNNLOFilePath] if args.loopOrder > 1 else [])]        
+    veffExpressions = [pythoniseExpressionArray(getLines(veff), allSymbols)["expression"] for veff in [args.veffLOFilePath, args.veffNLOFilePath] + (
+                    [args.veffNNLOFilePath] if args.loopOrder > 1 else [])]
     generateModules(
         veffExpressions,
         args.verbose,
