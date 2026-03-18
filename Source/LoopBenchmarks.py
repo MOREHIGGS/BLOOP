@@ -29,8 +29,8 @@ def loopBenchmarks(args):
                              "relGlobalTol": args.relGlobalTolerance,
                              "absLocalTol": args.absLocalTolerance,
                              "relLocalTol": args.relLocalTolerance,
-                             "varLowerBounds": args.varLowerBounds,
-                             "varUpperBounds": args.varUpperBounds,
+                             "varLowerBounds": args.bgfLowerBounds,
+                             "varUpperBounds": args.bgfUpperBounds,
                      },
                      )
     
