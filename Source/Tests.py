@@ -30,13 +30,13 @@ def runTests():
             '--TRangeStart', '90', 
             '--TRangeStepSize', '1',
             '--TRangeEnd', '200',
-            '--gccFlags', "O1", "flto", "g0",
+            '--gccFlags', "O1", "flto", "g",
             '--lastStage', 'doMinimization',
+            '--configFilePath', f'{sourceDirectory}/../Run/Z2_3HDMConfigFile.json'
             ], 
             capture_output=True,
             text=True,
             )
-        
         if not integrationTest.returncode == 0:
             print(f"Error output: {integrationTest.stderr}")
             print(f"{loopOrder} integration test failed, exiting tests.")

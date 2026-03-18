@@ -38,7 +38,7 @@ class UserInput(argparse.ArgumentParser):
            "--gccFlags",
            nargs="*",
            action="store",
-           default=["O3", "flto", "g0","march=native"],
+           default=["O3", "flto", "g2","march=native"],
            help="List[str]: Flags to pass to gcc. Defaults choosen to try to maximise perfomance and minimise binary size"
        )
        configGroup.add_argument(
@@ -101,7 +101,6 @@ class UserInput(argparse.ArgumentParser):
            "--benchmarkType",
            action="store",
            default="handPicked",
-           choices=["load", "handPicked", "random", "randomSSS"],
            help="Str: Specify the mode to generate bm with.",
        )
        benchmarkGroup.add_argument(
@@ -136,7 +135,12 @@ class UserInput(argparse.ArgumentParser):
        )
        
        ########################################################################
-       nloptGroup = self.add_argument_group('NLOPT controls')
+       nloptGroup = self.add_argument_group('NLOPT controls', """Important note:
+       bgf bounds and initial guesses are applied to bgf the length of the name, then aplhabetically,
+       i.e. if you have 4 bgf named v1, v1a, v1b, v2 and bounds [0, 1, 10, 50] then you have
+       v1a:0 v1b:1 v1:10, v2:50 
+       (you can get this order easily by doing sorted(fieldnames, reverse=True, key=len))
+       """)
        nloptGroup.add_argument = self.addArgumentNoMetaVar(nloptGroup)
        nloptGroup.add_argument(
            "--absGlobalTolerance", 
@@ -167,18 +171,16 @@ class UserInput(argparse.ArgumentParser):
            help="Float: Sets the relative tolerance for local minimisation routine in NLOPT"
        )
        nloptGroup.add_argument(
-           "--varLowerBounds",
+           "--bgfLowerBounds",
            nargs="*",
            action="store",
-           default=[-60, 1e-4, 1e-4],
            type=float,
            help="List[float]: Sets the lower bound on background fields for NLOPT. Bounds are in the same order as field names"
        )
        nloptGroup.add_argument(
-           "--varUpperBounds",
+           "--bgfUpperBounds",
            nargs="*",
            action="store",
-           default=[60, 60, 60],
            type=list,
            help="List[float]: Sets the upper bound on background fields for NLOPT. Bounds are in the same order as field names",
        )
@@ -186,17 +188,6 @@ class UserInput(argparse.ArgumentParser):
            "--initialGuesses",
            nargs="*",
            action="store",
-           default=[
-               [0.1, 0.1, 0.1],
-               [5, 5, 5],
-               [-5, 5, 5],
-               [0.1, 0.1, 10],
-               [0.1, 0.1, 20],
-               [40, 40, 40],
-               [-40, 40, 40],
-               [59, 59, 59],
-               [-59, 59, 59],
-           ],
            type=list,
            help="List[List[float]]: Initial values of background fields to be given to local minimisation routine in NLOPT",
        )
@@ -274,99 +265,80 @@ class UserInput(argparse.ArgumentParser):
        filesGroup.add_argument(
             "--modelDirectory",
             action="store",
-            default="Z2_3HDM"
        )      
        filesGroup.add_argument(
            "--boundedConditionsFilePath",
            action="store",
-           default="DRalgoOutputFiles/BoundedConditions.txt",
        )
        filesGroup.add_argument(
            "--allSymbolsFilePath",
            action="store",
-           default="DRalgoOutputFiles/AllSymbols.json",
        )
        filesGroup.add_argument(
-           "--loFilePath",
+           "--veffLOFilePath",
            action="store",
-           default="DRalgoOutputFiles/Veff_LO.txt",
        )
        filesGroup.add_argument(
-           "--nloFilePath",
+           "--veffNLOFilePath",
            action="store",
-           default="DRalgoOutputFiles/Veff_NLO.txt",
        )
        filesGroup.add_argument(
-           "--nnloFilePath",
+           "--veffNNLOFilePath",
            action="store",
-           default="DRalgoOutputFiles/Veff_NNLO.txt",
        )
        filesGroup.add_argument(
            "--betaFunctions4DFilePath",
            action="store",
-           default="DRalgoOutputFiles/BetaFunctions4D.txt",
        )
        filesGroup.add_argument(
            "--vectorMassesSquaredFilePath",
            action="store",
-           default="DRalgoOutputFiles/VectorMasses.txt",
        )
        filesGroup.add_argument(
            "--vectorShortHandsFilePath",
            action="store",
-           default="DRalgoOutputFiles/VectorShorthands.txt",
        )
        filesGroup.add_argument(
            "--hardToSoftFilePath",
            action="store",
-           default="DRalgoOutputFiles/HardToSoft.txt",
        )
        filesGroup.add_argument(
            "--hardScaleFilePath",
            action="store",
-           default="DRalgoOutputFiles/HardScale.txt",
        )
        filesGroup.add_argument(
            "--softScaleRGEFilePath",
            action="store",
-           default="DRalgoOutputFiles/SoftScaleRGE.txt",
        )
        filesGroup.add_argument(
            "--softToUltraSoftFilePath",
            action="store",
-           default="DRalgoOutputFiles/SoftToUltraSoft.txt",
            help="Set to none if working at the soft scale (don't worry about the ultrasoft scale RGE)"
        )
        filesGroup.add_argument(
            "--ultraSoftScaleRGEFilePath",
            action="store",
-           default="DRalgoOutputFiles/UltraSoftScaleRGE.txt",
        )
        filesGroup.add_argument(
            "--scalarPermutationMatrixFilePath",
            action="store",
-           default="DRalgoOutputFiles/ScalarPermutationMatrix.txt",
            help="Set to none if no permutation matrix used"
        )
        filesGroup.add_argument(
            "--scalarRotationMatrixFilePath",
            action="store",
-           default="DRalgoOutputFiles/ScalarRotationMatrix.json",
        )
        filesGroup.add_argument(
            "--scalarMassMatrixFilePath",
            action="store",
-           default="DRalgoOutputFiles/ScalarMassMatrix.txt",
        )
        filesGroup.add_argument(
            "--lagranianVariablesFilePath",
            action="store",
-           default="DRalgoOutputFiles/LagranianSymbols.json",
        )
        filesGroup.add_argument(
            "--scalarMassNamesFilePath",
            action="store",
-           default="DRalgoOutputFiles/ScalarMassNames.json",
        )
        filesGroup.add_argument(
            "--pythonisedExpressionsFilePath",

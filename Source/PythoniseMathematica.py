@@ -71,7 +71,7 @@ def pythoniseMathematica(args):
     def getLines(filePath):
         with open(moduleDirectory/filePath, "r") as fp:
             data = fp.readlines()
-            ## This is a hack to deal with adding hardScale super late to this part of the code
+            ## This is to deal with adding hardScale super late to the code
             if len(data) == 1:
                 return data[0]
             return data
@@ -80,7 +80,7 @@ def pythoniseMathematica(args):
     allSymbols = sorted(
         [replaceGreekSymbols(symbol) for symbol in allSymbols], reverse=True, key=len
     )
-
+    
     expressionDict = {
         "bounded": {
             "expressions": pythoniseExpressionSystemArray(
@@ -124,11 +124,8 @@ def pythoniseMathematica(args):
             "fileName": args.lagranianVariablesFilePath 
         },
     }
-    if args.softToUltraSoftFilePath.lower() == "none":
-        expressionDict |= {"softToUltraSoft": "none", 
-                           "ultraSoftRGE": "none"}
-        
-    else:
+
+    if args.softToUltraSoftFilePath:
         expressionDict |= {
             "softToUltraSoft": {
                 "expressions": pythoniseExpressionSystemArray(getLines(args.softToUltraSoftFilePath), allSymbols),
@@ -139,13 +136,16 @@ def pythoniseMathematica(args):
                 "filePath": args.ultraSoftScaleRGEFilePath,
                 }
                 }
+
+    else:
+        expressionDict |= {"softToUltraSoft": "none", 
+                           "ultraSoftRGE": "none"}
         
     scalarPermutationMatrix = (getLinesJSON(args.scalarPermutationMatrixFilePath) 
-        if not args.scalarPermutationMatrixFilePath.lower() == "none" else "none")
+        if args.scalarPermutationMatrixFilePath else "none")
     
-    veffExpressions = [getLines(veff) for veff in [args.loFilePath, args.nloFilePath] + (
-                    [args.nnloFilePath] if args.loopOrder > 1 else [])]        
-    
+    veffExpressions = [getLines(veff) for veff in [args.veffLOFilePath, args.veffNLOFilePath] + (
+                    [args.veffNNLOFilePath] if args.loopOrder > 1 else [])]        
     generateModules(
         veffExpressions,
         args.verbose,
