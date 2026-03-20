@@ -26,9 +26,6 @@ def replaceSymbolsConst(string):
         .replace("Glaisher", "1.28242712910062")
     )
 
-def removeSuffices(string):
-    return string.replace("^2", "sq")
-
 def replaceSymbolsWithIndices(expression, symbols):
     for idx, symbol in enumerate(symbols):
         expression = expression.replace(symbol, f"params[{idx}]")
@@ -43,9 +40,9 @@ def pythoniseExpression(line):
     identifier, expression = (
         map(str.strip, line.split("->")) if ("->" in line) else ("missing", line)
     )
-
+    
     return {
-        "identifier": removeSuffices(replaceGreekSymbols(identifier)),
+        "identifier": replaceGreekSymbols(identifier),
         "expression": str(parse_mathematica(replaceSymbolsConst(replaceGreekSymbols(expression))))
     }
 
@@ -187,15 +184,6 @@ class PythoniseMathematicaUnitTests(TestCase):
         source = "u*mu"
         allSymbols = sorted(["u", "mu"], key=len, reverse =True)
         self.assertEqual(reference, replaceSymbolsWithIndices(source, allSymbols))
-
-    def test_removeSuffices(self):
-        reference = ["myVarsq", "sqmyVar"]
-
-        source = ["myVar^2", "^2myVar"]
-
-        self.assertEqual(
-            reference, [removeSuffices(sourceString) for sourceString in source]
-        )
 
     def test_pythoniseExpression(self):
         reference = {
