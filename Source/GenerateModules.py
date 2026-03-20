@@ -6,8 +6,6 @@ import time
 import subprocess
 from hashlib import md5
 import importlib.util
-## Cannot import things from this module as gives cicular import
-import PythoniseMathematica as PythoniseMathematica
 
 def generateModules(
     veffExpressions,
@@ -151,10 +149,6 @@ cpdef double complex evaluatePotential(const double [::1] fields, double [::1] p
 
 def generateVeffModule(veffExpressions, allSymbols):
     ## NOTE this is the one thing the can return complex
-    results = [mutliLineExpression(expression) for expression in veffExpressions]
-    opTest = [item for result in results for item in result[0]]
-    expressionTest = [item for result in results for item in result[1]]
-    test = zip(opTest, expressionTest)
     return Environment().from_string(dedent("""\
 @cython.cdivision(True)
 @cython.boundscheck(False)
@@ -164,11 +158,11 @@ cdef double complex veff(double [::1] params):
     cdef double {{ symbol }} = params[{{ loop.index0 }}]
 {%- endfor %}
     cdef double complex a = 0.0
-{%- for op, term in opsAndExpressions %}
-    a {{ op }} {{ term }}
+{%- for expr in veffExpressions %}
+    {{expr}}
 {%- endfor %}
     return a
-    """)).render(allSymbols=allSymbols, opsAndExpressions=test)
+    """)).render(allSymbols=allSymbols, veffExpressions=veffExpressions)
 
 
 def generateComputeMassesModule(
@@ -184,7 +178,7 @@ def generateComputeMassesModule(
     from math import sqrt 
     ## Proving this works is left as an excerise for the reader :)    
     scalarMassMatrixSizes = [int(-0.5 +sqrt(1+8*len(expressions))/2) for expressions in scalarMatricesExpressions ]
-
+    ## TODO move this to helper
     eigenvalueAssignment = []
     for idxSym, symbol in enumerate(scalarMassNames):
         idxShift = 0
@@ -300,47 +294,6 @@ cdef void computeMasses(double [::1] params):
             vectorShorthands = vectorShorthands,
             )
 
-def mutliLineExpression(expression):
-    operations = ["+="]
-    expressions = []
-    
-    netBrackets = 0
-    start = 0
-    
-    for i, char in enumerate(expression):
-        if char == '(':
-            netBrackets += 1
-        elif char == ')':
-            netBrackets -= 1
-        if char == ' ' and netBrackets == 0:
-            ##+1 to catch space
-            line = expression[start:i+1]
-            if line in ["+ ", "- "]:
-                operations.append("+=" if line == "+ " else "-=")
-            else:
-                expressions.append(convertToCythonSyntax(line))
-            start = i + 1
-    
-    # Any remaining characters should just be expressions
-    if start < len(expression):
-        line = expression[start:]
-        expressions.append(convertToCythonSyntax(line))
-    return operations, expressions
-
-def convertMatrixToCythonSyntax(term):
-    term = convertToCythonSyntax(term)
-    term = term.replace('{', '[')
-    return term.replace('}', ']')
-    
-def convertToCythonSyntax(term):
-    term = term.replace('Sqrt', 'csqrt')
-    term = term.replace('Log', 'clog')
-    term = term.replace('[', '(')
-    term = term.replace(']', ')')
-    term = term.replace('^', '**')
-    term = PythoniseMathematica.replaceSymbolsConst(term)
-    return PythoniseMathematica.replaceGreekSymbols(term)
-
 def compileCythonModules(verbose, cythonFP, loopOrder):
     if verbose:
         print("Compiling cython modules")
@@ -362,5 +315,4 @@ def compileCythonModules(verbose, cythonFP, loopOrder):
         print("Cython compilation succeeded:")
         print(result.stdout)
         print(f'Compilation took {tf - ti} seconds.')
-    
-    # TODO: Add a clean up step to remove any compilation artifacts.
+

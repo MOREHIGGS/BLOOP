@@ -1,22 +1,11 @@
 (* ::Package:: *)
 
 (* ::Text:: *)
-(*DEV notes: *)
-(*1) Worth integrating some functions like removeDRalgoSuffixes and makeCythonFriendly into exportUTF8 to reduce the amount of front facing code? *)
-(*2)I wonder how much of this could be automated. User would still need to input model,  set scales and vevs *)
-(*but after that it seems simple enough apart from block diagonalising the scalar mass matrix*)
-(*3) A lot of complicated string manipulation was added last minute to Generate modules that should be moved here at some point*)
-
-
-(* ::Text:: *)
 (*Import DRalgo and group math (in paclet form, needs DRalgo 1.3+*)
 
 
 SetDirectory[NotebookDirectory[]];
 <<DRalgo`DRalgo`
-
-
-SetDirectory[NotebookDirectory[]];
 
 
 (* ::Text:: *)
@@ -25,7 +14,7 @@ SetDirectory[NotebookDirectory[]];
 
 Get["DRalgoToBLOOPHelper.m"]
 (*Fresh added so it doesn't overwrite the old expression files*)
-exportPath = "../../Build/Z2_3HDM/DRalgoOutputFilesFresh";
+exportPath = "../../Build/Z2_3HDM/DRalgoOutputFiles";
 
 
 (* ::Text:: *)
@@ -232,23 +221,7 @@ exportUTF8[exportPath<>"/UltraSoftScaleRGE.txt", ultraSoftParamsRGE];
 
 
 (* ::Section:: *)
-(*Effective potential*)
-
-
-(* ::Text:: *)
-(*We need to give DRalgo two things: *)
-(*1) Rotation matrices for scalar and gauge fields that bring the original field vectors to mass eigenstate basis*)
-(*2) Diagonal mass-squared matrices for both scalars and gauges. The ordering of masses needs to match the order to which the rotation matrix brings the fields.*)
-(**)
-(*We will export a lot of symbolical data for diagonalization, mass eigenvalues, shorthand symbols in rotation matrices etc. These can then be evaluated numerically in an external program. The order of evaluations should be:*)
-(*1. Obtain action parameters*)
-(*2. Obtain background field values*)
-(*3. Solve diagonalization equations for scalars and vectors -> get angles or sines (cosines) of the angles.*)
-(*For scalars, use any linear algebra library to diagonalize the mass matrix and get the diagonalizing rotation.*)
-(*4. Evaluate masses and rotation matrix elements in the form in which they enter the Veff expression. *)
-(*5. Plug all of the above in to the Veff expressions*)
-(**)
-(*In principle there could be additional shorthands computed between steps 2 and 3 if the diagonalization conditions themselves depend on some shorthand symbols, but we're not including this currently.*)
+(*Vector and scalar mass matrices*)
 
 
 (* ::Subsection:: *)
@@ -390,8 +363,8 @@ exportUTF8[exportPath<>"/VectorMasses.txt", VectorMassExpressions];
 exportUTF8[exportPath<>"/VectorShorthands.txt", vectorShorthands];
 
 
-(* ::Subsection:: *)
-(*Calculating the effective potential*)
+(* ::Section:: *)
+(*Effective potential*)
 
 
 (** RotateTensorsCustomMass[] is very very slow, this can run for hours!
@@ -408,21 +381,20 @@ CalculatePotentialUS[]
 (*Unsure if bug or I implemented the rotation wrong or its because of BSM physics*)
 (*Based on integration tests this has a minor impact on results which is expected since just one term is a factor of ctW off*)
 (*I have just been manually changing that term in the NNLO txt file to match the SM case*)
-(*Note: NNLO is not friendly and often crashes things that try to open it. Vim handles it well enough. *)
 
 
 veffLO = PrintEffectivePotential["LO"]//Simplify; (* Simplify needed to get rid of spurious imaginary units *)
 veffNLO = PrintEffectivePotential["NLO"]//Simplify;
-veffNNLO = PrintEffectivePotential["NNLO"]/.\[Mu]3US->ultraSoftScale//Simplify; (* not simplified as takes forever - also I vaguely remember it changing the result *)
+veffNNLO = PrintEffectivePotential["NNLO"]/.\[Mu]3US->ultraSoftScale; (* not simplified as takes forever and a lot of ram *)
 
 
-exportUTF8[exportPath<>"/Veff_LO.txt", makeCythonFriendly[veffLO]];
-exportUTF8[exportPath<>"/Veff_NLO.txt", makeCythonFriendly[veffNLO]];
-exportUTF8[exportPath<>"/Veff_NNLO.txt", makeCythonFriendly[veffNNLO]];
+exportUTF8[exportPath<>"/Veff_LO.txt", spiltExpression[veffLO]];
+exportUTF8[exportPath<>"/Veff_NLO.txt", spiltExpression[veffNLO]];
+exportUTF8[exportPath<>"/Veff_NNLO.txt", spiltExpression[veffNNLO]];
 
 
-(* I think this is using the \[CapitalLambda]4 at the (ultra)soft scale which may not have the same symbols as the hard scale.
-This could lead to problems in the pert check *)
+(* I think this is using the \[CapitalLambda]4 at the (ultra)soft scale.
+This could lead to problems in the pert check as the soft scale as extra terms from the debye fields*)
 exportUTF8[
 	exportPath<>"/LagranianSymbols.json", 
 	{"fourPointSymbols"-> extractSymbols[\[CapitalLambda]4],

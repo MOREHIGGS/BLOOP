@@ -28,40 +28,51 @@ exportMatrices[file_, mats_] :=
     "\n---\n"]]
 
 
+(* This regex magic is not ideal but every attempt to use something more native to mathematica has been some how less readable with more bugs
+The main point of this function is that x^(3/2) isn't handled properly in Cython with cdivision on.
+Side points are to do compiler optimisations and handle some of the mathematica syntax
+*)
 makeCythonFriendly[expr_] :=
  Module[{str, repeatVar},
+
   str = ToString[expr, InputForm];
-  repeatVar[var_, n_] := StringRiffle[ConstantArray[var, n], "*"];
+
+  repeatVar[var_, n_] :=
+    StringRiffle[ConstantArray[var, n], "*"];
+
+  str = StringReplace[str, {
+	 (* Turn x^(-n/2) into 1/csqrt(x*x*x...)*)
+     RegularExpression["(\\w+)\\^\\(-(\\d+)/2\\)"] :>
+      ("1/csqrt(" <> repeatVar["$1", ToExpression["$2"]] <> ")"),
+	(* Turn x^-n into 1/(x*x*x...)*)
+     RegularExpression["(\\w+)\\^\\(-(\\d+)\\)"] :>
+      ("1/(" <> repeatVar["$1", ToExpression["$2"]] <> ")"),
+	(* Turn x^(n/2) into csqrt(x*x*x...)*)
+     RegularExpression["(\\w+)\\^\\((\\d+)/2\\)"] :>
+      ("csqrt(" <> repeatVar["$1", ToExpression["$2"]] <> ")"),
+	(* Turn x^n into x*x*x... *)
+     RegularExpression["(\\w+)\\^(\\d+)"] :>
+      ("(" <> repeatVar["$1", ToExpression["$2"]] <> ")"),
+
+     RegularExpression["\\b(\\d+)/(\\d+)\\b"] :> "$1.0/$2"
+     }];
 
   StringReplace[str, {
-  
-  RegularExpression["(\\w+)\\^\\(-(\\d+)/2\\)"] :>
-  Module[{v = "$1", n = ToExpression["$2"]},
-    "1/csqrt[" <> repeatVar[v, n] <> "]"
-  ],
-
-(* x^(-n) \[RightArrow] 1/(x*x*...) *)
-RegularExpression["(\\w+)\\^\\(-(\\d+)\\)"] :>
-  Module[{v = "$1", n = ToExpression["$2"]},
-    "1/(" <> repeatVar[v, n] <> ")"
-  ],
-
-    (* x^(n/2) \[RightArrow] csqrt[x*x*...] *)
-    RegularExpression["(\\w+)\\^\\((\\d+)/2\\)"] :>
-     Module[{v = "$1", n = ToExpression["$2"]},
-       "csqrt[" <> repeatVar[v, n] <> "]"
-     ],
-
-    (* x^n \[RightArrow] (x*x*...) *)
-    RegularExpression["(\\w+)\\^(\\d+)"] :>
-     Module[{v = "$1", n = ToExpression["$2"]},
-       "(" <> repeatVar[v, n] <> ")"
-     ],
-
-    (* integer division \[RightArrow] float division *)
-    RegularExpression["\\b(\\d+)/(\\d+)\\b"] :> "$1.0/$2"
-  }]
+    "[" -> "(",
+    "]" -> ")",
+    "Sqrt" -> "csqrt",
+    "Log" -> "clog",
+    "^" -> "**"
+    }]
  ]
+
+
+(* For reasons beyond me the compiler finds it easier to handle lots of small expressions rather than big expressions *)
+spiltExpression[expr_] := Module[
+  {terms},
+  terms = If[Head[expr] === Plus, List @@ expr, {expr}];
+  "a += " <> makeCythonFriendly[N[#]] <> ";" & /@ terms
+]
 
 
 solveRunning3D[betaFunction_, newScale_, oldScale_] :=

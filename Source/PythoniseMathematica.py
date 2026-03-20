@@ -26,9 +26,6 @@ def replaceSymbolsConst(string):
         .replace("Glaisher", "1.28242712910062")
     )
 
-def removeSuffices(string):
-    return string.replace("^2", "sq")
-
 def replaceSymbolsWithIndices(expression, symbols):
     for idx, symbol in enumerate(symbols):
         expression = expression.replace(symbol, f"params[{idx}]")
@@ -43,9 +40,9 @@ def pythoniseExpression(line):
     identifier, expression = (
         map(str.strip, line.split("->")) if ("->" in line) else ("missing", line)
     )
-
+    
     return {
-        "identifier": removeSuffices(replaceGreekSymbols(identifier)),
+        "identifier": replaceGreekSymbols(identifier),
         "expression": str(parse_mathematica(replaceSymbolsConst(replaceGreekSymbols(expression))))
     }
 
@@ -71,9 +68,6 @@ def pythoniseMathematica(args):
     def getLines(filePath):
         with open(moduleDirectory/filePath, "r") as fp:
             data = fp.readlines()
-            ## This is to deal with adding hardScale super late to the code
-            if len(data) == 1:
-                return data[0]
             return data
 
     allSymbols = getLinesJSON(args.allSymbolsFilePath) + ["missing"]
@@ -103,7 +97,7 @@ def pythoniseMathematica(args):
 
         "hardScale": {
             "expressions": pythoniseExpressionArray(
-                getLines(args.hardScaleFilePath), allSymbols
+                getLines(args.hardScaleFilePath)[0], allSymbols
             ),
             "filePath": args.hardScaleFilePath,
         },
@@ -144,8 +138,13 @@ def pythoniseMathematica(args):
     scalarPermutationMatrix = (getLinesJSON(args.scalarPermutationMatrixFilePath) 
         if args.scalarPermutationMatrixFilePath else "none")
     
-    veffExpressions = [getLines(veff) for veff in [args.veffLOFilePath, args.veffNLOFilePath] + (
-                    [args.veffNNLOFilePath] if args.loopOrder > 1 else [])]        
+    veffExpressions = [
+        replaceGreekSymbols(line)
+        for veff in [args.veffLOFilePath, args.veffNLOFilePath] + (
+        [args.veffNNLOFilePath] if args.loopOrder > 1 else [])
+        for line in getLines(veff)
+        ]
+    
     generateModules(
         veffExpressions,
         args.verbose,
@@ -185,15 +184,6 @@ class PythoniseMathematicaUnitTests(TestCase):
         source = "u*mu"
         allSymbols = sorted(["u", "mu"], key=len, reverse =True)
         self.assertEqual(reference, replaceSymbolsWithIndices(source, allSymbols))
-
-    def test_removeSuffices(self):
-        reference = ["myVarsq", "sqmyVar"]
-
-        source = ["myVar^2", "^2myVar"]
-
-        self.assertEqual(
-            reference, [removeSuffices(sourceString) for sourceString in source]
-        )
 
     def test_pythoniseExpression(self):
         reference = {
