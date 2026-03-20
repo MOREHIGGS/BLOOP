@@ -28,6 +28,10 @@ exportMatrices[file_, mats_] :=
     "\n---\n"]]
 
 
+(* This regex magic is not ideal but every attempt to use something more native to mathematica has been some how less readable with more bugs
+The main point of this function is that x^(3/2) isn't handled properly in Cython with cdivision on.
+Side points are to do compiler optimisations and handle some of the mathematica syntax
+*)
 makeCythonFriendly[expr_] :=
  Module[{str, repeatVar},
 
@@ -63,16 +67,12 @@ makeCythonFriendly[expr_] :=
  ]
 
 
+(* For reasons beyond me the compiler finds it easier to handle lots of small expressions rather than big expressions *)
 spiltExpression[expr_] := Module[
   {terms},
-  
   terms = If[Head[expr] === Plus, List @@ expr, {expr}];
-  
   "a += " <> makeCythonFriendly[N[#]] <> ";" & /@ terms
 ]
-
-
- spiltExpression[x^3 +x^(-3/2)+Log[x/T]+Sqrt[Log[a]]+1/\[Pi]^2]
 
 
 solveRunning3D[betaFunction_, newScale_, oldScale_] :=
