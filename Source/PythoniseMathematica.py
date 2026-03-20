@@ -71,9 +71,6 @@ def pythoniseMathematica(args):
     def getLines(filePath):
         with open(moduleDirectory/filePath, "r") as fp:
             data = fp.readlines()
-            ## This is to deal with adding hardScale super late to the code
-            if len(data) == 1:
-                return data[0]
             return data
 
     allSymbols = getLinesJSON(args.allSymbolsFilePath) + ["missing"]
@@ -103,7 +100,7 @@ def pythoniseMathematica(args):
 
         "hardScale": {
             "expressions": pythoniseExpressionArray(
-                getLines(args.hardScaleFilePath), allSymbols
+                getLines(args.hardScaleFilePath)[0], allSymbols
             ),
             "filePath": args.hardScaleFilePath,
         },
@@ -144,8 +141,13 @@ def pythoniseMathematica(args):
     scalarPermutationMatrix = (getLinesJSON(args.scalarPermutationMatrixFilePath) 
         if args.scalarPermutationMatrixFilePath else "none")
     
-    veffExpressions = [getLines(veff) for veff in [args.veffLOFilePath, args.veffNLOFilePath] + (
-                    [args.veffNNLOFilePath] if args.loopOrder > 1 else [])]        
+    veffExpressions = [
+        line
+        for veff in [args.veffLOFilePath, args.veffNLOFilePath] + (
+        [args.veffNNLOFilePath] if args.loopOrder > 1 else [])
+        for line in getLines(veff)
+        ]
+    
     generateModules(
         veffExpressions,
         args.verbose,

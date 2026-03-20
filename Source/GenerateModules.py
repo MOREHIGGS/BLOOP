@@ -151,10 +151,7 @@ cpdef double complex evaluatePotential(const double [::1] fields, double [::1] p
 
 def generateVeffModule(veffExpressions, allSymbols):
     ## NOTE this is the one thing the can return complex
-    results = [mutliLineExpression(expression) for expression in veffExpressions]
-    opTest = [item for result in results for item in result[0]]
-    expressionTest = [item for result in results for item in result[1]]
-    test = zip(opTest, expressionTest)
+    veffExpressions = [convertToCythonSyntax(expr) for expr in veffExpressions]
     return Environment().from_string(dedent("""\
 @cython.cdivision(True)
 @cython.boundscheck(False)
@@ -164,11 +161,11 @@ cdef double complex veff(double [::1] params):
     cdef double {{ symbol }} = params[{{ loop.index0 }}]
 {%- endfor %}
     cdef double complex a = 0.0
-{%- for op, term in opsAndExpressions %}
-    a {{ op }} {{ term }}
+{%- for expr in veffExpressions %}
+    {{expr}}
 {%- endfor %}
     return a
-    """)).render(allSymbols=allSymbols, opsAndExpressions=test)
+    """)).render(allSymbols=allSymbols, veffExpressions=veffExpressions)
 
 
 def generateComputeMassesModule(
