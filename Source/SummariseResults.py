@@ -26,29 +26,27 @@ def summariseResults(args):
 
         if result["failureReason"]:
             failDict[result["failureReason"]] += 1
-        
-        else:
-            if result["steps"] > 1:
-                    multiStepCount += 1
+            continue
+
+        if result["steps"] > 1:
+            multiStepCount += 1
     
-            if result["complex"]:
-                complexCount += 1
+        if result["complex"]:
+            complexCount += 1
 
-            if not result["isPerturbative"]:
-                nonPertCount += 1
+        if result["strong"]:
+            bmInputList.append((list(result["bmInput"].values())))
+            strength = 0
+            Tc = 0 
+            ## Get the strongest PT (and assiocated Tc) of a potential mutli step PT
+            for subResult in result["PTData"]:
+                if subResult["strength"] > strength:
+                    strength = subResult["strength"]
+                    Tc = subResult["Tc"]
 
-            if result["strong"]:
-                bmInputList.append((list(result["bmInput"].values())))
-                strength = 0
-                ## Get the strongest PT (and assiocated Tc) of a potential mutli step PT
-                for idk in result["PTData"]:
-                    if idk["strength"] > strength:
-                        strength = idk["strength"]
-                        Tc = idk["Tc"]
-
-                TcList.append(Tc)
-                strengthList.append(strength)
-                bmNumberList.append(result["bmNumber"])
+            TcList.append(Tc)
+            strengthList.append(strength)
+            bmNumberList.append(result["bmNumber"])
     
     ## Sort bmInputs by order of strength, 
     ## this is so the colour of the scatter plot is set by the strong PT at that point
@@ -65,7 +63,6 @@ def summariseResults(args):
                 and {multiStepCount} of which are mutli step PT
                 The number of failed benchmarks is: {failDict.items()} 
                 The number of benchmarks with a complex min is: {complexCount} 
-                The number of benchmarks that become non-pert is: {nonPertCount}
                 """))
         # Is this still needed?
         norm = plt.Normalize(dataSorted[0][0], dataSorted[0][-1])
