@@ -142,7 +142,7 @@ def pythoniseMathematica(args):
         if args.scalarPermutationMatrixFilePath else "none")
     
     veffExpressions = [
-        line
+        replaceGreekSymbols(line)
         for veff in [args.veffLOFilePath, args.veffNLOFilePath] + (
         [args.veffNNLOFilePath] if args.loopOrder > 1 else [])
         for line in getLines(veff)

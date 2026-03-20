@@ -6,8 +6,6 @@ import time
 import subprocess
 from hashlib import md5
 import importlib.util
-## Cannot import things from this module as gives cicular import
-import PythoniseMathematica as PythoniseMathematica
 
 def generateModules(
     veffExpressions,
@@ -151,7 +149,6 @@ cpdef double complex evaluatePotential(const double [::1] fields, double [::1] p
 
 def generateVeffModule(veffExpressions, allSymbols):
     ## NOTE this is the one thing the can return complex
-    veffExpressions = [convertToCythonSyntax(expr) for expr in veffExpressions]
     return Environment().from_string(dedent("""\
 @cython.cdivision(True)
 @cython.boundscheck(False)
@@ -297,10 +294,6 @@ cdef void computeMasses(double [::1] params):
             vectorShorthands = vectorShorthands,
             )
 
-def convertToCythonSyntax(term):
-    term = PythoniseMathematica.replaceSymbolsConst(term)
-    return PythoniseMathematica.replaceGreekSymbols(term)
-
 def compileCythonModules(verbose, cythonFP, loopOrder):
     if verbose:
         print("Compiling cython modules")
@@ -322,5 +315,4 @@ def compileCythonModules(verbose, cythonFP, loopOrder):
         print("Cython compilation succeeded:")
         print(result.stdout)
         print(f'Compilation took {tf - ti} seconds.')
-    
-    # TODO: Add a clean up step to remove any compilation artifacts.
+
