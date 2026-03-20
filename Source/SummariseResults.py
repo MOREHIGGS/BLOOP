@@ -34,9 +34,6 @@ def summariseResults(args):
             if result["complex"]:
                 complexCount += 1
 
-            if not result["isPerturbative"]:
-                nonPertCount += 1
-
             if result["strong"]:
                 bmInputList.append((list(result["bmInput"].values())))
                 strength = 0
@@ -65,7 +62,6 @@ def summariseResults(args):
                 and {multiStepCount} of which are mutli step PT
                 The number of failed benchmarks is: {failDict.items()} 
                 The number of benchmarks with a complex min is: {complexCount} 
-                The number of benchmarks that become non-pert is: {nonPertCount}
                 """))
         # Is this still needed?
         norm = plt.Normalize(dataSorted[0][0], dataSorted[0][-1])
