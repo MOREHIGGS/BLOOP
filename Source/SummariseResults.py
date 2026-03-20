@@ -26,26 +26,27 @@ def summariseResults(args):
 
         if result["failureReason"]:
             failDict[result["failureReason"]] += 1
-        
-        else:
-            if result["steps"] > 1:
-                    multiStepCount += 1
+            continue
+
+        if result["steps"] > 1:
+            multiStepCount += 1
     
-            if result["complex"]:
-                complexCount += 1
+        if result["complex"]:
+            complexCount += 1
 
-            if result["strong"]:
-                bmInputList.append((list(result["bmInput"].values())))
-                strength = 0
-                ## Get the strongest PT (and assiocated Tc) of a potential mutli step PT
-                for idk in result["PTData"]:
-                    if idk["strength"] > strength:
-                        strength = idk["strength"]
-                        Tc = idk["Tc"]
+        if result["strong"]:
+            bmInputList.append((list(result["bmInput"].values())))
+            strength = 0
+            Tc = 0 
+            ## Get the strongest PT (and assiocated Tc) of a potential mutli step PT
+            for subResult in result["PTData"]:
+                if subResult["strength"] > strength:
+                    strength = subResult["strength"]
+                    Tc = subResult["Tc"]
 
-                TcList.append(Tc)
-                strengthList.append(strength)
-                bmNumberList.append(result["bmNumber"])
+            TcList.append(Tc)
+            strengthList.append(strength)
+            bmNumberList.append(result["bmNumber"])
     
     ## Sort bmInputs by order of strength, 
     ## this is so the colour of the scatter plot is set by the strong PT at that point
