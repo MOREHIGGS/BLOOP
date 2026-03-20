@@ -178,7 +178,7 @@ def generateComputeMassesModule(
     from math import sqrt 
     ## Proving this works is left as an excerise for the reader :)    
     scalarMassMatrixSizes = [int(-0.5 +sqrt(1+8*len(expressions))/2) for expressions in scalarMatricesExpressions ]
-
+    ## TODO move this to helper
     eigenvalueAssignment = []
     for idxSym, symbol in enumerate(scalarMassNames):
         idxShift = 0
