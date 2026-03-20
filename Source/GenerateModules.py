@@ -298,11 +298,6 @@ cdef void computeMasses(double [::1] params):
             )
 
 def convertToCythonSyntax(term):
-    term = term.replace('Sqrt', 'csqrt')
-    term = term.replace('Log', 'clog')
-    term = term.replace('[', '(')
-    term = term.replace(']', ')')
-    term = term.replace('^', '**')
     term = PythoniseMathematica.replaceSymbolsConst(term)
     return PythoniseMathematica.replaceGreekSymbols(term)
 
