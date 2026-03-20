@@ -297,38 +297,6 @@ cdef void computeMasses(double [::1] params):
             vectorShorthands = vectorShorthands,
             )
 
-def mutliLineExpression(expression):
-    operations = ["+="]
-    expressions = []
-    
-    netBrackets = 0
-    start = 0
-    
-    for i, char in enumerate(expression):
-        if char == '(':
-            netBrackets += 1
-        elif char == ')':
-            netBrackets -= 1
-        if char == ' ' and netBrackets == 0:
-            ##+1 to catch space
-            line = expression[start:i+1]
-            if line in ["+ ", "- "]:
-                operations.append("+=" if line == "+ " else "-=")
-            else:
-                expressions.append(convertToCythonSyntax(line))
-            start = i + 1
-    
-    # Any remaining characters should just be expressions
-    if start < len(expression):
-        line = expression[start:]
-        expressions.append(convertToCythonSyntax(line))
-    return operations, expressions
-
-def convertMatrixToCythonSyntax(term):
-    term = convertToCythonSyntax(term)
-    term = term.replace('{', '[')
-    return term.replace('}', ']')
-    
 def convertToCythonSyntax(term):
     term = term.replace('Sqrt', 'csqrt')
     term = term.replace('Log', 'clog')
