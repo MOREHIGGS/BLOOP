@@ -14,12 +14,25 @@ exportToBLOOP[fileName_, expr_, complex_: False] := Module[{lines},
 ];
 
 
-(* The regex magic here isn't ideal but every attempt to use expression logic
-has been worse
-Optional complex argument needed because BLOOP does all but the Veff calculations
-with float64 types for speed
-Unclear if in Cython x^n gets compiled to x*x*... (TEST) but easy enforce to enforce it
-TODO add a check for the size of n as don't want to expand x^(100\[Placeholder])
+(* To ultize the stack/avoid python overhead its better if we write matrices as 
+[i][j] = <expression at position i,j> 
+See makeBLOOPFriendly as to why : and ; are used instead of [ and ][
+add --- to delimite a new matrix (easier than tracking when i resets back to 0)
+*)
+exportMatrices[file_, mats_, symmetric_: False] :=
+  exportToBLOOP[file, StringRiffle[
+    (Module[{n = Length[#]},
+       StringRiffle[Flatten @ Table[
+         ":" <> ToString[i-1] <> ";:" <> ToString[j-1] <> "; -> " <>
+           ToString[N[#[[i,j]]], InputForm],
+         {i, 1, n}, {j, If[symmetric, i, 1], n}], "\n"]] &) /@ mats,
+    "\n---\n"]]
+
+
+(* The regex magic here isn't ideal but every attempt to use expression logic has been worse
+Optional complex argument needed because BLOOP does all but the Veff calculations with float64 types for speed
+Unclear if in Cython x^n gets compiled to x*x*... but easy enforce to enforce it
+TODO add a check for the size of n as don't want to expand x^100 (I don't see why something like this would be in a DRalgo output though)
 x^(n/2) -> <c>sqrt(x*x*x) needed as with cdivision on Cython treats x^(3/2) as 0 
 *)
 makeBLOOPFriendly[expr_, complex_: False] :=
@@ -27,7 +40,7 @@ makeBLOOPFriendly[expr_, complex_: False] :=
   sqrt = If[complex, "csqrt", "sqrt"];
   log = If[complex, "clog", "log"];
   
-  str = ToString[N[expr], InputForm];
+  str = If[StringQ[expr], expr, ToString[N[expr], InputForm]];
   
   repeatVar[var_, n_] := StringRiffle[ConstantArray[var, n], "*"];
   str = StringReplace[str, {
@@ -45,9 +58,16 @@ makeBLOOPFriendly[expr_, complex_: False] :=
       ("(" <> repeatVar["$1", ToExpression["$2"]] <> ")"),
      RegularExpression["\\b(\\d+)/(\\d+)\\b"] :> "$1.0/$2"
      }];
+     (* Problem [] is a function call in mathematica but an index in C/Python 
+     so we need to swap [] for () for function calls, but when we want the index of a matrix we don't want to do that swap
+     so whenever we create an expression for a matrix use : and ; as place holders for [] (:; shouldn't ever appear in a DRalgo output so should be safe)
+     swap [] for () then swap :; for []
+     *);
   StringReplace[str, {
     "[" -> "(",
     "]" -> ")",
+    ":" -> "[",
+    ";" -> "]",
     "Sqrt" -> sqrt,
     "Log" -> log,
     "^" -> "**"
@@ -61,20 +81,6 @@ exportUTF8[fileName_, expr_] := Module[{},
     Export[fileName, expr, CharacterEncoding -> "UTF-8"]
   ]
 ];
-
-
-(* To ultize the stack/avoid python overhead its better if we write matrices as 
-[i][j] = <expression at position i,j> 
-add --- to delimite a new matrix (easier than tracking when i resets back to 0)
-*)
-exportMatrices[file_, mats_, symmetric_: False] :=
-  exportUTF8[file, StringRiffle[
-    (Module[{n = Length[#]},
-       StringRiffle[Flatten @ Table[
-         "[" <> ToString[i-1] <> "][" <> ToString[j-1] <> "] -> " <>
-           ToString[#[[i,j]], InputForm],
-         {i, 1, n}, {j, If[symmetric, i, 1], n}], "\n"]] &) /@ mats,
-    "\n---\n"]]
 
 
 (* This regex magic is not ideal but every attempt to use something more native to mathematica has been some how less readable with more bugs
