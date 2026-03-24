@@ -46,11 +46,34 @@ def pythoniseExpression(line):
         "expression": str(parse_mathematica(replaceSymbolsConst(replaceGreekSymbols(expression))))
     }
 
+
 def pythoniseExpressionSystemArray(expressions, allSymbols):
     return [pythoniseExpressionArray(expression, allSymbols) for expression in expressions]
 
 def pythoniseExpressionSystem(expressions):
     return [pythoniseExpression(expression) for expression in expressions]
+
+def pythoniseExpressionClean(line):
+    line = replaceGreekSymbols(line)
+    identifier, expression = (
+        map(str.strip, line.split("->")) if ("->" in line) else ("missing", line)
+    )
+    
+    return {
+        "identifier": identifier,
+        "expression": expression
+    }
+
+def pythoniseExpressionSystemArrayClean(expressions, allSymbols):
+    return [pythoniseExpressionArrayClean(expression, allSymbols) for expression in expressions]
+
+def pythoniseExpressionSystemClean(expressions):
+    return [pythoniseExpressionClean(expression) for expression in expressions]
+
+def pythoniseExpressionArrayClean(line, allSymbols):
+    expressionDict = pythoniseExpressionClean(line)
+    expressionDict["expression"] = replaceSymbolsWithIndices(expressionDict["expression"], allSymbols)
+    return expressionDict
 
 def pythoniseMathematica(args):
     moduleDirectory = Path(__file__).resolve().parent/"../Build"/args.modelDirectory 
@@ -89,7 +112,7 @@ def pythoniseMathematica(args):
             "filePath": args.betaFunctions4DFilePath,
         },
         "hardToSoft": {
-            "expressions": pythoniseExpressionSystemArray(
+            "expressions": pythoniseExpressionSystemArrayClean(
                 getLines(args.hardToSoftFilePath), allSymbols
             ),
             "filePath": args.hardToSoftFilePath,
@@ -103,7 +126,7 @@ def pythoniseMathematica(args):
         },
 
         "softScaleRGE": {
-            "expressions": pythoniseExpressionSystemArray(
+            "expressions": pythoniseExpressionSystemArrayClean(
                 getLines(args.softScaleRGEFilePath), allSymbols
             ),
             "filePath": args.softScaleRGEFilePath,

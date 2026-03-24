@@ -3,55 +3,59 @@
 (* ::Input:: *)
 (*(*************************************************************************)
 (*A collection of functions to transform DRalgo output into BLOOP input*)
-(*User note: All of these functions are written by LLMs, as I (Jasmine) do not like coding in Mathematica.  *)
-(*I have only verfifed they do the things I need them to so I *)
-(*apologise if they are unreadable or unoptimal.*)
+(*Most of the code here is written by LLMs, as non of the devs enjoy coding in Mathematica.  *)
 (*************************************************************************)*)
 (**)
 
 
-exportToBLOOP[fileName_, expr_] := Module[{lines},
-    lines = StringRiffle[makeBLOOPFriendly /@ Flatten[{expr}], "\n"];
+exportToBLOOP["test.txt", y->x^(3/2)];
+
+
+exportToBLOOP["test.txt",{x->y^2+\[Pi], y->x^(3/2)}];
+
+
+exportToBLOOP[fileName_, expr_, complex_: False] := Module[{lines},
+    lines = StringRiffle[makeBLOOPFriendly[#, complex] & /@ Flatten[{expr}], "\n"];
     Export[fileName, lines, "Text", CharacterEncoding -> "UTF-8"]
 ];
 
 
-exportToBLOOP["test.txt", y->x^(3/2)]
-
-
-exportToBLOOP["test.txt",{x->y^2+\[Pi], y->x^(3/2)}]
-
-
-makeBLOOPFriendly[expr_] :=
- Module[{str, repeatVar},
-
+(* The regex magic here isn't ideal but every attempt to use expression logic
+has been worse
+Optional complex argument needed because BLOOP does all but the Veff calculations
+with float64 types for speed
+Unclear if in Cython x^n gets compiled to x*x*... (TEST) but easy enforce to enforce it
+TODO add a check for the size of n as don't want to expand x^(100\[Placeholder])
+x^(n/2) -> <c>sqrt(x*x*x) needed as with cdivision on Cython treats x^(3/2) as 0 
+*)
+makeBLOOPFriendly[expr_, complex_: False] :=
+ Module[{str, repeatVar, sqrt, log},
+  sqrt = If[complex, "csqrt", "sqrt"];
+  log = If[complex, "clog", "log"];
+  
   str = ToString[N[expr], InputForm];
-
-  repeatVar[var_, n_] :=
-    StringRiffle[ConstantArray[var, n], "*"];
-
+  
+  repeatVar[var_, n_] := StringRiffle[ConstantArray[var, n], "*"];
   str = StringReplace[str, {
-	 (* Turn x^(-n/2) into 1/csqrt(x*x*x...)*)
+     (* Turn x^(-n/2) into 1/<c>sqrt(x*x*x...)*)
      RegularExpression["(\\w+)\\^\\(-(\\d+)/2\\)"] :>
-      ("1/csqrt(" <> repeatVar["$1", ToExpression["$2"]] <> ")"),
-	(* Turn x^-n into 1/(x*x*x...)*)
+      ("1/" <> sqrt <> "(" <> repeatVar["$1", ToExpression["$2"]] <> ")"),
+     (* Turn x^-n into 1/(x*x*x...)*)
      RegularExpression["(\\w+)\\^\\(-(\\d+)\\)"] :>
       ("1/(" <> repeatVar["$1", ToExpression["$2"]] <> ")"),
-	(* Turn x^(n/2) into csqrt(x*x*x...)*)
+     (* Turn x^(n/2) into <c>sqrt(x*x*x...)*)
      RegularExpression["(\\w+)\\^\\((\\d+)/2\\)"] :>
-      ("csqrt(" <> repeatVar["$1", ToExpression["$2"]] <> ")"),
-	(* Turn x^n into x*x*x... *)
+      (sqrt <> "(" <> repeatVar["$1", ToExpression["$2"]] <> ")"),
+     (* Turn x^n into (x*x*x...) *)
      RegularExpression["(\\w+)\\^(\\d+)"] :>
       ("(" <> repeatVar["$1", ToExpression["$2"]] <> ")"),
-
      RegularExpression["\\b(\\d+)/(\\d+)\\b"] :> "$1.0/$2"
      }];
-
   StringReplace[str, {
     "[" -> "(",
     "]" -> ")",
-    "Sqrt" -> "csqrt",
-    "Log" -> "clog",
+    "Sqrt" -> sqrt,
+    "Log" -> log,
     "^" -> "**"
     }]
  ]

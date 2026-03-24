@@ -4,7 +4,6 @@
 (*Import DRalgo and group math (in paclet form, needs DRalgo 1.3+*)
 
 
-SetDirectory[NotebookDirectory[]];
 <<DRalgo`DRalgo`
 
 
@@ -12,8 +11,8 @@ SetDirectory[NotebookDirectory[]];
 (*Import helper functions and setup export path*)
 
 
+SetDirectory[NotebookDirectory[]];
 Get["DRalgoToBLOOPHelper.m"]
-(*Fresh added so it doesn't overwrite the old expression files*)
 exportPath = "../../Build/Z2_3HDM/DRalgoOutputFiles";
 
 
@@ -162,9 +161,6 @@ betaFunctions4DUnsquared = BetaFunctions4D[]/.{(x_^2 -> y_) :> (x -> y/(2*x))};
 exportToBLOOP[exportPath<>"/BetaFunctions4D.txt", betaFunctions4DUnsquared];
 
 
-Head@betaFunctions4DUnsquared
-
-
 PerformDRhard[];
 
 
@@ -201,7 +197,7 @@ exportUTF8[exportPath<>"/HardScale.txt", hardScale];
 In theory this could also make the gauge couplings complex (very bad) but this would likely be in a non-pert regime i.e.
 g1 = sqrt(T)*g1*sqrt[1 - ((g1^2) (3Lb+40Lf) )/(96 \[Pi]^2)] - the correction has to be larger than 1*) 
 hardToSoft = removeDRalgoSuffixes[sqrtSubRules[Join[couplingsSoft, temporalScalarCouplings, debyeMasses, scalarMasses]]]/.Lb->lb/.Lf->lf;
-exportUTF8[exportPath<>"/HardToSoft.txt", hardToSoft];
+exportToBLOOP[exportPath<>"/HardToSoft.txt", hardToSoft];
 
 
 softParamsRGE = removeDRalgoSuffixes[solveRunning3D[BetaFunctions3DS[], softScale, hardScale]];
