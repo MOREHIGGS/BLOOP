@@ -67,7 +67,7 @@ exportUTF8[fileName_, expr_] := Module[{},
 [i][j] = <expression at position i,j> 
 add --- to delimite a new matrix (easier than tracking when i resets back to 0)
 *)
-exportMatrices[file_, mats_, symmetric_: True] :=
+exportMatrices[file_, mats_, symmetric_: False] :=
   exportUTF8[file, StringRiffle[
     (Module[{n = Length[#]},
        StringRiffle[Flatten @ Table[

@@ -275,24 +275,20 @@ scalarPermutationMatrix = {
 {0,0,0,0,0,0,0,0,0,1,0,0},
 {0,1,0,0,0,0,0,0,0,0,0,0},
 {0,0,0,0,0,0,0,0,0,0,0,1}};
-(* Transpose is taken because this gets *)
+(* Symmetric = False because we can't leaverage that here*)
 exportMatrices[exportPath<>"/ScalarPermutationMatrix.txt",{scalarPermutationMatrix}];
 
 
 (*Our casescalarPermutationMatrix is symmetric but taking transpose anyway for consistency/future proofing*)
 blockDiagonalMM = Transpose[scalarPermutationMatrix] . scalarMM . scalarPermutationMatrix;
-
-MMblock1 = Take[blockDiagonalMM,{1,6},{1,6}];
-MMblock2 = Take[blockDiagonalMM,{7,12},{7,12}];
 (* We only handle symmetric mass matrices at the moment 
 shouldn't be hard to generalise to hermitian matrices *)
-If[!SymmetricMatrixQ[MMblock1] || !SymmetricMatrixQ[MMblock2], Print["Error, block not symmetric!"]];
+MMblock1 = Take[blockDiagonalMM,{1,6},{1,6}];
+MMblock2 = Take[blockDiagonalMM,{7,12},{7,12}];
 
 
-exportMatrices[exportPath<>"/ScalarMassMatrix.txt", {MMblock1, MMblock2}];
-
-
-MMblock1//MatrixForm
+(*We can leaverage these being symmetric matrices to only compute the upper part of the matrix *)
+exportMatrices[exportPath<>"/ScalarMassMatrix.txt", {MMblock1, MMblock2},symmetric=True];
 
 
 (* ::Subsubsection:: *)
