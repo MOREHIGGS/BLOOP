@@ -379,8 +379,7 @@ CalculatePotentialUS[]
 (*We get (ctW^2*g2^2*Sqrt[mVsq0]*Sqrt[mVsq1])/(12*Pi^2) = g2^5 v^2/(48\[Pi]^2 \[Sqrt]g1^2+g2^2)*)*)
 (*In the SM example it is g2^6 v^2/(48\[Pi]^2(g1^2+g2^2)) *)
 (*Unsure if bug or I implemented the rotation wrong or its because of BSM physics*)
-(*Based on integration tests this has a minor impact on results which is expected since just one term is a factor of ctW off*)
-(*I have just been manually changing that term in the NNLO txt file to match the SM case*)
+(*Based on integration tests this has a minor impact (~0.1%) on results which is expected since just one term is a factor of ctW off*)
 
 
 veffLO = PrintEffectivePotential["LO"]//Simplify; (* Simplify needed to get rid of spurious imaginary units *)
