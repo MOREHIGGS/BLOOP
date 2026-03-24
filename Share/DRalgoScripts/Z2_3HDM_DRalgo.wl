@@ -159,7 +159,10 @@ ImportModelDRalgo[Group,gvvv,gvff,gvss,\[CapitalLambda]1,\[CapitalLambda]3,\[Cap
 
 
 betaFunctions4DUnsquared = BetaFunctions4D[]/.{(x_^2 -> y_) :> (x -> y/(2*x))};
-exportUTF8[exportPath<>"/BetaFunctions4D.txt", betaFunctions4DUnsquared];
+exportToBLOOP[exportPath<>"/BetaFunctions4D.txt", betaFunctions4DUnsquared];
+
+
+Head@betaFunctions4DUnsquared
 
 
 PerformDRhard[];

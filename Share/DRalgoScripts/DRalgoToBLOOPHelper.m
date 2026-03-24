@@ -10,6 +10,53 @@
 (**)
 
 
+exportToBLOOP[fileName_, expr_] := Module[{lines},
+    lines = StringRiffle[makeBLOOPFriendly /@ Flatten[{expr}], "\n"];
+    Export[fileName, lines, "Text", CharacterEncoding -> "UTF-8"]
+];
+
+
+exportToBLOOP["test.txt", y->x^(3/2)]
+
+
+exportToBLOOP["test.txt",{x->y^2+\[Pi], y->x^(3/2)}]
+
+
+makeBLOOPFriendly[expr_] :=
+ Module[{str, repeatVar},
+
+  str = ToString[N[expr], InputForm];
+
+  repeatVar[var_, n_] :=
+    StringRiffle[ConstantArray[var, n], "*"];
+
+  str = StringReplace[str, {
+	 (* Turn x^(-n/2) into 1/csqrt(x*x*x...)*)
+     RegularExpression["(\\w+)\\^\\(-(\\d+)/2\\)"] :>
+      ("1/csqrt(" <> repeatVar["$1", ToExpression["$2"]] <> ")"),
+	(* Turn x^-n into 1/(x*x*x...)*)
+     RegularExpression["(\\w+)\\^\\(-(\\d+)\\)"] :>
+      ("1/(" <> repeatVar["$1", ToExpression["$2"]] <> ")"),
+	(* Turn x^(n/2) into csqrt(x*x*x...)*)
+     RegularExpression["(\\w+)\\^\\((\\d+)/2\\)"] :>
+      ("csqrt(" <> repeatVar["$1", ToExpression["$2"]] <> ")"),
+	(* Turn x^n into x*x*x... *)
+     RegularExpression["(\\w+)\\^(\\d+)"] :>
+      ("(" <> repeatVar["$1", ToExpression["$2"]] <> ")"),
+
+     RegularExpression["\\b(\\d+)/(\\d+)\\b"] :> "$1.0/$2"
+     }];
+
+  StringReplace[str, {
+    "[" -> "(",
+    "]" -> ")",
+    "Sqrt" -> "csqrt",
+    "Log" -> "clog",
+    "^" -> "**"
+    }]
+ ]
+
+
 exportUTF8[fileName_, expr_] := Module[{},
   If[StringQ[expr],
     Export[fileName, expr, "Text", CharacterEncoding -> "UTF-8"],
