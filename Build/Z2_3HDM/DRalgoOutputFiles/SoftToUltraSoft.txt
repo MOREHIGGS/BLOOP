@@ -1,23 +1,23 @@
-λ11 -> λ11 - ((3*λVL7^2)/Sqrt[μsqSU2] + (4*λVL5^2)/(Sqrt[μsqSU2] + Sqrt[μsqU1]) + λVL6^2/Sqrt[μsqU1])/(32*Pi)
-λ12 -> λ12 - ((3*λVL4*λVL7)/Sqrt[μsqSU2] - (4*λVL2*λVL5)/(Sqrt[μsqSU2] + Sqrt[μsqU1]) + (λVL3*λVL6)/Sqrt[μsqU1])/(16*Pi)
-λ12p -> λ12p - (λVL2*λVL5)/(2*Pi*(Sqrt[μsqSU2] + Sqrt[μsqU1]))
+λ11 -> λ11 - 0.009947183943243459*((3.*(λVL7*λVL7))/sqrt(μsqSU2) + (4.*(λVL5*λVL5))/(sqrt(μsqSU2) + sqrt(μsqU1)) + (λVL6*λVL6)/sqrt(μsqU1))
+λ12 -> λ12 - 0.019894367886486918*((3.*λVL4*λVL7)/sqrt(μsqSU2) - (4.*λVL2*λVL5)/(sqrt(μsqSU2) + sqrt(μsqU1)) + (λVL3*λVL6)/sqrt(μsqU1))
+λ12p -> λ12p - (0.15915494309189535*λVL2*λVL5)/(sqrt(μsqSU2) + sqrt(μsqU1))
 λ1Im -> λ1Im
 λ1Re -> λ1Re
-λ22 -> λ22 - ((3*λVL4^2)/Sqrt[μsqSU2] + (4*λVL2^2)/(Sqrt[μsqSU2] + Sqrt[μsqU1]) + λVL3^2/Sqrt[μsqU1])/(32*Pi)
-λ23 -> λ23 - ((3*λVL10*λVL4)/Sqrt[μsqSU2] - (4*λVL2*λVL8)/(Sqrt[μsqSU2] + Sqrt[μsqU1]) + (λVL3*λVL9)/Sqrt[μsqU1])/(16*Pi)
-λ23p -> λ23p - (λVL2*λVL8)/(2*Pi*(Sqrt[μsqSU2] + Sqrt[μsqU1]))
+λ22 -> λ22 - 0.009947183943243459*((3.*(λVL4*λVL4))/sqrt(μsqSU2) + (4.*(λVL2*λVL2))/(sqrt(μsqSU2) + sqrt(μsqU1)) + (λVL3*λVL3)/sqrt(μsqU1))
+λ23 -> λ23 - 0.019894367886486918*((3.*λVL10*λVL4)/sqrt(μsqSU2) - (4.*λVL2*λVL8)/(sqrt(μsqSU2) + sqrt(μsqU1)) + (λVL3*λVL9)/sqrt(μsqU1))
+λ23p -> λ23p - (0.15915494309189535*λVL2*λVL8)/(sqrt(μsqSU2) + sqrt(μsqU1))
 λ2Im -> λ2Im
 λ2Re -> λ2Re
-λ31 -> λ31 - ((3*λVL10*λVL7)/Sqrt[μsqSU2] - (4*λVL5*λVL8)/(Sqrt[μsqSU2] + Sqrt[μsqU1]) + (λVL6*λVL9)/Sqrt[μsqU1])/(16*Pi)
-λ31p -> λ31p - (λVL5*λVL8)/(2*Pi*(Sqrt[μsqSU2] + Sqrt[μsqU1]))
-λ33 -> λ33 - ((3*λVL10^2)/Sqrt[μsqSU2] + (8*λVL1^2)/Sqrt[μsqSU3] + (4*λVL8^2)/(Sqrt[μsqSU2] + Sqrt[μsqU1]) + λVL9^2/Sqrt[μsqU1])/(32*Pi)
+λ31 -> λ31 - 0.019894367886486918*((3.*λVL10*λVL7)/sqrt(μsqSU2) - (4.*λVL5*λVL8)/(sqrt(μsqSU2) + sqrt(μsqU1)) + (λVL6*λVL9)/sqrt(μsqU1))
+λ31p -> λ31p - (0.15915494309189535*λVL5*λVL8)/(sqrt(μsqSU2) + sqrt(μsqU1))
+λ33 -> λ33 - 0.009947183943243459*((3.*(λVL10*λVL10))/sqrt(μsqSU2) + (8.*(λVL1*λVL1))/sqrt(μsqSU3) + (4.*(λVL8*λVL8))/(sqrt(μsqSU2) + sqrt(μsqU1)) + (λVL9*λVL9)/sqrt(μsqU1))
 λ3Im -> λ3Im
 λ3Re -> λ3Re
-g1 -> Sqrt[g1^2]
-g2 -> Sqrt[g2^2 - g2^4/(24*Pi*Sqrt[μsqSU2])]
-g3 -> Sqrt[g3^2 - g3^4/(16*Pi*Sqrt[μsqSU3])]
+g1 -> sqrt((g1*g1))
+g2 -> sqrt((g2*g2) - (0.013262911924324612*(g2*g2*g2*g2))/sqrt(μsqSU2))
+g3 -> sqrt((g3*g3) - (0.019894367886486918*(g3*g3*g3*g3))/sqrt(μsqSU3))
 μ12sqIm -> μ12sqIm
 μ12sqRe -> μ12sqRe
-μ1sq -> μ1sq + (3*λVL7*Sqrt[μsqSU2] + λVL6*Sqrt[μsqU1])/(8*Pi) - (-12*λVL5^2 - 2*λVL6^2 + 12*g2^2*λVL7 - 6*λVL7^2 + λVL6*λVLL1 + 15*λVL7*λVLL3 + (24*λVL7*λVLL5*Sqrt[μsqSU3])/Sqrt[μsqSU2] + (3*λVL6*λVLL2*Sqrt[μsqSU2])/Sqrt[μsqU1] + (8*λVL6*λVLL4*Sqrt[μsqSU3])/Sqrt[μsqU1] + (3*λVL7*λVLL2*Sqrt[μsqU1])/Sqrt[μsqSU2] - 6*(g2^4 - 8*g2^2*λVL7 + 2*λVL7^2)*Log[T/(2*Sqrt[μsqSU2])] - 24*λVL5^2*Log[T/(Sqrt[μsqSU2] + Sqrt[μsqU1])] - 4*λVL6^2*Log[T/(2*Sqrt[μsqU1])])/(128*Pi^2)
-μ2sq -> μ2sq + (3*λVL4*Sqrt[μsqSU2] + λVL3*Sqrt[μsqU1])/(8*Pi) - (-12*λVL2^2 - 2*λVL3^2 + 12*g2^2*λVL4 - 6*λVL4^2 + λVL3*λVLL1 + 15*λVL4*λVLL3 + (24*λVL4*λVLL5*Sqrt[μsqSU3])/Sqrt[μsqSU2] + (3*λVL3*λVLL2*Sqrt[μsqSU2])/Sqrt[μsqU1] + (8*λVL3*λVLL4*Sqrt[μsqSU3])/Sqrt[μsqU1] + (3*λVL4*λVLL2*Sqrt[μsqU1])/Sqrt[μsqSU2] - 6*(g2^4 - 8*g2^2*λVL4 + 2*λVL4^2)*Log[T/(2*Sqrt[μsqSU2])] - 24*λVL2^2*Log[T/(Sqrt[μsqSU2] + Sqrt[μsqU1])] - 4*λVL3^2*Log[T/(2*Sqrt[μsqU1])])/(128*Pi^2)
-μ3sq -> μ3sq + (3*λVL10*Sqrt[μsqSU2] + 8*λVL1*Sqrt[μsqSU3] + λVL9*Sqrt[μsqU1])/(8*Pi) - ((3*λVL10*(5*λVLL3*Sqrt[μsqSU2] + 8*λVLL5*Sqrt[μsqSU3] + λVLL2*Sqrt[μsqU1]))/Sqrt[μsqSU2] + (8*λVL1*(3*λVLL5*Sqrt[μsqSU2] + 10*λVLL7*Sqrt[μsqSU3] + λVLL4*Sqrt[μsqU1]))/Sqrt[μsqSU3] + (λVL9*(3*λVLL2*Sqrt[μsqSU2] + 8*λVLL4*Sqrt[μsqSU3] + λVLL1*Sqrt[μsqU1]))/Sqrt[μsqU1] - 6*g2^4*Log[T/(2*Sqrt[μsqSU2])] - 6*λVL10^2*(1 + 2*Log[T/(2*Sqrt[μsqSU2])]) + 12*g2^2*λVL10*(1 + 4*Log[T/(2*Sqrt[μsqSU2])]) - 16*λVL1^2*(1 + 2*Log[T/(2*Sqrt[μsqSU3])]) + 48*g3^2*λVL1*(1 + 4*Log[T/(2*Sqrt[μsqSU3])]) - 12*λVL8^2*(1 + 2*Log[T/(Sqrt[μsqSU2] + Sqrt[μsqU1])]) - 2*λVL9^2*(1 + 2*Log[T/(2*Sqrt[μsqU1])]))/(128*Pi^2)
+μ1sq -> μ1sq + 0.039788735772973836*(3.*λVL7*sqrt(μsqSU2) + λVL6*sqrt(μsqU1)) - 0.0007915717472057639*(-12.*(λVL5*λVL5) - 2.*(λVL6*λVL6) + 12.*(g2*g2)*λVL7 - 6.*(λVL7*λVL7) + λVL6*λVLL1 + 15.*λVL7*λVLL3 + (24.*λVL7*λVLL5*sqrt(μsqSU3))/sqrt(μsqSU2) + (3.*λVL6*λVLL2*sqrt(μsqSU2))/sqrt(μsqU1) + (8.*λVL6*λVLL4*sqrt(μsqSU3))/sqrt(μsqU1) + (3.*λVL7*λVLL2*sqrt(μsqU1))/sqrt(μsqSU2) - 6.*((g2*g2*g2*g2) - 8.*(g2*g2)*λVL7 + 2.*(λVL7*λVL7))*log((0.5*T)/sqrt(μsqSU2)) - 24.*(λVL5*λVL5)*log(T/(sqrt(μsqSU2) + sqrt(μsqU1))) - 4.*(λVL6*λVL6)*log((0.5*T)/sqrt(μsqU1)))
+μ2sq -> μ2sq + 0.039788735772973836*(3.*λVL4*sqrt(μsqSU2) + λVL3*sqrt(μsqU1)) - 0.0007915717472057639*(-12.*(λVL2*λVL2) - 2.*(λVL3*λVL3) + 12.*(g2*g2)*λVL4 - 6.*(λVL4*λVL4) + λVL3*λVLL1 + 15.*λVL4*λVLL3 + (24.*λVL4*λVLL5*sqrt(μsqSU3))/sqrt(μsqSU2) + (3.*λVL3*λVLL2*sqrt(μsqSU2))/sqrt(μsqU1) + (8.*λVL3*λVLL4*sqrt(μsqSU3))/sqrt(μsqU1) + (3.*λVL4*λVLL2*sqrt(μsqU1))/sqrt(μsqSU2) - 6.*((g2*g2*g2*g2) - 8.*(g2*g2)*λVL4 + 2.*(λVL4*λVL4))*log((0.5*T)/sqrt(μsqSU2)) - 24.*(λVL2*λVL2)*log(T/(sqrt(μsqSU2) + sqrt(μsqU1))) - 4.*(λVL3*λVL3)*log((0.5*T)/sqrt(μsqU1)))
+μ3sq -> μ3sq + 0.039788735772973836*(3.*λVL10*sqrt(μsqSU2) + 8.*λVL1*sqrt(μsqSU3) + λVL9*sqrt(μsqU1)) - 0.0007915717472057639*((3.*λVL10*(5.*λVLL3*sqrt(μsqSU2) + 8.*λVLL5*sqrt(μsqSU3) + λVLL2*sqrt(μsqU1)))/sqrt(μsqSU2) + (8.*λVL1*(3.*λVLL5*sqrt(μsqSU2) + 10.*λVLL7*sqrt(μsqSU3) + λVLL4*sqrt(μsqU1)))/sqrt(μsqSU3) + (λVL9*(3.*λVLL2*sqrt(μsqSU2) + 8.*λVLL4*sqrt(μsqSU3) + λVLL1*sqrt(μsqU1)))/sqrt(μsqU1) - 6.*(g2*g2*g2*g2)*log((0.5*T)/sqrt(μsqSU2)) - 6.*(λVL10*λVL10)*(1. + 2.*log((0.5*T)/sqrt(μsqSU2))) + 12.*(g2*g2)*λVL10*(1. + 4.*log((0.5*T)/sqrt(μsqSU2))) - 16.*(λVL1*λVL1)*(1. + 2.*log((0.5*T)/sqrt(μsqSU3))) + 48.*(g3*g3)*λVL1*(1. + 4.*log((0.5*T)/sqrt(μsqSU3))) - 12.*(λVL8*λVL8)*(1. + 2.*log(T/(sqrt(μsqSU2) + sqrt(μsqU1)))) - 2.*(λVL9*λVL9)*(1. + 2.*log((0.5*T)/sqrt(μsqU1))))

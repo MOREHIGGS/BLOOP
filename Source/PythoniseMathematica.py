@@ -145,11 +145,11 @@ def pythoniseMathematica(args):
     if args.softToUltraSoftFilePath:
         expressionDict |= {
             "softToUltraSoft": {
-                "expressions": pythoniseExpressionSystemArray(getLines(args.softToUltraSoftFilePath), allSymbols),
+                "expressions": pythoniseExpressionSystemArrayClean(getLines(args.softToUltraSoftFilePath), allSymbols),
                 "filePath": args.softToUltraSoftFilePath,
                 },
             "ultraSoftScaleRGE": {
-                "expressions": pythoniseExpressionSystemArray(getLines(args.ultraSoftScaleRGEFilePath), allSymbols),
+                "expressions": pythoniseExpressionSystemArrayClean(getLines(args.ultraSoftScaleRGEFilePath), allSymbols),
                 "filePath": args.ultraSoftScaleRGEFilePath,
                 }
                 }
