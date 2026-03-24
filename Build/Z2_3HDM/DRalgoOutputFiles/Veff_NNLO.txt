@@ -1,4 +1,4 @@
-a += 0.008443431970194815*(ctW*ctW*ctW)*(g2*g2)*csqrt(mVsq0)*csqrt(mVsq1);
+a += 0.008443431970194815*(ctW*ctW)*(g2*g2)*csqrt(mVsq0)*csqrt(mVsq1);
 a += 0.008443431970194815*(ctW*ctW)*(g2*g2)*csqrt(mVsq0)*csqrt(mVsq2);
 a += 0.008443431970194815*(ctW*ctW)*(g2*g2)*csqrt(mVsq1)*csqrt(mVsq2);
 a += 0.006332573977646111*csqrt(MSsq6)*csqrt(mVsq1)*(0.5*g2*RBR20*RUL00 - 0.5*g2*RBR30*RUL10 - 0.5*g2*RBR40*RUL20 + 0.5*g2*RBR50*RUL30 + 0.5*g2*RBR10*RUL40 - 0.5*g2*RBR00*RUL50)**2;
