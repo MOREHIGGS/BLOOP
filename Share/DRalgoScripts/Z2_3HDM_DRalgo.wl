@@ -189,7 +189,7 @@ softScale = T;
 ultraSoftScale = T;
 lb=0;
 lf=N[4Log[2]];
-exportUTF8[exportPath<>"/HardScale.txt", hardScale];
+exportToBLOOP[exportPath<>"/HardScale.txt", hardScale];
 
 
 (* Removing the suffixes makes it easier to do in place updating in BLOOP (more efficent) *)
@@ -201,7 +201,7 @@ exportToBLOOP[exportPath<>"/HardToSoft.txt", hardToSoft];
 
 
 softParamsRGE = removeDRalgoSuffixes[solveRunning3D[BetaFunctions3DS[], softScale, hardScale]];
-exportUTF8[exportPath<>"/SoftScaleRGE.txt", softParamsRGE];
+exportToBLOOP[exportPath<>"/SoftScaleRGE.txt", softParamsRGE];
 
 
 (* ::Subsection:: *)
