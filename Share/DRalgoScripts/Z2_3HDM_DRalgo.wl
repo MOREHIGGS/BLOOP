@@ -212,11 +212,11 @@ PerformDRsoft[{}];
 couplingsUS = PrintCouplingsUS[];
 scalarMassesUS = combineSubstRules[PrintScalarMassUS["LO"], PrintScalarMassUS["NLO"]];
 ultrasoftScaleParams = removeDRalgoSuffixes[sqrtSubRules[Join[couplingsUS, scalarMassesUS]]]/. \[Mu]3->softScale;
-exportUTF8[exportPath<>"/SoftToUltraSoft.txt", ultrasoftScaleParams];
+exportToBLOOP[exportPath<>"/SoftToUltraSoft.txt", ultrasoftScaleParams];
 
 
 ultraSoftParamsRGE = removeDRalgoSuffixes[solveRunning3D[BetaFunctions3DUS[], ultraSoftScale, softScale]];
-exportUTF8[exportPath<>"/UltraSoftScaleRGE.txt", ultraSoftParamsRGE];
+exportToBLOOP[exportPath<>"/UltraSoftScaleRGE.txt", ultraSoftParamsRGE];
 
 
 (* ::Section:: *)
@@ -275,8 +275,8 @@ scalarPermutationMatrix = {
 {0,0,0,0,0,0,0,0,0,1,0,0},
 {0,1,0,0,0,0,0,0,0,0,0,0},
 {0,0,0,0,0,0,0,0,0,0,0,1}};
-If[!OrthogonalMatrixQ[scalarPermutationMatrix], Print["Error, permutation matrix is not orthogonal"]];
-exportUTF8[exportPath<>"/ScalarPermutationMatrix.txt", StringReplace[ToString[scalarPermutationMatrix],{"{"->"[","}"->"]"}]];
+(* Transpose is taken because this gets *)
+exportMatrices[exportPath<>"/ScalarPermutationMatrix.txt",{scalarPermutationMatrix}];
 
 
 (*Our casescalarPermutationMatrix is symmetric but taking transpose anyway for consistency/future proofing*)
@@ -290,6 +290,9 @@ If[!SymmetricMatrixQ[MMblock1] || !SymmetricMatrixQ[MMblock2], Print["Error, blo
 
 
 exportMatrices[exportPath<>"/ScalarMassMatrix.txt", {MMblock1, MMblock2}];
+
+
+MMblock1//MatrixForm
 
 
 (* ::Subsubsection:: *)

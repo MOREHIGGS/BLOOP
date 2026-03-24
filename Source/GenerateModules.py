@@ -187,9 +187,6 @@ def generateComputeMassesModule(
                 eigenvalueAssignment.append((symbol, idxSym - idxShift, idxSize))
                 break
             idxShift += n 
-     
-    PMAssignment = ("none" if scalarPermutationMatrix == "none" 
-        else [[j, i, ele] for i, row in enumerate(scalarPermutationMatrix) for j, ele in enumerate(row)]) 
     return Environment().from_string(dedent("""\
 ## DEV note: netlib.org hosts documention for lapack/blas
 ## DEV note: REMINDER THAT FORTRAN IS TRANPOSE RELATIVE TO C
@@ -250,11 +247,11 @@ cdef void computeMasses(double [::1] params):
             {% endfor %}
             else:
                 eigenvectors[i][j] = 0
-{%- if not PMAssignment == none %}
+{%- if not scalarPermutationMatrix == none %}
     {% set n = scalarMassMatrixSizes|sum %}
     cdef double scalarPermutationMatrix[{{n}}][{{n}}]
-    {%- for i, j, value in PMAssignment %}
-    scalarPermutationMatrix[{{j}}][{{i}}] = {{value}}
+    {% for expression in scalarPermutationMatrix %}
+    scalarPermutationMatrix{{expression.identifier}}= {{expression.expression}}
     {%- endfor %}
     cdef double permutatedEV[{{n}}][{{n}}]
     cdef int n = {{n}}
@@ -288,7 +285,7 @@ cdef void computeMasses(double [::1] params):
             eigenvalueAssignment = eigenvalueAssignment,
             scalarMassMatrixSizes = scalarMassMatrixSizes,
             bEigenVectors = 0 if loopOrder ==1 else 1,
-            PMAssignment = PMAssignment,
+            scalarPermutationMatrix = scalarPermutationMatrix,
             scalarRotationMatrix = scalarRotationMatrix,
             vectorMasses = vectorMasses,
             vectorShorthands = vectorShorthands,

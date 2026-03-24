@@ -158,7 +158,7 @@ def pythoniseMathematica(args):
         expressionDict |= {"softToUltraSoft": "none", 
                            "ultraSoftRGE": "none"}
         
-    scalarPermutationMatrix = (getLinesJSON(args.scalarPermutationMatrixFilePath) 
+    scalarPermutationMatrix = (loadMassMatrices(args.scalarPermutationMatrixFilePath) 
         if args.scalarPermutationMatrixFilePath else "none")
     
     veffExpressions = [
@@ -176,7 +176,7 @@ def pythoniseMathematica(args):
         allSymbols, 
         [pythoniseExpressionSystem(matrix) for matrix in loadMassMatrices(args.scalarMassMatrixFilePath)],
         getLinesJSON(args.scalarMassNamesFilePath),
-        scalarPermutationMatrix,
+        pythoniseExpressionSystemClean(scalarPermutationMatrix[0]),
         getLinesJSON(args.scalarRotationMatrixFilePath), 
         pythoniseExpressionSystem(getLines(args.vectorMassesSquaredFilePath)),
         pythoniseExpressionSystem(getLines(args.vectorShortHandsFilePath)),

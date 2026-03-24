@@ -8,12 +8,6 @@
 (**)
 
 
-exportToBLOOP["test.txt", y->x^(3/2)];
-
-
-exportToBLOOP["test.txt",{x->y^2+\[Pi], y->x^(3/2)}];
-
-
 exportToBLOOP[fileName_, expr_, complex_: False] := Module[{lines},
     lines = StringRiffle[makeBLOOPFriendly[#, complex] & /@ Flatten[{expr}], "\n"];
     Export[fileName, lines, "Text", CharacterEncoding -> "UTF-8"]
@@ -69,13 +63,17 @@ exportUTF8[fileName_, expr_] := Module[{},
 ];
 
 
-exportMatrices[file_, mats_] :=
+(* To ultize the stack/avoid python overhead its better if we write matrices as 
+[i][j] = <expression at position i,j> 
+add --- to delimite a new matrix (easier than tracking when i resets back to 0)
+*)
+exportMatrices[file_, mats_, symmetric_: True] :=
   exportUTF8[file, StringRiffle[
     (Module[{n = Length[#]},
        StringRiffle[Flatten @ Table[
          "[" <> ToString[i-1] <> "][" <> ToString[j-1] <> "] -> " <>
            ToString[#[[i,j]], InputForm],
-         {i,n},{j,i,n}], "\n"]] &) /@ mats,
+         {i, 1, n}, {j, If[symmetric, i, 1], n}], "\n"]] &) /@ mats,
     "\n---\n"]]
 
 
