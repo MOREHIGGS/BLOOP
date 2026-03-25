@@ -324,7 +324,7 @@ We compute D' and S in BLOOP numerically
 DSRot = scalarPermutationMatrix . DSRotBlock;
 
 
-exportUTF8[exportPath<>"/ScalarRotationMatrix.json", matrixToJSON[DSRot]];
+exportMatrices[exportPath<>"/ScalarRotationMatrix.txt", {Transpose[DSRot]}];
 exportUTF8[exportPath<>"/ScalarMassNames.json", extractSymbols[ScalarMassDiag]];
 
 

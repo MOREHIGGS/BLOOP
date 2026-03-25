@@ -28,7 +28,6 @@ def generateModules(
         veffExpressions, 
         allSymbols
         )
-    
     computeMassesModule = generateComputeMassesModule(
         allSymbols,
         scalarMatricesExpression,
@@ -76,7 +75,7 @@ def generateModules(
     
     with open(f"{cythonModulesDir}/EvaluatePotential{loopOrder}.pyx", "w") as fp:
         fp.write(evaluatePotentialModule)
-
+    
     with open(f"{cythonModulesDir}/Setup{loopOrder}.py", "w") as fp:
         fp.write(setupModule)
     
@@ -186,7 +185,8 @@ def generateComputeMassesModule(
             if idxSym < n + idxShift:
                 eigenvalueAssignment.append((symbol, idxSym - idxShift, idxSize))
                 break
-            idxShift += n 
+            idxShift += n
+
     return Environment().from_string(dedent("""\
 ## DEV note: netlib.org hosts documention for lapack/blas
 ## DEV note: REMINDER THAT FORTRAN IS TRANPOSE RELATIVE TO C
@@ -264,9 +264,13 @@ cdef void computeMasses(double [::1] params):
           &beta, &permutatedEV[0][0], &n)
 {%- endif %}
 ##Tranpose taken symbolically here for zero overhead handling of fortran - c memory maps
-{%- for symbol, indices in scalarRotationMatrix.items() %}
-    params[{{allSymbols.index( symbol )}}] = permutatedEV[{{ indices[1] }}][{{ indices[0] }}]
+
+{%- for thing in scalarRotationMatrix %}
+{%- if thing.expression != '0.' %}
+    params[{{allSymbols.index( thing.expression )}}] = permutatedEV{{thing.identifier}}
+{%- endif %}
 {%- endfor %}
+
 {%- endif %}
 {%- for symbol, localIdx, blockIdx in eigenvalueAssignment %}
     params[{{allSymbols.index( symbol )}}] = eigenvalues{{ blockIdx }}[{{localIdx }}]

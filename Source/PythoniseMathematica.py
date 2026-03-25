@@ -177,7 +177,7 @@ def pythoniseMathematica(args):
         [pythoniseExpressionSystem(matrix) for matrix in loadMassMatrices(args.scalarMassMatrixFilePath)],
         getLinesJSON(args.scalarMassNamesFilePath),
         pythoniseExpressionSystemClean(scalarPermutationMatrix[0]),
-        getLinesJSON(args.scalarRotationMatrixFilePath), 
+        pythoniseExpressionSystemClean(loadMassMatrices(args.scalarRotationMatrixFilePath)[0]),
         pythoniseExpressionSystem(getLines(args.vectorMassesSquaredFilePath)),
         pythoniseExpressionSystem(getLines(args.vectorShortHandsFilePath)),
         args.gccFlags,

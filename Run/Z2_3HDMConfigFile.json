@@ -14,7 +14,7 @@
 "softToUltraSoftFilePath":"DRalgoOutputFiles/SoftToUltraSoft.txt",
 "ultraSoftScaleRGEFilePath": "DRalgoOutputFiles/UltraSoftScaleRGE.txt",
 "scalarPermutationMatrixFilePath":"DRalgoOutputFiles/ScalarPermutationMatrix.txt",
-"scalarRotationMatrixFilePath":"DRalgoOutputFiles/ScalarRotationMatrix.json",
+"scalarRotationMatrixFilePath":"DRalgoOutputFiles/ScalarRotationMatrix.txt",
 "scalarMassMatrixFilePath":"DRalgoOutputFiles/ScalarMassMatrix.txt",
 "lagranianVariablesFilePath":"DRalgoOutputFiles/LagranianSymbols.json",
 "scalarMassNamesFilePath":"DRalgoOutputFiles/ScalarMassNames.json",
