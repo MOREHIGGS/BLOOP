@@ -126,7 +126,7 @@ makeCythonFriendly[expr_] :=
 spiltExpression[expr_] := Module[
   {terms},
   terms = If[Head[expr] === Plus, List @@ expr, {expr}];
-  "a += " <> makeCythonFriendly[N[#]] <> ";" & /@ terms
+  "a += " <> N[#] & /@ terms
 ]
 
 

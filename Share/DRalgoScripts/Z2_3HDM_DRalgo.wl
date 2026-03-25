@@ -326,7 +326,7 @@ DSRot = scalarPermutationMatrix . DSRotBlock;
 
 (* Transpose needed because this is used to extract results from a Fortran matrix multiplication (Fortran memory layout is transposed relative to C)*)
 exportMatrices[exportPath<>"/ScalarRotationMatrix.txt", {Transpose[DSRot]}];
-exportUTF8[exportPath<>"/ScalarMassNames.txt", extractSymbols[ScalarMassDiag]];
+exportToBLOOP[exportPath<>"/ScalarMassNames.txt", extractSymbols[ScalarMassDiag]];
 
 
 (* ::Subsection:: *)
@@ -358,8 +358,8 @@ DVRotSimp = DVRot /. gaugeRotationSubst;
 {VectorMassDiagSimple, VectorMassExpressions} = toSymbolicMatrix[DiagonalMatrix[VectorEigenvaluesSimp], mVsq];
 
 
-exportUTF8[exportPath<>"/VectorMasses.txt", VectorMassExpressions];
-exportUTF8[exportPath<>"/VectorShorthands.txt", vectorShorthands];
+exportToBLOOP[exportPath<>"/VectorMasses.txt", VectorMassExpressions];
+exportToBLOOP[exportPath<>"/VectorShorthands.txt", vectorShorthands];
 
 
 (* ::Section:: *)
@@ -386,9 +386,9 @@ veffNLO = PrintEffectivePotential["NLO"]//Simplify;
 veffNNLO = PrintEffectivePotential["NNLO"]/.\[Mu]3US->ultraSoftScale; (* not simplified as takes forever and a lot of ram *)
 
 
-exportUTF8[exportPath<>"/Veff_LO.txt", spiltExpression[veffLO]];
-exportUTF8[exportPath<>"/Veff_NLO.txt", spiltExpression[veffNLO]];
-exportUTF8[exportPath<>"/Veff_NNLO.txt", spiltExpression[veffNNLO]];
+exportToBLOOP[exportPath<>"/Veff_LO.txt", spiltExpression[veffLO], complex=True];
+exportToBLOOP[exportPath<>"/Veff_NLO.txt", spiltExpression[veffNLO], complex=True];
+exportToBLOOP[exportPath<>"/Veff_NNLO.txt", spiltExpression[veffNNLO], complex=True];
 
 
 (* I think this is using the \[CapitalLambda]4 at the (ultra)soft scale.
