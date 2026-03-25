@@ -324,6 +324,7 @@ We compute D' and S in BLOOP numerically
 DSRot = scalarPermutationMatrix . DSRotBlock;
 
 
+(* Transpose needed because this is used to extract results from a Fortran matrix multiplication (Fortran memory layout is transposed relative to C)*)
 exportMatrices[exportPath<>"/ScalarRotationMatrix.txt", {Transpose[DSRot]}];
 exportUTF8[exportPath<>"/ScalarMassNames.json", extractSymbols[ScalarMassDiag]];
 

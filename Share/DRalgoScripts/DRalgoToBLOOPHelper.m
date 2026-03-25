@@ -183,16 +183,6 @@ toSymbolicMatrix[matrix_, base_] :=
  ]
 
 
-matrixToJSON[mat_] :=
- ExportString[
-  Association @ Map[
-    ToString[#] -> (First@Position[mat, #] - 1) &,
-    DeleteDuplicates @ Cases[mat, _Symbol, Infinity]
-  ],
-  "JSON"
- ]
-
-
 toIndexedSymbols[symbol_, ranges__] :=
  Module[{r = List@ranges, base},
 

@@ -158,7 +158,7 @@ def pythoniseMathematica(args):
         expressionDict |= {"softToUltraSoft": "none", 
                            "ultraSoftRGE": "none"}
         
-    scalarPermutationMatrix = (loadMassMatrices(args.scalarPermutationMatrixFilePath) 
+    scalarPermutationMatrix = (loadMassMatrices(args.scalarPermutationMatrixFilePath)[0] 
         if args.scalarPermutationMatrixFilePath else "none")
     
     veffExpressions = [
