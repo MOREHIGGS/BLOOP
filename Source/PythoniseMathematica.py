@@ -90,8 +90,7 @@ def pythoniseMathematica(args):
 
     def getLines(filePath):
         with open(moduleDirectory/filePath, "r") as fp:
-            data = fp.readlines()
-            return data
+            return fp.read().splitlines()
 
     allSymbols = getLinesJSON(args.allSymbolsFilePath) + ["missing"]
     allSymbols = sorted(
@@ -175,7 +174,7 @@ def pythoniseMathematica(args):
         args.profile,
         allSymbols, 
         [pythoniseExpressionSystem(matrix) for matrix in loadMassMatrices(args.scalarMassMatrixFilePath)],
-        getLinesJSON(args.scalarMassNamesFilePath),
+        getLines(args.scalarMassNamesFilePath),
         scalarPermutationMatrix,
         pythoniseExpressionSystemClean(loadMassMatrices(args.scalarRotationMatrixFilePath)[0]),
         pythoniseExpressionSystem(getLines(args.vectorMassesSquaredFilePath)),

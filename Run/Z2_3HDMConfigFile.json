@@ -17,7 +17,7 @@
 "scalarRotationMatrixFilePath":"DRalgoOutputFiles/ScalarRotationMatrix.txt",
 "scalarMassMatrixFilePath":"DRalgoOutputFiles/ScalarMassMatrix.txt",
 "lagranianVariablesFilePath":"DRalgoOutputFiles/LagranianSymbols.json",
-"scalarMassNamesFilePath":"DRalgoOutputFiles/ScalarMassNames.json",
+"scalarMassNamesFilePath":"DRalgoOutputFiles/ScalarMassNames.txt",
 "pythonisedExpressionsFilePath":"PythonisedExpressionsFile.json",
 "bmGeneratorModule": "Z2_3HDMBmGenerator",
 "bgfLowerBounds": [-60, 1e-4, 1e-4],
