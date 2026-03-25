@@ -20,3 +20,4 @@ Source/*Generator.py
 *.egg-info/
 *.pyc
 *.svg
+*.out
