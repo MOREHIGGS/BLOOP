@@ -70,7 +70,9 @@ makeBLOOPFriendly[expr_, complex_: False] :=
     ";" -> "]",
     "Sqrt" -> sqrt,
     "Log" -> log,
-    "^" -> "**"
+    "^" -> "**",
+    "||"-> " or ",
+    "&&"-> " and "
     }]
  ]
 
@@ -126,7 +128,7 @@ makeCythonFriendly[expr_] :=
 spiltExpression[expr_] := Module[
   {terms},
   terms = If[Head[expr] === Plus, List @@ expr, {expr}];
-  "a += " <> N[#] & /@ terms
+  "a += " <> ToString[N[#], InputForm] & /@ terms
 ]
 
 

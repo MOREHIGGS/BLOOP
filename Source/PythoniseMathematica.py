@@ -96,16 +96,21 @@ def pythoniseMathematica(args):
     allSymbols = sorted(
         [replaceGreekSymbols(symbol) for symbol in allSymbols], reverse=True, key=len
     )
-    
+    #for x in pythoniseExpressionSystemArrayClean(
+    #            getLines(args.boundedConditionsFilePath), allSymbols
+    #        ):
+    #        print(x)
+    #exit()
+
     expressionDict = {
         "bounded": {
-            "expressions": pythoniseExpressionSystemArray(
+            "expressions": pythoniseExpressionSystemArrayClean(
                 getLines(args.boundedConditionsFilePath), allSymbols
             ),
             "filePath": args.boundedConditionsFilePath,
         },
         "betaFunctions4D": {
-            "expressions": pythoniseExpressionSystemArray(
+            "expressions": pythoniseExpressionSystemArrayClean(
                 getLines(args.betaFunctions4DFilePath), allSymbols
             ),
             "filePath": args.betaFunctions4DFilePath,
@@ -118,7 +123,7 @@ def pythoniseMathematica(args):
         },
 
         "hardScale": {
-            "expressions": pythoniseExpressionArray(
+            "expressions": pythoniseExpressionArrayClean(
                 getLines(args.hardScaleFilePath)[0], allSymbols
             ),
             "filePath": args.hardScaleFilePath,
@@ -173,7 +178,7 @@ def pythoniseMathematica(args):
         args.loopOrder,
         args.profile,
         allSymbols, 
-        [pythoniseExpressionSystem(matrix) for matrix in loadMassMatrices(args.scalarMassMatrixFilePath)],
+        [pythoniseExpressionSystemClean(matrix) for matrix in loadMassMatrices(args.scalarMassMatrixFilePath)],
         getLines(args.scalarMassNamesFilePath),
         scalarPermutationMatrix,
         pythoniseExpressionSystemClean(loadMassMatrices(args.scalarRotationMatrixFilePath)[0]),

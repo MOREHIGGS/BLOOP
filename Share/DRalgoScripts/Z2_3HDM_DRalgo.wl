@@ -20,7 +20,7 @@ exportPath = "../../Build/Z2_3HDM/DRalgoOutputFiles";
 (*Extra things needed for BLOOP not given by DRalgo*)
 
 
-exportUTF8[exportPath<>"/BoundedConditions.txt",
+exportToBLOOP[exportPath<>"/BoundedConditions.txt",
 {\[Lambda]11>0,
 \[Lambda]22>0,
 \[Lambda]33>0,
@@ -393,7 +393,7 @@ exportToBLOOP[exportPath<>"/Veff_NNLO.txt", spiltExpression[veffNNLO], complex=T
 
 (* I think this is using the \[CapitalLambda]4 at the (ultra)soft scale.
 This could lead to problems in the pert check as the soft scale as extra terms from the debye fields*)
-exportUTF8[
+exportToBLOOP[
 	exportPath<>"/LagranianSymbols.json", 
 	{"fourPointSymbols"-> extractSymbols[\[CapitalLambda]4],
 	"threePointSymbols"-> extractSymbols[\[CapitalLambda]3],
