@@ -311,10 +311,7 @@
         "filePath": "DRalgoOutputFiles/HardToSoft.txt"
     },
     "hardScale": {
-        "expressions": {
-            "identifier": "missing",
-            "expression": "7.055507955448182*params[137]"
-        },
+        "expressions": "7.055507955448182*params[137]",
         "filePath": "DRalgoOutputFiles/HardScale.txt"
     },
     "softScaleRGE": {
