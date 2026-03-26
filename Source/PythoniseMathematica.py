@@ -19,41 +19,12 @@ def replaceGreekSymbols(string):
     
     return  re.sub(r'[\u0391-\u03A9\u03B1-\u03C9]', replaceGreekCharacter, string)
 
-def replaceSymbolsConst(string):
-    return (
-        string.replace("Pi", str(pi))
-        .replace("EulerGamma", str(euler_gamma))
-        .replace("Glaisher", "1.28242712910062")
-    )
-
 def replaceSymbolsWithIndices(expression, symbols):
     for idx, symbol in enumerate(symbols):
         expression = expression.replace(symbol, f"params[{idx}]")
     return expression 
 
-def pythoniseExpressionArray(line, allSymbols):
-    expressionDict = pythoniseExpression(line)
-    expressionDict["expression"] = replaceSymbolsWithIndices(expressionDict["expression"], allSymbols)
-    return expressionDict
-
 def pythoniseExpression(line):
-    identifier, expression = (
-        map(str.strip, line.split("->")) if ("->" in line) else ("missing", line)
-    )
-    
-    return {
-        "identifier": replaceGreekSymbols(identifier),
-        "expression": str(parse_mathematica(replaceSymbolsConst(replaceGreekSymbols(expression))))
-    }
-
-
-def pythoniseExpressionSystemArray(expressions, allSymbols):
-    return [pythoniseExpressionArray(expression, allSymbols) for expression in expressions]
-
-def pythoniseExpressionSystem(expressions):
-    return [pythoniseExpression(expression) for expression in expressions]
-
-def pythoniseExpressionClean(line):
     line = replaceGreekSymbols(line)
     identifier, expression = (
         map(str.strip, line.split("->")) if ("->" in line) else ("missing", line)
@@ -64,14 +35,14 @@ def pythoniseExpressionClean(line):
         "expression": expression
     }
 
-def pythoniseExpressionSystemArrayClean(expressions, allSymbols):
-    return [pythoniseExpressionArrayClean(expression, allSymbols) for expression in expressions]
+def pythoniseExpressionSystemArray(expressions, allSymbols):
+    return [pythoniseExpressionArray(expression, allSymbols) for expression in expressions]
 
-def pythoniseExpressionSystemClean(expressions):
-    return [pythoniseExpressionClean(expression) for expression in expressions]
+def pythoniseExpressionSystem(expressions):
+    return [pythoniseExpression(expression) for expression in expressions]
 
-def pythoniseExpressionArrayClean(line, allSymbols):
-    expressionDict = pythoniseExpressionClean(line)
+def pythoniseExpressionArray(line, allSymbols):
+    expressionDict = pythoniseExpression(line)
     expressionDict["expression"] = replaceSymbolsWithIndices(expressionDict["expression"], allSymbols)
     return expressionDict
 
@@ -99,33 +70,33 @@ def pythoniseMathematica(args):
 
     expressionDict = {
         "bounded": {
-            "expressions": pythoniseExpressionSystemArrayClean(
+            "expressions": pythoniseExpressionSystemArray(
                 getLines(args.boundedConditionsFilePath), allSymbols
             ),
             "filePath": args.boundedConditionsFilePath,
         },
         "betaFunctions4D": {
-            "expressions": pythoniseExpressionSystemArrayClean(
+            "expressions": pythoniseExpressionSystemArray(
                 getLines(args.betaFunctions4DFilePath), allSymbols
             ),
             "filePath": args.betaFunctions4DFilePath,
         },
         "hardToSoft": {
-            "expressions": pythoniseExpressionSystemArrayClean(
+            "expressions": pythoniseExpressionSystemArray(
                 getLines(args.hardToSoftFilePath), allSymbols
             ),
             "filePath": args.hardToSoftFilePath,
         },
 
         "hardScale": {
-            "expressions": pythoniseExpressionArrayClean(
+            "expressions": pythoniseExpressionArray(
                 getLines(args.hardScaleFilePath)[0], allSymbols
             ),
             "filePath": args.hardScaleFilePath,
         },
 
         "softScaleRGE": {
-            "expressions": pythoniseExpressionSystemArrayClean(
+            "expressions": pythoniseExpressionSystemArray(
                 getLines(args.softScaleRGEFilePath), allSymbols
             ),
             "filePath": args.softScaleRGEFilePath,
@@ -144,11 +115,11 @@ def pythoniseMathematica(args):
     if args.softToUltraSoftFilePath:
         expressionDict |= {
             "softToUltraSoft": {
-                "expressions": pythoniseExpressionSystemArrayClean(getLines(args.softToUltraSoftFilePath), allSymbols),
+                "expressions": pythoniseExpressionSystemArray(getLines(args.softToUltraSoftFilePath), allSymbols),
                 "filePath": args.softToUltraSoftFilePath,
                 },
             "ultraSoftScaleRGE": {
-                "expressions": pythoniseExpressionSystemArrayClean(getLines(args.ultraSoftScaleRGEFilePath), allSymbols),
+                "expressions": pythoniseExpressionSystemArray(getLines(args.ultraSoftScaleRGEFilePath), allSymbols),
                 "filePath": args.ultraSoftScaleRGEFilePath,
                 }
                 }
@@ -157,7 +128,7 @@ def pythoniseMathematica(args):
         expressionDict |= {"softToUltraSoft": "none", 
                            "ultraSoftRGE": "none"}
         
-    scalarPermutationMatrix = (pythoniseExpressionSystemClean(loadMassMatrices(args.scalarPermutationMatrixFilePath)[0]) 
+    scalarPermutationMatrix = (pythoniseExpressionSystem(loadMassMatrices(args.scalarPermutationMatrixFilePath)[0]) 
         if args.scalarPermutationMatrixFilePath else "none")
     
     veffExpressions = [
@@ -173,12 +144,12 @@ def pythoniseMathematica(args):
         args.loopOrder,
         args.profile,
         allSymbols, 
-        [pythoniseExpressionSystemClean(matrix) for matrix in loadMassMatrices(args.scalarMassMatrixFilePath)],
+        [pythoniseExpressionSystem(matrix) for matrix in loadMassMatrices(args.scalarMassMatrixFilePath)],
         getLines(args.scalarMassNamesFilePath),
         scalarPermutationMatrix,
-        pythoniseExpressionSystemClean(loadMassMatrices(args.scalarRotationMatrixFilePath)[0]),
-        pythoniseExpressionSystemClean(getLines(args.vectorMassesSquaredFilePath)),
-        pythoniseExpressionSystemClean(getLines(args.vectorShortHandsFilePath)),
+        pythoniseExpressionSystem(loadMassMatrices(args.scalarRotationMatrixFilePath)[0]),
+        pythoniseExpressionSystem(getLines(args.vectorMassesSquaredFilePath)),
+        pythoniseExpressionSystem(getLines(args.vectorShortHandsFilePath)),
         args.gccFlags,
         [replaceGreekSymbols(name) for name in getLinesJSON(args.lagranianVariablesFilePath)["fieldSymbols"]],
         args.modelDirectory,
