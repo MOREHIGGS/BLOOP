@@ -5,43 +5,6 @@ import re
 
 from GenerateModules import generateModules
 
-def replaceGreekSymbols(string):
-    def replaceGreekCharacter(match):
-        characterData = unicodedata.name(match.group(0)).split()
-        
-        if 'SMALL' in characterData:
-            return characterData[-1].lower()
-        
-        elif 'CAPITAL' in characterData:
-            return characterData[-1].capitalize()
-    
-    return  re.sub(r'[\u0391-\u03A9\u03B1-\u03C9]', replaceGreekCharacter, string)
-
-def replaceSymbolsWithIndices(expression, symbols):
-    for idx, symbol in enumerate(symbols):
-        expression = expression.replace(symbol, f"params[{idx}]")
-    return expression
-
-def pythoniseExpression(line):
-    line = replaceGreekSymbols(line)
-    identifier, expression = (
-        map(str.strip, line.split("->")) if ("->" in line) else ("missing", line)
-    )
-    
-    return {
-        "identifier": identifier,
-        "expression": expression
-    }
-
-def pythoniseExpressionSystemArray(expressions, allSymbols):
-    pythonisedExpressions = pythoniseExpressionSystem(expressions)
-    for dictt in pythonisedExpressions:
-        dictt["expression"]= replaceSymbolsWithIndices(dictt["expression"],allSymbols)
-    return pythonisedExpressions
-
-def pythoniseExpressionSystem(expressions):
-    return [pythoniseExpression(expression) for expression in expressions]
-
 def pythoniseMathematica(args):
     moduleDirectory = Path(__file__).resolve().parent/"../Build"/args.modelDirectory 
     def loadMassMatrices(filePath):
@@ -153,8 +116,45 @@ def pythoniseMathematica(args):
     
     with open(moduleDirectory/args.pythonisedExpressionsFilePath, "w") as fp:
         json.dump(expressionDict, fp, indent=4)
-    
 
+def pythoniseExpressionSystemArray(expressions, allSymbols):
+    pythonisedExpressions = pythoniseExpressionSystem(expressions)
+    for dictt in pythonisedExpressions:
+        dictt["expression"]= replaceSymbolsWithIndices(dictt["expression"],allSymbols)
+    return pythonisedExpressions
+
+
+def pythoniseExpressionSystem(expressions):
+    return [pythoniseExpression(expression) for expression in expressions]
+
+
+def pythoniseExpression(line):
+    line = replaceGreekSymbols(line)
+    identifier, expression = (
+        map(str.strip, line.split("->")) if ("->" in line) else ("missing", line)
+    )
+    
+    return {
+        "identifier": identifier,
+        "expression": expression
+    }
+
+def replaceGreekSymbols(string):
+    def replaceGreekCharacter(match):
+        characterData = unicodedata.name(match.group(0)).split()
+        
+        if 'SMALL' in characterData:
+            return characterData[-1].lower()
+        
+        elif 'CAPITAL' in characterData:
+            return characterData[-1].capitalize()
+    
+    return  re.sub(r'[\u0391-\u03A9\u03B1-\u03C9]', replaceGreekCharacter, string)
+
+def replaceSymbolsWithIndices(expression, symbols):
+    for idx, symbol in enumerate(symbols):
+        expression = expression.replace(symbol, f"params[{idx}]")
+    return expression
 
 from unittest import TestCase
 
