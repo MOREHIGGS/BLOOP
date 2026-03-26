@@ -1,6 +1,4 @@
 import json
-from sympy.parsing.mathematica import parse_mathematica
-from numpy import euler_gamma, pi
 from pathlib import Path
 import unicodedata
 import re
@@ -22,7 +20,7 @@ def replaceGreekSymbols(string):
 def replaceSymbolsWithIndices(expression, symbols):
     for idx, symbol in enumerate(symbols):
         expression = expression.replace(symbol, f"params[{idx}]")
-    return expression 
+    return expression
 
 def pythoniseExpression(line):
     line = replaceGreekSymbols(line)
