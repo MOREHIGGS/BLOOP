@@ -32,11 +32,10 @@ add --- to delimite a new matrix (easier than tracking when i resets back to 0)
 *)
 (* onlyUpper should only be used for matrices that will be diagonalised *)
 Options[exportMatrices] = {onlyUpper -> False};
-
 exportMatrices[file_, mats_, opts : OptionsPattern[]] :=
- Module[{onlyUpper},
+ Module[{upperQ},
   
-  onlyUpper = OptionValue[onlyUpper];
+  upperQ = OptionValue[onlyUpper];
   
   exportToBLOOP[
    file,
@@ -46,7 +45,7 @@ exportMatrices[file_, mats_, opts : OptionsPattern[]] :=
          Flatten@Table[
            ":" <> ToString[i - 1] <> ";:" <> ToString[j - 1] <> "; -> " <>
              ToString[N[#[[i, j]]], InputForm],
-           {i, 1, n}, {j, If[onlyUpper, i, 1], n}
+           {i, 1, n}, {j, If[upperQ, i, 1], n}
          ],
          "\n"
         ]
@@ -54,7 +53,7 @@ exportMatrices[file_, mats_, opts : OptionsPattern[]] :=
     "\n---\n"
    ]
   ]
-]
+ ]
 
 
 (* The regex magic here isn't ideal but every attempt to use expression logic has been worse
@@ -63,10 +62,14 @@ Unclear if in Cython x^n gets compiled to x*x*... but easy enforce to enforce it
 TODO add a check for the size of n as don't want to expand x^100 (I don't see why something like this would be in a DRalgo output though)
 x^(n/2) -> <c>sqrt(x*x*x) needed as with cdivision on Cython treats x^(3/2) as 0 
 *)
-makeBLOOPFriendly[expr_, complex_: False] :=
- Module[{str, repeatVar, sqrt, log},
-  sqrt = If[complex, "csqrt", "sqrt"];
-  log = If[complex, "clog", "log"];
+Options[makeBLOOPFriendly] = {complex -> False};
+makeBLOOPFriendly[expr_,opts : OptionsPattern[]] :=
+ Module[{str, repeatVar, sqrt, log,complexQ},
+ 
+  complexQ = OptionValue[complex];
+  
+  sqrt = If[complexQ, "csqrt", "sqrt"];
+  log = If[complexQ, "clog", "log"];
   
   str = If[StringQ[expr], expr, ToString[N[expr], InputForm]];
   
