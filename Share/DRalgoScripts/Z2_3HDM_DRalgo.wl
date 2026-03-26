@@ -275,7 +275,6 @@ scalarPermutationMatrix = {
 {0,0,0,0,0,0,0,0,0,1,0,0},
 {0,1,0,0,0,0,0,0,0,0,0,0},
 {0,0,0,0,0,0,0,0,0,0,0,1}};
-(* Symmetric = False because we can't leaverage that here*)
 exportMatrices[exportPath<>"/ScalarPermutationMatrix.txt",{scalarPermutationMatrix}];
 
 
@@ -287,8 +286,8 @@ MMblock1 = Take[blockDiagonalMM,{1,6},{1,6}];
 MMblock2 = Take[blockDiagonalMM,{7,12},{7,12}];
 
 
-(*We can leaverage these being symmetric matrices to only compute the upper part of the matrix *)
-exportMatrices[exportPath<>"/ScalarMassMatrix.txt", {MMblock1, MMblock2},symmetric=True];
+(*These are symmetric matrices that will be diagonalised so we can get away with only exporting the upper part *)
+exportMatrices[exportPath<>"/ScalarMassMatrix.txt", {MMblock1, MMblock2}, onlyUpper->True];
 
 
 (* ::Subsubsection:: *)
@@ -386,25 +385,22 @@ veffNLO = PrintEffectivePotential["NLO"]//Simplify;
 veffNNLO = PrintEffectivePotential["NNLO"]/.\[Mu]3US->ultraSoftScale; (* not simplified as takes forever and a lot of ram *)
 
 
-exportToBLOOP[exportPath<>"/Veff_LO.txt", spiltExpression[veffLO], complex=True];
-exportToBLOOP[exportPath<>"/Veff_NLO.txt", spiltExpression[veffNLO], complex=True];
-exportToBLOOP[exportPath<>"/Veff_NNLO.txt", spiltExpression[veffNNLO], complex=True];
+exportToBLOOP[exportPath<>"/Veff_LO.txt", spiltExpression[veffLO], Complex=True];
+exportToBLOOP[exportPath<>"/Veff_NLO.txt", spiltExpression[veffNLO], Complex=True];
+exportToBLOOP[exportPath<>"/Veff_NNLO.txt", spiltExpression[veffNNLO], Complex=True];
 
 
 (* I think this is using the \[CapitalLambda]4 at the (ultra)soft scale.
 This could lead to problems in the pert check as the soft scale as extra terms from the debye fields*)
 exportToBLOOP[
 	exportPath<>"/LagranianSymbols.json", 
-	{"fourPointSymbols"-> extractSymbols[\[CapitalLambda]4],
+	<|"fourPointSymbols"-> extractSymbols[\[CapitalLambda]4],
 	"threePointSymbols"-> extractSymbols[\[CapitalLambda]3],
 	"twoPointSymbols"-> extractSymbols[\[Mu]ij],
 	"gaugeSymbols"-> extractSymbols[GaugeCouplings],
 	"yukawaSymbols" -> extractSymbols[Ysff],
-	"fieldSymbols" -> extractSymbols[backgroundFieldsFull]},raw=True
+	"fieldSymbols" -> extractSymbols[backgroundFieldsFull]|>,Raw->True
 ];
-
-
-ClearAll[exportToBLOOP]
 
 
 exportToBLOOP[exportPath<>"/AllSymbols.txt",
@@ -421,19 +417,5 @@ exportToBLOOP[exportPath<>"/AllSymbols.txt",
 	extractSymbols[softParamsRGE],
 	extractSymbols[hardToSoft],
 	extractSymbols[betaFunctions4DUnsquared]
-	]]],raw=True
+	]]],Raw->True
 ];
-
-
-exportToBLOOP[
-	exportPath<>"/LagranianSymbols.json", 
-	<|"fourPointSymbols"-> extractSymbols[\[CapitalLambda]4],
-	"threePointSymbols"-> extractSymbols[\[CapitalLambda]3],
-	"twoPointSymbols"-> extractSymbols[\[Mu]ij],
-	"gaugeSymbols"-> extractSymbols[GaugeCouplings],
-	"yukawaSymbols" -> extractSymbols[Ysff],
-	"fieldSymbols" -> extractSymbols[backgroundFieldsFull]|>,raw->True
-];
-
-
-ClearAll[exportToBLOOP]
