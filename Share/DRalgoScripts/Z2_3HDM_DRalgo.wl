@@ -180,7 +180,7 @@ scalarMasses = combineSubstRules[PrintScalarMass["LO"], PrintScalarMass["NLO"]];
 (* ::Text:: *)
 (*Setting the scales. *)
 (*Each scale (and Lb and Lf) can be a function of T and parameters of the scale above it**)
-(*E.g. the soft scale could be g1(hard)*T We*)
+(*E.g. the soft scale could be g1(hard)*T *)
 (**In theory - I should really test that*)
 
 
@@ -287,7 +287,7 @@ MMblock2 = Take[blockDiagonalMM,{7,12},{7,12}];
 
 
 (*These are symmetric matrices that will be diagonalised so we can get away with only exporting the upper part *)
-exportMatrices[exportPath<>"/ScalarMassMatrix.txt", {MMblock1, MMblock2}, onlyUpper->True];
+exportMatrices[exportPath<>"/ScalarMassMatrix.txt", {MMblock1, MMblock2}, "onlyUpper"->True];
 
 
 (* ::Subsubsection:: *)
@@ -385,9 +385,9 @@ veffNLO = PrintEffectivePotential["NLO"]//Simplify;
 veffNNLO = PrintEffectivePotential["NNLO"]/.\[Mu]3US->ultraSoftScale; (* not simplified as takes forever and a lot of ram *)
 
 
-exportToBLOOP[exportPath<>"/Veff_LO.txt", spiltExpression[veffLO], Complex->True];
-exportToBLOOP[exportPath<>"/Veff_NLO.txt", spiltExpression[veffNLO], Complex->True];
-exportToBLOOP[exportPath<>"/Veff_NNLO.txt", spiltExpression[veffNNLO], Complex->True];
+exportToBLOOP[exportPath<>"/Veff_LO.txt", optimiseVeff[veffLO], "complex"->True];
+exportToBLOOP[exportPath<>"/Veff_NLO.txt", optimiseVeff[veffNLO], "complex"->True];
+exportToBLOOP[exportPath<>"/Veff_NNLO.txt", optimiseVeff[veffNNLO], "complex"->True];
 
 
 (* I think this is using the \[CapitalLambda]4 at the (ultra)soft scale.
@@ -399,7 +399,7 @@ exportToBLOOP[
 	"twoPointSymbols"-> extractSymbols[\[Mu]ij],
 	"gaugeSymbols"-> extractSymbols[GaugeCouplings],
 	"yukawaSymbols" -> extractSymbols[Ysff],
-	"fieldSymbols" -> extractSymbols[backgroundFieldsFull]|>,Raw->True
+	"fieldSymbols" -> extractSymbols[backgroundFieldsFull]|>,"raw"->True
 ];
 
 
@@ -417,5 +417,5 @@ exportToBLOOP[exportPath<>"/AllSymbols.txt",
 	extractSymbols[softParamsRGE],
 	extractSymbols[hardToSoft],
 	extractSymbols[betaFunctions4DUnsquared]
-	]]],Raw->True
+	]]],"raw"->True
 ];

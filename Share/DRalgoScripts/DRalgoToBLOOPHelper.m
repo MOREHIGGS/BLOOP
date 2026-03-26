@@ -8,16 +8,16 @@
 (**)
 
 
-Options[exportToBLOOP] = {Complex -> False, Raw -> False};
+Options[exportToBLOOP] = {"complex" -> False, "raw" -> False};
 
 exportToBLOOP[fileName_, expr_, opts : OptionsPattern[]] := 
- Module[{complex, raw, format},
-  complex = OptionValue[Complex];
-  raw = OptionValue[Raw];
+ Module[{complexQ, raw, format},
+  complexQ = OptionValue["complex"];
+  raw = OptionValue["raw"];
   lines = If[
     raw,
     expr,
-    StringRiffle[makeBLOOPFriendly[#, complex] & /@ Flatten[{expr}], "\n"]
+    StringRiffle[makeBLOOPFriendly[#, complex->complexQ] & /@ Flatten[{expr}], "\n"]
   ];
   format = If[StringEndsQ[fileName, ".json"], "JSON", "Text"];
   Export[fileName, lines, format, CharacterEncoding -> "UTF-8"]
@@ -31,11 +31,11 @@ See makeBLOOPFriendly as to why : and ; are used instead of [ and ][
 add --- to delimite a new matrix (easier than tracking when i resets back to 0)
 *)
 (* onlyUpper should only be used for matrices that will be diagonalised *)
-Options[exportMatrices] = {onlyUpper -> False};
+Options[exportMatrices] = {"onlyUpper" -> False};
 exportMatrices[file_, mats_, opts : OptionsPattern[]] :=
  Module[{upperQ},
   
-  upperQ = OptionValue[onlyUpper];
+  upperQ = OptionValue["onlyUpper"];
   
   exportToBLOOP[
    file,
@@ -62,11 +62,11 @@ Unclear if in Cython x^n gets compiled to x*x*... but easy enforce to enforce it
 TODO add a check for the size of n as don't want to expand x^100 (I don't see why something like this would be in a DRalgo output though)
 x^(n/2) -> <c>sqrt(x*x*x) needed as with cdivision on Cython treats x^(3/2) as 0 
 *)
-Options[makeBLOOPFriendly] = {complex -> False};
+Options[makeBLOOPFriendly] = {"complex" -> False};
 makeBLOOPFriendly[expr_,opts : OptionsPattern[]] :=
- Module[{str, repeatVar, sqrt, log,complexQ},
+ Module[{str, repeatVar, sqrt, log, complexQ},
  
-  complexQ = OptionValue[complex];
+  complexQ = OptionValue["complex"];
   
   sqrt = If[complexQ, "csqrt", "sqrt"];
   log = If[complexQ, "clog", "log"];
@@ -109,10 +109,10 @@ makeBLOOPFriendly[expr_,opts : OptionsPattern[]] :=
 
 
 (* For reasons beyond me the compiler finds it easier to handle lots of small expressions rather than big expressions *)
-spiltExpression[expr_] := Module[
+optimiseVeff[expr_] := Module[
   {terms},
   terms = If[Head[expr] === Plus, List @@ expr, {expr}];
-  "a += " <> ToString[N[#], InputForm] & /@ terms
+  ToString[N[#], InputForm] & /@ terms
 ]
 
 
