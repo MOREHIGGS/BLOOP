@@ -76,7 +76,7 @@ class TrackVEV:
                          )
         
         self.hardScale = ParsedExpression(
-                             pythonisedExpressions["hardScale"]["expressions"]["expression"],
+                             pythonisedExpressions["hardScale"]["expressions"],
                              pythonisedExpressions["hardScale"]["filePath"],
                          )
         

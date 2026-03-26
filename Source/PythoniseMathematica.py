@@ -36,15 +36,13 @@ def pythoniseExpression(line):
     }
 
 def pythoniseExpressionSystemArray(expressions, allSymbols):
-    return [pythoniseExpressionArray(expression, allSymbols) for expression in expressions]
+    pythonisedExpressions = pythoniseExpressionSystem(expressions)
+    for dictt in pythonisedExpressions:
+        dictt["expression"]= replaceSymbolsWithIndices(dictt["expression"],allSymbols)
+    return pythonisedExpressions
 
 def pythoniseExpressionSystem(expressions):
     return [pythoniseExpression(expression) for expression in expressions]
-
-def pythoniseExpressionArray(line, allSymbols):
-    expressionDict = pythoniseExpression(line)
-    expressionDict["expression"] = replaceSymbolsWithIndices(expressionDict["expression"], allSymbols)
-    return expressionDict
 
 def pythoniseMathematica(args):
     moduleDirectory = Path(__file__).resolve().parent/"../Build"/args.modelDirectory 
@@ -89,8 +87,8 @@ def pythoniseMathematica(args):
         },
 
         "hardScale": {
-            "expressions": pythoniseExpressionArray(
-                getLines(args.hardScaleFilePath)[0], allSymbols
+            "expressions": replaceSymbolsWithIndices(replaceGreekSymbols(
+                getLines(args.hardScaleFilePath)[0]), allSymbols
             ),
             "filePath": args.hardScaleFilePath,
         },
@@ -111,7 +109,7 @@ def pythoniseMathematica(args):
             "fileName": args.lagranianVariablesFilePath 
         },
     }
-
+    
     if args.softToUltraSoftFilePath:
         expressionDict |= {
             "softToUltraSoft": {
