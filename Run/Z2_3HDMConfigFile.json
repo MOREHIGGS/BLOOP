@@ -1,7 +1,7 @@
 {
 "modelDirectory":"Z2_3HDM",
 "boundedConditionsFilePath": "DRalgoOutputFiles/BoundedConditions.txt",
-"allSymbolsFilePath": "DRalgoOutputFiles/AllSymbols.json",
+"allSymbolsFilePath": "DRalgoOutputFiles/AllSymbols.txt",
 "veffLOFilePath":"DRalgoOutputFiles/Veff_LO.txt",
 "veffNLOFilePath":"DRalgoOutputFiles/Veff_NLO.txt",
 "veffNNLOFilePath":"DRalgoOutputFiles/Veff_NNLO.txt",

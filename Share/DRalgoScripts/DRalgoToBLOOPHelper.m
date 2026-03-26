@@ -8,10 +8,22 @@
 (**)
 
 
-exportToBLOOP[fileName_, expr_, complex_: False] := Module[{lines},
-    lines = StringRiffle[makeBLOOPFriendly[#, complex] & /@ Flatten[{expr}], "\n"];
-    Export[fileName, lines, "Text", CharacterEncoding -> "UTF-8"]
-];
+exportToBLOOP[fileName_, expr_, complex_: False, raw_: False] := 
+ Module[{lines, format},
+  lines = If[
+    raw,
+    expr,
+    StringRiffle[makeBLOOPFriendly[#, complex] & /@ Flatten[{expr}], "\n"]
+  ];
+  format = If[StringEndsQ[fileName, ".json"], "JSON", "Text"];
+  Export[fileName, lines, format, CharacterEncoding -> "UTF-8"]
+]
+
+
+exportToBLOOP222[fileName_, expr_, complex_: False, raw_: False] := 
+ Module[{lines},
+  Export[fileName, expr, "Text", CharacterEncoding -> "UTF-8"]
+]
 
 
 (* To ultize the stack/avoid python overhead its better if we write matrices as 
@@ -80,7 +92,7 @@ makeBLOOPFriendly[expr_, complex_: False] :=
 exportUTF8[fileName_, expr_] := Module[{},
   If[StringQ[expr],
     Export[fileName, expr, "Text", CharacterEncoding -> "UTF-8"],
-    Export[fileName, expr, CharacterEncoding -> "UTF-8"]
+    Export[fileName, expr, "JSOn", CharacterEncoding -> "UTF-8"]
   ]
 ];
 

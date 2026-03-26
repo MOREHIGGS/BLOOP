@@ -400,11 +400,14 @@ exportToBLOOP[
 	"twoPointSymbols"-> extractSymbols[\[Mu]ij],
 	"gaugeSymbols"-> extractSymbols[GaugeCouplings],
 	"yukawaSymbols" -> extractSymbols[Ysff],
-	"fieldSymbols" -> extractSymbols[backgroundFieldsFull]}
+	"fieldSymbols" -> extractSymbols[backgroundFieldsFull]},raw=True
 ];
 
 
-exportUTF8[exportPath<>"/AllSymbols.json",
+ClearAll[exportToBLOOP]
+
+
+exportToBLOOP[exportPath<>"/AllSymbols.txt",
 	Sort[DeleteDuplicates[Join[
 	extractSymbols[veffLO],
 	extractSymbols[veffNLO],
@@ -418,5 +421,19 @@ exportUTF8[exportPath<>"/AllSymbols.json",
 	extractSymbols[softParamsRGE],
 	extractSymbols[hardToSoft],
 	extractSymbols[betaFunctions4DUnsquared]
-	]]]
+	]]],raw=True
 ];
+
+
+exportToBLOOP[
+	exportPath<>"/LagranianSymbols.json", 
+	<|"fourPointSymbols"-> extractSymbols[\[CapitalLambda]4],
+	"threePointSymbols"-> extractSymbols[\[CapitalLambda]3],
+	"twoPointSymbols"-> extractSymbols[\[Mu]ij],
+	"gaugeSymbols"-> extractSymbols[GaugeCouplings],
+	"yukawaSymbols" -> extractSymbols[Ysff],
+	"fieldSymbols" -> extractSymbols[backgroundFieldsFull]|>,raw->True
+];
+
+
+ClearAll[exportToBLOOP]

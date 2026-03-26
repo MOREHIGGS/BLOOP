@@ -92,15 +92,10 @@ def pythoniseMathematica(args):
         with open(moduleDirectory/filePath, "r") as fp:
             return fp.read().splitlines()
 
-    allSymbols = getLinesJSON(args.allSymbolsFilePath) + ["missing"]
+    allSymbols = getLines(args.allSymbolsFilePath) + ["missing"]
     allSymbols = sorted(
         [replaceGreekSymbols(symbol) for symbol in allSymbols], reverse=True, key=len
     )
-    #for x in pythoniseExpressionSystemArrayClean(
-    #            getLines(args.boundedConditionsFilePath), allSymbols
-    #        ):
-    #        print(x)
-    #exit()
 
     expressionDict = {
         "bounded": {
