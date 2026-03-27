@@ -4,7 +4,6 @@
 (*Import DRalgo and group math (in paclet form, needs DRalgo 1.3+*)
 
 
-SetDirectory[NotebookDirectory[]];
 <<DRalgo`DRalgo`
 
 
@@ -12,8 +11,8 @@ SetDirectory[NotebookDirectory[]];
 (*Import helper functions and setup export path*)
 
 
+SetDirectory[NotebookDirectory[]];
 Get["DRalgoToBLOOPHelper.m"]
-(*Fresh added so it doesn't overwrite the old expression files*)
 exportPath = "../../Build/Z2_3HDM/DRalgoOutputFiles";
 
 
@@ -21,7 +20,7 @@ exportPath = "../../Build/Z2_3HDM/DRalgoOutputFiles";
 (*Extra things needed for BLOOP not given by DRalgo*)
 
 
-exportUTF8[exportPath<>"/BoundedConditions.txt",
+exportToBLOOP[exportPath<>"/BoundedConditions.txt",
 {\[Lambda]11>0,
 \[Lambda]22>0,
 \[Lambda]33>0,
@@ -159,7 +158,7 @@ ImportModelDRalgo[Group,gvvv,gvff,gvss,\[CapitalLambda]1,\[CapitalLambda]3,\[Cap
 
 
 betaFunctions4DUnsquared = BetaFunctions4D[]/.{(x_^2 -> y_) :> (x -> y/(2*x))};
-exportUTF8[exportPath<>"/BetaFunctions4D.txt", betaFunctions4DUnsquared];
+exportToBLOOP[exportPath<>"/BetaFunctions4D.txt", betaFunctions4DUnsquared];
 
 
 PerformDRhard[];
@@ -181,7 +180,7 @@ scalarMasses = combineSubstRules[PrintScalarMass["LO"], PrintScalarMass["NLO"]];
 (* ::Text:: *)
 (*Setting the scales. *)
 (*Each scale (and Lb and Lf) can be a function of T and parameters of the scale above it**)
-(*E.g. the soft scale could be g1(hard)*T We*)
+(*E.g. the soft scale could be g1(hard)*T *)
 (**In theory - I should really test that*)
 
 
@@ -190,7 +189,7 @@ softScale = T;
 ultraSoftScale = T;
 lb=0;
 lf=N[4Log[2]];
-exportUTF8[exportPath<>"/HardScale.txt", hardScale];
+exportToBLOOP[exportPath<>"/HardScale.txt", hardScale];
 
 
 (* Removing the suffixes makes it easier to do in place updating in BLOOP (more efficent) *)
@@ -198,11 +197,11 @@ exportUTF8[exportPath<>"/HardScale.txt", hardScale];
 In theory this could also make the gauge couplings complex (very bad) but this would likely be in a non-pert regime i.e.
 g1 = sqrt(T)*g1*sqrt[1 - ((g1^2) (3Lb+40Lf) )/(96 \[Pi]^2)] - the correction has to be larger than 1*) 
 hardToSoft = removeDRalgoSuffixes[sqrtSubRules[Join[couplingsSoft, temporalScalarCouplings, debyeMasses, scalarMasses]]]/.Lb->lb/.Lf->lf;
-exportUTF8[exportPath<>"/HardToSoft.txt", hardToSoft];
+exportToBLOOP[exportPath<>"/HardToSoft.txt", hardToSoft];
 
 
 softParamsRGE = removeDRalgoSuffixes[solveRunning3D[BetaFunctions3DS[], softScale, hardScale]];
-exportUTF8[exportPath<>"/SoftScaleRGE.txt", softParamsRGE];
+exportToBLOOP[exportPath<>"/SoftScaleRGE.txt", softParamsRGE];
 
 
 (* ::Subsection:: *)
@@ -213,11 +212,11 @@ PerformDRsoft[{}];
 couplingsUS = PrintCouplingsUS[];
 scalarMassesUS = combineSubstRules[PrintScalarMassUS["LO"], PrintScalarMassUS["NLO"]];
 ultrasoftScaleParams = removeDRalgoSuffixes[sqrtSubRules[Join[couplingsUS, scalarMassesUS]]]/. \[Mu]3->softScale;
-exportUTF8[exportPath<>"/SoftToUltraSoft.txt", ultrasoftScaleParams];
+exportToBLOOP[exportPath<>"/SoftToUltraSoft.txt", ultrasoftScaleParams];
 
 
 ultraSoftParamsRGE = removeDRalgoSuffixes[solveRunning3D[BetaFunctions3DUS[], ultraSoftScale, softScale]];
-exportUTF8[exportPath<>"/UltraSoftScaleRGE.txt", ultraSoftParamsRGE];
+exportToBLOOP[exportPath<>"/UltraSoftScaleRGE.txt", ultraSoftParamsRGE];
 
 
 (* ::Section:: *)
@@ -276,21 +275,19 @@ scalarPermutationMatrix = {
 {0,0,0,0,0,0,0,0,0,1,0,0},
 {0,1,0,0,0,0,0,0,0,0,0,0},
 {0,0,0,0,0,0,0,0,0,0,0,1}};
-If[!OrthogonalMatrixQ[scalarPermutationMatrix], Print["Error, permutation matrix is not orthogonal"]];
-exportUTF8[exportPath<>"/ScalarPermutationMatrix.txt", StringReplace[ToString[scalarPermutationMatrix],{"{"->"[","}"->"]"}]];
+exportMatrices[exportPath<>"/ScalarPermutationMatrix.txt",{scalarPermutationMatrix}];
 
 
 (*Our casescalarPermutationMatrix is symmetric but taking transpose anyway for consistency/future proofing*)
 blockDiagonalMM = Transpose[scalarPermutationMatrix] . scalarMM . scalarPermutationMatrix;
-
-MMblock1 = Take[blockDiagonalMM,{1,6},{1,6}];
-MMblock2 = Take[blockDiagonalMM,{7,12},{7,12}];
 (* We only handle symmetric mass matrices at the moment 
 shouldn't be hard to generalise to hermitian matrices *)
-If[!SymmetricMatrixQ[MMblock1] || !SymmetricMatrixQ[MMblock2], Print["Error, block not symmetric!"]];
+MMblock1 = Take[blockDiagonalMM,{1,6},{1,6}];
+MMblock2 = Take[blockDiagonalMM,{7,12},{7,12}];
 
 
-exportMatrices[exportPath<>"/ScalarMassMatrix.txt", {MMblock1, MMblock2}];
+(*These are symmetric matrices that will be diagonalised so we can get away with only exporting the upper part *)
+exportMatrices[exportPath<>"/ScalarMassMatrix.txt", {MMblock1, MMblock2}, "onlyUpper"->True];
 
 
 (* ::Subsubsection:: *)
@@ -326,8 +323,9 @@ We compute D' and S in BLOOP numerically
 DSRot = scalarPermutationMatrix . DSRotBlock;
 
 
-exportUTF8[exportPath<>"/ScalarRotationMatrix.json", matrixToJSON[DSRot]];
-exportUTF8[exportPath<>"/ScalarMassNames.json", extractSymbols[ScalarMassDiag]];
+(* Transpose needed because this is used to extract results from a Fortran matrix multiplication (Fortran memory layout is transposed relative to C)*)
+exportMatrices[exportPath<>"/ScalarRotationMatrix.txt", {Transpose[DSRot]}];
+exportToBLOOP[exportPath<>"/ScalarMassNames.txt", extractSymbols[ScalarMassDiag]];
 
 
 (* ::Subsection:: *)
@@ -359,8 +357,8 @@ DVRotSimp = DVRot /. gaugeRotationSubst;
 {VectorMassDiagSimple, VectorMassExpressions} = toSymbolicMatrix[DiagonalMatrix[VectorEigenvaluesSimp], mVsq];
 
 
-exportUTF8[exportPath<>"/VectorMasses.txt", VectorMassExpressions];
-exportUTF8[exportPath<>"/VectorShorthands.txt", vectorShorthands];
+exportToBLOOP[exportPath<>"/VectorMasses.txt", VectorMassExpressions];
+exportToBLOOP[exportPath<>"/VectorShorthands.txt", vectorShorthands];
 
 
 (* ::Section:: *)
@@ -387,25 +385,25 @@ veffNLO = PrintEffectivePotential["NLO"]//Simplify;
 veffNNLO = PrintEffectivePotential["NNLO"]/.\[Mu]3US->ultraSoftScale; (* not simplified as takes forever and a lot of ram *)
 
 
-exportUTF8[exportPath<>"/Veff_LO.txt", spiltExpression[veffLO]];
-exportUTF8[exportPath<>"/Veff_NLO.txt", spiltExpression[veffNLO]];
-exportUTF8[exportPath<>"/Veff_NNLO.txt", spiltExpression[veffNNLO]];
+exportToBLOOP[exportPath<>"/Veff_LO.txt", optimiseVeff[veffLO], "complex"->True];
+exportToBLOOP[exportPath<>"/Veff_NLO.txt", optimiseVeff[veffNLO], "complex"->True];
+exportToBLOOP[exportPath<>"/Veff_NNLO.txt", optimiseVeff[veffNNLO], "complex"->True];
 
 
 (* I think this is using the \[CapitalLambda]4 at the (ultra)soft scale.
 This could lead to problems in the pert check as the soft scale as extra terms from the debye fields*)
-exportUTF8[
+exportToBLOOP[
 	exportPath<>"/LagranianSymbols.json", 
-	{"fourPointSymbols"-> extractSymbols[\[CapitalLambda]4],
+	<|"fourPointSymbols"-> extractSymbols[\[CapitalLambda]4],
 	"threePointSymbols"-> extractSymbols[\[CapitalLambda]3],
 	"twoPointSymbols"-> extractSymbols[\[Mu]ij],
 	"gaugeSymbols"-> extractSymbols[GaugeCouplings],
 	"yukawaSymbols" -> extractSymbols[Ysff],
-	"fieldSymbols" -> extractSymbols[backgroundFieldsFull]}
+	"fieldSymbols" -> extractSymbols[backgroundFieldsFull]|>,"raw"->True
 ];
 
 
-exportUTF8[exportPath<>"/AllSymbols.json",
+exportToBLOOP[exportPath<>"/AllSymbols.txt",
 	Sort[DeleteDuplicates[Join[
 	extractSymbols[veffLO],
 	extractSymbols[veffNLO],
@@ -419,5 +417,5 @@ exportUTF8[exportPath<>"/AllSymbols.json",
 	extractSymbols[softParamsRGE],
 	extractSymbols[hardToSoft],
 	extractSymbols[betaFunctions4DUnsquared]
-	]]]
+	]]],"raw"->True
 ];

@@ -38,19 +38,9 @@ from unittest import TestCase
 
 class ParsedExpressionUnitTests(TestCase):
     def test_ParsedExpression(self):
-        # from numpy import pi
-
-        # source = {
-        #     "expression": f"sqrt(params[0])/(4*{pi}) + log(params[2])",
-        #     "identifier": "Identifier",
-        #     "symbols": ["lam","dummy", "mssq"],
-        # }
-
-        # reference = 5.400944901447568
-
-        # self.assertEqual(
-        #     reference,
-        #     ParsedExpressionArray(source, None).evaluate([100,5j, 100]),
-        # )
-        return True
+        
+        return  self.assertEqual(
+                    7.105170185988092,
+                    ParsedExpression("sqrt(params[0])/(4) + log(params[2])", None).evaluate([100,5j, 100]),
+                )
 

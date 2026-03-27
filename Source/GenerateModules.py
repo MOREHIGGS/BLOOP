@@ -28,7 +28,6 @@ def generateModules(
         veffExpressions, 
         allSymbols
         )
-    
     computeMassesModule = generateComputeMassesModule(
         allSymbols,
         scalarMatricesExpression,
@@ -76,7 +75,7 @@ def generateModules(
     
     with open(f"{cythonModulesDir}/EvaluatePotential{loopOrder}.pyx", "w") as fp:
         fp.write(evaluatePotentialModule)
-
+    
     with open(f"{cythonModulesDir}/Setup{loopOrder}.py", "w") as fp:
         fp.write(setupModule)
     
@@ -180,16 +179,15 @@ def generateComputeMassesModule(
     scalarMassMatrixSizes = [int(-0.5 +sqrt(1+8*len(expressions))/2) for expressions in scalarMatricesExpressions ]
     ## TODO move this to helper
     eigenvalueAssignment = []
+    
     for idxSym, symbol in enumerate(scalarMassNames):
         idxShift = 0
         for idxSize, n in enumerate(scalarMassMatrixSizes):
             if idxSym < n + idxShift:
                 eigenvalueAssignment.append((symbol, idxSym - idxShift, idxSize))
                 break
-            idxShift += n 
-     
-    PMAssignment = ("none" if scalarPermutationMatrix == "none" 
-        else [[j, i, ele] for i, row in enumerate(scalarPermutationMatrix) for j, ele in enumerate(row)]) 
+            idxShift += n
+
     return Environment().from_string(dedent("""\
 ## DEV note: netlib.org hosts documention for lapack/blas
 ## DEV note: REMINDER THAT FORTRAN IS TRANPOSE RELATIVE TO C
@@ -250,11 +248,11 @@ cdef void computeMasses(double [::1] params):
             {% endfor %}
             else:
                 eigenvectors[i][j] = 0
-{%- if not PMAssignment == none %}
+{%- if not scalarPermutationMatrix == none %}
     {% set n = scalarMassMatrixSizes|sum %}
     cdef double scalarPermutationMatrix[{{n}}][{{n}}]
-    {%- for i, j, value in PMAssignment %}
-    scalarPermutationMatrix[{{j}}][{{i}}] = {{value}}
+    {% for expression in scalarPermutationMatrix %}
+    scalarPermutationMatrix{{expression.identifier}}= {{expression.expression}}
     {%- endfor %}
     cdef double permutatedEV[{{n}}][{{n}}]
     cdef int n = {{n}}
@@ -267,9 +265,13 @@ cdef void computeMasses(double [::1] params):
           &beta, &permutatedEV[0][0], &n)
 {%- endif %}
 ##Tranpose taken symbolically here for zero overhead handling of fortran - c memory maps
-{%- for symbol, indices in scalarRotationMatrix.items() %}
-    params[{{allSymbols.index( symbol )}}] = permutatedEV[{{ indices[1] }}][{{ indices[0] }}]
+
+{%- for thing in scalarRotationMatrix %}
+{%- if thing.expression != '0.' %}
+    params[{{allSymbols.index( thing.expression )}}] = permutatedEV{{thing.identifier}}
+{%- endif %}
 {%- endfor %}
+
 {%- endif %}
 {%- for symbol, localIdx, blockIdx in eigenvalueAssignment %}
     params[{{allSymbols.index( symbol )}}] = eigenvalues{{ blockIdx }}[{{localIdx }}]
@@ -288,7 +290,7 @@ cdef void computeMasses(double [::1] params):
             eigenvalueAssignment = eigenvalueAssignment,
             scalarMassMatrixSizes = scalarMassMatrixSizes,
             bEigenVectors = 0 if loopOrder ==1 else 1,
-            PMAssignment = PMAssignment,
+            scalarPermutationMatrix = scalarPermutationMatrix,
             scalarRotationMatrix = scalarRotationMatrix,
             vectorMasses = vectorMasses,
             vectorShorthands = vectorShorthands,
