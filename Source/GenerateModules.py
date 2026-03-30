@@ -167,9 +167,8 @@ cdef double complex veff(double [::1] params):
 from collections import defaultdict
 
 def commonSubExprElimination(veffExpressions):
-    def findSubExpr(string, sub):
+    def findSubExpr(string, sub, start):
         indices = []
-        start = 0
         while True:
             index = string.find(sub, start)
             if index == -1:
@@ -182,24 +181,30 @@ def commonSubExprElimination(veffExpressions):
     for function in functions:
         subExprDict = defaultdict(int)
         for expr in veffExpressions:
-            indices = findSubExpr(expr, function)
+            indices = findSubExpr(expr, function, 0)
             for idx in indices:
                 ## This is for sqrt this works but for logs won't work
                 ## as we have terms like log(x/(sqrt(y) + sqrt(z))
                 ## i.e. change so that #( = #) in the sub string
-                subExprDict[expr[idx : expr.find(")", idx)+1]] += 1
-                
-        for idx5, (subExpr, count) in enumerate(subExprDict.items()):
-            if count > 2:
-                for idx, expr in enumerate(veffExpressions):
-                    expr2 = expr.replace(subExpr, f"{function}{idx5}")
-                    if not expr == expr2:
-                        print(subExpr)
-                        print()
-                        print(expr)
-                        print()
-                        print(expr2)
-                        input()
+                bracketIndices = findSubExpr(expr, ")", idx)
+                for idxclose in bracketIndices:
+                    if expr[idx: idxclose].count("(") == expr[idx: idxclose].count(")"):
+                        break
+                    
+                    subExprDict[expr[idx : idxclose]] += 1
+        print(subExprDict)
+        input()        
+        #for idx5, (subExpr, count) in enumerate(subExprDict.items()):
+        #    if count > 2:
+        #        for idx, expr in enumerate(veffExpressions):
+        #            expr2 = expr.replace(subExpr, f"{function}{idx5}")
+        #            if not expr == expr2:
+        #                print(subExpr)
+        #                print()
+        #                print(expr)
+        #                print()
+        #                print(expr2)
+        #                input()
         
 def generateComputeMassesModule(
     allSymbols, 
