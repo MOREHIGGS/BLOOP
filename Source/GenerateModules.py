@@ -147,7 +147,7 @@ cpdef double complex evaluatePotential(const double [::1] fields, double [::1] p
 
 def generateVeffModule(veffExpressions, allSymbols):
     ## NOTE this is the one thing the can return complex
-    commonSubExprElimination(veffExpressions)
+    veffExprs, CSE =  commonSubExprElimination(veffExpressions)
     return Environment().from_string(dedent("""\
 @cython.cdivision(True)
 @cython.boundscheck(False)
@@ -156,12 +156,19 @@ cdef double complex veff(double [::1] params):
 {%- for symbol in allSymbols %}
     cdef double {{ symbol }} = params[{{ loop.index0 }}]
 {%- endfor %}
+{%- for expr in CSE %}
+    {{expr}}
+{%- endfor %}
     cdef double complex v = 0.0
 {%- for expr in veffExpressions %}
     v+= {{expr}}
 {%- endfor %}
-    return v
-    """)).render(allSymbols=allSymbols, veffExpressions=veffExpressions)
+    return  v
+    """)).render(allSymbols=allSymbols, 
+    veffExpressions=veffExprs,
+    CSE=CSE,
+
+    )
 
 from collections import defaultdict
 
@@ -176,7 +183,8 @@ def commonSubExprElimination(veffExpressions):
             start = index + 1
         return indices
 
-    functions = ["sqrt","log"]
+    functions = ["csqrt","clog"]
+    subExprList = []
     for function in functions:
         subExprDict = defaultdict(int)
         for expr in veffExpressions:
@@ -192,20 +200,14 @@ def commonSubExprElimination(veffExpressions):
                         break
                     
                 subExprDict[expr[idx : idxclose+1]] += 1
-        print(subExprDict)
-        input()        
-        #for idx5, (subExpr, count) in enumerate(subExprDict.items()):
-        #    if count > 2:
-        #        for idx, expr in enumerate(veffExpressions):
-        #            expr2 = expr.replace(subExpr, f"{function}{idx5}")
-        #            if not expr == expr2:
-        #                print(subExpr)
-        #                print()
-        #                print(expr)
-        #                print()
-        #                print(expr2)
-        #                input()
         
+        for idx, (subExpr, exprCount) in enumerate(subExprDict.items()):
+            if exprCount > 2:
+                subExprList.append(f"cdef double complex {function}{idx} = {subExpr}")
+                for idx2, expr in enumerate(veffExpressions):
+                    veffExpressions[idx2]= expr.replace(subExpr, f"{function}{idx}")
+    return veffExpressions, subExprList
+
 def generateComputeMassesModule(
     allSymbols, 
     scalarMatricesExpressions,
@@ -358,5 +360,5 @@ def compileCythonModules(verbose, cythonFP, loopOrder):
     if verbose:        
         print("Cython compilation succeeded:")
         print(result.stdout)
-        print(f'Compilation took {tf - ti} seconds.')
+    print(f'Compilation took {tf - ti} seconds.')
 
