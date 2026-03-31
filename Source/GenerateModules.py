@@ -129,7 +129,6 @@ cpdef double complex evaluatePotential(const double [::1] fields, double [::1] p
 {% for name in fieldNames %}
     parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
 {%- endfor %}
-
     computeMasses(parameters)
     return veff(parameters)
 
@@ -157,11 +156,11 @@ cdef double complex veff(double [::1] params):
 {%- for symbol in allSymbols %}
     cdef double {{ symbol }} = params[{{ loop.index0 }}]
 {%- endfor %}
-    cdef double complex a = 0.0
+    cdef double complex v = 0.0
 {%- for expr in veffExpressions %}
-    a+={{expr}}
+    v+= {{expr}}
 {%- endfor %}
-    return  a 
+    return v
     """)).render(allSymbols=allSymbols, veffExpressions=veffExpressions)
 
 from collections import defaultdict
