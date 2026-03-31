@@ -176,7 +176,7 @@ def commonSubExprElimination(veffExpressions):
             start = index + 1
         return indices
 
-    functions = ["sqrt", "log"]
+    functions = ["sqrt","log"]
     for function in functions:
         subExprDict = defaultdict(int)
         for expr in veffExpressions:
@@ -186,11 +186,12 @@ def commonSubExprElimination(veffExpressions):
                 ## as we have terms like log(x/(sqrt(y) + sqrt(z))
                 ## i.e. change so that #( = #) in the sub string
                 bracketIndices = findSubExpr(expr, ")", idx)
-                for idxclose in bracketIndices:
-                    if expr[idx: idxclose].count("(") == expr[idx: idxclose].count(")"):
+                for a, idxclose in enumerate(bracketIndices):
+                    
+                    if expr[idx: idxclose+1].count("(") == expr[idx: idxclose+1].count(")"):
                         break
                     
-                    subExprDict[expr[idx : idxclose]] += 1
+                subExprDict[expr[idx : idxclose+1]] += 1
         print(subExprDict)
         input()        
         #for idx5, (subExpr, count) in enumerate(subExprDict.items()):
