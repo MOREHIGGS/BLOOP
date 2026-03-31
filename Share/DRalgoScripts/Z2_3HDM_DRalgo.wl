@@ -385,8 +385,8 @@ veffNLO = PrintEffectivePotential["NLO"]//Simplify;
 veffNNLO = PrintEffectivePotential["NNLO"]/.\[Mu]3US->ultraSoftScale; (* not simplified as takes forever and a lot of ram *)
 
 
-exportToBLOOP[exportPath<>"/Veff_LO.txt", optimiseVeff[veffLO], "complex"->True];
-exportToBLOOP[exportPath<>"/Veff_NLO.txt", optimiseVeff[veffNLO], "complex"->True];
+exportToBLOOP[exportPath<>"/Veff_LO.txt", veffLO, "complex"->True];
+exportToBLOOP[exportPath<>"/Veff_NLO.txt", veffNLO, "complex"->True];
 exportToBLOOP[exportPath<>"/Veff_NNLO.txt", optimiseVeff[veffNNLO], "complex"->True];
 
 

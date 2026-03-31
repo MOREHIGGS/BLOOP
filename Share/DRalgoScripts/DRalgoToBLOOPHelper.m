@@ -112,7 +112,7 @@ makeBLOOPFriendly[expr_,opts : OptionsPattern[]] :=
 optimiseVeff[expr_] := Module[
   {terms},
   terms = If[Head[expr] === Plus, List @@ expr, {expr}];
-  "a += "<>ToString[N[#], InputForm] & /@ terms
+  ToString[N[#], InputForm] & /@ terms
 ]
 
 
