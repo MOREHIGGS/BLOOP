@@ -361,7 +361,5 @@ def compileCythonModules(verbose, cythonFP, loopOrder):
         print(result.stderr)
         raise RuntimeError("Cython build failed")
     if verbose:        
-        print("Cython compilation succeeded:")
-        print(result.stdout)
-    print(f'Compilation took {tf - ti} seconds.')
+        print(f'Compilation took {tf - ti} seconds.')
 
