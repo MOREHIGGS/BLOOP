@@ -1,25 +1,8 @@
 import argcomplete
 import argparse
 import multiprocessing
-from enum import IntEnum
 import json
 from sys import maxsize
-
-
-class Stages(IntEnum):
-    convertMathematica = 0
-    generateBenchmarks = 1
-    doMinimization = 2
-    summariseResults = 3 
-
-    @staticmethod
-    def fromString(*args, **kwargs):
-        if args:
-            return Stages[args[0]]
-
-        if kwargs:
-            return Stages[kwargs["default"]]
-
 
 class UserInput(argparse.ArgumentParser):
     def __init__(self):
@@ -68,23 +51,6 @@ class UserInput(argparse.ArgumentParser):
            type=int,
            choices=[1, 2],
            help="Int: Specify the order to compute the effective potential to",
-       )
-       
-       ########################################################################
-       stageGroup = self.add_argument_group('Stage control', 'Str:')
-       stageGroup.add_argument = self.addArgumentNoMetaVar(stageGroup)
-       
-       stageGroup.add_argument(
-           "--firstStage", 
-           default="convertMathematica", 
-           type=Stages.fromString,
-           help="What stage of the code to start from"
-       )
-       stageGroup.add_argument(
-           "--lastStage", 
-           default="summariseResults", 
-           type=Stages.fromString,
-           help="What stage of the code to end on"
        )
        
        ########################################################################
