@@ -6,6 +6,7 @@ import time
 import subprocess
 from hashlib import md5
 import importlib.util
+from collections import defaultdict
 
 def generateModules(
     veffExpressions,
@@ -147,7 +148,7 @@ cpdef double complex evaluatePotential(const double [::1] fields, double [::1] p
 
 def generateVeffModule(veffExpressions, allSymbols):
     ## NOTE this is the one thing the can return complex
-    veffExprs, CSE =  commonSubExprElimination(veffExpressions)
+    veffExprs, subExprAssignment =  commonSubExprElimination(veffExpressions)
     return Environment().from_string(dedent("""\
 @cython.cdivision(True)
 @cython.boundscheck(False)
@@ -156,7 +157,7 @@ cdef double complex veff(double [::1] params):
 {%- for symbol in allSymbols %}
     cdef double {{ symbol }} = params[{{ loop.index0 }}]
 {%- endfor %}
-{%- for expr in CSE %}
+{%- for expr in subExprAssignment %}
     {{expr}}
 {%- endfor %}
     cdef double complex v = 0.0
@@ -166,11 +167,8 @@ cdef double complex veff(double [::1] params):
     return  v
     """)).render(allSymbols=allSymbols, 
     veffExpressions=veffExprs,
-    CSE=CSE,
-
+    subExprAssignment = subExprAssignment,
     )
-
-from collections import defaultdict
 
 def commonSubExprElimination(veffExpressions):
     def findSubExpr(string, sub, start):
@@ -182,20 +180,24 @@ def commonSubExprElimination(veffExpressions):
             indices.append(index)
             start = index + 1
         return indices
-
+    ## sqrt and logs are expensive so compute them once and reuse them
+    ## in theory the compiler should do this already but given how large NNLO is
+    ## I believe the compiler is skipping some optimisations
+    ## Currently this has no measurable impact on perfomance. 
+    ## Probably because we are memory bound
     functions = ["csqrt","clog"]
-    subExprList = []
+    subExprAssignment = []
+    
     for function in functions:
         subExprDict = defaultdict(int)
         for expr in veffExpressions:
-            indices = findSubExpr(expr, function, 0)
-            for idx in indices:
-                ## This is for sqrt this works but for logs won't work
-                ## as we have terms like log(x/(sqrt(y) + sqrt(z))
-                ## i.e. change so that #( = #) in the sub string
-                bracketIndices = findSubExpr(expr, ")", idx)
-                for a, idxclose in enumerate(bracketIndices):
-                    
+            subExprIndices = findSubExpr(expr, function, 0)
+            for idx in subExprIndices:
+                ## Find all ) after the sub expression
+                closeIndices = findSubExpr(expr, ")", idx)
+                ## Find a sub string where #( = #) so that we have a whole sub expression
+                ## This ensures we capture properly something like log(T/sqrt(x) + (x*x*x)) 
+                for idxclose in closeIndices:
                     if expr[idx: idxclose+1].count("(") == expr[idx: idxclose+1].count(")"):
                         break
                     
@@ -203,10 +205,11 @@ def commonSubExprElimination(veffExpressions):
         
         for idx, (subExpr, exprCount) in enumerate(subExprDict.items()):
             if exprCount > 2:
-                subExprList.append(f"cdef double complex {function}{idx} = {subExpr}")
+                subExprAssignment.append(f"cdef double complex {function}{idx} = {subExpr}")
                 for idx2, expr in enumerate(veffExpressions):
                     veffExpressions[idx2]= expr.replace(subExpr, f"{function}{idx}")
-    return veffExpressions, subExprList
+    
+    return veffExpressions, subExprAssignment
 
 def generateComputeMassesModule(
     allSymbols, 
