@@ -10,6 +10,7 @@ def runTests():
     sourceDirectory = Path(__file__).resolve().parent
     integrationTestsDirectory = sourceDirectory/"../Share/IntegrationTests"
     unitResult = pytest.main([f"{sourceDirectory}/PyTestUnitTests.py", "-rx"])
+
     if not unitResult == 0:
         print("Unit tests failed. Skipping integration tests.")
         return
@@ -31,7 +32,6 @@ def runTests():
             '--TRangeStepSize', '1',
             '--TRangeEnd', '200',
             '--gccFlags', "O1", "flto", "g",
-            '--lastStage', 'doMinimization',
             '--configFilePath', f'{sourceDirectory}/../Run/Z2_3HDMConfigFile.json'
             ], 
             capture_output=True,
