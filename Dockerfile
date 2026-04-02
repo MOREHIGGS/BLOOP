@@ -16,13 +16,10 @@ RUN if [ "$DEV" = "true" ] ; then \
         uv pip install --system --no-cache -r .requirementsDev.txt ; \
     fi
 
-ENV PATH="/Bloop/Share:${PATH}"
-
 RUN activate-global-python-argcomplete
 
 COPY Share/RunStagesWrapper.sh /usr/local/bin/bloop
 RUN chmod +x /usr/local/bin/bloop
-ENV SHARE_DIR=/Bloop/Share
 RUN register-python-argcomplete bloop > /etc/bash_completion.d/bloop
 
 RUN echo 'source /etc/bash_completion.d/python-argcomplete' >> /root/.bashrc
