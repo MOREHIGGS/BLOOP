@@ -86,7 +86,7 @@ Bloop can be run with default settings by excuting :
 bloop
 ```
  
-from the cmd line. Default settings for bloop run the Z2-3HDM model. Details of which can be found here https://arxiv.org/abs/2511.04636. 
+from the cmd line. Default settings for bloop run the Z2-3HDM model. Details of which can be found [here](https://arxiv.org/abs/2511.04636). 
 
 BLOOP is controlled by command line arguments. To see a full list of arguments simply run  
 
