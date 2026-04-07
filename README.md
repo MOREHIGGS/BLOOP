@@ -1,7 +1,7 @@
 # BLOOP (Beyond one LOOp Phase transition)
 **THIS CODE IS IN ACTIVE DEVELOPMENT, EXPECT BUGS AND FEATURES TO BE CHANGED AND/OR REMOVED. DOUBLE CHECK ANY RESULT FROM THE CODE.**
 
-##Installing the code:
+## Installing the code:
 Download the code base with a git clone. From this point forward all commands are to be run from inside the Bloop directory
 
 For cross platform compatibility and clean installation environment we recommend install the code in a container using podman (or docker). Alternatively, the code can be pip installed locally.
