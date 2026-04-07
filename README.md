@@ -1,7 +1,7 @@
 # BLOOP (Beyond one LOOp Phase transition)
 **THIS CODE IS IN ACTIVE DEVELOPMENT, EXPECT BUGS AND FEATURES TO BE CHANGED AND/OR REMOVED. DOUBLE CHECK ANY RESULT FROM THE CODE.**
 
-testing again
+testing acc
 
 ## Installing the code:
 Download the code base with a git clone. From this point forward all commands are to be run from inside the Bloop directory
