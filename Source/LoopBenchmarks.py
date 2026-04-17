@@ -36,12 +36,12 @@ def loopBenchmarks(args):
     
     doBenchmarkWrapper = partial(doBenchmark, trackVEV, args, fieldNames, resultsDir)
     
-    with open(moduleDirectory/args.benchmarkFilePath, "r") as benchmarkFile:
-        benchmarkData = [benchmark for benchmark in json.load(benchmarkFile) 
-                         if args.firstBenchmark <= benchmark["bmNumber"] <= args.lastBenchmark]
-        
     if args.workers >1:
         with Pool(args.workers) as pool:
+            with open(moduleDirectory/args.benchmarkFilePath, "r") as benchmarkFile:
+                 benchmarkData = [benchmark for benchmark in json.load(benchmarkFile) 
+                         if args.firstBenchmark <= benchmark["bmNumber"] <= args.lastBenchmark]
+     
             scanResults = list(tqdm(pool.imap_unordered(
                     doBenchmarkWrapper,
                     benchmarkData
@@ -49,6 +49,9 @@ def loopBenchmarks(args):
                 total = len(benchmarkData)
                 ))
     else:
+        with open(moduleDirectory/args.benchmarkFilePath, "r") as benchmarkFile:
+                 benchmarkData = [benchmark for benchmark in json.load(benchmarkFile) 
+                         if args.firstBenchmark <= benchmark["bmNumber"] <= args.lastBenchmark]
         scanResults = [doBenchmarkWrapper(benchmark) for benchmark in tqdm(benchmarkData)]
     
     with open(resultsDir/f"{args.scanResultsName}.json","w") as fp:
