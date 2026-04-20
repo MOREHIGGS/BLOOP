@@ -116,10 +116,11 @@ def strongSubSet(prevResultDir):
 
     return bmdictList
 
-
 def _lagranianParamGen(
     mS1, delta12, delta1c, deltac, ghDM, thetaCPV, darkHieracy
 ):
+
+
     api = pdg.connect()
     mHiggs = api.get_particle_by_name("H").mass
     mTop = api.get_particle_by_name("t").mass
