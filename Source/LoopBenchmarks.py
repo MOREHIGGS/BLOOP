@@ -38,6 +38,7 @@ def loopBenchmarks(args):
     
     if args.workers >1:
         with Pool(args.workers) as pool:
+        ## Load bmfile after starting pool to avoid each worker storing the whole bm file
             with open(moduleDirectory/args.benchmarkFilePath, "r") as benchmarkFile:
                  benchmarkData = [benchmark for benchmark in json.load(benchmarkFile) 
                          if args.firstBenchmark <= benchmark["bmNumber"] <= args.lastBenchmark]
