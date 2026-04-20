@@ -78,7 +78,7 @@ def loopBenchmarks(args):
     else:
         resultsGenerator = (
             doBenchmarkWrapper(benchmark)
-            for benchmark in tqdm(benchmark_iter)
+            for benchmark in tqdm(benchmarkGenerator)
         )
 
         streamResultsOut(

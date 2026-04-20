@@ -2,13 +2,20 @@
 
 import math as m
 import numpy as np
-import pdg
 from scipy.constants import physical_constants as constants
 import json
 from pathlib import Path
 from os.path import join
 from glob import glob
 from copy import copy
+
+import pdg
+## Connecting is expensive so just do it once in global space to avoid passing it around
+api = pdg.connect()
+mHiggs = api.get_particle_by_name("H").mass
+mTop = api.get_particle_by_name("t").mass
+mW = api.get_particle_by_name("W+").mass
+mZ = api.get_particle_by_name("Z0").mass
 
 from TrackVEV import cNlopt
 
@@ -120,13 +127,7 @@ def _lagranianParamGen(
     mS1, delta12, delta1c, deltac, ghDM, thetaCPV, darkHieracy
 ):
 
-
-    api = pdg.connect()
-    mHiggs = api.get_particle_by_name("H").mass
-    mTop = api.get_particle_by_name("t").mass
-    mW = api.get_particle_by_name("W+").mass
-    mZ = api.get_particle_by_name("Z0").mass
-
+    bmInput= locals()
     higgsVEV = 1/m.sqrt((m.sqrt(2) * constants["Fermi coupling constant"][0]))
 
     vsq = higgsVEV**2
@@ -169,17 +170,7 @@ def _lagranianParamGen(
     lamda23 = (2.0 * mu2sq + mSpm2**2 + mSpm1**2) / vsq
     lamda23p = (mS2**2 + mS1**2 - mSpm2**2 - mSpm1**2) / vsq
 
-    return {
-        "bmInput": {
-            "thetaCPV": thetaCPV,
-            "ghDM": ghDM,
-            "mS1": mS1,
-            "delta12": delta12,
-            "delta1c": delta1c,
-            "deltac": deltac,
-            "darkHieracy": darkHieracy,
-        },
-        "lagranianParameters": {
+    return {"bmInput": bmInput} | {"lagranianParameters": {
             "lamda1Re": 0.1,
             "lamda1Im": 0,
             "lamda2Re": lamda2Abs * cosTheta,
@@ -207,7 +198,6 @@ def _lagranianParamGen(
             "RGScale": 91.1876,
         },
     }
-
 
 def checkPhysical(params):
     params["v1"] = 0
