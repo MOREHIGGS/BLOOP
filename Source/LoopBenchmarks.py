@@ -68,7 +68,7 @@ def loopBenchmarks(args):
     if args.workers > 1:
         with Pool(args.workers) as pool:
             resultsGenerator = tqdm(
-                pool.imap_unordered(doBenchmarkWrapper, benchmarkGenerator, chunksize=5)
+                pool.imap_unordered(doBenchmarkWrapper, benchmarkGenerator, chunksize=args.chunkSize)
             )
 
             streamResultsOut(

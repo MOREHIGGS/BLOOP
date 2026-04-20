@@ -45,6 +45,13 @@ class UserInput(argparse.ArgumentParser):
            help="Int: Specify how many benchmarks to run in parallel",
        )
        configGroup.add_argument(
+           "--chunkSize",
+           action="store",
+           default=5,
+           type=int,
+           help="Int: How many bm should each worker handle at a time (higher means less overheads but more sporadic saving of data)",
+       )
+       configGroup.add_argument(
            "--loopOrder",
            action="store",
            default=1,
