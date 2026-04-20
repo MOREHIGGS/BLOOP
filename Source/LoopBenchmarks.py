@@ -1,4 +1,5 @@
 import json
+import ijson
 import decimal
 from pathlib import Path
 from pathos.multiprocessing import Pool
@@ -34,33 +35,56 @@ def loopBenchmarks(args):
                      },
                      )
     
-    doBenchmarkWrapper = partial(doBenchmark, trackVEV, args, fieldNames, resultsDir)
-    
-    if args.workers >1:
-        with Pool(args.workers) as pool:
-        ## Load bmfile after starting pool to avoid each worker storing the whole bm file
-            with open(moduleDirectory/args.benchmarkFilePath, "r") as benchmarkFile:
-                 benchmarkData = [benchmark for benchmark in json.load(benchmarkFile) 
-                         if args.firstBenchmark <= benchmark["bmNumber"] <= args.lastBenchmark]
-     
-            scanResults = list(tqdm(pool.imap_unordered(
-                    doBenchmarkWrapper,
-                    benchmarkData
-                ), 
-                total = len(benchmarkData)
-                ))
-    else:
-        with open(moduleDirectory/args.benchmarkFilePath, "r") as benchmarkFile:
-                 benchmarkData = [benchmark for benchmark in json.load(benchmarkFile) 
-                         if args.firstBenchmark <= benchmark["bmNumber"] <= args.lastBenchmark]
-        scanResults = [doBenchmarkWrapper(benchmark) for benchmark in tqdm(benchmarkData)]
-    
-    with open(resultsDir/f"{args.scanResultsName}.json","w") as fp:
-         json.dump(
-         scanResults, 
-         fp,
-         indent=2)
+    def streamBenchmarksIn(path, first_bm, last_bm):
+        with open(path, "r") as benchmarkFile:
+            for benchmark in ijson.items(benchmarkFile, "item", use_float=True):
+                bm_number = benchmark["bmNumber"]
+                if first_bm <= bm_number <= last_bm:
+                    yield benchmark
 
+
+    def streamResultsOut(resultsGenerator, outputFilePath):
+        with open(outputFilePath, "w") as fp:
+            fp.write("[\n")
+            middle = False
+
+            for result in resultsGenerator:
+                if middle:
+                    fp.write(",\n")
+                json.dump(result, fp, indent=2)
+                middle = True
+
+            fp.write("\n]\n")
+
+
+    doBenchmarkWrapper = partial(doBenchmark, trackVEV, args, fieldNames, resultsDir)
+
+    benchmarkGenerator = streamBenchmarksIn(
+        moduleDirectory / args.benchmarkFilePath,
+        args.firstBenchmark,
+        args.lastBenchmark
+    )
+
+    if args.workers > 1:
+        with Pool(args.workers) as pool:
+            resultsGenerator = tqdm(
+                pool.imap_unordered(doBenchmarkWrapper, benchmarkGenerator, chunksize=5)
+            )
+
+            streamResultsOut(
+                resultsGenerator,
+                resultsDir / f"{args.scanResultsName}.json"
+            )
+    else:
+        resultsGenerator = (
+            doBenchmarkWrapper(benchmark)
+            for benchmark in tqdm(benchmark_iter)
+        )
+
+        streamResultsOut(
+            resultsGenerator,
+            resultsDir / f"{args.scanResultsName}.json"
+        )
 
 def doBenchmark(
     trackVEV, 
