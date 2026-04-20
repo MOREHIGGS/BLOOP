@@ -116,15 +116,16 @@ def strongSubSet(prevResultDir):
 
     return bmdictList
 
-api = pdg.connect()
-mHiggs = api.get_particle_by_name("H").mass
-mTop = api.get_particle_by_name("t").mass
-mW = api.get_particle_by_name("W+").mass
-mZ = api.get_particle_by_name("Z0").mass
 def _lagranianParamGen(
     mS1, delta12, delta1c, deltac, ghDM, thetaCPV, darkHieracy
 ):
 
+
+    api = pdg.connect()
+    mHiggs = api.get_particle_by_name("H").mass
+    mTop = api.get_particle_by_name("t").mass
+    mW = api.get_particle_by_name("W+").mass
+    mZ = api.get_particle_by_name("Z0").mass
 
     higgsVEV = 1/m.sqrt((m.sqrt(2) * constants["Fermi coupling constant"][0]))
 
