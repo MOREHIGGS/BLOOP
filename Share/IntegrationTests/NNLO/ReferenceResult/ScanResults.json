@@ -1,96 +1,96 @@
 [
-  {
-    "bmNumber": 0,
-    "bmInput": {
-      "thetaCPV": 2.5522714805947393,
-      "ghDM": 0.5086042817226999,
-      "mS1": 99.36450394464288,
-      "delta12": 42.80075856374667,
-      "delta1c": 96.06869518984769,
-      "deltac": 5.2678728361278155,
-      "darkHieracy": 1
-    },
-    "failureReason": false,
-    "PTData": [
-      {
-        "Tc": 117.0,
-        "strength": 0.8250259167078976,
-        "v3": -0.8250313855980255
-      }
-    ],
-    "strong": true,
-    "complex": false,
-    "steps": 1
+{
+  "bmNumber": 0,
+  "bmInput": {
+    "mS1": 99.36450394464288,
+    "delta12": 42.80075856374667,
+    "delta1c": 96.06869518984769,
+    "deltac": 5.2678728361278155,
+    "ghDM": 0.5086042817226999,
+    "thetaCPV": 2.5522714805947393,
+    "darkHieracy": 1
   },
-  {
-    "bmNumber": 1,
-    "bmInput": {
-      "thetaCPV": 2.0943951023931953,
-      "ghDM": 0.0,
-      "mS1": 67,
-      "delta12": 4.0,
-      "delta1c": 50.0,
-      "deltac": 1.0,
-      "darkHieracy": 1
-    },
-    "failureReason": false,
-    "PTData": [
-      {
-        "Tc": 146.0,
-        "strength": 0.4568933107270936,
-        "v3": -0.4568967535754535
-      }
-    ],
-    "strong": false,
-    "complex": false,
-    "steps": 1
+  "failureReason": false,
+  "PTData": [
+    {
+      "Tc": 117.0,
+      "strength": 0.8248490290586981,
+      "v3": -0.8248538686900405
+    }
+  ],
+  "strong": true,
+  "complex": false,
+  "steps": 1
+},
+{
+  "bmNumber": 1,
+  "bmInput": {
+    "mS1": 67,
+    "delta12": 4.0,
+    "delta1c": 50.0,
+    "deltac": 1.0,
+    "ghDM": 0.0,
+    "thetaCPV": 2.0943951023931953,
+    "darkHieracy": 1
   },
-  {
-    "bmNumber": 2,
-    "bmInput": {
-      "thetaCPV": 3.082183112574816,
-      "ghDM": 0.5364316612973308,
-      "mS1": 68.43630541987292,
-      "delta12": 79.0888560988479,
-      "delta1c": 45.64676671775482,
-      "deltac": 27.279729519388148,
-      "darkHieracy": 1
-    },
-    "failureReason": false,
-    "PTData": [
-      {
-        "Tc": 175.0,
-        "strength": 0.34499367657474483,
-        "v1": -0.24669182993120478,
-        "v2": -0.24117745469627733
-      }
-    ],
-    "strong": false,
-    "complex": false,
-    "steps": 1
+  "failureReason": false,
+  "PTData": [
+    {
+      "Tc": 146.0,
+      "strength": 0.45702495102565727,
+      "v3": -0.45702912785738714
+    }
+  ],
+  "strong": false,
+  "complex": false,
+  "steps": 1
+},
+{
+  "bmNumber": 2,
+  "bmInput": {
+    "mS1": 68.43630541987292,
+    "delta12": 79.0888560988479,
+    "delta1c": 45.64676671775482,
+    "deltac": 27.279729519388148,
+    "ghDM": 0.5364316612973308,
+    "thetaCPV": 3.082183112574816,
+    "darkHieracy": 1
   },
-  {
-    "bmNumber": 3,
-    "bmInput": {
-      "thetaCPV": 1.893580908713017,
-      "ghDM": 0.49693161396025076,
-      "mS1": 69.13440475054537,
-      "delta12": 62.67361616764857,
-      "delta1c": 89.67096039014373,
-      "deltac": 19.87132366433007,
-      "darkHieracy": 1
-    },
-    "failureReason": false,
-    "PTData": [
-      {
-        "Tc": 181.0,
-        "strength": 0.31351294812512936,
-        "v1": -0.22441802551293163,
-        "v2": -0.2189252790746509
-      }
-    ],
-    "strong": false,
-    "complex": false,
-    "steps": 1
-  }
+  "failureReason": false,
+  "PTData": [
+    {
+      "Tc": 175.0,
+      "strength": 0.344991742218463,
+      "v1": -0.2466897400061675,
+      "v2": -0.2411774547023179
+    }
+  ],
+  "strong": false,
+  "complex": false,
+  "steps": 1
+},
+{
+  "bmNumber": 3,
+  "bmInput": {
+    "mS1": 69.13440475054537,
+    "delta12": 62.67361616764857,
+    "delta1c": 89.67096039014373,
+    "deltac": 19.87132366433007,
+    "ghDM": 0.49693161396025076,
+    "thetaCPV": 1.893580908713017,
+    "darkHieracy": 1
+  },
+  "failureReason": false,
+  "PTData": [
+    {
+      "Tc": 181.0,
+      "strength": 0.31351215683566097,
+      "v1": -0.2244383040783621,
+      "v2": -0.21892528279376247
+    }
+  ],
+  "strong": false,
+  "complex": false,
+  "steps": 1
+}
 ]
