@@ -1,0 +1,7 @@
+Summary of the results: 
+Tc min/max is: 117.0, 117.0 
+The strongest BM is: 0.8248490290586981 (strength), 0.0 (bmNumber) 
+The total number of benchmarks is: 4, 1 of which are strong 
+and 0 of which are mutli step PT
+Failure summary: dict_items([]) 
+EFT break down summary: dict_items([]) 

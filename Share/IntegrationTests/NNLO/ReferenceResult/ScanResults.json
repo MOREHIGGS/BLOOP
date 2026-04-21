@@ -15,11 +15,11 @@
     {
       "Tc": 117.0,
       "strength": 0.8248490290586981,
+      "EFTBreak": false,
       "v3": -0.8248538686900405
     }
   ],
   "strong": true,
-  "complex": false,
   "steps": 1
 },
 {
@@ -38,11 +38,11 @@
     {
       "Tc": 146.0,
       "strength": 0.45702495102565727,
+      "EFTBreak": false,
       "v3": -0.45702912785738714
     }
   ],
   "strong": false,
-  "complex": false,
   "steps": 1
 },
 {
@@ -61,12 +61,12 @@
     {
       "Tc": 175.0,
       "strength": 0.344991742218463,
+      "EFTBreak": false,
       "v1": -0.2466897400061675,
       "v2": -0.2411774547023179
     }
   ],
   "strong": false,
-  "complex": false,
   "steps": 1
 },
 {
@@ -85,12 +85,12 @@
     {
       "Tc": 181.0,
       "strength": 0.31351215683566097,
+      "EFTBreak": false,
       "v1": -0.2244383040783621,
       "v2": -0.21892528279376247
     }
   ],
   "strong": false,
-  "complex": false,
   "steps": 1
 }
 ]
