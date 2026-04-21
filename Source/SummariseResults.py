@@ -9,6 +9,7 @@ def summariseResults(args):
     multiStepCount = 0
     nonPertCount = 0
     failDict = defaultdict(int)
+    EFTBreakDict = defaultdict(int)
     
     strengthList = []
     bmInputList = []
@@ -37,7 +38,11 @@ def summariseResults(args):
             Tc = 0 
             ## Get the strongest PT (and assiocated Tc) of a potential mutli step PT
             for subResult in result["PTData"]:
-                if not args.ignoreEFTBreakDown and subResult["EFTBreak"]:
+                EFTBreak = subResult["EFTBreak"]
+                if EFTBreak:
+                    EFTBreakDict[EFTBreak] +=1
+
+                if EFTBreak and not args.ignoreEFTBreak:
                     continue
                 
                 if subResult["strength"] > strength:
@@ -61,7 +66,8 @@ def summariseResults(args):
                 The strongest BM is: {dataSorted[0][-1]} (strength), {dataSorted[1][-1]} (bmNumber) 
                 The total number of benchmarks is: {len(data)}, {len(dataSorted[0])} of which are strong 
                 and {multiStepCount} of which are mutli step PT
-                The number of failed benchmarks is: {failDict.items()} 
+                Failure summary: {failDict.items()} 
+                EFT break down summary: {EFTBreakDict.items()} 
                 """))
         # Is this still needed?
         norm = plt.Normalize(dataSorted[0][0], dataSorted[0][-1])
