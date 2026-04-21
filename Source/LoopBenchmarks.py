@@ -35,11 +35,10 @@ def loopBenchmarks(args):
                      },
                      )
     
-    def streamBenchmarksIn(path, first_bm, last_bm):
+    def streamBenchmarksIn(path, firstBm, lastBm):
         with open(path, "r") as benchmarkFile:
             for benchmark in ijson.items(benchmarkFile, "item", use_float=True):
-                bm_number = benchmark["bmNumber"]
-                if first_bm <= bm_number <= last_bm:
+                if firstBm <= benchmark["bmNumber"] <= lastBm:
                     yield benchmark
 
 
