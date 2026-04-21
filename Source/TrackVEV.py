@@ -197,7 +197,7 @@ class TrackVEV:
             vevLocation, vevDepth = self.findGlobalMinimum(
                 params, self.initialGuesses + [np.round(vevLocation, 8)]
             )
-            
+            ## TODO only check last eigenvalue from each matrix as that is the largest 
             violatedHardScale = False
             for idx in self.massIndices:
                 mass = sqrt(params[idx])
