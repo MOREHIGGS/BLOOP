@@ -231,6 +231,12 @@ class UserInput(argparse.ArgumentParser):
            type=float,
            help="float: Lowest strength of phase transition which we will label as strong",
        )
+       outputGroup.add_argument(
+           "--ignoreEFTBreak",
+           action="store_true",
+           default=False,
+           help="Bool: If activated include phase transitions where the validity of the EFT is in question (particle masses above the hard scale or non-neligable imaginary part of effective potential)",
+       )
        ########################################################################
        filesGroup = self.add_argument_group('Model File Paths', 'Give the path for your model directory (relative to Build), then all other files are relative to the model directory')
        filesGroup.add_argument = self.addArgumentNoMetaVar(filesGroup)

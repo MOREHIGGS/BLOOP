@@ -4,11 +4,12 @@ from collections import defaultdict
 from matplotlib import pylab as plt
 import numpy as np
 from pathlib import Path
+
 def summariseResults(args):
     multiStepCount = 0
-    complexCount = 0
     nonPertCount = 0
     failDict = defaultdict(int)
+    EFTBreakDict = defaultdict(int)
     
     strengthList = []
     bmInputList = []
@@ -31,15 +32,19 @@ def summariseResults(args):
         if result["steps"] > 1:
             multiStepCount += 1
     
-        if result["complex"]:
-            complexCount += 1
-
         if result["strong"]:
             bmInputList.append((list(result["bmInput"].values())))
             strength = 0
             Tc = 0 
             ## Get the strongest PT (and assiocated Tc) of a potential mutli step PT
             for subResult in result["PTData"]:
+                EFTBreak = subResult["EFTBreak"]
+                if EFTBreak:
+                    EFTBreakDict[EFTBreak] +=1
+
+                if EFTBreak and not args.ignoreEFTBreak:
+                    continue
+                
                 if subResult["strength"] > strength:
                     strength = subResult["strength"]
                     Tc = subResult["Tc"]
@@ -61,25 +66,12 @@ def summariseResults(args):
                 The strongest BM is: {dataSorted[0][-1]} (strength), {dataSorted[1][-1]} (bmNumber) 
                 The total number of benchmarks is: {len(data)}, {len(dataSorted[0])} of which are strong 
                 and {multiStepCount} of which are mutli step PT
-                The number of failed benchmarks is: {failDict.items()} 
-                The number of benchmarks with a complex min is: {complexCount} 
+                Failure summary: {failDict.items()} 
+                EFT break down summary: {EFTBreakDict.items()} 
                 """))
         # Is this still needed?
         norm = plt.Normalize(dataSorted[0][0], dataSorted[0][-1])
-        fileNames = list(result["bmInput"].keys())
         axisLabels = list(result["bmInput"].keys())
-
-        ## ~~~~ For nicer axis labels~~~~
-        #axisLabels = [
-        #    "$\\theta_{\\text{CPV}}$",
-        #    "$g_{\\text{hDM}}$",
-        #    "$m_{s1}$ (GeV)",
-        #    "$\\delta_{12} \\  (GeV)$",
-        #    "$\\delta_{1c} \\  (GeV)$",
-        #    "$\\delta_{c} \\  (GeV)$",
-        #    "n"
-        #]
-        ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         # Makes plots of first bm Input vs rest of bm inputs
         for inputIdx, data in enumerate(dataSorted[4:]):
@@ -88,7 +80,7 @@ def summariseResults(args):
             ## +1 needed to skip zeroth element
             plt.ylabel(axisLabels[inputIdx+1], labelpad=5, fontsize=12)
             plt.colorbar(label="strength")
-            plt.savefig(resultsDir/f"{fileNames[inputIdx+1]}")
+            plt.savefig(resultsDir/f"{axisLabels[inputIdx+1]}")
             plt.close()
         
         # Makes plots of bm inputs vs Tc
@@ -97,6 +89,6 @@ def summariseResults(args):
             plt.xlabel(axisLabels[inputIdx], labelpad=5, fontsize=12)
             plt.ylabel("$T_c$ (GeV)", labelpad=5, fontsize=12)
             plt.colorbar(label="strength")
-            plt.savefig(resultsDir/f"Tc{fileNames[inputIdx]}")
+            plt.savefig(resultsDir/f"Tc{axisLabels[inputIdx]}")
             plt.close()
 

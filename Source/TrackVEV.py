@@ -1,6 +1,7 @@
 import numpy as np
 import scipy
 import nlopt
+from cmath import sqrt
 from dataclasses import dataclass, InitVar
 import importlib
 
@@ -64,7 +65,8 @@ class TrackVEV:
         self.verbose = verbose
         
         self.allSymbols = pythonisedExpressions["allSymbols"]["allSymbols"]
-        
+        self.massIndices = [self.allSymbols.index(massName) for massName in pythonisedExpressions["massNames"]]
+            
         self.pertSymbols = {replaceGreekSymbols(symbol) 
                             for symbolSet in ("fourPointSymbols", "yukawaSymbols", "gaugeSymbols")
                             for symbol in pythonisedExpressions["lagranianVariables"]["lagranianVariables"][symbolSet]
@@ -117,6 +119,7 @@ class TrackVEV:
             "vevDepthReal": [],
             "vevDepthImag": [],
             "vevLocation": [],
+            "violatedHardScale":[],
             "failureReason": False,
         }
 
@@ -194,11 +197,21 @@ class TrackVEV:
             vevLocation, vevDepth = self.findGlobalMinimum(
                 params, self.initialGuesses + [np.round(vevLocation, 8)]
             )
-           
+            ## TODO only check last eigenvalue from each matrix as that is the largest 
+            violatedHardScale = False
+            for idx in self.massIndices:
+                mass = sqrt(params[idx])
+                if abs(mass.imag) < 1e-6 :
+                    if mass.real > np.pi*T:
+                        violatedHardScale = True
+                        break
+            
             minimizationResults["T"].append(T)
             minimizationResults["vevDepthReal"].append(vevDepth.real)
             minimizationResults["vevDepthImag"].append(vevDepth.imag)
             minimizationResults["vevLocation"].append(vevLocation)
+            minimizationResults["violatedHardScale"].append(violatedHardScale)
+            
             ## TODO add a catch for bad behaviour e.g. dipping in and out symmetric 
             if np.all(np.abs(vevLocation) < 0.1):
                 if self.verbose:
@@ -229,11 +242,9 @@ class TrackVEV:
             result = self.nloptInst.nloptLocal(VeffWrapper, candidate)
             if result[1] < bestResult[1]:
                 bestResult = result
-
-        ## Potential computed again in case its complex
+        
         return bestResult[0], self.evaluatePotential(bestResult[0], params)
     
-
 
 from unittest import TestCase
 class TrackVEVUnitTests(TestCase):
