@@ -139,11 +139,6 @@ def processData(
     if result["failureReason"]:
         return processedResult 
 
-    processedResult["complex"] = bool(np.any(
-                                 np.abs( np.array(result["vevDepthImag"]) / np.array(result["vevDepthReal"])
-                                        ) > 1e-8
-                                        ))
-      
     allFieldValues = result["vevLocation"] / np.sqrt(result["T"])
     allFieldValuesD = np.diff(allFieldValues)
     allFieldValuesT = allFieldValues.transpose() 
@@ -156,7 +151,12 @@ def processData(
     PTIndices = {int(len(fieldLengthDiff) -np.argmax(fieldLengthDiff[::-1] > 0.1) -1)}
     ## Get the rest of the large jumps 
     PTIndices.update(int(idx) for idx in (fieldLengthDiff >= 0.2).nonzero()[0])
+    
     processedResult["steps"] = len(PTIndices)
+ 
+    complexList = np.abs( np.array(result["vevDepthImag"]) / np.array(result["vevDepthReal"])
+                  ) > 1e-8 
+
     if len(PTIndices) > 0:
         results = []
          
@@ -164,9 +164,20 @@ def processData(
             if not processedResult["strong"]:
                 processedResult["strong"] = bool(fieldLengthDiff[idx] > strengthCutOff)
             
+            EFTBreak = ""
+            
+            if result["violatedHardScale"][idx] or result["violatedHardScale"][idx+1]:
+                EFTBreak += "violatedHardScale"
+            
+            if complexList[idx] or complexList[idx+1]:
+                if EFTBreak:
+                    EFTBreak+= "&"
+                EFTBreak += "complex"
+
             resultDic = {
                 "Tc": result["T"][idx], 
-                "strength": float(fieldLengthDiff[idx])
+                "strength": float(fieldLengthDiff[idx]),
+                "EFTBreak": EFTBreak if EFTBreak else False,
             }
             
             for fieldNameIdx, fieldJumps in enumerate(allFieldValuesD):
@@ -175,6 +186,7 @@ def processData(
             results.append(resultDic)
          
         processedResult["PTData"] = results
+    
     return processedResult
 
 
