@@ -25,6 +25,9 @@ def pythoniseMathematica(args):
     allSymbols = sorted(
         [replaceGreekSymbols(symbol) for symbol in allSymbols], reverse=True, key=len
     )
+    massNames = getLines(args.scalarMassNamesFilePath) 
+    for item in splitExpressions(getLines(args.vectorMassesSquaredFilePath)):
+        massNames.append(item["identifier"])
 
     expressionDict = {
         "bounded": {
@@ -68,6 +71,7 @@ def pythoniseMathematica(args):
             "lagranianVariables": getLinesJSON(args.lagranianVariablesFilePath),
             "fileName": args.lagranianVariablesFilePath 
         },
+        "massNames": massNames,
     }
     
     if args.softToUltraSoftFilePath:
@@ -98,7 +102,7 @@ def pythoniseMathematica(args):
         [args.veffNNLOFilePath] if args.loopOrder > 1 else [])
         for line in getLines(veff)
         ]
-    
+
     generateModules(
         veffExpressions,
         args.verbose,
