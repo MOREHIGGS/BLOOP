@@ -71,7 +71,6 @@ def summariseResults(args):
                 """))
         # Is this still needed?
         norm = plt.Normalize(dataSorted[0][0], dataSorted[0][-1])
-        fileNames = list(result["bmInput"].keys())
         axisLabels = list(result["bmInput"].keys())
 
         # Makes plots of first bm Input vs rest of bm inputs
@@ -81,7 +80,7 @@ def summariseResults(args):
             ## +1 needed to skip zeroth element
             plt.ylabel(axisLabels[inputIdx+1], labelpad=5, fontsize=12)
             plt.colorbar(label="strength")
-            plt.savefig(resultsDir/f"{fileNames[inputIdx+1]}")
+            plt.savefig(resultsDir/f"{axisLabels[inputIdx+1]}")
             plt.close()
         
         # Makes plots of bm inputs vs Tc
@@ -90,6 +89,6 @@ def summariseResults(args):
             plt.xlabel(axisLabels[inputIdx], labelpad=5, fontsize=12)
             plt.ylabel("$T_c$ (GeV)", labelpad=5, fontsize=12)
             plt.colorbar(label="strength")
-            plt.savefig(resultsDir/f"Tc{fileNames[inputIdx]}")
+            plt.savefig(resultsDir/f"Tc{axisLabels[inputIdx]}")
             plt.close()
 
