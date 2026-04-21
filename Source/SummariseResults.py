@@ -74,18 +74,6 @@ def summariseResults(args):
         fileNames = list(result["bmInput"].keys())
         axisLabels = list(result["bmInput"].keys())
 
-        ## ~~~~ For nicer axis labels~~~~
-        #axisLabels = [
-        #    "$\\theta_{\\text{CPV}}$",
-        #    "$g_{\\text{hDM}}$",
-        #    "$m_{s1}$ (GeV)",
-        #    "$\\delta_{12} \\  (GeV)$",
-        #    "$\\delta_{1c} \\  (GeV)$",
-        #    "$\\delta_{c} \\  (GeV)$",
-        #    "n"
-        #]
-        ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
         # Makes plots of first bm Input vs rest of bm inputs
         for inputIdx, data in enumerate(dataSorted[4:]):
             plt.scatter(dataSorted[3], data, s=4.2**2, c=dataSorted[0], marker="o", norm=norm)
