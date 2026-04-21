@@ -4,9 +4,9 @@ from collections import defaultdict
 from matplotlib import pylab as plt
 import numpy as np
 from pathlib import Path
+
 def summariseResults(args):
     multiStepCount = 0
-    complexCount = 0
     nonPertCount = 0
     failDict = defaultdict(int)
     
@@ -31,15 +31,15 @@ def summariseResults(args):
         if result["steps"] > 1:
             multiStepCount += 1
     
-        if result["complex"]:
-            complexCount += 1
-
         if result["strong"]:
             bmInputList.append((list(result["bmInput"].values())))
             strength = 0
             Tc = 0 
             ## Get the strongest PT (and assiocated Tc) of a potential mutli step PT
             for subResult in result["PTData"]:
+                if not args.ignoreEFTBreakDown and subResult["EFTBreak"]:
+                    continue
+                
                 if subResult["strength"] > strength:
                     strength = subResult["strength"]
                     Tc = subResult["Tc"]
@@ -62,7 +62,6 @@ def summariseResults(args):
                 The total number of benchmarks is: {len(data)}, {len(dataSorted[0])} of which are strong 
                 and {multiStepCount} of which are mutli step PT
                 The number of failed benchmarks is: {failDict.items()} 
-                The number of benchmarks with a complex min is: {complexCount} 
                 """))
         # Is this still needed?
         norm = plt.Normalize(dataSorted[0][0], dataSorted[0][-1])
