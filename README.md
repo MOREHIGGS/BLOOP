@@ -1,12 +1,12 @@
 # BLOOP (Beyond one LOOp Phase transition)
 **THIS CODE IS IN ACTIVE DEVELOPMENT, EXPECT BUGS AND FEATURES TO BE CHANGED AND/OR REMOVED. DOUBLE CHECK ANY RESULT FROM THE CODE.**
 
-Development history for BLOOP can be found [here](https://github.com/JasmineTC/Bloop)
+Pre v1 history for BLOOP can be found [here](https://github.com/JasmineTC/Bloop)
 
 ## Installing the code:
-Download the code base with a git clone. From this point forward all commands are to be run from inside the Bloop directory
+Download the code base with a git clone. From this point forward all commands are to be run from inside the BLOOP directory
 
-For cross platform compatibility and clean installation environment we recommend install the code in a container using podman (or docker). Alternatively, the code can be pip installed locally.
+For cross platform compatibility and clean installation environment we recommend install the code in a container using podman (or equivalent). Alternatively, the code can be pip installed locally.
 <details>
  <summary>Installition with podman</summary>
 
@@ -55,7 +55,7 @@ sudo apt install podman
 
 </details>
 
-If the container hasn't already been built then run (from inside the Bloop directory):
+If the container hasn't already been built then run (from inside the BLOOP directory):
 
 ```bash 
 podman build . -t bloop
@@ -63,10 +63,10 @@ podman build . -t bloop
 The container needs to only be built once unless a new version of BLOOP requires the container to be rebuilt (this will be communicated via the release notes). With the container built we can enter the container with:
 
 ```bash 
-podman run --mount type=bind,src=$PWD,target=/Bloop -it bloop /bin/bash -c "cd /Bloop/Run && exec /bin/bash"
+podman run --mount type=bind,src=$PWD,target=/Bloop -it bloop /bin/bash -c "cd /Bloop && exec /bin/bash"
 ```
 
-This will put you in the Run directory inside Bloop for convience. 
+This will put you in the Bloop directory for convience. 
 </details>
 
 <details>
@@ -80,34 +80,43 @@ pip install -e .
 </details>
 
 ## Using BLOOP:
-Bloop can be run with default settings by excuting :
+To excute BLOOP one must excute the RunStages.py file in Source. For both the pip and container installation we provide a wrapper for RunStages so that you can simply run:
 
  ```bash
 bloop
 ```
  
-from the cmd line. Default settings for bloop run the Z2-3HDM model. Details of which can be found [here](https://arxiv.org/abs/2511.04636). 
-
-BLOOP is controlled by command line arguments. To see a full list of arguments simply run  
-
+from the cmd line. However, this will just crash, as BLOOP requires model specific information from the user which needs to be provided via cmd line arguments. All cmd line arguments can be found by doing 
 ```bash
 bloop --help
 ```
+
+To streamline passing cmd line arguments to BLOOP one can use a bash script, or a configuration file like so
+
+ ```bash
+bloop --configFilePath Z2_3HDMConfigFile.json
+```
+Z2_3HDMConfigFile.json can be found in Run. 
+
 A brief outline of the most important flags:
 
-- Model file paths: --modelDirectory (relative to Build) --loFilePath (relative to modelDirectory)
-- Generating benchmarks: --bmGeneratorModule
-- --loopOrder
-- --verbose
-- --configFilePath (relative to cwd)
-- --bPlot
+- Model file paths: --modelDirectory (relative to Build) --loFilePath, nloFilePath etc  (relative to modelDirectory)
+- --bmGeneratorModule: User made py file that produces a list of benchmarks (see ??? for details)
+- --loopOrder int: Compute Veff to NLO or NNLO
+- --verbose bool: Print progress to terminal
+- --workers int: Run # benchmarks in parallel
+- --bPlot bool: Generate a thermal history plot for each benchmark
+- --TRange(Start/End/StepSize) float: Define the linspace of temperatures to compute the VEV at
 
+As a complete example lets do a scan of 5000 random points in the Z2_3HDM, with a temperature range 100GeV to 500GeV with a 0.1GeV step size, at NNLO using 50 threads
+ ```bash
+--configFilePath Z2_3HDMConfigFile.json --benchmarkType random --numBenchmarks 5000 --TRangeStart 100 --TRangeEnd 500 --TRangeStepSize 0.1 --loopOrder 2 --workers 50
+```
 
-## Implementing new models:
-Before we can get started with this code you need to first implement your own model in DRalgo following our examples laid out in the Mathematica directory. 
-Store the generated txt/JSON files inside build.
+## Implementing new models in DRalgo:
+In order to use BLOOP for your model you must first implement the model in DRalgo following our examples laid out in the Mathematica directory. We spare the details here as at time of writing this part of the code changes a lot and so this readme can easily get out of sync. 
 
-BLOOP needs to be given the model file paths via the cmd line. To make this easier **we strongly recommend the use of a bash script or config file**. We have an example config file for the default Z2 case which can be found in Run. 
-  
-We have an example benchmark generating code in Source. The only thing we require from the user is the benchmark generator produces a json which we then load in benchmarkLooping.py.
+## Implementing new benchmark generating scripts:
+Benchmark generating is largely left to the user as this is inherently model dependent. We simply require a main function called 'generateBenchmarks' which needs to take one argument, args. This args is how you access cmd line arguments like 'benchmarkType' and 'numBenchmarks'. During the running of generateBenchmarks it needs to save benchmark data to a json stored at --moduleDirectory/--benchmarkFilePath. This benchmark data must take the form of a nested dictionary like so {"bmInput": {<yourInputs>}}, "lagranianParameters": {<yourLagranianParameters>}, <OtherStuff>}. Again, for a concrete example see Z2_3HDMBmGenerator.py in Source. bmInput is used to generate basic heat maps of the results and lagranianParameters is used to do the calculations. 
 
+## Getting results
