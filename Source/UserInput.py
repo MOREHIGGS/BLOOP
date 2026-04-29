@@ -28,7 +28,7 @@ class UserInput(argparse.ArgumentParser):
            "--profile",
            action="store_true",
            default=False,
-           help="Bool: Flag to allow for profiling of cython code"
+           help="Bool: Flag to allow for profiling of Cython code"
        )
        configGroup.add_argument(
            "--verbose",
@@ -67,21 +67,20 @@ class UserInput(argparse.ArgumentParser):
        benchmarkGroup.add_argument(
            "--benchmarkFilePath",
            action="store",
-           default="handPickedBenchmarks.json",
+           default="Benchmarks.json",
            help="Str: File path (relative to --modelDirectory) used for saving benchmarks"
        )
        benchmarkGroup.add_argument(
            "--benchmarkType",
            action="store",
-           default="handPicked",
            help="Str: Specify the mode to generate bm with.",
        )
        benchmarkGroup.add_argument(
-           "--maxNumBenchmarks",
+           "--numBenchmarks",
            type=int,
            action="store",
            default = 1000,
-           help="Int: Specify the maximum nunmber of benchmarks to generate. Needed for random mode.",
+           help="Int: An int that can be used to control how many benchmarks are generated",
        )
        benchmarkGroup.add_argument(
            "--firstBenchmark", 
@@ -98,7 +97,6 @@ class UserInput(argparse.ArgumentParser):
        benchmarkGroup.add_argument(
            "--bmGeneratorModule",
            action="store",
-           default="Z2_3HDMBmGenerator",
            help="Str: Module (living in source) name to generate benchmarks with. Needs a function called generateBenchmarks."
        )
        benchmarkGroup.add_argument(
@@ -106,14 +104,12 @@ class UserInput(argparse.ArgumentParser):
            action="store",
            help="str: File path (relative to cwd) used to load previously generated results to perfom another scan only using the points tagged as strong.",
        )
-       
        ########################################################################
        nloptGroup = self.add_argument_group('NLOPT controls', """Important note:
-       bgf bounds and initial guesses are applied to bgf the length of the name, then aplhabetically,
-       i.e. if you have 4 bgf named v1, v1a, v1b, v2 and bounds [0, 1, 10, 50] then you have
-       v1a:0 v1b:1 v1:10, v2:50 
-       (you can get this order easily by doing sorted(fieldnames, reverse=True, key=len))
-       """)
+       bgf bounds and initial guesses are applied to bgf fields in the order of fields are given
+       in LagranianSymbols.json. To be concrete if in LagranianSymbols.json we have: 
+       "fieldSymbols":["v1", "v3CB", "v2"] and you provide initial guesses [[0, 7, 50],...]
+       then we have v1=0, v3CB=7, v2=50 at the start of minimisation.""")
        nloptGroup.add_argument = self.addArgumentNoMetaVar(nloptGroup)
        nloptGroup.add_argument(
            "--absGlobalTolerance", 
@@ -148,14 +144,14 @@ class UserInput(argparse.ArgumentParser):
            nargs="*",
            action="store",
            type=float,
-           help="List[float]: Sets the lower bound on background fields for NLOPT. Bounds are in the same order as field names"
+           help="List[float]: Sets the lower bound on background fields for NLOPT"
        )
        nloptGroup.add_argument(
            "--bgfUpperBounds",
            nargs="*",
            action="store",
            type=list,
-           help="List[float]: Sets the upper bound on background fields for NLOPT. Bounds are in the same order as field names",
+           help="List[float]: Sets the upper bound on background fields for NLOPT",
        )
        nloptGroup.add_argument(
            "--initialGuesses",
@@ -187,7 +183,7 @@ class UserInput(argparse.ArgumentParser):
            action="store", 
            default=1, 
            type=float,
-           help="Float: Temperature step size for looking for phase transitions"
+           help="Float: Temperature step size"
        )
        
        ########################################################################
@@ -203,7 +199,7 @@ class UserInput(argparse.ArgumentParser):
            "--bSave",
            action="store_true",
            default=False,
-           help="Bool: If activated the results of the minimisation will be saved to --resultsDirectory",
+           help="Bool: If activated the raw results of each benchmark will be saved to --resultsDirectory/BM_###",
        )
        outputGroup.add_argument(
            "--bPlot",
@@ -217,7 +213,6 @@ class UserInput(argparse.ArgumentParser):
            default="PlotData",
            help="Str: Module name of python module (living in Source) to generate plots, invoked by --bPlot (don't include the .py extension here)"
        )
-
        outputGroup.add_argument(
            "--scanResultsName",
            action="store",
@@ -292,16 +287,17 @@ class UserInput(argparse.ArgumentParser):
        filesGroup.add_argument(
            "--softToUltraSoftFilePath",
            action="store",
-           help="Set to none if working at the soft scale (don't worry about the ultrasoft scale RGE)"
+           help="Leave blank if doing calculations at the soft scale"
        )
        filesGroup.add_argument(
            "--ultraSoftScaleRGEFilePath",
            action="store",
+           help="Leave blank if doing calculations at the soft scale"
        )
        filesGroup.add_argument(
            "--scalarPermutationMatrixFilePath",
            action="store",
-           help="Set to none if no permutation matrix used"
+           help="Leave blank if no permutation matrix used"
        )
        filesGroup.add_argument(
            "--scalarRotationMatrixFilePath",
@@ -326,14 +322,12 @@ class UserInput(argparse.ArgumentParser):
        )
 
        argcomplete.autocomplete(self)
-       
-    noMetaVar = {"store_true", "store_false", "help", "version"}
     
     ## Magic claude monkey patch to remove the metaVar that clutters --help
     def addArgumentNoMetaVar(self, group):
         original = group.add_argument
         def customAddArgument(*args, **kwargs):
-            if args and args[0].startswith("-") and kwargs.get("action") not in self.noMetaVar:
+            if args and args[0].startswith("-") and kwargs.get("action") not in {"store_true", "store_false", "help", "version"}:
                 kwargs["metavar"] = ""
             return original(*args, **kwargs)
         return customAddArgument
