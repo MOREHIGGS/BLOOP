@@ -120,3 +120,31 @@ In order to use BLOOP for your model you must first implement the model in DRalg
 Benchmark generating is largely left to the user as this is inherently model dependent. We simply require a main function called 'generateBenchmarks' which needs to take one argument, args. This args is how you access cmd line arguments like 'benchmarkType' and 'numBenchmarks'. During the running of generateBenchmarks it needs to save benchmark data to a json stored at --moduleDirectory/--benchmarkFilePath. This benchmark data must take the form of a nested dictionary like so {"bmInput": {<yourInputs>}}, "lagranianParameters": {<yourLagranianParameters>}, <OtherStuff>}. Again, for a concrete example see Z2_3HDMBmGenerator.py in Source. bmInput is used to generate basic heat maps of the results and lagranianParameters is used to do the calculations. 
 
 ## Getting results
+When BLOOP has finished with all the benchmarks a json file will be made (path controlled by --resultsDirectory and --scanResultsName) which contains the important information for each benchmark which looks like:
+```JSON
+{
+  "bmNumber": 0,
+  "bmInput": {
+    "mS1": 99.4,
+    "delta12": 42.8,
+    "delta1c": 96.1,
+    "deltac": 5.3,
+    "ghDM": 0.509,
+    "thetaCPV": 2.55,
+    "darkHierarchy": 1.00
+  },
+  "failureReason": false,
+  "PTData": [
+    {
+      "Tc": 128.0,
+      "strength": 1.05,
+      "EFTBreak": false,
+      "v3": -1.05
+    }
+  ],
+  "strong": true,
+  "steps": 1
+}
+```
+
+<More text>
