@@ -525,6 +525,23 @@
         },
         "fileName": "DRalgoOutputFiles/LagranianSymbols.json"
     },
+    "massNames": [
+        "MSsq0",
+        "MSsq1",
+        "MSsq2",
+        "MSsq3",
+        "MSsq4",
+        "MSsq5",
+        "MSsq6",
+        "MSsq7",
+        "MSsq8",
+        "MSsq9",
+        "MSsq10",
+        "MSsq11",
+        "mVsq0",
+        "mVsq1",
+        "mVsq2"
+    ],
     "softToUltraSoft": {
         "expressions": [
             {

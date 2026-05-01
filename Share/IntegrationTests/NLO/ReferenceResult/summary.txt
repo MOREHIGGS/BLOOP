@@ -1,6 +1,6 @@
 Summary of the results: 
 Tc min/max is: 128.0, 128.0 
-The strongest BM is: 1.0500213448134883 (strength), 0.0 (bmNumber) 
+The strongest BM is: 1.0500226172889808 (strength), 0.0 (bmNumber) 
 The total number of benchmarks is: 4, 1 of which are strong 
 and 0 of which are mutli step PT
 Failure summary: dict_items([]) 
