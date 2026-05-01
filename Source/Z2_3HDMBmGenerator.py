@@ -44,7 +44,7 @@ def generateBenchmarks(args):
         exit()
 
     for bmParams in bmGenerator:
-        if len(bmdictList) == args.maxNumBenchmarks:
+        if len(bmdictList) == args.numBenchmarks:
             break
         if bmParams:
             ## copy is needed otherwise the background fields enter the 4D beta function
