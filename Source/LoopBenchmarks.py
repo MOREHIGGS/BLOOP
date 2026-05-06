@@ -55,8 +55,13 @@ def loopBenchmarks(args):
 
             fp.write("\n]\n")
 
-
-    doBenchmarkWrapper = partial(doBenchmark, trackVEV, args, fieldNames, resultsDir)
+    ## try needed because if doBenchmark errors it can cause BLOOP to hang
+    def doBenchmarkWrapper(benchmark):
+        try:
+            ## Maybe make these explicit func args instead of pulling from outside func scope
+            return doBenchmark(trackVEV, args, fieldNames, resultsDir, benchmark)
+        except Exception as e:
+            return {"failureReason": str(e), "bmNumber": benchmark["bmNumber"]}
 
     benchmarkGenerator = streamBenchmarksIn(
         moduleDirectory / args.benchmarkFilePath,
@@ -66,6 +71,7 @@ def loopBenchmarks(args):
 
     if args.workers > 1:
         with Pool(args.workers) as pool:
+            ## consider moving to apply_async to impose timeout for extra safety
             resultsGenerator = tqdm(
                 pool.imap_unordered(doBenchmarkWrapper, benchmarkGenerator, chunksize=args.chunkSize)
             )
