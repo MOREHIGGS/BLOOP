@@ -48,10 +48,11 @@ def summariseResults(args):
                 if subResult["strength"] > strength:
                     strength = subResult["strength"]
                     Tc = subResult["Tc"]
-
-            TcList.append(Tc)
-            strengthList.append(strength)
-            bmNumberList.append(result["bmNumber"])
+            
+            if strength:
+                TcList.append(Tc)
+                strengthList.append(strength)
+                bmNumberList.append(result["bmNumber"])
     
     ## Sort bmInputs by order of strength, 
     ## this is so the colour of the scatter plot is set by the strong PT at that point
@@ -59,7 +60,7 @@ def summariseResults(args):
     dataSorted =  np.transpose(np.asarray(sorted(zip(strengthList, bmNumberList, TcList, *np.transpose(bmInputList))))) 
     
     if len(dataSorted) > 0:
-        with open(resultsDir/"Summary.txt", "w") as fp:
+        with open(resultsDir/"summary.txt", "w") as fp:
             fp.writelines(dedent(f"""\
                 Summary of the results: 
                 Tc min/max is: {min(dataSorted[2])}, {max(dataSorted[2])} 
