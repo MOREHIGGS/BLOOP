@@ -60,7 +60,7 @@ def summariseResults(args):
     dataSorted =  np.transpose(np.asarray(sorted(zip(strengthList, bmNumberList, TcList, *np.transpose(bmInputList))))) 
     
     if len(dataSorted) > 0:
-        with open(resultsDir/"summary.txt", "w") as fp:
+        with open(resultsDir/"Summary.txt", "w") as fp:
             fp.writelines(dedent(f"""\
                 Summary of the results: 
                 Tc min/max is: {min(dataSorted[2])}, {max(dataSorted[2])} 
@@ -70,13 +70,12 @@ def summariseResults(args):
                 Failure summary: {failDict.items()} 
                 EFT break down summary: {EFTBreakDict.items()} 
                 """))
-        # Is this still needed?
-        norm = plt.Normalize(dataSorted[0][0], dataSorted[0][-1])
+        
         axisLabels = list(result["bmInput"].keys())
 
         # Makes plots of first bm Input vs rest of bm inputs
         for inputIdx, data in enumerate(dataSorted[4:]):
-            plt.scatter(dataSorted[3], data, s=4.2**2, c=dataSorted[0], marker="o", norm=norm)
+            plt.scatter(dataSorted[3], data, s=4.2**2, c=dataSorted[0], marker="o")
             plt.xlabel(axisLabels[0], labelpad=5, fontsize=12)
             ## +1 needed to skip zeroth element
             plt.ylabel(axisLabels[inputIdx+1], labelpad=5, fontsize=12)
@@ -86,7 +85,7 @@ def summariseResults(args):
         
         # Makes plots of bm inputs vs Tc
         for inputIdx, data in enumerate(dataSorted[3:]):
-            plt.scatter(data, dataSorted[2], s=4.2**2, c=dataSorted[0], marker="o", norm=norm)
+            plt.scatter(data, dataSorted[2], s=4.2**2, c=dataSorted[0], marker="o")
             plt.xlabel(axisLabels[inputIdx], labelpad=5, fontsize=12)
             plt.ylabel("$T_c$ (GeV)", labelpad=5, fontsize=12)
             plt.colorbar(label="strength")
