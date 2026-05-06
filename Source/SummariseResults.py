@@ -59,7 +59,7 @@ def summariseResults(args):
     dataSorted =  np.transpose(np.asarray(sorted(zip(strengthList, bmNumberList, TcList, *np.transpose(bmInputList))))) 
     
     if len(dataSorted) > 0:
-        with open(resultsDir/"summary.txt", "w") as fp:
+        with open(resultsDir/"Summary.txt", "w") as fp:
             fp.writelines(dedent(f"""\
                 Summary of the results: 
                 Tc min/max is: {min(dataSorted[2])}, {max(dataSorted[2])} 
