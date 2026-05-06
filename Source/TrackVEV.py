@@ -115,22 +115,22 @@ class TrackVEV:
 
     def trackVEV(self, benchmark):
         minimizationResults = {
+            "bmNumber": benchmark["bmNumber"],
+            "failureReason": False,
             "T": [],
             "vevDepthReal": [],
             "vevDepthImag": [],
             "vevLocation": [],
             "violatedHardScale":[],
-            "failureReason": False,
         }
-
+        
         params = np.zeros(len(self.allSymbols), dtype="float64")
         for key, value in benchmark["lagranianParameters"].items():
             if key == "RGScale":
                 continue
             params[self.allSymbols.index(key)] = value
 
-        ## What to do if user RGScale > 7.3TMax? Idk why someone might do this though
-
+        ## Does this make sense if user RGScale > 7.3TMax? Idk why someone might do this though
         muRange = np.linspace(
             benchmark["lagranianParameters"]["RGScale"],
             7.3 * self.TRange[-1],
@@ -156,7 +156,7 @@ class TrackVEV:
         )
         
         if not solvedBetaFunction.success:
-            return minimizationResults | {"failureReason":  solvedBetaFunction.message}
+            raise Exception(solvedBetaFunction.message)
         
         betaSpline4D = {
             symbol: scipy.interpolate.CubicSpline(muRange, solvedBetaFunction.y[idx])
@@ -181,10 +181,10 @@ class TrackVEV:
                 params[self.allSymbols.index(key)] = spline(self.hardScale.evaluate(params))
             
             if not np.all(self.bounded.evaluateUnordered(params)):
-                return minimizationResults | {"failureReason": "unBounded"}
-            
+                raise Exception("Unbounded")
+                 
             if not bIsPerturbative(params, self.pertSymbols, self.allSymbols):
-                return minimizationResults | {"failureReason": "non-perturbative"}
+                raise Exception("non-pert")
             
             params = self.hardToSoft.evaluate(params)
             params = self.softScaleRGE.evaluate(params)
@@ -197,6 +197,7 @@ class TrackVEV:
             vevLocation, vevDepth = self.findGlobalMinimum(
                 params, self.initialGuesses + [np.round(vevLocation, 8)]
             )
+            
             ## TODO only check last eigenvalue from each matrix as that is the largest 
             violatedHardScale = False
             for idx in self.massIndices:
