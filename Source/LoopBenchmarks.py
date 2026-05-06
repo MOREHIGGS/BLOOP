@@ -119,7 +119,6 @@ def doBenchmark(
 
     return processData(
                 minimizationResult,
-                benchmark["bmNumber"],
                 benchmark["bmInput"],
                 fieldNames,
                 args.strengthCutOff,
@@ -128,13 +127,12 @@ def doBenchmark(
 
 def processData(
     result, 
-    bmNumber, 
     bmInput, 
     fieldNames, 
     strengthCutOff
 ):
     processedResult = {
-        "bmNumber": bmNumber,
+        "bmNumber": result["bmNumber"],
         "bmInput": bmInput,
         "failureReason": result["failureReason"],
         "PTData": None,

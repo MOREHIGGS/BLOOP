@@ -115,6 +115,7 @@ class TrackVEV:
 
     def trackVEV(self, benchmark):
         minimizationResults = {
+            "bmNumber": benchmark["bmNumber"]
             "T": [],
             "vevDepthReal": [],
             "vevDepthImag": [],
@@ -122,7 +123,7 @@ class TrackVEV:
             "violatedHardScale":[],
             "failureReason": False,
         }
-
+        
         params = np.zeros(len(self.allSymbols), dtype="float64")
         for key, value in benchmark["lagranianParameters"].items():
             if key == "RGScale":
@@ -197,6 +198,7 @@ class TrackVEV:
             vevLocation, vevDepth = self.findGlobalMinimum(
                 params, self.initialGuesses + [np.round(vevLocation, 8)]
             )
+            
             ## TODO only check last eigenvalue from each matrix as that is the largest 
             violatedHardScale = False
             for idx in self.massIndices:
