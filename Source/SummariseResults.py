@@ -29,10 +29,11 @@ def summariseResults(args):
             failDict[result["failureReason"]] += 1
             continue
 
-        if result["steps"] > 1:
-            multiStepCount += 1
-    
         if result["strong"]:
+        
+            if result["steps"] > 1:
+                multiStepCount += 1
+
             bmInputList.append((list(result["bmInput"].values())))
             strength = 0
             Tc = 0 
@@ -63,10 +64,10 @@ def summariseResults(args):
         with open(resultsDir/"Summary.txt", "w") as fp:
             fp.writelines(dedent(f"""\
                 Summary of the results: 
-                Tc min/max is: {min(dataSorted[2])}, {max(dataSorted[2])} 
-                The strongest BM is: {dataSorted[0][-1]} (strength), {dataSorted[1][-1]} (bmNumber) 
                 The total number of benchmarks is: {len(data)}, {len(dataSorted[0])} of which are strong 
-                and {multiStepCount} of which are mutli step PT
+                Of the strong phase transitions {multiStepCount} are mutli step
+                The strongest BM is {int(dataSorted[0][-1])} with strength {dataSorted[0][-1]} 
+                Tc min/max is: {min(dataSorted[2])}, {max(dataSorted[2])} 
                 Failure summary: {failDict.items()} 
                 EFT break down summary: {EFTBreakDict.items()} 
                 """))
