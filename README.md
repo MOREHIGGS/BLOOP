@@ -1,12 +1,14 @@
 # BLOOP (Beyond one LOOp Phase transition)
-**THIS CODE IS IN ACTIVE DEVELOPMENT, EXPECT BUGS AND FEATURES TO BE CHANGED AND/OR REMOVED. DOUBLE CHECK ANY RESULT FROM THE CODE.**
 
 Pre v1 history for BLOOP can be found [here](https://github.com/JasmineTC/Bloop)
+
+## Motivation
+TODO
 
 ## Installing the code:
 Download the code base with a git clone. From this point forward all commands are to be run from inside the BLOOP directory
 
-For cross platform compatibility and clean installation environment we recommend install the code in a container using podman (or equivalent). Alternatively, the code can be pip installed locally.
+For cross platform compatibility and clean installation environment we recommend install the code in a container using podman (or equivalent). Alternatively, the code can be pip installed locally. Depenedices can be found [here](https://github.com/MOREHIGGS/BLOOP/blob/main/Share/.requirements.txt).
 <details>
  <summary>Installition with podman</summary>
 
@@ -76,8 +78,18 @@ From inside the Bloop directory run:
  ```bash
 pip install -e .
 ```
- 
+The pip installation needs to be done in editable mode as we will be importing C code that is generated and compiled at run time.
+
 </details>
+
+### Test suite
+To check if BLOOP was correctly installed run the unit and intergation tests in Source like so
+
+```bash
+python3 Tests.py
+```
+
+Note: Some tests and the integration tests can soft fail if unexpected versions of packages are installed, this can be safely ignored. 
 
 ## Using BLOOP:
 To excute BLOOP one must excute the RunStages.py file in Source. For both the pip and container installation we provide a wrapper for RunStages so that you can simply run:
@@ -86,37 +98,30 @@ To excute BLOOP one must excute the RunStages.py file in Source. For both the pi
 bloop
 ```
  
-from the cmd line. However, this will just crash, as BLOOP requires model specific information from the user which needs to be provided via cmd line arguments. All cmd line arguments can be found by doing 
-```bash
-bloop --help
-```
-
-To streamline passing cmd line arguments to BLOOP one can use a bash script, or a configuration file like so
+from the cmd line. However, this will just crash, as BLOOP requires model specific information from the user which needs to be provided via cmd line arguments. All cmd line arguments can be found adding the help flag (--help). As an actual example here is a snipet to do a parameter scan of 5000 points of the Z2_3HDM with a temperature range 100GeV to 500GeV with a 0.1GeV step size, at NNLO using 50 threads
 
  ```bash
-bloop --configFilePath Z2_3HDMConfigFile.json
+bloop --configFilePath Z2_3HDMConfigFile.json --benchmarkType random --numBenchmarks 5000 --TRangeStart 100 --TRangeEnd 500 --TRangeStepSize 0.1 --loopOrder 2 --workers 50
 ```
-Z2_3HDMConfigFile.json can be found in Run. 
+
+Where we have streamlined a lot of the model dependent information into a configuration file which can be found [here](https://github.com/MOREHIGGS/BLOOP/blob/main/Run/Z2_3HDMConfigFile.json).
+
+It is worth noting that explicit cmd line arguments will override arguments set in the configuration file.
 
 <details>
 <summary>Important flags</summary>
-- Model file paths: --modelDirectory (relative to Build) --loFilePath, nloFilePath etc  (relative to modelDirectory)
-- --bmGeneratorModule: User made py file that produces a list of benchmarks (see ??? for details)
-- --loopOrder int: Compute Veff to NLO or NNLO
+- Model file paths str: --modelDirectory (relative to Build) --loFilePath, nloFilePath etc  (relative to modelDirectory)
+- --bmGeneratorModule str: User made py file that produces a list of benchmarks ([example](https://github.com/MOREHIGGS/BLOOP/blob/main/Source/Z2_3HDMBmGenerator.py))
+- --loopOrder int: Compute Veff to NLO or NNLO 
+   - NLO is 1 loop in masses, NNLO is two loop in masses, one loop in cubic/quartic couplings
 - --verbose bool: Print progress to terminal
 - --workers int: Run # benchmarks in parallel
 - --bPlot bool: Generate a thermal history plot for each benchmark
 - --TRange(Start/End/StepSize) float: Define the linspace of temperatures to compute the VEV at
 </details>
 
-As a complete example here's snipet to do a scan of 5000 random points in the Z2_3HDM, with a temperature range 100GeV to 500GeV with a 0.1GeV step size, at NNLO using 50 threads
-
- ```bash
---configFilePath Z2_3HDMConfigFile.json --benchmarkType random --numBenchmarks 5000 --TRangeStart 100 --TRangeEnd 500 --TRangeStepSize 0.1 --loopOrder 2 --workers 50
-```
-
 ## Implementing new models in DRalgo:
-In order to use BLOOP for your model you must first implement the model in DRalgo following our examples laid out in the Mathematica directory. We spare the details here as at time of writing this part of the code changes a lot and so this readme can easily get out of sync. 
+In order to use BLOOP for your model you must first implement the model in DRalgo following our examples [here](https://github.com/MOREHIGGS/BLOOP/blob/UpdateREADME/Share/DRalgoScripts/Z2_3HDM_DRalgo.wl). At time of writing this part of the code base is still in flux so we won't provide a detailed walk through just yet. 
 
 ## Implementing benchmark generating scripts:
 Benchmark generating is left to the user as this is inherently model dependent. We recommend editing the example benchmark generating scripts in source to describe your model so that the interfacing with BLOOP is already handled. If you wish to have something more custom we will go over the requirments of the benchmark generating script. 
@@ -160,14 +165,14 @@ When BLOOP has finished with all the benchmarks a json file will be made (path c
 ...
 ]
 ```
-
+Note: We compute the strength as $\frac{\Delta V_c}{T_c}$, where $T_c$ is the critical temperature and $\Delta V_c$ is the change in VEV ($\sqrt{v_iv^i}$) at the critical temperature. Also, v3 is a name of one of the background fields in this model. 
 <details>
 <summary>Details of output</summary>
  
 - **bmNumber** and **bmInput:** These are taken from the user provided benchmark
 - **failureReason:** Captures _most_ cases why a benchmark fails, ranging from the benchmark being ill defined (non-pert, unbounded) to run time crashes (divided by 0 etc) 
 - **PTData:** A list of all phase transitions that occured containing the critical temperature, strength of the phase transition, if the EFT appears to be valid, and what fields where invovled in the phase transition.
-   - EFTBreak will say if any mass is above the hard scale and/or the potential is complex at the phase transition
+   - EFTBreak will say if any mass is above the hard scale (4$\pi$) and/or the potential is complex at the phase transition
 - **strong:** Is there a phase transition with a strength above the user set lower limit (--strengthCutOff)
 - **Steps:** How many phase transitions occured
     - Note: Strong and steps are technically redundant, they are there to make filtering the data easier
@@ -190,5 +195,3 @@ Heat maps will also be generated for strong phase transitions. These heat maps w
 
 ### Thermal history and raw data
 To see the thermal history of a benchmark points include the --bPlot flag. To get the raw data BLOOP uses include the --bSave flag.
-
-<More text>
