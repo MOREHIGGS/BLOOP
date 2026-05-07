@@ -43,7 +43,7 @@ def summariseResults(args):
                 if EFTBreak:
                     EFTBreakDict[EFTBreak] +=1
 
-                if EFTBreak and not args.ignoreEFTBreak:
+                if EFTBreak and not args.includeEFTBreak:
                     continue
                 
                 if subResult["strength"] > strength:
