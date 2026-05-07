@@ -98,8 +98,8 @@ bloop --configFilePath Z2_3HDMConfigFile.json
 ```
 Z2_3HDMConfigFile.json can be found in Run. 
 
-A brief outline of the most important flags:
-
+<details>
+<summary>Important flags</summary>
 - Model file paths: --modelDirectory (relative to Build) --loFilePath, nloFilePath etc  (relative to modelDirectory)
 - --bmGeneratorModule: User made py file that produces a list of benchmarks (see ??? for details)
 - --loopOrder int: Compute Veff to NLO or NNLO
@@ -107,8 +107,10 @@ A brief outline of the most important flags:
 - --workers int: Run # benchmarks in parallel
 - --bPlot bool: Generate a thermal history plot for each benchmark
 - --TRange(Start/End/StepSize) float: Define the linspace of temperatures to compute the VEV at
+</details>
 
-As a complete example lets do a scan of 5000 random points in the Z2_3HDM, with a temperature range 100GeV to 500GeV with a 0.1GeV step size, at NNLO using 50 threads
+As a complete example here's snipet to do a scan of 5000 random points in the Z2_3HDM, with a temperature range 100GeV to 500GeV with a 0.1GeV step size, at NNLO using 50 threads
+
  ```bash
 --configFilePath Z2_3HDMConfigFile.json --benchmarkType random --numBenchmarks 5000 --TRangeStart 100 --TRangeEnd 500 --TRangeStepSize 0.1 --loopOrder 2 --workers 50
 ```
@@ -116,22 +118,28 @@ As a complete example lets do a scan of 5000 random points in the Z2_3HDM, with 
 ## Implementing new models in DRalgo:
 In order to use BLOOP for your model you must first implement the model in DRalgo following our examples laid out in the Mathematica directory. We spare the details here as at time of writing this part of the code changes a lot and so this readme can easily get out of sync. 
 
-## Implementing new benchmark generating scripts:
-Benchmark generating is largely left to the user as this is inherently model dependent. We simply require a main function called 'generateBenchmarks' which needs to take one argument, args. This args is how you access cmd line arguments like 'benchmarkType' and 'numBenchmarks'. During the running of generateBenchmarks it needs to save benchmark data to a json stored at --moduleDirectory/--benchmarkFilePath. This benchmark data must take the form of a nested dictionary like so {"bmInput": {<yourInputs>}}, "lagranianParameters": {<yourLagranianParameters>}, <OtherStuff>}. Again, for a concrete example see Z2_3HDMBmGenerator.py in Source. bmInput is used to generate basic heat maps of the results and lagranianParameters is used to do the calculations. 
+## Implementing benchmark generating scripts:
+Benchmark generating is left to the user as this is inherently model dependent. We recommend editing the example benchmark generating scripts in source to describe your model so that the interfacing with BLOOP is already handled. If you wish to have something more custom we will go over the requirments of the benchmark generating script. 
+
+<details>
+<summary>Requirments on benchmark script</summary>
+ - A main function called generateBenchmarks which takes one argument for the cmd line arguments.
+   - The role of this function is to save all the benchmarks to a json.
+   - We expect this benchmark json to live at --moduleDirectory/--benchmarkFilePath
+ - The benchmarks must be in the form of a nested dictionary  like {"bmInput": {<yourInputs>}}, "lagranianParameters": {<yourLagranianParameters>}, ...}
+   - To be clear this is the lagranian parameters of the zero temperature, 4D theory
+   - Because we run these couplings you must provide the RGScale at which they are defined
+</details>
 
 ## Getting results
 When BLOOP has finished with all the benchmarks a json file will be made (path controlled by --resultsDirectory and --scanResultsName) which contains the important information for each benchmark which looks like:
 ```JSON
+[
 {
   "bmNumber": 0,
   "bmInput": {
     "mS1": 99.4,
-    "delta12": 42.8,
-    "delta1c": 96.1,
-    "deltac": 5.3,
-    "ghDM": 0.509,
-    "thetaCPV": 2.55,
-    "darkHierarchy": 1.00
+    ....
   },
   "failureReason": false,
   "PTData": [
@@ -144,7 +152,43 @@ When BLOOP has finished with all the benchmarks a json file will be made (path c
   ],
   "strong": true,
   "steps": 1
-}
+},
+{
+  "bmNumber": 1,
+...
+},
+...
+]
 ```
+
+<details>
+<summary>Details of output</summary>
+ 
+- **bmNumber** and **bmInput:** These are taken from the user provided benchmark
+- **failureReason:** Captures _most_ cases why a benchmark fails, ranging from the benchmark being ill defined (non-pert, unbounded) to run time crashes (divided by 0 etc) 
+- **PTData:** A list of all phase transitions that occured containing the critical temperature, strength of the phase transition, if the EFT appears to be valid, and what fields where invovled in the phase transition.
+   - EFTBreak will say if any mass is above the hard scale and/or the potential is complex at the phase transition
+- **strong:** Is there a phase transition with a strength above the user set lower limit (--strengthCutOff)
+- **Steps:** How many phase transitions occured
+    - Note: Strong and steps are technically redundant, they are there to make filtering the data easier
+</details>
+
+### Summarising results
+BLOOP will write to a txt file a brief summary of the scan which looks like:
+
+```text
+Summary of the results: 
+The total number of benchmarks is: 690390, 291884 of which are strong 
+Of the strong phase transitions 23922 are mutli step
+The strongest BM is 1 with strength 1.9709325947783138 
+Tc min/max is: 73.0, 157.0 
+Failure summary: dict_items([('unBounded', 856)]) 
+EFT break down summary: dict_items([('complex', 9763), ('violatedHardScale&complex', 25), ('violatedHardScale', 18)])
+```
+
+Heat maps will also be generated for strong phase transitions. These heat maps will be the first element of bmInput vs the rest, and Tc vs all of bmInput. 
+
+### Thermal history and raw data
+To see the thermal history of a benchmark points include the --bPlot flag. To get the raw data BLOOP uses include the --bSave flag.
 
 <More text>
