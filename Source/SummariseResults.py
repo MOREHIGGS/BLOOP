@@ -29,10 +29,11 @@ def summariseResults(args):
             failDict[result["failureReason"]] += 1
             continue
 
-        if result["steps"] > 1:
-            multiStepCount += 1
-    
         if result["strong"]:
+        
+            if result["steps"] > 1:
+                multiStepCount += 1
+
             bmInputList.append((list(result["bmInput"].values())))
             strength = 0
             Tc = 0 
@@ -48,10 +49,11 @@ def summariseResults(args):
                 if subResult["strength"] > strength:
                     strength = subResult["strength"]
                     Tc = subResult["Tc"]
-
-            TcList.append(Tc)
-            strengthList.append(strength)
-            bmNumberList.append(result["bmNumber"])
+            
+            if strength:
+                TcList.append(Tc)
+                strengthList.append(strength)
+                bmNumberList.append(result["bmNumber"])
     
     ## Sort bmInputs by order of strength, 
     ## this is so the colour of the scatter plot is set by the strong PT at that point
@@ -59,23 +61,22 @@ def summariseResults(args):
     dataSorted =  np.transpose(np.asarray(sorted(zip(strengthList, bmNumberList, TcList, *np.transpose(bmInputList))))) 
     
     if len(dataSorted) > 0:
-        with open(resultsDir/"summary.txt", "w") as fp:
+        with open(resultsDir/"Summary.txt", "w") as fp:
             fp.writelines(dedent(f"""\
                 Summary of the results: 
-                Tc min/max is: {min(dataSorted[2])}, {max(dataSorted[2])} 
-                The strongest BM is: {dataSorted[0][-1]} (strength), {dataSorted[1][-1]} (bmNumber) 
                 The total number of benchmarks is: {len(data)}, {len(dataSorted[0])} of which are strong 
-                and {multiStepCount} of which are mutli step PT
+                Of the strong phase transitions {multiStepCount} are mutli step
+                The strongest BM is {int(dataSorted[0][-1])} with strength {dataSorted[0][-1]} 
+                Tc min/max is: {min(dataSorted[2])}, {max(dataSorted[2])} 
                 Failure summary: {failDict.items()} 
                 EFT break down summary: {EFTBreakDict.items()} 
                 """))
-        # Is this still needed?
-        norm = plt.Normalize(dataSorted[0][0], dataSorted[0][-1])
+        
         axisLabels = list(result["bmInput"].keys())
 
         # Makes plots of first bm Input vs rest of bm inputs
         for inputIdx, data in enumerate(dataSorted[4:]):
-            plt.scatter(dataSorted[3], data, s=4.2**2, c=dataSorted[0], marker="o", norm=norm)
+            plt.scatter(dataSorted[3], data, s=4.2**2, c=dataSorted[0], marker="o")
             plt.xlabel(axisLabels[0], labelpad=5, fontsize=12)
             ## +1 needed to skip zeroth element
             plt.ylabel(axisLabels[inputIdx+1], labelpad=5, fontsize=12)
@@ -85,7 +86,7 @@ def summariseResults(args):
         
         # Makes plots of bm inputs vs Tc
         for inputIdx, data in enumerate(dataSorted[3:]):
-            plt.scatter(data, dataSorted[2], s=4.2**2, c=dataSorted[0], marker="o", norm=norm)
+            plt.scatter(data, dataSorted[2], s=4.2**2, c=dataSorted[0], marker="o")
             plt.xlabel(axisLabels[inputIdx], labelpad=5, fontsize=12)
             plt.ylabel("$T_c$ (GeV)", labelpad=5, fontsize=12)
             plt.colorbar(label="strength")
