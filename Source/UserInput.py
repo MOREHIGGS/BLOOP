@@ -227,7 +227,7 @@ class UserInput(argparse.ArgumentParser):
            help="float: Lowest strength of phase transition which we will label as strong",
        )
        outputGroup.add_argument(
-           "--ignoreEFTBreak",
+           "--includeEFTBreak",
            action="store_true",
            default=False,
            help="Bool: If activated include phase transitions where the validity of the EFT is in question (particle masses above the hard scale or non-neligable imaginary part of effective potential)",
