@@ -1,10 +1,8 @@
 # BLOOP (Beyond one LOOp Phase transition)
 
-BLOOP is a Python based code to compute the critical temperature and strength of cosmological phase transitions. BLOOP uses the dimensional reduction approach to compute the effective potential at either 1 loop/NLO or 2 loop/NNLO* accuracy, making use of [DRalgo](https://github.com/DR-algo/DRalgo) to compute the required matching relations, effective potential etc. 
+BLOOP is a Python based code to compute the critical temperature and strength of cosmological phase transitions. BLOOP uses the dimensional reduction approach to compute the effective potential at either 1 loop/NLO or 2 loop/NNLO accuracy, making use of [DRalgo](https://github.com/DR-algo/DRalgo) to compute the required matching relations, effective potential etc. 
 
-Pre v1 history for BLOOP can be found [here](https://github.com/JasmineTC/Bloop)
-
-*NLO refers to tree level potential + one loop self energies (resummed), NNLO adds one loop corrections to cubic and quartic couplings and two loop self energies.  
+Pre v1 history for BLOOP can be found [here](https://github.com/JasmineTC/Bloop
 
 ## Installing the code:
 Download the code base with a git clone. From this point forward all commands are to be run from inside the BLOOP directory
