@@ -37,6 +37,12 @@ class UserInput(argparse.ArgumentParser):
            help="Bool: If activated code will print as it progresses",
        )
        configGroup.add_argument(
+           "--debug",
+           action="store_true",
+           default=False,
+           help="Bool: If activated code will print stacktrace and exit instead of continuing through benchmarks",
+       )
+       configGroup.add_argument(
            "--workers",
            action="store",
            default=1,

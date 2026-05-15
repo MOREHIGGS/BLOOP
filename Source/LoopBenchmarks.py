@@ -62,6 +62,10 @@ def loopBenchmarks(args):
             ## Maybe make these explicit func args instead of pulling from outside func scope
             return doBenchmark(trackVEV, args, fieldNames, resultsDir, benchmark)
         except Exception as e:
+            if args.debug:
+                import traceback
+                print(traceback.format_exc())
+                exit()
             return {"failureReason": str(e), "bmNumber": benchmark["bmNumber"]}
 
     benchmarkGenerator = streamBenchmarksIn(
