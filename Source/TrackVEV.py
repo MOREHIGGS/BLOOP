@@ -65,12 +65,14 @@ class TrackVEV:
         self.verbose = verbose
         
         self.allSymbols = pythonisedExpressions["allSymbols"]["allSymbols"]
-        self.massIndices = [self.allSymbols.index(massName) for massName in pythonisedExpressions["massNames"]]
-            
+        
         self.pertSymbols = {replaceGreekSymbols(symbol) 
                             for symbolSet in ("fourPointSymbols", "yukawaSymbols", "gaugeSymbols")
                             for symbol in pythonisedExpressions["lagranianVariables"]["lagranianVariables"][symbolSet]
                             }
+
+        self.massIndices = [self.allSymbols.index(massName) for massName in pythonisedExpressions["massNames"]]
+        self.correctVEVIndex = pythonisedExpressions["lagranianVariables"]["lagranianVariables"]["fieldSymbols"].index("v3") if True else None
         
         self.hardToSoft = ParsedExpressionSystem(
                              pythonisedExpressions["hardToSoft"],
@@ -111,7 +113,6 @@ class TrackVEV:
                          )
 
         self.evaluatePotential = importlib.import_module(f"EvaluatePotential{loopOrder}").evaluatePotential
-
 
     def trackVEV(self, benchmark):
         minimizationResults = {
@@ -166,14 +167,14 @@ class TrackVEV:
 
         counter = 0
         ## Initialise vevLocation to feed into the minimisation algo so it can
-        ## use the location of the previous minimum as a guess for the next
+        ## use the location oTidx ==0 and f the previous minimum as a guess for the next
         ## Not ideal as the code has to repeat an initial guess on first T
         vevLocation = np.array(self.initialGuesses[0])
 
-        for T in self.TRange:
+        for Tidx, T in enumerate(self.TRange):
             if self.verbose:
                 print(f"Start of temp = {T} loop")
-
+            
             params = np.zeros(len(self.allSymbols), dtype="float64")
             params[self.allSymbols.index("T")] = T
             
@@ -198,6 +199,16 @@ class TrackVEV:
                 params, self.initialGuesses + [np.round(vevLocation, 8)]
             )
             
+            if Tidx == 0 and self.correctVEVIndex:
+                wrongVEV = (
+                    abs(vevLocation[self.correctVEVIndex]) < 0.1
+                    or any(abs(ele) > 0.1 for idx, ele in enumerate(vevLocation) if idx != self.correctVEVIndex)
+                )   
+
+            if wrongVEV:
+                raise Exception("incorrect VEV  at T_0")
+                    
+            exit()
             ## TODO only check last eigenvalue from each matrix as that is the largest 
             violatedHardScale = False
             for idx in self.massIndices:
