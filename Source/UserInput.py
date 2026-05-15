@@ -160,7 +160,12 @@ class UserInput(argparse.ArgumentParser):
            type=list,
            help="List[List[float]]: Initial values of background fields to be given to local minimisation routine in NLOPT",
        )
-       
+       nloptGroup.add_argument(
+           "--correctVEV",
+           action="store",
+           type=str,
+           help="Str: Name of a background field you want to be the only active field at T start",
+       )      
        ########################################################################
        tempGroup = self.add_argument_group('Temperature Range')
        tempGroup.add_argument = self.addArgumentNoMetaVar(tempGroup)
