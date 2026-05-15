@@ -25,6 +25,7 @@ def loopBenchmarks(args):
                      args.verbose,
                      pythonisedExpressions,
                      args.loopOrder,
+                     args.correctVEV,
                      {"nbrVars": len(fieldNames),
                              "absGlobalTol": args.absGlobalTolerance,
                              "relGlobalTol": args.relGlobalTolerance,

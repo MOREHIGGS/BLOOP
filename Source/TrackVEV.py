@@ -55,6 +55,7 @@ class TrackVEV:
              verbose,
              pythonisedExpressions,
              loopOrder,
+             correctVEV,
              nloptConfig,
         ):
         
@@ -72,7 +73,7 @@ class TrackVEV:
                             }
 
         self.massIndices = [self.allSymbols.index(massName) for massName in pythonisedExpressions["massNames"]]
-        self.correctVEVIndex = pythonisedExpressions["lagranianVariables"]["lagranianVariables"]["fieldSymbols"].index("v3") if True else None
+        self.correctVEVIndex = pythonisedExpressions["lagranianVariables"]["lagranianVariables"]["fieldSymbols"].index(correctVEV) if correctVEV else None
         
         self.hardToSoft = ParsedExpressionSystem(
                              pythonisedExpressions["hardToSoft"],
@@ -207,8 +208,7 @@ class TrackVEV:
 
             if wrongVEV:
                 raise Exception("incorrect VEV  at T_0")
-                    
-            exit()
+            
             ## TODO only check last eigenvalue from each matrix as that is the largest 
             violatedHardScale = False
             for idx in self.massIndices:
