@@ -16,6 +16,7 @@ def summariseResults(args):
     TcList = []
     bmNumberList = []
     resultsDir = Path(__file__).resolve().parent/f"../Run/{args.resultsDirectory}"
+
     with open(resultsDir/f"{args.scanResultsName}.json","r") as fp:
         data = load(fp)
 
@@ -30,13 +31,8 @@ def summariseResults(args):
             continue
 
         if result["strong"]:
-        
-            if result["steps"] > 1:
-                multiStepCount += 1
-
-            bmInputList.append((list(result["bmInput"].values())))
             strength = 0
-            Tc = 0 
+
             ## Get the strongest PT (and assiocated Tc) of a potential mutli step PT
             for subResult in result["PTData"]:
                 EFTBreak = subResult["EFTBreak"]
@@ -51,10 +47,14 @@ def summariseResults(args):
                     Tc = subResult["Tc"]
             
             if strength:
+                axisLabels = list(result["bmInput"].keys())
                 TcList.append(Tc)
                 strengthList.append(strength)
                 bmNumberList.append(result["bmNumber"])
-    
+                
+                bmInputList.append((list(result["bmInput"].values())))
+                if result["steps"] > 1:
+                    multiStepCount += 1 
     ## Sort bmInputs by order of strength, 
     ## this is so the colour of the scatter plot is set by the strong PT at that point
     ## transpose taken so each row is just on variable type (faster to plot)
@@ -71,8 +71,6 @@ def summariseResults(args):
                 Failure summary: {failDict.items()} 
                 EFT break down summary: {EFTBreakDict.items()} 
                 """))
-        
-        axisLabels = list(result["bmInput"].keys())
 
         # Makes plots of first bm Input vs rest of bm inputs
         for inputIdx, data in enumerate(dataSorted[4:]):
