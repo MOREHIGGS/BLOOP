@@ -66,7 +66,7 @@ def summariseResults(args):
                 Summary of the results: 
                 The total number of benchmarks is: {len(data)}, {len(dataSorted[0])} of which are strong 
                 Of the strong phase transitions {multiStepCount} are mutli step
-                The strongest BM is {int(dataSorted[0][-1])} with strength {dataSorted[0][-1]} 
+                The strongest BM is {int(dataSorted[1][-1])} with strength {dataSorted[0][-1]} 
                 Tc min/max is: {min(dataSorted[2])}, {max(dataSorted[2])} 
                 Failure summary: {failDict.items()} 
                 EFT break down summary: {EFTBreakDict.items()} 
