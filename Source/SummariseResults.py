@@ -16,6 +16,7 @@ def summariseResults(args):
     TcList = []
     bmNumberList = []
     resultsDir = Path(__file__).resolve().parent/f"../Run/{args.resultsDirectory}"
+
     with open(resultsDir/f"{args.scanResultsName}.json","r") as fp:
         data = load(fp)
 
@@ -30,13 +31,8 @@ def summariseResults(args):
             continue
 
         if result["strong"]:
-        
-            if result["steps"] > 1:
-                multiStepCount += 1
-
-            bmInputList.append((list(result["bmInput"].values())))
             strength = 0
-            Tc = 0 
+
             ## Get the strongest PT (and assiocated Tc) of a potential mutli step PT
             for subResult in result["PTData"]:
                 EFTBreak = subResult["EFTBreak"]
@@ -54,6 +50,10 @@ def summariseResults(args):
                 TcList.append(Tc)
                 strengthList.append(strength)
                 bmNumberList.append(result["bmNumber"])
+                
+                bmInputList.append((list(result["bmInput"].values())))
+                if result["steps"] > 1:
+                    multiStepCount += 1 
     
     ## Sort bmInputs by order of strength, 
     ## this is so the colour of the scatter plot is set by the strong PT at that point
@@ -66,7 +66,7 @@ def summariseResults(args):
                 Summary of the results: 
                 The total number of benchmarks is: {len(data)}, {len(dataSorted[0])} of which are strong 
                 Of the strong phase transitions {multiStepCount} are mutli step
-                The strongest BM is {int(dataSorted[0][-1])} with strength {dataSorted[0][-1]} 
+                The strongest BM is {int(dataSorted[1][-1])} with strength {dataSorted[0][-1]} 
                 Tc min/max is: {min(dataSorted[2])}, {max(dataSorted[2])} 
                 Failure summary: {failDict.items()} 
                 EFT break down summary: {EFTBreakDict.items()} 

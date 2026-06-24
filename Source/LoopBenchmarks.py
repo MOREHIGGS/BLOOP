@@ -66,7 +66,9 @@ def loopBenchmarks(args):
                 import traceback
                 print(traceback.format_exc())
                 exit()
-            return {"failureReason": str(e), "bmNumber": benchmark["bmNumber"]}
+            return {"failureReason": str(e), 
+                    "bmNumber": benchmark["bmNumber"],
+                    "bmInput": benchmark["bmInput"]}
 
     benchmarkGenerator = streamBenchmarksIn(
         moduleDirectory / args.benchmarkFilePath,
