@@ -4,14 +4,15 @@ from UserInput import UserInput
 from PythoniseMathematica import pythoniseMathematica
 from SummariseResults import summariseResults
 from LoopBenchmarks import loopBenchmarks
-from MetaData import printMetaData
+from MetaData import writeMetaData
+
 def main():
     args = UserInput().parse()
  
     if args.verbose:
         print("Producing meta data")
-    printMetaData(args)
-    
+    writeMetaData(args)
+    exit()    
     if args.verbose:
         print("Convert Mathematica stage started")
     pythoniseMathematica(args)
