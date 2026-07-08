@@ -12,7 +12,7 @@ def main():
     if args.verbose:
         print("Producing meta data")
     writeMetaData(args)
-    exit()    
+    
     if args.verbose:
         print("Convert Mathematica stage started")
     pythoniseMathematica(args)
