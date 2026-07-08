@@ -41,10 +41,12 @@ def getImportantDependcies():
         output[package] = importlib.metadata.version(package)
     
     return output
-print(datetime.now(timezone.utc).isoformat(timespec="seconds"))
-print(platform.python_version())
-print(getpass.getuser())
-print(socket.gethostname())
-print(getGitInfo())
-print(getImportantDependcies())
-print(" ".join(psutil.Process(os.getpid()).cmdline()))
+
+def printMetaData(args):
+    print(datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"))
+    print(platform.python_version())
+    print(getpass.getuser())
+    print(socket.gethostname())
+    print(getGitInfo())
+    print(getImportantDependcies())
+    print(" ".join(psutil.Process(os.getpid()).cmdline()))
