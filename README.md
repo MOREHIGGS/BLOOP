@@ -61,13 +61,18 @@ If the container hasn't already been built then run (from inside the BLOOP direc
 ```bash 
 podman build . -t bloop
 ```
-The container needs to only be built once unless a new version of BLOOP requires the container to be rebuilt (this will be communicated via the release notes). With the container built we can enter the container with:
+The container needs to only be built once unless a new version of BLOOP requires the container to be rebuilt (this will be communicated via the release notes). With the container built we can start an interactive container session with:
 
 ```bash 
-podman run --mount type=bind,src=$PWD,target=/Bloop -it bloop /bin/bash -c "cd /Bloop && exec /bin/bash"
+podman run -e USER=$(whoami) --hostname=$(hostname) --mount type=bind,src=$PWD,target=/Bloop -it bloop /bin/bash -c "cd /Bloop/Run && exec /bin/bash"
 ```
+A quick explainer on what this is doing:
+- Containers use their own hostname and are, by default, run as root. So to get the actual machine/user name we have to pass them in. BLOOP uses this for meta data
+- The BLOOP directory is bind-mounted into the container, so file changes made inside the container are immediately visible on the host and vice versa
+- An interactive Bash session (-it) is started in the Run subdirectory (cd /Bloop/Run). exec /bin/bash replaces the temporary shell started by bash -c, avoiding an unnecessary nested shell
 
-This will put you in the Bloop directory for convience. 
+
+Since containers don't see user and machine information we pass that in using the USER and hostname flags to get richer meta data. The container is bind-mounted to the host directory, so file changes from inside the container are made outside the container and vice versa. For convenience this command will also drop you in the Run sub directory of BLOOP. exec /bin/bash avoids nesting shells.
 </details>
 
 <details>
