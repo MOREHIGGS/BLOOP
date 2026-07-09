@@ -40,7 +40,7 @@ class UserInput(argparse.ArgumentParser):
            "--debug",
            action="store_true",
            default=False,
-           help="Bool: If activated code will print stacktrace and exit instead of continuing through benchmarks",
+           help="Bool: If activated code will print stacktrace/error and exit instead of trying to continue",
        )
        configGroup.add_argument(
            "--workers",
@@ -222,7 +222,7 @@ class UserInput(argparse.ArgumentParser):
            "--plotDataModule",
            action="store",
            default="PlotData",
-           help="Str: Module name of python module (living in Source) to generate plots, invoked by --bPlot (don't include the .py extension here)"
+           help="Str: Module name of python module (living in Source) to generate plots, invoked by --bPlot"
        )
        outputGroup.add_argument(
            "--scanResultsName",
@@ -242,6 +242,12 @@ class UserInput(argparse.ArgumentParser):
            action="store_true",
            default=False,
            help="Bool: If activated include phase transitions where the validity of the EFT is in question (particle masses above the hard scale or non-neligable imaginary part of effective potential)",
+       )
+       outputGroup.add_argument(
+           "--summariseModule",
+           action="store",
+           default="SummariseResults",
+           help="Str: File name of python module to use to summarise scan results - needs to have a function called summariseResults which takes in args",
        )
        ########################################################################
        filesGroup = self.add_argument_group('Model File Paths', 'Give the path for your model directory (relative to Build), then all other files are relative to the model directory')

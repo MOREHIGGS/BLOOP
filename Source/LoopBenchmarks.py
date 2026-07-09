@@ -122,7 +122,7 @@ def doBenchmark(
         if args.verbose:
             print(f"Plotting {benchmark['bmNumber']}")
 
-        import_module(args.plotDataModule).plotData(minimizationResult, filename, fieldNames)
+        import_module(args.plotDataModule.removesuffix(".py")).plotData(minimizationResult, filename, fieldNames)
 
     return processData(
                 minimizationResult,
