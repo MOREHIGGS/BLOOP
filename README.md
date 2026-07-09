@@ -64,7 +64,7 @@ podman build . -t bloop
 The container needs to only be built once unless a new version of BLOOP requires the container to be rebuilt (this will be communicated via the release notes). With the container built we can enter the container with:
 
 ```bash 
-podman run --mount type=bind,src=$PWD,target=/Bloop -it bloop /bin/bash -c "cd /Bloop && exec /bin/bash"
+podman run -e USER=$(whoami) --hostname=$(hostname) --mount type=bind,src=$PWD,target=/Bloop -it bloop /bin/bash -c "cd /Bloop/Run && exec /bin/bash"
 ```
 
 This will put you in the Bloop directory for convience. 
