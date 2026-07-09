@@ -206,8 +206,8 @@ class TrackVEV:
                     or any(abs(ele) > 0.1 for idx, ele in enumerate(vevLocation) if idx != self.correctVEVIndex)
                 )   
 
-            if wrongVEV:
-                raise Exception("incorrect VEV  at T_0")
+                if wrongVEV:
+                    raise Exception("incorrect VEV  at T_0")
             
             ## TODO only check last eigenvalue from each matrix as that is the largest 
             violatedHardScale = False
