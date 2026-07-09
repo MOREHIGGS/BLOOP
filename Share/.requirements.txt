@@ -12,3 +12,4 @@ jinja2
 argcomplete
 tqdm
 pytest
+psutil

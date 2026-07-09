@@ -14,9 +14,9 @@
   "PTData": [
     {
       "Tc": 128.0,
-      "strength": 1.0500226172889808,
+      "strength": 1.0447201514736209,
       "EFTBreak": false,
-      "v3": -1.0500327834161556
+      "v3": -1.0447270774767663
     }
   ],
   "strong": true,
@@ -36,10 +36,10 @@
   "failureReason": false,
   "PTData": [
     {
-      "Tc": 151.0,
-      "strength": 0.18090981996061858,
+      "Tc": 150.0,
+      "strength": 0.3443004652802052,
       "EFTBreak": false,
-      "v3": -0.1809149237967281
+      "v3": -0.3443047488957467
     }
   ],
   "strong": false,
@@ -60,7 +60,7 @@
   "PTData": [
     {
       "Tc": 198.0,
-      "strength": 0.1325946871098501,
+      "strength": 0.13468422078375314,
       "EFTBreak": false
     }
   ],
@@ -82,7 +82,7 @@
   "PTData": [
     {
       "Tc": 199.0,
-      "strength": 0.018098670883432366,
+      "strength": 0.01808579411540384,
       "EFTBreak": false
     }
   ],
