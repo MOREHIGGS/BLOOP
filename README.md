@@ -71,8 +71,6 @@ A quick explainer on what this is doing:
 - The BLOOP directory is bind-mounted into the container, so file changes made inside the container are immediately visible on the host and vice versa
 - An interactive Bash session (-it) is started in the Run subdirectory (cd /Bloop/Run). exec /bin/bash replaces the temporary shell started by bash -c, avoiding an unnecessary nested shell
 
-
-Since containers don't see user and machine information we pass that in using the USER and hostname flags to get richer meta data. The container is bind-mounted to the host directory, so file changes from inside the container are made outside the container and vice versa. For convenience this command will also drop you in the Run sub directory of BLOOP. exec /bin/bash avoids nesting shells.
 </details>
 
 <details>
