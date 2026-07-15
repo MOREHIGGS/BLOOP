@@ -22,6 +22,7 @@ def getGitInfo(debug):
         gitInfo = subprocess.run(
             command,
             capture_output=True,
+            text=True
         )
 
         if gitInfo.returncode != 0:
@@ -31,17 +32,25 @@ def getGitInfo(debug):
             output[key] = f"Unable to obtain {key}"
         
         else:
-            output[key] = gitInfo.stdout.decode().strip().splitlines()
+            output[key] = gitInfo.stdout.splitlines()
     
     return output
 
-def getDependcies():
-    with open (pathlib.Path(__file__).resolve().parent/f"../Share/.requirements.txt", "r") as fp:
-        packages = [line.strip() for line in fp]
+def getDependcies(debug):
+    packageInfo = subprocess.run(
+        ["pip", "freeze"],
+        capture_output=True,
+        text=True
+    )
     
-    return {package: importlib.metadata.version(package) for package in packages}
-
-
+    if packageInfo.returncode != 0:
+        if debug:
+            print(packageInfo.stderr.decode())
+            exit()
+        return = ["Unable to get pip packages"]
+    
+    return packageInfo.stdout.splitlines()
+    
 def writeMetaData(args):
     resultsDir = pathlib.Path(__file__).resolve().parent/f"../Run/{args.resultsDirectory}"
     resultsDir.mkdir(parents=True, exist_ok=True)
@@ -80,7 +89,7 @@ Complete list of cmdline args:
     machine =  socket.gethostname(),
     gitInfo = getGitInfo(args.debug),
     pythonVersion = platform.python_version(),
-    packagesVersions = getDependcies(),
+    packagesVersions = getDependcies(args.debug),
     cmd = " ".join(psutil.Process(os.getpid()).cmdline()),
     )
 )
