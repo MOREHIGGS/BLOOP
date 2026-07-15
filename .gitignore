@@ -10,10 +10,12 @@ Build/*
 Testing
 .version.py
 Share/DRalgoScripts/*
-Source/*Generator.py
+Source/*Generator*.py
+Source/SummariseResults*.py
 
 *.txt
 *.swp
+*.swo
 *.png
 *.pstats
 **/*.json
@@ -21,3 +23,4 @@ Source/*Generator.py
 *.pyc
 *.svg
 *.out
+*.sh
