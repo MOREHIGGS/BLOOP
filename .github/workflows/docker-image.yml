@@ -1,0 +1,22 @@
+# Learning how this works as I go so lots of comments
+name: Docker Image CI
+
+on:
+  # Trigger this CI on a PR
+  pull_request:
+    # If you are making a PR to main
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+  # Build the container image on the lastest version of ubuntu
+    runs-on: ubuntu-latest
+    steps:
+    # Uses an external libary to clone BLOOP into the vm running CI
+      - uses: actions/checkout@v4
+      - name: Build the Docker image
+      # Note: Tag is required arg and is useful for other people to get this image, 
+      # This CI is simple enough that we don't need so just keep overwritting the image
+        run: docker build . --file Dockerfile --tag my-image-name:latest
+      - name: Run integration tests
+        run: docker run --rm my-image-name:latest pytest -x
