@@ -18,7 +18,7 @@ license = { file = "LICENSE" }
 
 authors = [
     { name = "Jasmine Thomson-Cooke", email = "jasmine@stp.dias" },
-    { name = "Lucy Lewitt",           email = "llewitt@cern.ch" }
+    { name = "Lucy Lewitt",           email = "llewitt@cern.ch" },
     { name = "Venus Keus",           email = "venus@stp.dias.ie" }
 ]
 
@@ -39,10 +39,10 @@ bloop = "Source.RunStages:main"
 packages = ["Source"]
 
 [tool.setuptools.dynamic]
-dependencies = { file = ["Share/.requirements.txt"] }
+dependencies = { file = ["requirements.txt"] }
 
 [tool.setuptools.dynamic.optional-dependencies]
-dev = { file = ["Share/.requirementsDev.txt"] }
+dev = { file = ["requirementsDev.txt"] }
 
 [tool.setuptools_scm]
 write_to = ".version.py"
