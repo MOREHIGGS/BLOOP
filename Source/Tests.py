@@ -13,8 +13,9 @@ def runTests():
 
     if not unitResult == 0:
         print("Unit tests failed. Skipping integration tests.")
-        return
-    
+        sys.exit(unitResult)
+
+    stdOut = ""
     for idx, loopOrder in enumerate(["NLO", "NNLO"]):
         print(f"Running {loopOrder} integration test:")
         loopDir = integrationTestsDirectory/f'{loopOrder}/'
@@ -38,10 +39,11 @@ def runTests():
             text=True,
             )
         if not integrationTest.returncode == 0:
-            print(f"Error output: {integrationTest.stderr}")
-            print(f"{loopOrder} integration test failed, exiting tests.")
-            exit() 
-        
+            sys.exit(
+                f"{loopOrder} integration test failed\n"
+                f"Error:\n{integrationTest.stderr}"
+                f"Error code: {integrationTest.returncode}\n"
+            )
         with open(loopDir/"OutputResult/ScanResults.json", "r") as fp:
             scanResults = json.load(fp)
         with open(loopDir/"ReferenceResult/ScanResults.json", "r") as fp:
@@ -53,6 +55,7 @@ def runTests():
             continue
         
         print(f"Summary of results at {loopOrder} is not exactly what we expect")
+        
         with open(sourceDirectory/f"../Run/{loopOrder}Diff.txt", "w") as fp:
             fp.write("Summary diff:")
             fp.write("".join(difflib.unified_diff(
@@ -69,13 +72,13 @@ def runTests():
                 bmRef = json.load(fp)
         
             if bm == pytest.approx(bmRef, rel=0.): 
-                print(f"BM{i} data is exactly what we expect")
+                stdOut += f"{loopOrder}: BM{i} data is exactly what we expect \n"
 
             elif bm == pytest.approx(bmRef, rel=0.01, abs = 0.1):
-                print(f"BM{i} is within 1% of what we expect")
+                stdOut += f"{loopOrder}: BM{i} is within 1% of what we expect \n"
 
             else:
-                print(f"BM{i} is outside 1% of what we expect")
+                stdOut += f"{loopOrder}: BM{i} is outside 1% of what we expect \n"
     
             with open(sourceDirectory/f"../Run/{loopOrder}Diff.txt", "a") as fp:
                 fp.write(f"BM{i} diff:\n")
@@ -86,9 +89,12 @@ def runTests():
                 tofile='reference'
             )))
 
-        print(f"See {loopOrder}Diff.txt (in Run) for further details.")
 
-    return
-
+    if stdOut:
+        print(f"\nSee (N)NLODiff.txt (in Run) for further details. \n")
+        sys.exit(stdOut)
+    
+    return None
+    
 if __name__ == '__main__':
     runTests()
