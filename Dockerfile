@@ -8,12 +8,12 @@ RUN apt-get update && \
     if [ "$DEV" = "true" ] ; then apt-get install -y graphviz ; fi && \
     rm -rf /var/lib/apt/lists/*
 
-COPY Share/.requirements.txt .
-RUN uv pip install --system --no-cache -r .requirements.txt
+COPY requirements.txt .
+RUN uv pip install --system --no-cache -r requirements.txt
 
-COPY Share/.requirementsDev.txt .
+COPY requirementsDev.txt .
 RUN if [ "$DEV" = "true" ] ; then \
-        uv pip install --system --no-cache -r .requirementsDev.txt ; \
+        uv pip install --system --no-cache -r requirementsDev.txt ; \
     fi
 
 RUN activate-global-python-argcomplete
