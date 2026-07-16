@@ -20,3 +20,9 @@ jobs:
         run: docker build . --file Dockerfile --tag bloop:latest
       - name: Run integration tests
         run: docker run --rm --mount type=bind,src=$PWD,target=/Bloop bloop /bin/bash -c "python3 /Bloop/Source/Tests.py"
+      - name: Upload diff files
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+            name: integration-test-diffs
+            path: Run/*Diff.txt
