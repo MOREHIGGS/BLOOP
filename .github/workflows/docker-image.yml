@@ -19,4 +19,4 @@ jobs:
       # This CI is simple enough that we don't need so just keep overwritting the image
         run: docker build . --file Dockerfile --tag my-image-name:latest
       - name: Run integration tests
-        run: docker run --rm my-image-name:latest pytest -x
+        run: docker run --rm --mount type=bind,src=$PWD,target=/Bloop bloop /bin/bash -c "python3 /Bloop/Source/Tests.py"
