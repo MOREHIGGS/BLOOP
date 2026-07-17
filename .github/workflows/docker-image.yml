@@ -22,7 +22,8 @@ jobs:
       - name: Show CPU info
         run: |
             echo "== Runner CPU =="
-            lscpu cat /proc/cpuinfo | grep "model name" | head -1
+            lscpu 
+            cat /proc/cpuinfo | grep "model name" | head -1
 
       - name: Show CPU info inside container
         run: |
