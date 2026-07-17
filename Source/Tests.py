@@ -48,13 +48,29 @@ def runTests():
             scanResults = json.load(fp)
         with open(loopDir/"ReferenceResult/ScanResults.json", "r") as fp:
             scanResultsRef = json.load(fp)
-
-
-        if scanResults ==  pytest.approx(scanResultsRef, rel=0.):
-            print(f"Summary of results at {loopOrder} is exactly what we expect")
+        
+        ## pytest.approx doesn't work with nested dicts so here's a partly AI
+        ## written function to unpack the nested dicts and do the comparisons
+        def isApproxEq(actual, expected, relTol, absTol):
+            if isinstance(expected, dict):
+                if actual.keys() != expected.keys():
+                    return False
+                return all(isApproxEq(actual[k], expected[k], relTol, absTol) for k in expected)
+            
+            elif isinstance(expected, (list, tuple)):
+                if len(actual) != len(expected):
+                    return False
+                return all(isApproxEq(a, e, relTol, absTol) for a, e in zip(actual, expected))
+            
+            else:
+                return actual == pytest.approx(expected, relTol, absTol)
+        
+        ## These tolerances are hard coded to 0.1*default nlopt local tolerances
+        if isApproxEq(scanResults, scanResultsRef, 1e-4, 1e-3):
+            print(f"Summary of results at {loopOrder} is within tolerance of the solver")
             continue
         
-        print(f"Summary of results at {loopOrder} is not exactly what we expect")
+        print(f"Summary of results at {loopOrder} is outside the tolerance of the solver")
         
         with open(sourceDirectory/f"../Run/{loopOrder}Diff.txt", "w") as fp:
             fp.write("Summary diff:")
@@ -70,15 +86,12 @@ def runTests():
                 bm = json.load(fp)
             with open(loopDir/f"ReferenceResult/BM_{i}.json", "r") as fp:
                 bmRef = json.load(fp)
-        
-            if bm == pytest.approx(bmRef, rel=0.): 
-                stdOut += f"{loopOrder}: BM{i} data is exactly what we expect \n"
 
-            elif bm == pytest.approx(bmRef, rel=0.01, abs = 0.1):
-                stdOut += f"{loopOrder}: BM{i} is within 1% of what we expect \n"
+            if isApproxEq(bm, bmRef, 1e-4, 1e-3):
+                stdOut += f"{loopOrder}: BM{i} is within tol of solver \n"
 
             else:
-                stdOut += f"{loopOrder}: BM{i} is outside 1% of what we expect \n"
+                stdOut += f"{loopOrder}: BM{i} is outside tol solver  \n"
     
             with open(sourceDirectory/f"../Run/{loopOrder}Diff.txt", "a") as fp:
                 fp.write(f"BM{i} diff:\n")
