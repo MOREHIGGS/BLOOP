@@ -19,6 +19,14 @@ jobs:
       # Note: Tag is required arg and is useful for other people to get this image, 
       # This CI is simple enough that we don't need so just keep overwritting the image
         run: docker build . --file Dockerfile --tag bloop:latest
+      - name: Show CPU info
+        run: |
+            echo "== Runner CPU =="
+            lscpu cat /proc/cpuinfo | grep "model name" | head -1
+
+      - name: Show CPU info inside container
+        run: |
+            docker run --rm bloop /bin/bash -c "lscpu; cat /proc/cpuinfo | grep 'model name' | head -1"
       - name: Run integration tests
         run: docker run --rm --mount type=bind,src=$PWD,target=/Bloop bloop /bin/bash -c "python3 /Bloop/Source/Tests.py"
       - name: Upload diff files
