@@ -51,19 +51,19 @@ def runTests():
         
         ## pytest.approx doesn't work with nested dicts so here's a partly AI
         ## written function to unpack the nested dicts and do the comparisons
-        def isApproxEq(actual, expected, relTol, absTol):
-            if isinstance(expected, dict):
-                if actual.keys() != expected.keys():
+        def isApproxEq(data, ref, relTol, absTol):
+            if isinstance(ref, dict):
+                if data.keys() != ref.keys():
                     return False
-                return all(isApproxEq(actual[k], expected[k], relTol, absTol) for k in expected)
+                return all(isApproxEq(data[k], ref[k], relTol, absTol) for k in ref)
             
-            elif isinstance(expected, (list, tuple)):
-                if len(actual) != len(expected):
+            elif isinstance(ref, (list, tuple)):
+                if len(data) != len(ref):
                     return False
-                return all(isApproxEq(a, e, relTol, absTol) for a, e in zip(actual, expected))
+                return all(isApproxEq(a, e, relTol, absTol) for a, e in zip(data, ref))
             
             else:
-                return actual == pytest.approx(expected, relTol, absTol)
+                return data == pytest.approx(ref, relTol, absTol)
         
         ## These tolerances are hard coded to 0.1*default nlopt local tolerances
         if isApproxEq(scanResults, scanResultsRef, 1e-4, 1e-3):
