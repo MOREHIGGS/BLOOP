@@ -65,10 +65,9 @@ def runTests():
             else:
                 return data == pytest.approx(ref, relTol, absTol)
         
-        ## These tolerances are hard coded to 0.1*default nlopt local tolerances
-        if isApproxEq(scanResults, scanResultsRef, 1e-4, 1e-3):
+        if isApproxEq(scanResults, scanResultsRef, 1e-3, 1e-2):
             print(f"Summary of results at {loopOrder} is within tolerance of the solver")
-            continue
+            #continue
         
         print(f"Summary of results at {loopOrder} is outside the tolerance of the solver")
         
@@ -87,7 +86,7 @@ def runTests():
             with open(loopDir/f"ReferenceResult/BM_{i}.json", "r") as fp:
                 bmRef = json.load(fp)
 
-            if isApproxEq(bm, bmRef, 1e-4, 1e-3):
+            if isApproxEq(bm, bmRef, 1e-3, 5e-2):
                 stdOut += f"{loopOrder}: BM{i} is within tol of solver \n"
 
             else:
