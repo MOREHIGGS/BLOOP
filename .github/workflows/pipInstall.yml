@@ -1,0 +1,15 @@
+# Learning how this works as I go so lots of comments
+# Random comment to test CI
+name: Test pip installation
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: pip install BLOOP
+        run: pip install -e .
