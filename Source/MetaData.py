@@ -9,47 +9,6 @@ import getpass
 from jinja2 import Environment
 import pathlib
 import json
-def getGitInfo(debug):
-    gitCommands = {
-        "git tag": ["git", "describe", "--tags", "--always"],
-         "git branch": ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-         "dirtyFiles": ["git", "status", "--porcelain"]
-    }
-
-    output = dict()
-
-    for key, command in gitCommands.items():
-        gitInfo = subprocess.run(
-            command,
-            capture_output=True,
-            text=True
-        )
-
-        if gitInfo.returncode != 0:
-            if debug:
-                print(gitInfo.stderr.decode())
-                exit()
-            output[key] = f"Unable to obtain {key}"
-        
-        else:
-            output[key] = gitInfo.stdout.splitlines()
-    
-    return output
-
-def getDependcies(debug):
-    packageInfo = subprocess.run(
-        ["pip", "freeze"],
-        capture_output=True,
-        text=True
-    )
-    
-    if packageInfo.returncode != 0:
-        if debug:
-            print(packageInfo.stderr.decode())
-            exit()
-        return ["Unable to get pip packages"]
-    
-    return packageInfo.stdout.splitlines()
 
 def writeMetaData(args):
     resultsDir = pathlib.Path(__file__).resolve().parent/f"../Run/{args.resultsDirectory}"
@@ -80,4 +39,52 @@ def writeMetaData(args):
         indent=2
         )
     return None
+
+def getGitInfo(debug):
+    gitCommands = {
+        "git tag": ["git", "describe", "--tags", "--always"],
+         "git branch": ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+         "dirtyFiles": ["git", "status", "--porcelain"]
+    }
+
+    gitInfos = [
+        subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+        )
+        for key, command in gitCommands.items()
+    ]
+
+    return {
+        gitCommand: (
+            gitInfo.stdout.splitlines()
+            if gitInfo.returncode == 0 else (
+                f"Unable to obtain {gitCommand}" if not debug else
+                print(gitInfo.stderr.decode()) or exit()
+            )
+        )
+        for (
+            gitCommand,
+            gitInfo,
+        ) in zip(
+            list(gitCommands.keys()), 
+            gitInfos,
+        )
+    }
+
+def getDependcies(debug):
+    packageInfo = subprocess.run(
+        ["pip", "freeze"],
+        capture_output=True,
+        text=True
+    )
+    
+    if packageInfo.returncode != 0:
+        if debug:
+            print(packageInfo.stderr.decode())
+            exit()
+        return ["Unable to get pip packages"]
+    
+    return packageInfo.stdout.splitlines()
 
