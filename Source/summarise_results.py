@@ -7,7 +7,6 @@ from pathlib import Path
 from textwrap import dedent
 
 import numpy as np
-from matplotlib import pylab as plt
 
 
 def summariseResults(args):
@@ -77,8 +76,8 @@ def summariseResults(args):
         
         ## Heat map of first benchmark input vs rest of inputs, and benchmark inputs vs Tc with strength colour bar
         ## first input vs Tc needs to be outside for loop or you'd get first input vs first input plot
-
-        saveHeatMap(
+       
+       saveHeatMap(
             bmInputList[0], 
             TcList, 
             strengthList, 
