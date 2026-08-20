@@ -43,7 +43,7 @@ def getGitInfo(debug):
         key: (
             info.stdout.splitlines()
             if info.returncode == 0 else (
-                f"Unable to obtain {gitCommand}" if not debug else
+                f"Unable to obtain {key}" if not debug else
                 print(info.stderr.decode()) or exit()
             )
         )
