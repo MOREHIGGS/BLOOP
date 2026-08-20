@@ -4,9 +4,9 @@ import nlopt
 from cmath import sqrt
 from dataclasses import dataclass, InitVar
 import importlib
-
 from PythoniseMathematica import replaceGreekSymbols
 from ParsedExpression import ParsedExpression, ParsedExpressionSystem
+from unittest import TestCase
 
 @dataclass(frozen=True)
 class cNlopt:
@@ -258,7 +258,6 @@ class TrackVEV:
         return bestResult[0], self.evaluatePotential(bestResult[0], params)
     
 
-from unittest import TestCase
 class TrackVEVUnitTests(TestCase):
     def test_bIsPerturbativeTrue(self):
         reference = True
@@ -275,3 +274,4 @@ class TrackVEVUnitTests(TestCase):
         allSymbols = ["lam11", "lam12", "lam12p"]
 
         self.assertEqual(reference, bIsPerturbative(source, pertSymbols, allSymbols))
+

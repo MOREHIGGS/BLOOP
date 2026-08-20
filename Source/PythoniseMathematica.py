@@ -2,8 +2,8 @@ import json
 from pathlib import Path
 import unicodedata
 import re
-
 from GenerateModules import generateModules
+from unittest import TestCase
 
 def pythoniseMathematica(args):
     moduleDirectory = Path(__file__).resolve().parent/"../Build"/args.modelDirectory 
@@ -162,8 +162,6 @@ def replaceSymbolsWithIndices(expression, symbols):
     for idx, symbol in enumerate(symbols):
         expression = expression.replace(symbol, f"params[{idx}]")
     return expression
-
-from unittest import TestCase
 
 
 class PythoniseMathematicaUnitTests(TestCase):
