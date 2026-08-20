@@ -11,7 +11,7 @@ jobs:
       - name: Install Ruff
         run: pip install ruff
       - name: Run Ruff
-        run: python3 -m ruff check /Bloop
+        run: python3 -m ruff check $PWD
       #- name: Upload diff files
       #  if: failure()
       #  uses: actions/upload-artifact@v4
