@@ -41,36 +41,32 @@ def writeMetaData(args):
     return None
 
 def getGitInfo(debug):
-    gitCommands = {
-        "git tag": ["git", "describe", "--tags", "--always"],
-         "git branch": ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-         "dirtyFiles": ["git", "status", "--porcelain"]
-    }
-
-    gitInfos = [
-        subprocess.run(
-            command,
-            capture_output=True,
-            text=True,
-        )
-        for key, command in gitCommands.items()
-    ]
-
     return {
-        gitCommand: (
-            gitInfo.stdout.splitlines()
-            if gitInfo.returncode == 0 else (
+        key: (
+            info.stdout.splitlines()
+            if info.returncode == 0 else (
                 f"Unable to obtain {gitCommand}" if not debug else
-                print(gitInfo.stderr.decode()) or exit()
+                print(info.stderr.decode()) or exit()
             )
         )
         for (
-            gitCommand,
-            gitInfo,
-        ) in zip(
-            list(gitCommands.keys()), 
-            gitInfos,
-        )
+            key,
+            info,
+        ) in [
+            (
+                key,
+                subprocess.run(
+                    command,
+                    capture_output=True,
+                    text=True,
+                )
+            )
+            for (key, command) in {
+                "git tag": ["git", "describe", "--tags", "--always"],
+                "git branch": ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+                "dirtyFiles": ["git", "status", "--porcelain"],
+            }.items()
+        ]
     }
 
 def getDependcies(debug):
