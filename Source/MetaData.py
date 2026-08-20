@@ -3,10 +3,8 @@ from datetime import datetime, timezone
 import os
 import psutil
 import subprocess
-import importlib.metadata
 import platform
 import getpass
-from jinja2 import Environment
 import pathlib
 import json
 
