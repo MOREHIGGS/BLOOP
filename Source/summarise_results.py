@@ -73,7 +73,6 @@ def summariseResults(args):
                 """))
         
         axisLabels = list(result["bmInput"].keys())
-        
         ## Heat map of first benchmark input vs rest of inputs, and benchmark inputs vs Tc with strength colour bar
         ## first input vs Tc needs to be outside for loop or you'd get first input vs first input plot
        
