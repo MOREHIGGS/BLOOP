@@ -2,7 +2,7 @@ from json import load
 from textwrap import dedent
 from collections import defaultdict
 from matplotlib import pylab as plt
-plt.rcParams.update({"font.size": 14})
+plt.rcParams.update({"font.size": 12})
 import numpy as np
 from pathlib import Path
 
@@ -108,9 +108,10 @@ def summariseResults(args):
            )
 
 def saveHeatMap(x, y, c, xLabel, yLabel, fileName, norm=None):
-    plt.scatter(x, y, c=c, s=4.2**2, marker ="o", norm = norm)
+    #plt.scatter(x, y, c=c, s=50, marker =".", norm = norm)
+    plt.hexbin(x, y, C=c, gridsize=50, reduce_C_function=np.max)
     plt.xlabel(xLabel, labelpad=5)
-    plt.ylabel(yLabel, labelpad=5)
+    plt.ylabel(yLabel, labelpad=0)
     plt.colorbar(label="strength")
     plt.savefig(fileName)
     plt.close()
