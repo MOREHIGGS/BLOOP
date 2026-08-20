@@ -1,0 +1,20 @@
+name: Ruff Linter
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Ruff
+        run: pip install ruff
+      - name: Run Ruff
+        run: python3 -m ruff check /Bloop
+      #- name: Upload diff files
+      #  if: failure()
+      #  uses: actions/upload-artifact@v4
+      #  with:
+      #      name: integration-test-diffs
+      #      path: Run/*Diff.txt
