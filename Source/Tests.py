@@ -100,7 +100,7 @@ def runTests():
 
 
     if stdOut:
-        print(f"\nSee (N)NLODiff.txt (in Run) for further details. \n")
+        print("\nSee (N)NLODiff.txt (in Run) for further details. \n")
         sys.exit(stdOut)
     
     return None

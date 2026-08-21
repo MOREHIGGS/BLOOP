@@ -2,7 +2,6 @@ from importlib import import_module
 
 from UserInput import UserInput
 from PythoniseMathematica import pythoniseMathematica
-from SummariseResults import summariseResults
 from LoopBenchmarks import loopBenchmarks
 from MetaData import writeMetaData
 
