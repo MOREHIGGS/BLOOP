@@ -78,7 +78,6 @@ def summariseResults(args):
                 """))
         
         axisLabels = list(result["bmInput"].keys())
-
         
         ## Heat map of first benchmark input vs rest of inputs, and benchmark inputs vs Tc with strength colour bar
         ## first input vs Tc needs to be outside for loop or you'd get first input vs first input plot
@@ -112,11 +111,17 @@ def summariseResults(args):
            )
 
 def saveHeatMap(x, y, c, xLabel, yLabel, fileName, norm=None):
-    #plt.scatter(x, y, c=c, s=50, marker =".", norm = norm)
-    plt.hexbin(x, y, C=c, gridsize=50, reduce_C_function=np.max)
+    plt.hexbin(x, y, C=c, gridsize=100, reduce_C_function=np.max)
     plt.xlabel(xLabel, labelpad=5)
     plt.ylabel(yLabel, labelpad=0)
     plt.colorbar(label="strength")
-    plt.savefig(fileName)
+    plt.savefig(stripLatexFormating(fileName))
     plt.close()
 
+def stripLatexFormating(fileName):
+    string = str(fileName)
+    return (string.replace("$", "")
+        .replace("\\", "")
+        .replace("{", "")
+        .replace("}", "")
+        )
