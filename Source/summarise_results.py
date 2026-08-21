@@ -83,7 +83,7 @@ def summariseResults(args):
             strengthList, 
             axisLabels[0], 
             "$T_c$", 
-            resultsDir/f"{axisLabels[0]}"
+            resultsDir/f"{stripLatexFormating(axisLabels[0])}"
         )
         
         for idx, bmInput in enumerate(bmInputList[1:], 1):
@@ -93,7 +93,7 @@ def summariseResults(args):
                 strengthList, 
                 axisLabels[0], 
                 axisLabels[idx], 
-                resultsDir/f"{axisLabels[idx]}"
+                resultsDir/f"{stripLatexFormating(axisLabels[idx])}"
             )
         
             saveHeatMap(
@@ -102,7 +102,7 @@ def summariseResults(args):
                 strengthList, 
                 axisLabels[idx], 
                 "$T_c$", 
-                resultsDir/f"{axisLabels[idx]}-Tc"
+                resultsDir/f"{stripLatexFormating(axisLabels[idx])}-Tc"
            )
 
 def saveHeatMap(x, y, c, xLabel, yLabel, fileName, norm=None):
