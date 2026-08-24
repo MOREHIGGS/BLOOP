@@ -1,10 +1,10 @@
 from importlib import import_module
 
-from user_input import UserInput
+from pythonise_DRalgo import pythonise_DRalgo
 
 from LoopBenchmarks import loopBenchmarks
 from MetaData import writeMetaData
-from pythonise_DRalgo import pythonise_DRalgo 
+from user_input import UserInput
 
 
 def main():
