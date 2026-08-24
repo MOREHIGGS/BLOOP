@@ -1,8 +1,10 @@
-import argcomplete
 import argparse
-import multiprocessing
 import json
-from sys import maxsize
+import multiprocessing
+from sys import exit, maxsize
+
+import argcomplete
+
 
 class UserInput(argparse.ArgumentParser):
     def __init__(self):
@@ -356,14 +358,14 @@ class UserInput(argparse.ArgumentParser):
                 userConfig = json.load(fp)
             unexpectedKeys = [
                 userKey
-                for userKey in userConfig.keys()
+                for userKey in userConfig()
                 if userKey not in set(vars(userArg).keys())
             ]
             if len(unexpectedKeys) > 0:
                 print(
                     f"User config file has unexpected key(s):\n {unexpectedKeys},\nExiting"
                 )
-                exit(-1)
+                exit()
             self.set_defaults(**userConfig)
         args= super().parse_args()
         ## catching common mistake
