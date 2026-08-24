@@ -11,13 +11,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Ruff
         run: pip install ruff
-      - name: debug ruff
+      - name: ruff version 
         run: ruff --version
       - name: Run Ruff
-        run: python3 -m ruff check $PWD/Source || exit 0
-      #- name: Upload diff files
-      #  if: failure()
-      #  uses: actions/upload-artifact@v4
-      #  with:
-      #      name: integration-test-diffs
-      #      path: Run/*Diff.txt
+        run: python3 -m ruff check Source/ || exit 0
