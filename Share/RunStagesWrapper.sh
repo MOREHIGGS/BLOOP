@@ -7,4 +7,4 @@
 
 # PYTHON_ARGCOMPLETE_OK
 
-OMP_NUM_THREADS="${OMP_NUM_THREADS:-1}" python3 /Bloop/Source/RunStages.py "$@"
+OMP_NUM_THREADS="${OMP_NUM_THREADS:-1}" python3 /Bloop/Source/run_stages.py "$@"

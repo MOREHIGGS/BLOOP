@@ -23,7 +23,7 @@ def runTests():
             os.remove(file)
         integrationTest = subprocess.run([
             sys.executable,
-            f'{sourceDirectory}/RunStages.py',
+            f'{sourceDirectory}/run_stages.py',
             '--loopOrder', f'{idx +1}', 
             '--lastBenchmark', '3',
             '--bSave',
