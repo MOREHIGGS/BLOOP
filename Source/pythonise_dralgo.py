@@ -4,7 +4,7 @@ import unicodedata
 from pathlib import Path
 from unittest import TestCase
 
-from GenerateModules import generateModules
+from generate_modules import generateModules
 
 
 def pythonise_DRalgo(args):
