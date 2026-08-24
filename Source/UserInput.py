@@ -365,4 +365,15 @@ class UserInput(argparse.ArgumentParser):
                 )
                 exit(-1)
             self.set_defaults(**userConfig)
-        return super().parse_args()
+        args= super().parse_args()
+        ## catching common mistake
+        args.plotDataModule = self.removePyExtension(args.plotDataModule)
+        args.bmGeneratorModule = self.removePyExtension(args.bmGeneratorModule)
+        args.summariseModule = self.removePyExtension(args.summariseModule)
+        return args
+        
+
+    def removePyExtension(self, string):
+        if not string:
+            return string
+        return string.removesuffix(".py")
