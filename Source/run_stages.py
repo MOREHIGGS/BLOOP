@@ -1,9 +1,10 @@
 from importlib import import_module
 
-from UserInput import UserInput
-from PythoniseMathematica import pythoniseMathematica
 from LoopBenchmarks import loopBenchmarks
 from MetaData import writeMetaData
+from PythoniseMathematica import pythoniseMathematica
+from UserInput import UserInput
+
 
 def main():
     args = UserInput().parse()
