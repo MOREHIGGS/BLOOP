@@ -2,7 +2,7 @@ from importlib import import_module
 
 from pythonise_DRalgo import pythonise_DRalgo
 
-from LoopBenchmarks import loopBenchmarks
+from loop_benchmarks import loopBenchmarks
 from MetaData import writeMetaData
 from user_input import UserInput
 

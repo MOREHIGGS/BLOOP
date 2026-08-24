@@ -1,13 +1,16 @@
-import json
-import ijson
 import decimal
-from pathlib import Path
-from pathos.multiprocessing import Pool
+import json
 from importlib import import_module
-from tqdm import tqdm
+from pathlib import Path
+from sys import exit
+
+import ijson
 import numpy as np
+from pathos.multiprocessing import Pool
+from tqdm import tqdm
 
 from TrackVEV import TrackVEV
+
 
 def loopBenchmarks(args):
     sourceDirectory = Path(__file__).resolve().parent
