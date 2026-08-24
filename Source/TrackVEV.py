@@ -4,7 +4,7 @@ import nlopt
 from cmath import sqrt
 from dataclasses import dataclass, InitVar
 import importlib
-from PythoniseMathematica import replaceGreekSymbols
+from pythonise_DRalgo import replaceGreekSymbols
 from ParsedExpression import ParsedExpression, ParsedExpressionSystem
 from unittest import TestCase
 
