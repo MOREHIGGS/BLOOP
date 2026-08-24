@@ -41,13 +41,35 @@ class cNlopt:
         opt.set_xtol_rel(self.relLocalTol)
         return opt.optimize(initialGuess), opt.last_optimum_value()
 
+class PhysicsException(Exception):
+    def __init__(self, message, T=None):
+        super().__init__(message)
+        self.T = T
 
-def bIsPerturbative(params, pertSymbols, allSymbols):
+class PerturbativeException(PhysicsException):
+    def __init__(self, message, T=None, RGScale=RGscale):
+        super().__init__(f"At {T=}, {RGScale=} a coupling is larger than 4pi")
+        self.T = T
+        self.RGScale = RGScale
+
+class UnboundedException(PhysicsException):
+    def __init__(self, message, T=None):
+        super().__init__(message)
+        self.T = T
+
+class VEVException(PhysicsException):
+    def __init__(self, T=None, vev=None):
+        super().__init__(f"At {T=} the vev is {vev} which doesn't isn't the correct VEV.")
+        self.T = T
+        self.vev = vev
+
+
+def isPerturbative(params, pertSymbols, allSymbols):
     for pertSymbol in pertSymbols:
         if abs(params[allSymbols.index(pertSymbol)]) > 4 * np.pi:
-            return False
-
+            return False 
     return True
+
 
 class TrackVEV:
     def __init__(self, TRange,
@@ -178,15 +200,15 @@ class TrackVEV:
             
             params = np.zeros(len(self.allSymbols), dtype="float64")
             params[self.allSymbols.index("T")] = T
-            
+            hardMatchingScale = self.hardScale.evaluate(params)
             for key, spline in betaSpline4D.items():
-                params[self.allSymbols.index(key)] = spline(self.hardScale.evaluate(params))
+                params[self.allSymbols.index(key)] = spline(hardMatchingScale)
             
             if not np.all(self.bounded.evaluateUnordered(params)):
                 raise Exception("Unbounded")
                  
-            if not bIsPerturbative(params, self.pertSymbols, self.allSymbols):
-                raise Exception("non-pert")
+            if not isPerturbative(params, self.pertSymbols, self.allSymbols)
+                raise PerturbativeException(T=T, RGScale=hardMatchingScale)
             
             params = self.hardToSoft.evaluate(params)
             params = self.softScaleRGE.evaluate(params)
@@ -207,7 +229,7 @@ class TrackVEV:
                 )   
 
                 if wrongVEV:
-                    raise Exception("incorrect VEV  at T_0")
+                    raise VEVException(vev=vevLocation, T=T)
             
             ## TODO only check last eigenvalue from each matrix as that is the largest 
             violatedHardScale = False
