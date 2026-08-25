@@ -2,11 +2,7 @@ import sys
 from collections import defaultdict
 from matplotlib import pylab as plt
 plt.rcParams.update({"font.size": 12})
-<<<<<<< HEAD
 from json import load
-=======
-import numpy as np
->>>>>>> 8ac8e68 (Use hexbin for plot and changed font size)
 from pathlib import Path
 from textwrap import dedent
 
