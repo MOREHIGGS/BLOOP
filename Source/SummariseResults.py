@@ -62,10 +62,10 @@ def summariseResults(args):
         with open(resultsDir/"Summary.txt", "w") as fp:
             fp.writelines(dedent(f"""\
                 Summary of the results: 
-                The total number of benchmarks is: {len(data)}, {len(strengthSorted)} of which are strong 
+                The total number of benchmarks is: {len(data)}, {len(strengthList)} of which are strong 
                 Of the strong phase transitions {multiStepCount} are mutli step
-                The strongest BM is {int(bmNumberSorted[-1])} with strength {strengthSorted[-1]} 
-                Tc min/max is: {min(TcSorted)}, {max(TcSorted)} 
+                The strongest BM is {int(bmNumberList[np.argmax(strengthList)])} with strength {max(strengthList)} 
+                Tc min/max is: {min(TcList)}, {max(TcList)} 
                 Failure summary: {failDict.items()} 
                 EFT break down summary: {EFTBreakDict.items()} 
                 """))
@@ -76,7 +76,7 @@ def summariseResults(args):
         ## first input vs Tc needs to be outside for loop or you'd get first input vs first input plot
 
         saveHeatMap(
-            bmInputsList[0], 
+            bmInputList[0], 
             TcList, 
             strengthList, 
             axisLabels[0], 
