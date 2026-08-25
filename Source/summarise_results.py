@@ -59,13 +59,10 @@ def summariseResults(args):
                 if result["steps"] > 1:
                     multiStepCount += 1 
     
-    ## Sort bmInputs by order of strength, 
-    ## this is so the colour of the scatter plot is set by the strong PT at that point
-    dataSorted =  np.transpose(np.asarray(sorted(zip(strengthList, bmNumberList, TcList, *np.transpose(bmInputList))))) 
-    strengthSorted, bmNumberSorted, TcSorted = dataSorted[:3]
-    bmInputsSorted = dataSorted[3:]
+    ## Easier to plot transposed data 
+    bmInputList = np.transpose(bmInputList) 
     
-    if len(dataSorted) > 0:
+    if len(strengthList) > 0:
         with open(resultsDir/"Summary.txt", "w") as fp:
             fp.writelines(dedent(f"""\
                 Summary of the results: 
@@ -83,19 +80,19 @@ def summariseResults(args):
         ## first input vs Tc needs to be outside for loop or you'd get first input vs first input plot
 
         saveHeatMap(
-            bmInputsSorted[0], 
-            TcSorted, 
-            strengthSorted, 
+            bmInputsList[0], 
+            TcList, 
+            strengthList, 
             axisLabels[0], 
             "$T_c$", 
             resultsDir/f"{axisLabels[0]}"
         )
         
-        for idx, bmInput in enumerate(bmInputsSorted[1:], 1):
+        for idx, bmInput in enumerate(bmInputList[1:], 1):
             saveHeatMap(
-                bmInputsSorted[0], 
+                bmInputList[0], 
                 bmInput, 
-                strengthSorted, 
+                strengthList, 
                 axisLabels[0], 
                 axisLabels[idx], 
                 resultsDir/f"{axisLabels[idx]}"
@@ -103,8 +100,8 @@ def summariseResults(args):
         
             saveHeatMap(
                 bmInput, 
-                TcSorted, 
-                strengthSorted, 
+                TcList, 
+                strengthList, 
                 axisLabels[idx], 
                 "$T_c$", 
                 resultsDir/f"{axisLabels[idx]}-Tc"
