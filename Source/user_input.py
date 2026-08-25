@@ -358,7 +358,7 @@ class UserInput(argparse.ArgumentParser):
                 userConfig = json.load(fp)
             unexpectedKeys = [
                 userKey
-                for userKey in userConfig()
+                for userKey in userConfig
                 if userKey not in set(vars(userArg).keys())
             ]
             if len(unexpectedKeys) > 0:
