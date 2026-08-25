@@ -9,7 +9,7 @@ import numpy as np
 from pathos.multiprocessing import Pool
 from tqdm import tqdm
 
-from TrackVEV import TrackVEV
+from track_vev import TrackVEV
 
 
 def loopBenchmarks(args):
