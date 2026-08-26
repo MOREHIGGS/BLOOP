@@ -4,16 +4,16 @@ from copy import copy
 from glob import glob
 from os.path import join
 from pathlib import Path
-import pytest
 from sys import exit
 from unittest import TestCase
 
-
 import numpy as np
 import pdg
+import pytest
 from scipy.constants import physical_constants as constants
 
 from track_vev import cNlopt
+
 ## Connecting is expensive so just do it once in global space to avoid passing it around
 api = pdg.connect()
 mHiggs = api.get_particle_by_name("H").mass
