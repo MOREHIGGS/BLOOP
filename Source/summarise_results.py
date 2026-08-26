@@ -3,7 +3,7 @@ from collections import defaultdict
 from json import load
 from matplotlib import pylab as plt
 plt.rcParams.update({"font.size": 12})
-import numpy as np
+from json import load
 from pathlib import Path
 from textwrap import dedent
 
