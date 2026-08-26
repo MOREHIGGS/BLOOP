@@ -1,8 +1,8 @@
 import sys
 from collections import defaultdict
+from json import load
 from matplotlib import pylab as plt
 plt.rcParams.update({"font.size": 12})
-from json import load
 from pathlib import Path
 from textwrap import dedent
 
