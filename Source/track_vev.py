@@ -1,12 +1,15 @@
+import importlib
+from cmath import sqrt
+from dataclasses import InitVar, dataclass
+from unittest import TestCase
+
+import nlopt
 import numpy as np
 import scipy
-import nlopt
-from cmath import sqrt
-from dataclasses import dataclass, InitVar
-import importlib
-from pythonise_dralgo import replaceGreekSymbols
+
 from ParsedExpression import ParsedExpression, ParsedExpressionSystem
-from unittest import TestCase
+from pythonise_dralgo import replaceGreekSymbols
+
 
 def isPerturbative(params, pertSymbols, allSymbols):
     for pertSymbol in pertSymbols:
@@ -231,10 +234,9 @@ class TrackVEV:
             violatedHardScale = False
             for idx in self.massIndices:
                 mass = sqrt(params[idx])
-                if abs(mass.imag) < 1e-6 :
-                    if mass.real > np.pi*T:
-                        violatedHardScale = True
-                        break
+                if abs(mass.imag) < 1e-6 and mass.real > np.pi*T :
+                    violatedHardScale = True
+                    break
             
             minimizationResults["T"].append(T)
             minimizationResults["vevDepthReal"].append(vevDepth.real)

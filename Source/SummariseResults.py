@@ -1,9 +1,12 @@
-from json import load
-from textwrap import dedent
+import sys
 from collections import defaultdict
-from matplotlib import pylab as plt
-import numpy as np
+from json import load
 from pathlib import Path
+from textwrap import dedent
+
+import numpy as np
+from matplotlib import pylab as plt
+
 
 def summariseResults(args):
     multiStepCount = 0
@@ -21,7 +24,7 @@ def summariseResults(args):
 
     if len(data) == 0:
         print(resultsDir/f"{args.scanResultsName} contains no data, exiting")
-        exit()
+        sys.exit()
 
     for result in data:
 
@@ -50,7 +53,7 @@ def summariseResults(args):
                 strengthList.append(strength)
                 bmNumberList.append(result["bmNumber"])
                 
-                bmInputList.append((list(result["bmInput"].values())))
+                bmInputList.append(list(result["bmInput"].values()))
                 if result["steps"] > 1:
                     multiStepCount += 1 
     
