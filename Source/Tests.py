@@ -65,10 +65,14 @@ def runTests():
             else:
                 return data == pytest.approx(ref, relTol, absTol)
         
-        if isApproxEq(scanResults, scanResultsRef, 1e-3, 1e-2):
-            print(f"Summary of results at {loopOrder} is within tolerance of the solver")
+        if isApproxEq(scanResults, scanResultsRef, 0, 0):
+            print(f"Summary of results at {loopOrder} matches references exactly")
             continue
         
+        elif isApproxEq(scanResults, scanResultsRef, 1e-3, 1e-2):
+            print(f"Summary of results at {loopOrder} is within tolerance of the solver")
+            continue
+
         stdOut += f"Summary of results at {loopOrder} is outside the tolerance of the solver"  
         
         with open(sourceDirectory/f"../Run/{loopOrder}Diff.txt", "w") as fp:
