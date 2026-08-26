@@ -248,7 +248,7 @@ class UserInput(argparse.ArgumentParser):
        outputGroup.add_argument(
            "--summariseModule",
            action="store",
-           default="SummariseResults",
+           default="summarise_results",
            help="Str: File name of python module to use to summarise scan results - needs to have a function called summariseResults which takes in args",
        )
        ########################################################################
