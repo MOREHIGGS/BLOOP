@@ -1,19 +1,20 @@
-import socket
-from datetime import datetime, timezone
-import os
-import psutil
-import subprocess
-import platform
 import getpass
-import pathlib
 import json
+import os
+import pathlib
+import platform
+import socket
+import subprocess
+from datetime import datetime, timezone
+
+import psutil
+
 
 def writeMetaData(args):
     resultsDir = pathlib.Path(__file__).resolve().parent/f"../Run/{args.resultsDirectory}"
     resultsDir.mkdir(parents=True, exist_ok=True)
     
     dateTime = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "").split("T")
-
     with open(resultsDir/"MetaData.json", "w") as fp:
         json.dump(
             {
@@ -36,49 +37,27 @@ def writeMetaData(args):
         fp,
         indent=2
         )
-    return None
 
 def getGitInfo(debug):
     return {
-        key: (
-            info.stdout.splitlines()
-            if info.returncode == 0 else (
-                f"Unable to obtain {key}" if not debug else
-                print(info.stderr.decode()) or exit()
-            )
-        )
-        for (
-            key,
-            info,
-        ) in [
-            (
-                key,
-                subprocess.run(
-                    command,
-                    capture_output=True,
-                    text=True,
-                )
-            )
-            for (key, command) in {
-                "git tag": ["git", "describe", "--tags", "--always"],
-                "git branch": ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-                "dirtyFiles": ["git", "status", "--porcelain"],
-            }.items()
-        ]
+        key: subprocess.run(
+            command, 
+            capture_output=True, 
+            text=True, 
+            check=True).stdout.splitlines()
+        for key, command in {
+            "git tag": ["git", "describe", "--tags", "--always"],
+            "git branch": ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            "dirty files": ["git", "status", "--porcelain"],
+        }.items()
     }
 
+
 def getDependcies(debug):
-    packageInfo = subprocess.run(
+    return subprocess.run(
         ["pip", "freeze"],
         capture_output=True,
-        text=True
-    )
-    
-    if packageInfo.returncode != 0:
-        if debug:
-            print(packageInfo.stderr.decode())
-            exit()
-        return ["Unable to get pip packages"]
-    
-    return packageInfo.stdout.splitlines()
+        text=True,
+        check=True
+    ).stdout.splitlines()
 
