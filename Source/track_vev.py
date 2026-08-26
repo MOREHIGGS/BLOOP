@@ -36,7 +36,7 @@ class cNlopt:
         opt.set_upper_bounds(self.varUpperBounds)
         opt.set_xtol_abs(self.absGlobalTol)
         opt.set_xtol_rel(self.relGlobalTol)
-        #opt.set_exceptions_enabled(False)
+        opt.set_exceptions_enabled(False)
         return self.nloptLocal(func, opt.optimize(initialGuess))
 
     def nloptLocal(self, func: callable, initialGuess: list[float]):
@@ -48,49 +48,6 @@ class cNlopt:
         opt.set_xtol_rel(self.relLocalTol)
         opt.set_exceptions_enabled(False)
         return opt.optimize(initialGuess), opt.last_optimum_value(), opt.last_optimize_result()
-
-class PhysicsException(Exception):
-    def __init__(self, message, T=None):
-        super().__init__(message)
-        self.T = T
-
-class PerturbativeException(PhysicsException):
-    def __init__(self, message, T=None, RGScale=None):
-        super().__init__(f"At {T=}, {RGScale=} a coupling is larger than 4pi")
-        self.T = T
-        self.RGScale = RGScale
-
-class UnboundedException(PhysicsException):
-    def __init__(self, message, T=None):
-        super().__init__(f"At {T=} one of the bounded condiditions isn't met.")
-        self.T = T
-
-class VEVException(PhysicsException):
-    def __init__(self, T=None, vev=None):
-        super().__init__(f"At {T=} the vev is {vev} which doesn't isn't the form set by correct VEV.")
-        self.T = T
-        self.vev = vev
-
-class NumericsException(Exception):
-    def __init__(self, message, T=None):
-        super().__init__(message)
-        self.T = T
-
-class IVPException(NumericsException):
-    def __init__(self, message):
-        super().__init__(message)
-
-class NLoptException(NumericsException):
-    def __init__(self, errorCode, T=None):
-        errorMessages = [
-        "NLOPT_FAILURE",
-        "NLOPT_INVALID_ARGS",
-        "NLOPT_OUT_OF_MEMORY",
-        "NLOPT_ROUNDOFF_LIMITED",
-        "NLOPT_FORCED_STOP",
-        ]
-        super().__init__(f"NLopt is reporting following error: {errorMessages[-errorCode-1]} at {T=}")
-
 
 class TrackVEV:
     def __init__(self, TRange,
@@ -106,6 +63,13 @@ class TrackVEV:
         self.TRange = TRange
         self.initialGuesses = initialGuesses
         self.nloptInst = cNlopt( config=nloptConfig )
+        self.nloptErrors = [
+            "NLOPT_FAILURE",
+            "NLOPT_INVALID_ARGS",
+            "NLOPT_OUT_OF_MEMORY",
+            "NLOPT_ROUNDOFF_LIMITED",
+            "NLOPT_FORCED_STOP",
+        ]
         self.verbose = verbose
         
         self.allSymbols = pythonisedExpressions["allSymbols"]["allSymbols"]
@@ -201,7 +165,8 @@ class TrackVEV:
         )
         
         if not solvedBetaFunction.success:
-            raise IVPException(solvedBetaFunction.message)
+            minimizationResults["failureReason"] = solvedBetaFunction.message
+            return minimizationResults
         
         betaSpline4D = {
             symbol: scipy.interpolate.CubicSpline(muRange, solvedBetaFunction.y[idx])
@@ -226,11 +191,14 @@ class TrackVEV:
                 params[self.allSymbols.index(key)] = spline(hardMatchingScale)
             
             if not np.all(self.bounded.evaluateUnordered(params)):
-                raise UnboundedException(T=T)
-                 
+                minimizationResults["failureReason"] = f"At {T=} one of the bounded condiditions isn't met."             
+                return minimizationResults
+
+                
             if not isPerturbative(params, self.pertSymbols, self.allSymbols):
-                raise PerturbativeException(T=T, RGScale=hardMatchingScale)
-            
+                minimizationResults["failureReason"] = f"At {T=}, {RGScale=} a coupling is larger than 4pi"            
+                return minimizationResults
+
             params = self.hardToSoft.evaluate(params)
             params = self.softScaleRGE.evaluate(params)
             if self.softToUltraSoft:
@@ -239,9 +207,15 @@ class TrackVEV:
             
             ## Round needed because nlopt result sometimes fp out of bounds
             ## See https://github.com/stevengj/nlopt/issues/625
-            vevLocation, vevDepth = self.findGlobalMinimum(
+            result =  self.findGlobalMinimum(
                 params, self.initialGuesses + [np.round(vevLocation, 8)]
             )
+            
+            if type(result) == str:
+                minimizationResults["failureReason"] = result            
+                return minimizationResults
+
+            vevLocation, vevDepth = result
             
             if Tidx == 0 and self.correctVEVIndex:
                 wrongVEV = (
@@ -250,8 +224,9 @@ class TrackVEV:
                 )   
 
                 if wrongVEV:
-                    raise VEVException(vev=vevLocation, T=T)
-            
+                    minimizationResults["failureReason"] = f"At {T=} the vev is {vev} which doesn't isn't the form set by correct VEV."
+                    return minimizationResults
+                   
             ## TODO only check last eigenvalue from each matrix as that is the largest 
             violatedHardScale = False
             for idx in self.massIndices:
@@ -285,7 +260,7 @@ class TrackVEV:
     
     def findGlobalMinimum(self, params, minimumCandidates):
         """For physics reasons we only minimise the real part,
-        for nlopt reasons we need to give a redunant grad arg"""
+        for NLopt reasons we need to give a redunant grad arg"""
         def VeffWrapper(fields, grad):
             return np.real(
                     self.evaluatePotential(fields, params)
@@ -293,33 +268,36 @@ class TrackVEV:
 
         bestResult = self.nloptInst.nloptGlobal(VeffWrapper, minimumCandidates[0])
         if bestResult[2] < 0:
-            raise NLoptException(bestResult[2])
+            return  f"NLopt is reporting following error: {self.nloptErrors[-bestResult[2]-1]}"
+
         for candidate in minimumCandidates:
             result = self.nloptInst.nloptLocal(VeffWrapper, candidate)
-            print(result[2])
+            
             if result[2] < 0:
-                raise NLoptException(result[2])
-                
+                return f"NLopt is reporting following error: {self.nloptErrors[-result[2]-1]}"
+            
             if result[1] < bestResult[1]:
                 bestResult = result
         
         return bestResult[0], self.evaluatePotential(bestResult[0], params)
-    
+   
+
+
 
 class TrackVEVUnitTests(TestCase):
-    def test_bIsPerturbativeTrue(self):
+    def test_isPerturbativeTrue(self):
         reference = True
         source = [0.7, -0.8, 0]
         pertSymbols = {"lam11", "lam12", "lam12p"}
         allSymbols = ["lam11", "lam12", "lam12p"]
 
-        self.assertEqual(reference, bIsPerturbative(source, pertSymbols, allSymbols))
+        self.assertEqual(reference, isPerturbative(source, pertSymbols, allSymbols))
 
-    def test_bIsPerturbativeFalse(self):
+    def test_IsPerturbativeFalse(self):
         reference = False
         source = [-12.57, 0, 0]
         pertSymbols = {"lam11", "lam12", "lam12p"}
         allSymbols = ["lam11", "lam12", "lam12p"]
 
-        self.assertEqual(reference, bIsPerturbative(source, pertSymbols, allSymbols))
+        self.assertEqual(reference, isPerturbative(source, pertSymbols, allSymbols))
 
