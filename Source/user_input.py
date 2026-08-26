@@ -223,7 +223,7 @@ class UserInput(argparse.ArgumentParser):
        outputGroup.add_argument(
            "--plotDataModule",
            action="store",
-           default="PlotData",
+           default="plot_data",
            help="Str: Module name of python module (living in Source) to generate plots, invoked by --bPlot"
        )
        outputGroup.add_argument(

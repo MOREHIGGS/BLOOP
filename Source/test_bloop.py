@@ -11,7 +11,7 @@ import pytest
 def runTests():
     sourceDirectory = Path(__file__).resolve().parent
     integrationTestsDirectory = sourceDirectory/"../Share/IntegrationTests"
-    unitResult = pytest.main([f"{sourceDirectory}/PyTestUnitTests.py", "-rx"])
+    unitResult = pytest.main([f"{sourceDirectory}/py_test_unit_tests.py", "-rx"])
 
     if unitResult != 0:
         print("Unit tests failed. Skipping integration tests.")
@@ -29,7 +29,6 @@ def runTests():
             '--loopOrder', f'{idx +1}', 
             '--lastBenchmark', '3',
             '--bSave',
-            '--bSave5',
             '--resultsDirectory', f'../Share/IntegrationTests/{loopOrder}/OutputResult',
             '--benchmarkFile', "../../Share/IntegrationTests/benchmarks.json",
             '--TRangeStart', '90', 

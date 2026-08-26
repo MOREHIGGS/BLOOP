@@ -6,7 +6,7 @@ from unittest import TestCase
 import nlopt
 import numpy as np
 import scipy
-from ParsedExpression import ParsedExpression, ParsedExpressionSystem
+from parsed_expression import ParsedExpression, ParsedExpressionSystem
 from pythonise_dralgo import replaceGreekSymbols
 
 
