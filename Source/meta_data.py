@@ -43,7 +43,8 @@ def getGitInfo(debug):
         key: subprocess.run(
             command, 
             capture_output=True, 
-            text=True).stdout.splitlines()
+            text=True,
+            check=False).stdout.splitlines()
         for key, command in {
             "git tag": ["git", "describe", "--tags", "--always"],
             "git branch": ["git", "rev-parse", "--abbrev-ref", "HEAD"],
