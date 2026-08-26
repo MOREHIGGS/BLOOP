@@ -1,17 +1,19 @@
-import pytest
-import sys
-import subprocess
-import json
-from pathlib import Path
-import os
 import difflib
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+import pytest
+
 
 def runTests():
     sourceDirectory = Path(__file__).resolve().parent
     integrationTestsDirectory = sourceDirectory/"../Share/IntegrationTests"
     unitResult = pytest.main([f"{sourceDirectory}/PyTestUnitTests.py", "-rx"])
 
-    if not unitResult == 0:
+    if unitResult != 0:
         print("Unit tests failed. Skipping integration tests.")
         sys.exit(unitResult)
 
@@ -27,6 +29,7 @@ def runTests():
             '--loopOrder', f'{idx +1}', 
             '--lastBenchmark', '3',
             '--bSave',
+            '--bSave5',
             '--resultsDirectory', f'../Share/IntegrationTests/{loopOrder}/OutputResult',
             '--benchmarkFile', "../../Share/IntegrationTests/benchmarks.json",
             '--TRangeStart', '90', 
@@ -36,9 +39,10 @@ def runTests():
             '--configFilePath', f'{sourceDirectory}/../Run/Z2_3HDMConfigFile.json'
             ], 
             capture_output=True,
+            check=False,
             text=True,
             )
-        if not integrationTest.returncode == 0:
+        if integrationTest.returncode != 0:
             sys.exit(
                 f"{loopOrder} integration test failed\n"
                 f"Error:\n{integrationTest.stderr}"
@@ -107,7 +111,6 @@ def runTests():
         print("\nSee (N)NLODiff.txt (in Run) for further details. \n")
         sys.exit(stdOut)
     
-    return None
     
 if __name__ == '__main__':
     runTests()
