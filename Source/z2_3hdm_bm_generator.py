@@ -17,7 +17,7 @@ mTop = api.get_particle_by_name("t").mass
 mW = api.get_particle_by_name("W+").mass
 mZ = api.get_particle_by_name("Z0").mass
 
-from TrackVEV import cNlopt
+from track_vev import cNlopt
 
 
 def generateBenchmarks(args):
@@ -363,11 +363,15 @@ def isPhysicalMinimum(params):
                 - 4*v1*v2*params["mu12sqRe"] - 2*v3**2*params["mu3sq"])/4
 
     
-    minLocation, minValue = nloptInst.nloptGlobal(potential, minimumInitialGuesses[0])
-
+    minLocation, minValue, error = nloptInst.nloptGlobal(potential, minimumInitialGuesses[0])
+    if error < 0:
+        print(error)
+        exit()
     for guess in minimumInitialGuesses:
-        minLocationTemp, minValueTemp = nloptInst.nloptLocal(potential, guess)
-
+        minLocationTemp, minValueTemp, error = nloptInst.nloptLocal(potential, guess)
+        if error < 0:
+            print(error)
+            exit()
         if minValueTemp < minValue:
             minLocation, minValue = minLocationTemp, minValueTemp
     higgsVEV = 1/m.sqrt(m.sqrt(2) * constants["Fermi coupling constant"][0])

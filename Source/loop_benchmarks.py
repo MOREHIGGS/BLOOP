@@ -60,17 +60,8 @@ def loopBenchmarks(args):
 
     ## try needed because if doBenchmark errors it can cause BLOOP to hang
     def doBenchmarkWrapper(benchmark):
-        try:
-            ## Maybe make these explicit func args instead of pulling from outside func scope
-            return doBenchmark(trackVEV, args, fieldNames, resultsDir, benchmark)
-        except Exception as e:
-            if args.debug:
-                import traceback
-                print(traceback.format_exc())
-                exit()
-            return {"failureReason": str(e), 
-                    "bmNumber": benchmark["bmNumber"],
-                    "bmInput": benchmark["bmInput"]}
+        ## Maybe make these explicit func args instead of pulling from outside func scope
+        return doBenchmark(trackVEV, args, fieldNames, resultsDir, benchmark)
 
     benchmarkGenerator = streamBenchmarksIn(
         moduleDirectory / args.benchmarkFilePath,
@@ -149,6 +140,7 @@ def processData(
     }
 
     if result["failureReason"]:
+        print(processedResult)
         return processedResult 
 
     allFieldValues = result["vevLocation"] / np.sqrt(result["T"])
