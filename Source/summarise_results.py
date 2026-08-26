@@ -1,7 +1,9 @@
 import sys
 from collections import defaultdict
 from json import load
+
 from matplotlib import pylab as plt
+
 plt.rcParams.update({"font.size": 12})
 from pathlib import Path
 from textwrap import dedent
@@ -76,7 +78,7 @@ def summariseResults(args):
         ## Heat map of first benchmark input vs rest of inputs, and benchmark inputs vs Tc with strength colour bar
         ## first input vs Tc needs to be outside for loop or you'd get first input vs first input plot
        
-       saveHeatMap(
+        saveHeatMap(
             bmInputList[0], 
             TcList, 
             strengthList, 
