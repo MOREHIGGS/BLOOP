@@ -4,9 +4,15 @@ import nlopt
 from cmath import sqrt
 from dataclasses import dataclass, InitVar
 import importlib
-from pythonise_DRalgo import replaceGreekSymbols
+from pythonise_dralgo import replaceGreekSymbols
 from ParsedExpression import ParsedExpression, ParsedExpressionSystem
 from unittest import TestCase
+
+def isPerturbative(params, pertSymbols, allSymbols):
+    for pertSymbol in pertSymbols:
+        if abs(params[allSymbols.index(pertSymbol)]) > 4 * np.pi:
+            return False 
+    return True
 
 @dataclass(frozen=True)
 class cNlopt:
@@ -30,6 +36,7 @@ class cNlopt:
         opt.set_upper_bounds(self.varUpperBounds)
         opt.set_xtol_abs(self.absGlobalTol)
         opt.set_xtol_rel(self.relGlobalTol)
+        #opt.set_exceptions_enabled(False)
         return self.nloptLocal(func, opt.optimize(initialGuess))
 
     def nloptLocal(self, func: callable, initialGuess: list[float]):
@@ -39,7 +46,8 @@ class cNlopt:
         opt.set_upper_bounds(self.varUpperBounds)
         opt.set_xtol_abs(self.absLocalTol)
         opt.set_xtol_rel(self.relLocalTol)
-        return opt.optimize(initialGuess), opt.last_optimum_value()
+        opt.set_exceptions_enabled(False)
+        return opt.optimize(initialGuess), opt.last_optimum_value(), opt.last_optimize_result()
 
 class PhysicsException(Exception):
     def __init__(self, message, T=None):
@@ -47,28 +55,41 @@ class PhysicsException(Exception):
         self.T = T
 
 class PerturbativeException(PhysicsException):
-    def __init__(self, message, T=None, RGScale=RGscale):
+    def __init__(self, message, T=None, RGScale=None):
         super().__init__(f"At {T=}, {RGScale=} a coupling is larger than 4pi")
         self.T = T
         self.RGScale = RGScale
 
 class UnboundedException(PhysicsException):
     def __init__(self, message, T=None):
-        super().__init__(message)
+        super().__init__(f"At {T=} one of the bounded condiditions isn't met.")
         self.T = T
 
 class VEVException(PhysicsException):
     def __init__(self, T=None, vev=None):
-        super().__init__(f"At {T=} the vev is {vev} which doesn't isn't the correct VEV.")
+        super().__init__(f"At {T=} the vev is {vev} which doesn't isn't the form set by correct VEV.")
         self.T = T
         self.vev = vev
 
+class NumericsException(Exception):
+    def __init__(self, message, T=None):
+        super().__init__(message)
+        self.T = T
 
-def isPerturbative(params, pertSymbols, allSymbols):
-    for pertSymbol in pertSymbols:
-        if abs(params[allSymbols.index(pertSymbol)]) > 4 * np.pi:
-            return False 
-    return True
+class IVPException(NumericsException):
+    def __init__(self, message):
+        super().__init__(message)
+
+class NLoptException(NumericsException):
+    def __init__(self, errorCode, T=None):
+        errorMessages = [
+        "NLOPT_FAILURE",
+        "NLOPT_INVALID_ARGS",
+        "NLOPT_OUT_OF_MEMORY",
+        "NLOPT_ROUNDOFF_LIMITED",
+        "NLOPT_FORCED_STOP",
+        ]
+        super().__init__(f"NLopt is reporting following error: {errorMessages[-errorCode-1]} at {T=}")
 
 
 class TrackVEV:
@@ -180,7 +201,7 @@ class TrackVEV:
         )
         
         if not solvedBetaFunction.success:
-            raise Exception(solvedBetaFunction.message)
+            raise IVPException(solvedBetaFunction.message)
         
         betaSpline4D = {
             symbol: scipy.interpolate.CubicSpline(muRange, solvedBetaFunction.y[idx])
@@ -205,9 +226,9 @@ class TrackVEV:
                 params[self.allSymbols.index(key)] = spline(hardMatchingScale)
             
             if not np.all(self.bounded.evaluateUnordered(params)):
-                raise Exception("Unbounded")
+                raise UnboundedException(T=T)
                  
-            if not isPerturbative(params, self.pertSymbols, self.allSymbols)
+            if not isPerturbative(params, self.pertSymbols, self.allSymbols):
                 raise PerturbativeException(T=T, RGScale=hardMatchingScale)
             
             params = self.hardToSoft.evaluate(params)
@@ -271,9 +292,14 @@ class TrackVEV:
                 )
 
         bestResult = self.nloptInst.nloptGlobal(VeffWrapper, minimumCandidates[0])
-
+        if bestResult[2] < 0:
+            raise NLoptException(bestResult[2])
         for candidate in minimumCandidates:
             result = self.nloptInst.nloptLocal(VeffWrapper, candidate)
+            print(result[2])
+            if result[2] < 0:
+                raise NLoptException(result[2])
+                
             if result[1] < bestResult[1]:
                 bestResult = result
         
