@@ -2,7 +2,6 @@ import decimal
 import json
 from importlib import import_module
 from pathlib import Path
-from sys import exit
 
 import ijson
 import numpy as np

@@ -196,7 +196,7 @@ class TrackVEV:
 
                 
             if not isPerturbative(params, self.pertSymbols, self.allSymbols):
-                minimizationResults["failureReason"] = f"At {T=}, {RGScale=} a coupling is larger than 4pi"            
+                minimizationResults["failureReason"] = f"At {T=} and RGScale {hardMatchingScale} a coupling is larger than 4pi"            
                 return minimizationResults
 
             params = self.hardToSoft.evaluate(params)
@@ -211,7 +211,7 @@ class TrackVEV:
                 params, self.initialGuesses + [np.round(vevLocation, 8)]
             )
             
-            if type(result) == str:
+            if isinstance(result, str):
                 minimizationResults["failureReason"] = result            
                 return minimizationResults
 
@@ -224,7 +224,7 @@ class TrackVEV:
                 )   
 
                 if wrongVEV:
-                    minimizationResults["failureReason"] = f"At {T=} the vev is {vev} which doesn't isn't the form set by correct VEV."
+                    minimizationResults["failureReason"] = f"At {T=} the vev is {vevLocation} which doesn't isn't the form set by correct VEV."
                     return minimizationResults
                    
             ## TODO only check last eigenvalue from each matrix as that is the largest 
