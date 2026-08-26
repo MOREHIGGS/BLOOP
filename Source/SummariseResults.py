@@ -8,7 +8,6 @@ from pathlib import Path
 
 def summariseResults(args):
     multiStepCount = 0
-    nonPertCount = 0
     failDict = defaultdict(int)
     EFTBreakDict = defaultdict(int)
     

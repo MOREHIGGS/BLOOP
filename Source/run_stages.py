@@ -1,28 +1,27 @@
 from importlib import import_module
 
-from pythonise_dralgo import pythonise_DRalgo
-
 from loop_benchmarks import loopBenchmarks
-from MetaData import writeMetaData
+from meta_data import writeMetaData
+from pythonise_dralgo import pythonise_DRalgo
 from user_input import UserInput
-
+from utility import printIfVerbose
 
 def main():
     args = UserInput().parse()
    
-    if args.verbose: print("Meta data stage started")
+    printIfVerbose("Meta data stage started", args.verbose)
     writeMetaData(args)
     
-    if args.verbose: print("Pythonise DRalgo stage started")
+    printIfVerbose("Pythonise DRalgo stage started", args.verbose)
     pythonise_DRalgo(args)
     
-    if args.verbose: print("Benchmark generation stage started")
+    printIfVerbose("Benchmark generation stage started", args.verbose)
     import_module(args.bmGeneratorModule).generateBenchmarks(args)
     
-    if args.verbose: print("Minimization stage stage started")
+    printIfVerbose("Minimization stage started", args.verbose)
     loopBenchmarks(args)
     
-    if args.verbose: print("Summarise Results stage started")
+    printIfVerbose("Summarise Results stage started", args.verbose)
     import_module(args.summariseModule).summariseResults(args)
 
 if __name__ == "__main__":

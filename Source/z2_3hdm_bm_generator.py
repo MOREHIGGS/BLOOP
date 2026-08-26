@@ -4,21 +4,22 @@ from copy import copy
 from glob import glob
 from os.path import join
 from pathlib import Path
+import pytest
 from sys import exit
+from unittest import TestCase
+
 
 import numpy as np
 import pdg
 from scipy.constants import physical_constants as constants
 
+from track_vev import cNlopt
 ## Connecting is expensive so just do it once in global space to avoid passing it around
 api = pdg.connect()
 mHiggs = api.get_particle_by_name("H").mass
 mTop = api.get_particle_by_name("t").mass
 mW = api.get_particle_by_name("W+").mass
 mZ = api.get_particle_by_name("Z0").mass
-
-from track_vev import cNlopt
-
 
 def generateBenchmarks(args):
     if args.benchmarkType == "load":
@@ -414,10 +415,6 @@ def bIsBounded(params):
         < 0
     )
 
-
-from unittest import TestCase
-
-import pytest
 
 
 class BmGeneratorUnitTests(TestCase):

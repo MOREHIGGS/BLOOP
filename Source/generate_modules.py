@@ -10,6 +10,7 @@ from textwrap import dedent
 
 from jinja2 import Environment
 
+from utility import printIfVerbose
 
 def generateModules(
     veffExpressions,
@@ -73,8 +74,7 @@ def generateModules(
         md5(setupModule.encode()).hexdigest() == getHash(f"{cythonModulesDir}/Setup{loopOrder}.py") and
         importlib.util.find_spec(f"EvaluatePotential{loopOrder}") is not None):
         
-        if verbose:
-            print("Using previously compiled code")
+        printIfVerbose("Using previously compiled code", verbose)
         return
     
     with open(f"{cythonModulesDir}/EvaluatePotential{loopOrder}.pyx", "w") as fp:
@@ -83,8 +83,19 @@ def generateModules(
     with open(f"{cythonModulesDir}/Setup{loopOrder}.py", "w") as fp:
         fp.write(setupModule)
     
-    compileCythonModules(verbose, cythonModulesDir, loopOrder)
+    printIfVerbose("Compiling cython modules", verbose)
     
+    ti = time.time()
+    subprocess.run(
+        [sys.executable, f"Setup{loopOrder}.py", "build_ext", "--inplace"],
+        cwd=cythonModulesDir,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    printIfVerbose(f'Compilation took {time.time() - ti} seconds.', verbose)
+
 def generateSetupFile(
     loopOrder, 
     gccFlags,
@@ -344,18 +355,4 @@ cdef void computeMasses(double [::1] params):
             vectorMasses = vectorMasses,
             vectorShorthands = vectorShorthands,
             )
-
-def compileCythonModules(verbose, cythonFP, loopOrder):
-    if verbose: print("Compiling cython modules")
-    
-    ti = time.time()
-    subprocess.run(
-        [sys.executable, f"Setup{loopOrder}.py", "build_ext", "--inplace"],
-        cwd=cythonFP,
-        capture_output=True,
-        check=True,
-        text=True,
-    )
-
-    if verbose: print(f'Compilation took {time.time() - ti} seconds.')
 
