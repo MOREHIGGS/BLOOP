@@ -9,7 +9,6 @@ from pathlib import Path
 from textwrap import dedent
 
 from jinja2 import Environment
-
 from utility import printIfVerbose
 
 

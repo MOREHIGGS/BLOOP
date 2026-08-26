@@ -53,3 +53,6 @@ filterwarnings = [
     "ignore::DeprecationWarning::",  
     "default::DeprecationWarning:Source.*:",  
 ]
+
+[tool.ruff] 
+exclude = ["Source/__init__.py"]

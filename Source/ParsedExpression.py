@@ -1,7 +1,9 @@
 from math import log, sqrt
-import numpy as np
 from unittest import TestCase
-    
+
+import numpy as np
+
+
 class ParsedExpression:
     def __init__(self, expression, fileName):
         self.lambdaExpression = compile(expression, "<string>", mode="eval")

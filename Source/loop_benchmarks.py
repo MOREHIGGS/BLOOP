@@ -7,7 +7,6 @@ import ijson
 import numpy as np
 from pathos.multiprocessing import Pool
 from tqdm import tqdm
-
 from track_vev import TrackVEV
 
 
