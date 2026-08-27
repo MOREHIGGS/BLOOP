@@ -44,7 +44,7 @@ def getGitInfo(debug):
             command, 
             capture_output=True, 
             text=True,
-            check=False).stdout.splitlines()
+            ).stdout.splitlines()
         for key, command in {
             "git tag": ["git", "describe", "--tags", "--always"],
             "git branch": ["git", "rev-parse", "--abbrev-ref", "HEAD"],
