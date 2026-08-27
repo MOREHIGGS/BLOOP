@@ -106,7 +106,12 @@ def generateSetupFile(
             # -*- coding: utf-8 -*-
             from setuptools import setup, Extension
             from Cython.Build import cythonize
-            extensions = [Extension("EvaluatePotential{{loopOrder}}", ["EvaluatePotential{{loopOrder}}.pyx"], extra_compile_args = {{gccFlags}})]
+            extensions = [Extension(
+                "EvaluatePotential{{loopOrder}}", 
+                ["EvaluatePotential{{loopOrder}}.pyx"], 
+                extra_compile_args = {{gccFlags}},
+                libraries = ["nlopt"],
+            )]
             
             setup(
                 name="Veff_cython",

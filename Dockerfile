@@ -23,3 +23,6 @@ RUN chmod +x /usr/local/bin/bloop
 RUN register-python-argcomplete bloop > /etc/bash_completion.d/bloop
 
 RUN echo 'source /etc/bash_completion.d/python-argcomplete' >> /root/.bashrc
+RUN apt update -y
+RUN apt install -y libnlopt-dev
+
