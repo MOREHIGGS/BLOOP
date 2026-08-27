@@ -19,7 +19,7 @@
 "lagranianVariablesFilePath":"DRalgoOutputFiles/LagranianSymbols.json",
 "scalarMassNamesFilePath":"DRalgoOutputFiles/ScalarMassNames.txt",
 "pythonisedExpressionsFilePath":"PythonisedExpressionsFile.json",
-"bmGeneratorModule": "Z2_3HDMBmGenerator",
+"bmGeneratorModule": "z2_3hdm_bm_generator",
 "bgfLowerBounds": [-60, 1e-4, 1e-4],
 "bgfUpperBounds": [60, 60, 60],
 "initialGuesses":[

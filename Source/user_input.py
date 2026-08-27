@@ -1,8 +1,10 @@
-import argcomplete
 import argparse
-import multiprocessing
 import json
-from sys import maxsize
+import multiprocessing
+from sys import exit, maxsize
+
+import argcomplete
+
 
 class UserInput(argparse.ArgumentParser):
     def __init__(self):
@@ -221,7 +223,7 @@ class UserInput(argparse.ArgumentParser):
        outputGroup.add_argument(
            "--plotDataModule",
            action="store",
-           default="PlotData",
+           default="plot_data",
            help="Str: Module name of python module (living in Source) to generate plots, invoked by --bPlot"
        )
        outputGroup.add_argument(
@@ -246,7 +248,7 @@ class UserInput(argparse.ArgumentParser):
        outputGroup.add_argument(
            "--summariseModule",
            action="store",
-           default="SummariseResults",
+           default="summarise_results",
            help="Str: File name of python module to use to summarise scan results - needs to have a function called summariseResults which takes in args",
        )
        ########################################################################
@@ -356,13 +358,24 @@ class UserInput(argparse.ArgumentParser):
                 userConfig = json.load(fp)
             unexpectedKeys = [
                 userKey
-                for userKey in userConfig.keys()
+                for userKey in userConfig
                 if userKey not in set(vars(userArg).keys())
             ]
             if len(unexpectedKeys) > 0:
                 print(
                     f"User config file has unexpected key(s):\n {unexpectedKeys},\nExiting"
                 )
-                exit(-1)
+                exit()
             self.set_defaults(**userConfig)
-        return super().parse_args()
+        args= super().parse_args()
+        ## catching common mistake
+        args.plotDataModule = self.removePyExtension(args.plotDataModule)
+        args.bmGeneratorModule = self.removePyExtension(args.bmGeneratorModule)
+        args.summariseModule = self.removePyExtension(args.summariseModule)
+        return args
+        
+
+    def removePyExtension(self, string):
+        if not string:
+            return string
+        return string.removesuffix(".py")

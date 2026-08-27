@@ -1,14 +1,18 @@
-from json import load
-from textwrap import dedent
+import sys
 from collections import defaultdict
+from json import load
+
 from matplotlib import pylab as plt
+
 plt.rcParams.update({"font.size": 12})
-import numpy as np
 from pathlib import Path
+from textwrap import dedent
+
+import numpy as np
+
 
 def summariseResults(args):
     multiStepCount = 0
-    nonPertCount = 0
     failDict = defaultdict(int)
     EFTBreakDict = defaultdict(int)
     
@@ -23,7 +27,7 @@ def summariseResults(args):
 
     if len(data) == 0:
         print(resultsDir/f"{args.scanResultsName} contains no data, exiting")
-        exit()
+        sys.exit()
 
     for result in data:
 
@@ -51,7 +55,7 @@ def summariseResults(args):
                 strengthList.append(strength)
                 bmNumberList.append(result["bmNumber"])
                 
-                bmInputList.append((list(result["bmInput"].values())))
+                bmInputList.append(list(result["bmInput"].values()))
                 if result["steps"] > 1:
                     multiStepCount += 1 
     
@@ -71,17 +75,16 @@ def summariseResults(args):
                 """))
         
         axisLabels = list(result["bmInput"].keys())
-        
         ## Heat map of first benchmark input vs rest of inputs, and benchmark inputs vs Tc with strength colour bar
         ## first input vs Tc needs to be outside for loop or you'd get first input vs first input plot
-
+       
         saveHeatMap(
             bmInputList[0], 
             TcList, 
             strengthList, 
             axisLabels[0], 
             "$T_c$", 
-            resultsDir/f"{axisLabels[0]}"
+            resultsDir/f"{stripLatexFormating(axisLabels[0])}"
         )
         
         for idx, bmInput in enumerate(bmInputList[1:], 1):
@@ -91,7 +94,7 @@ def summariseResults(args):
                 strengthList, 
                 axisLabels[0], 
                 axisLabels[idx], 
-                resultsDir/f"{axisLabels[idx]}"
+                resultsDir/f"{stripLatexFormating(axisLabels[idx])}"
             )
         
             saveHeatMap(
@@ -100,7 +103,7 @@ def summariseResults(args):
                 strengthList, 
                 axisLabels[idx], 
                 "$T_c$", 
-                resultsDir/f"{axisLabels[idx]}-Tc"
+                resultsDir/f"{stripLatexFormating(axisLabels[idx])}-Tc"
            )
 
 def saveHeatMap(x, y, c, xLabel, yLabel, fileName, norm=None):

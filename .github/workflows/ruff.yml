@@ -6,16 +6,11 @@ on:
 jobs:
   ruff:
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - name: Install Ruff
         run: pip install ruff
+      - name: ruff version 
+        run: ruff --version
       - name: Run Ruff
-        run: python3 -m ruff check $PWD || exit 0
-      #- name: Upload diff files
-      #  if: failure()
-      #  uses: actions/upload-artifact@v4
-      #  with:
-      #      name: integration-test-diffs
-      #      path: Run/*Diff.txt
+        run: ruff check Source/

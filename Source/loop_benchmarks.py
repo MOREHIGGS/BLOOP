@@ -1,14 +1,14 @@
-import json
-import ijson
 import decimal
-from pathlib import Path
-from pathos.multiprocessing import Pool
+import json
 from importlib import import_module
-from functools import partial
-from tqdm import tqdm
-import numpy as np
+from pathlib import Path
 
-from TrackVEV import TrackVEV
+import ijson
+import numpy as np
+from pathos.multiprocessing import Pool
+from tqdm import tqdm
+from track_vev import TrackVEV
+
 
 def loopBenchmarks(args):
     sourceDirectory = Path(__file__).resolve().parent
@@ -58,17 +58,8 @@ def loopBenchmarks(args):
 
     ## try needed because if doBenchmark errors it can cause BLOOP to hang
     def doBenchmarkWrapper(benchmark):
-        try:
-            ## Maybe make these explicit func args instead of pulling from outside func scope
-            return doBenchmark(trackVEV, args, fieldNames, resultsDir, benchmark)
-        except Exception as e:
-            if args.debug:
-                import traceback
-                print(traceback.format_exc())
-                exit()
-            return {"failureReason": str(e), 
-                    "bmNumber": benchmark["bmNumber"],
-                    "bmInput": benchmark["bmInput"]}
+        ## Maybe make these explicit func args instead of pulling from outside func scope
+        return doBenchmark(trackVEV, args, fieldNames, resultsDir, benchmark)
 
     benchmarkGenerator = streamBenchmarksIn(
         moduleDirectory / args.benchmarkFilePath,
@@ -122,7 +113,7 @@ def doBenchmark(
         if args.verbose:
             print(f"Plotting {benchmark['bmNumber']}")
 
-        import_module(args.plotDataModule.removesuffix(".py")).plotData(minimizationResult, filename, fieldNames)
+        import_module(args.plotDataModule).plotData(minimizationResult, filename, fieldNames)
 
     return processData(
                 minimizationResult,
@@ -147,6 +138,7 @@ def processData(
     }
 
     if result["failureReason"]:
+        print(processedResult)
         return processedResult 
 
     allFieldValues = result["vevLocation"] / np.sqrt(result["T"])

@@ -1,11 +1,13 @@
 import json
-from pathlib import Path
-import unicodedata
 import re
+import unicodedata
+from pathlib import Path
+from unittest import TestCase
 
-from GenerateModules import generateModules
+from generate_modules import generateModules
 
-def pythoniseMathematica(args):
+
+def pythonise_DRalgo(args):
     moduleDirectory = Path(__file__).resolve().parent/"../Build"/args.modelDirectory 
     def loadMatrices(filePath):
         with open(moduleDirectory/filePath, 'r') as file:
@@ -120,7 +122,6 @@ def pythoniseMathematica(args):
         args.modelDirectory,
     )
     
-    return
 
 
 def splitExpressionsArray(expressions, allSymbols):
@@ -162,8 +163,6 @@ def replaceSymbolsWithIndices(expression, symbols):
     for idx, symbol in enumerate(symbols):
         expression = expression.replace(symbol, f"params[{idx}]")
     return expression
-
-from unittest import TestCase
 
 
 class PythoniseMathematicaUnitTests(TestCase):

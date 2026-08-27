@@ -1,6 +1,9 @@
 from math import log, sqrt
+from unittest import TestCase
+
 import numpy as np
-    
+
+
 class ParsedExpression:
     def __init__(self, expression, fileName):
         self.lambdaExpression = compile(expression, "<string>", mode="eval")
@@ -32,9 +35,6 @@ class ParsedExpressionSystem:
     def evaluateUnordered(self, params):
         return [expression[1].evaluate(params) for expression in self.parsedExpressions]
     
-
-from unittest import TestCase
-
 
 class ParsedExpressionUnitTests(TestCase):
     def test_ParsedExpression(self):

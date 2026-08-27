@@ -1,23 +1,24 @@
-"""Generate benchmarks at 0T satisfying some constraints."""
-
-import math as m
-import numpy as np
-from scipy.constants import physical_constants as constants
 import json
-from pathlib import Path
-from os.path import join
-from glob import glob
+import math as m
 from copy import copy
+from glob import glob
+from os.path import join
+from pathlib import Path
+from sys import exit
+from unittest import TestCase
 
+import numpy as np
 import pdg
+import pytest
+from scipy.constants import physical_constants as constants
+from track_vev import cNlopt
+
 ## Connecting is expensive so just do it once in global space to avoid passing it around
 api = pdg.connect()
 mHiggs = api.get_particle_by_name("H").mass
 mTop = api.get_particle_by_name("t").mass
 mW = api.get_particle_by_name("W+").mass
 mZ = api.get_particle_by_name("Z0").mass
-
-from TrackVEV import cNlopt
 
 def generateBenchmarks(args):
     if args.benchmarkType == "load":
@@ -46,15 +47,13 @@ def generateBenchmarks(args):
     for bmParams in bmGenerator:
         if len(bmdictList) == args.numBenchmarks:
             break
-        if bmParams:
-            ## copy is needed otherwise the background fields enter the 4D beta function
-            ## and lead to small numerical errors (~1e-3%) in the couplings
-            ## This error is of order the tol of solve_ivp so maybe not important? 
-                if checkPhysical(
-                    copy(bmParams["lagranianParameters"]),
-                ):
-                    bmParams["bmNumber"] = len(bmdictList)
-                    bmdictList.append(bmParams)
+
+        ## copy is needed otherwise the background fields enter the 4D beta function
+        ## and lead to small numerical errors (~1e-3%) in the couplings
+        ## This error is of order the tol of solve_ivp so maybe not important? 
+        if bmParams and checkPhysical(copy(bmParams["lagranianParameters"])):
+                bmParams["bmNumber"] = len(bmdictList)
+                bmdictList.append(bmParams)
     
     with open(outputFilePath, "w") as fp:        
         json.dump(
@@ -128,7 +127,7 @@ def _lagranianParamGen(
 ):
 
     bmInput= locals()
-    higgsVEV = 1/m.sqrt((m.sqrt(2) * constants["Fermi coupling constant"][0]))
+    higgsVEV = 1/m.sqrt(m.sqrt(2) * constants["Fermi coupling constant"][0])
 
     vsq = higgsVEV**2
     mu3sq = mHiggs**2 / 2
@@ -202,7 +201,7 @@ def _lagranianParamGen(
 def checkPhysical(params):
     params["v1"] = 0
     params["v2"] = 0
-    params["v3"] = 1/m.sqrt((m.sqrt(2) * constants["Fermi coupling constant"][0]))
+    params["v3"] = 1/m.sqrt(m.sqrt(2) * constants["Fermi coupling constant"][0])
     if not bIsBounded(params):
         return False
     
@@ -225,10 +224,7 @@ def checkPhysical(params):
     if not np.all(neutralEigenValues[1:] >= 3969):
         return False
 
-    if not bPhysicalMinimum(params):
-        return False
-
-    return True
+    return isPhysicalMinimum(params)
 
 def getMassMatrices(params):
     v1 = params["v1"]
@@ -332,7 +328,7 @@ def getMassMatrices(params):
     return chargedMatrix, neutralMatrix
 
 
-def bPhysicalMinimum(params):
+def isPhysicalMinimum(params):
     minimumInitialGuesses = [
         [0, 0, 0],
         [0, 0, 246],
@@ -367,14 +363,18 @@ def bPhysicalMinimum(params):
                 - 4*v1*v2*params["mu12sqRe"] - 2*v3**2*params["mu3sq"])/4
 
     
-    minLocation, minValue = nloptInst.nloptGlobal(potential, minimumInitialGuesses[0])
-
+    minLocation, minValue, error = nloptInst.nloptGlobal(potential, minimumInitialGuesses[0])
+    if error < 0:
+        print(error)
+        exit()
     for guess in minimumInitialGuesses:
-        minLocationTemp, minValueTemp = nloptInst.nloptLocal(potential, guess)
-
+        minLocationTemp, minValueTemp, error = nloptInst.nloptLocal(potential, guess)
+        if error < 0:
+            print(error)
+            exit()
         if minValueTemp < minValue:
             minLocation, minValue = minLocationTemp, minValueTemp
-    higgsVEV = 1/m.sqrt((m.sqrt(2) * constants["Fermi coupling constant"][0]))
+    higgsVEV = 1/m.sqrt(m.sqrt(2) * constants["Fermi coupling constant"][0])
     return np.all(np.isclose(minLocation, [0, 0, higgsVEV], atol=1))
 
 def bIsBounded(params):
@@ -401,7 +401,7 @@ def bIsBounded(params):
         return False
     if not lamdaz > -2 * m.sqrt(params["lamda22"] * params["lamda33"]):
         return False
-    if not (
+    return (
         m.sqrt(params["lamda33"]) * lamdax
         + m.sqrt(params["lamda11"]) * lamdaz
         + m.sqrt(params["lamda22"]) * lamday
@@ -412,13 +412,9 @@ def bIsBounded(params):
         - params["lamda11"] * params["lamda22"] * params["lamda33"]
         - 2 * lamdax * lamday * lamdaz
         < 0
-    ):
-        return False
-    return True
+    )
 
 
-from unittest import TestCase
-import pytest
 
 class BmGeneratorUnitTests(TestCase):
     maxDiff=None
@@ -487,7 +483,7 @@ class BmGeneratorUnitTests(TestCase):
         try:
             self.assertEqual(reference, _lagranianParamGen(*source))
         except AssertionError:
-            pytest.xfail(f"Lagranian params not what expected - check if because of PDG/Scipy or an actual error")
+            pytest.xfail("Lagranian params not what expected - check if because of PDG/Scipy or an actual error")
     
     def test_HiggsMass(self):
         api = pdg.connect()
@@ -509,4 +505,4 @@ class BmGeneratorUnitTests(TestCase):
                 1.1663787e-05, constants["Fermi coupling constant"][0],
             )
         except AssertionError:
-            pytest.xfail(f"Fermi constant from Scipy isn't what we expect")
+            pytest.xfail("Fermi constant from Scipy isn't what we expect")

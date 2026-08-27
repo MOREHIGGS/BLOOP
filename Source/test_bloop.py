@@ -1,17 +1,19 @@
-import pytest
-import sys
-import subprocess
-import json
-from pathlib import Path
-import os
 import difflib
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+import pytest
+
 
 def runTests():
     sourceDirectory = Path(__file__).resolve().parent
     integrationTestsDirectory = sourceDirectory/"../Share/IntegrationTests"
-    unitResult = pytest.main([f"{sourceDirectory}/PyTestUnitTests.py", "-rx"])
+    unitResult = pytest.main([f"{sourceDirectory}/py_test_unit_tests.py", "-rx"])
 
-    if not unitResult == 0:
+    if unitResult != 0:
         print("Unit tests failed. Skipping integration tests.")
         sys.exit(unitResult)
 
@@ -23,7 +25,7 @@ def runTests():
             os.remove(file)
         integrationTest = subprocess.run([
             sys.executable,
-            f'{sourceDirectory}/RunStages.py',
+            f'{sourceDirectory}/run_stages.py',
             '--loopOrder', f'{idx +1}', 
             '--lastBenchmark', '3',
             '--bSave',
@@ -36,9 +38,10 @@ def runTests():
             '--configFilePath', f'{sourceDirectory}/../Run/Z2_3HDMConfigFile.json'
             ], 
             capture_output=True,
+            check=False,
             text=True,
             )
-        if not integrationTest.returncode == 0:
+        if integrationTest.returncode != 0:
             sys.exit(
                 f"{loopOrder} integration test failed\n"
                 f"Error:\n{integrationTest.stderr}"
@@ -65,10 +68,14 @@ def runTests():
             else:
                 return data == pytest.approx(ref, relTol, absTol)
         
-        if isApproxEq(scanResults, scanResultsRef, 1e-3, 1e-2):
-            print(f"Summary of results at {loopOrder} is within tolerance of the solver")
+        if isApproxEq(scanResults, scanResultsRef, 0, 0):
+            print(f"Summary of results at {loopOrder} matches references exactly")
             continue
         
+        elif isApproxEq(scanResults, scanResultsRef, 1e-3, 1e-2):
+            print(f"Summary of results at {loopOrder} is within tolerance of the solver")
+            continue
+
         stdOut += f"Summary of results at {loopOrder} is outside the tolerance of the solver"  
         
         with open(sourceDirectory/f"../Run/{loopOrder}Diff.txt", "w") as fp:
@@ -100,10 +107,9 @@ def runTests():
 
 
     if stdOut:
-        print(f"\nSee (N)NLODiff.txt (in Run) for further details. \n")
+        print("\nSee (N)NLODiff.txt (in Run) for further details. \n")
         sys.exit(stdOut)
     
-    return None
     
 if __name__ == '__main__':
     runTests()

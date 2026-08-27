@@ -1,12 +1,20 @@
+import importlib
+from cmath import sqrt
+from dataclasses import InitVar, dataclass
+from unittest import TestCase
+
+import nlopt
 import numpy as np
 import scipy
-import nlopt
-from cmath import sqrt
-from dataclasses import dataclass, InitVar
-import importlib
+from parsed_expression import ParsedExpression, ParsedExpressionSystem
+from pythonise_dralgo import replaceGreekSymbols
 
-from PythoniseMathematica import replaceGreekSymbols
-from ParsedExpression import ParsedExpression, ParsedExpressionSystem
+
+def isPerturbative(params, pertSymbols, allSymbols):
+    for pertSymbol in pertSymbols:
+        if abs(params[allSymbols.index(pertSymbol)]) > 4 * np.pi:
+            return False 
+    return True
 
 @dataclass(frozen=True)
 class cNlopt:
@@ -30,6 +38,7 @@ class cNlopt:
         opt.set_upper_bounds(self.varUpperBounds)
         opt.set_xtol_abs(self.absGlobalTol)
         opt.set_xtol_rel(self.relGlobalTol)
+        opt.set_exceptions_enabled(False)
         return self.nloptLocal(func, opt.optimize(initialGuess))
 
     def nloptLocal(self, func: callable, initialGuess: list[float]):
@@ -39,15 +48,8 @@ class cNlopt:
         opt.set_upper_bounds(self.varUpperBounds)
         opt.set_xtol_abs(self.absLocalTol)
         opt.set_xtol_rel(self.relLocalTol)
-        return opt.optimize(initialGuess), opt.last_optimum_value()
-
-
-def bIsPerturbative(params, pertSymbols, allSymbols):
-    for pertSymbol in pertSymbols:
-        if abs(params[allSymbols.index(pertSymbol)]) > 4 * np.pi:
-            return False
-
-    return True
+        opt.set_exceptions_enabled(False)
+        return opt.optimize(initialGuess), opt.last_optimum_value(), opt.last_optimize_result()
 
 class TrackVEV:
     def __init__(self, TRange,
@@ -63,6 +65,13 @@ class TrackVEV:
         self.TRange = TRange
         self.initialGuesses = initialGuesses
         self.nloptInst = cNlopt( config=nloptConfig )
+        self.nloptErrors = [
+            "NLOPT_FAILURE",
+            "NLOPT_INVALID_ARGS",
+            "NLOPT_OUT_OF_MEMORY",
+            "NLOPT_ROUNDOFF_LIMITED",
+            "NLOPT_FORCED_STOP",
+        ]
         self.verbose = verbose
         
         self.allSymbols = pythonisedExpressions["allSymbols"]["allSymbols"]
@@ -158,7 +167,8 @@ class TrackVEV:
         )
         
         if not solvedBetaFunction.success:
-            raise Exception(solvedBetaFunction.message)
+            minimizationResults["failureReason"] = solvedBetaFunction.message
+            return minimizationResults
         
         betaSpline4D = {
             symbol: scipy.interpolate.CubicSpline(muRange, solvedBetaFunction.y[idx])
@@ -178,16 +188,19 @@ class TrackVEV:
             
             params = np.zeros(len(self.allSymbols), dtype="float64")
             params[self.allSymbols.index("T")] = T
-            
+            hardMatchingScale = self.hardScale.evaluate(params)
             for key, spline in betaSpline4D.items():
-                params[self.allSymbols.index(key)] = spline(self.hardScale.evaluate(params))
+                params[self.allSymbols.index(key)] = spline(hardMatchingScale)
             
             if not np.all(self.bounded.evaluateUnordered(params)):
-                raise Exception("Unbounded")
-                 
-            if not bIsPerturbative(params, self.pertSymbols, self.allSymbols):
-                raise Exception("non-pert")
-            
+                minimizationResults["failureReason"] = f"At {T=} one of the bounded condiditions isn't met."             
+                return minimizationResults
+
+                
+            if not isPerturbative(params, self.pertSymbols, self.allSymbols):
+                minimizationResults["failureReason"] = f"At {T=} and RGScale {hardMatchingScale} a coupling is larger than 4pi"            
+                return minimizationResults
+
             params = self.hardToSoft.evaluate(params)
             params = self.softScaleRGE.evaluate(params)
             if self.softToUltraSoft:
@@ -196,9 +209,15 @@ class TrackVEV:
             
             ## Round needed because nlopt result sometimes fp out of bounds
             ## See https://github.com/stevengj/nlopt/issues/625
-            vevLocation, vevDepth = self.findGlobalMinimum(
+            result =  self.findGlobalMinimum(
                 params, self.initialGuesses + [np.round(vevLocation, 8)]
             )
+            
+            if isinstance(result, str):
+                minimizationResults["failureReason"] = result            
+                return minimizationResults
+
+            vevLocation, vevDepth = result
             
             if Tidx == 0 and self.correctVEVIndex:
                 wrongVEV = (
@@ -207,16 +226,16 @@ class TrackVEV:
                 )   
 
                 if wrongVEV:
-                    raise Exception("incorrect VEV  at T_0")
-            
+                    minimizationResults["failureReason"] = f"At {T=} the vev is {vevLocation} which doesn't isn't the form set by correct VEV."
+                    return minimizationResults
+                   
             ## TODO only check last eigenvalue from each matrix as that is the largest 
             violatedHardScale = False
             for idx in self.massIndices:
                 mass = sqrt(params[idx])
-                if abs(mass.imag) < 1e-6 :
-                    if mass.real > np.pi*T:
-                        violatedHardScale = True
-                        break
+                if abs(mass.imag) < 1e-6 and mass.real > np.pi*T :
+                    violatedHardScale = True
+                    break
             
             minimizationResults["T"].append(T)
             minimizationResults["vevDepthReal"].append(vevDepth.real)
@@ -242,36 +261,44 @@ class TrackVEV:
     
     def findGlobalMinimum(self, params, minimumCandidates):
         """For physics reasons we only minimise the real part,
-        for nlopt reasons we need to give a redunant grad arg"""
+        for NLopt reasons we need to give a redunant grad arg"""
         def VeffWrapper(fields, grad):
             return np.real(
                     self.evaluatePotential(fields, params)
                 )
 
         bestResult = self.nloptInst.nloptGlobal(VeffWrapper, minimumCandidates[0])
+        if bestResult[2] < 0:
+            return  f"NLopt is reporting following error: {self.nloptErrors[-bestResult[2]-1]}"
 
         for candidate in minimumCandidates:
             result = self.nloptInst.nloptLocal(VeffWrapper, candidate)
+            
+            if result[2] < 0:
+                return f"NLopt is reporting following error: {self.nloptErrors[-result[2]-1]}"
+            
             if result[1] < bestResult[1]:
                 bestResult = result
         
         return bestResult[0], self.evaluatePotential(bestResult[0], params)
-    
+   
 
-from unittest import TestCase
+
+
 class TrackVEVUnitTests(TestCase):
-    def test_bIsPerturbativeTrue(self):
+    def test_isPerturbativeTrue(self):
         reference = True
         source = [0.7, -0.8, 0]
         pertSymbols = {"lam11", "lam12", "lam12p"}
         allSymbols = ["lam11", "lam12", "lam12p"]
 
-        self.assertEqual(reference, bIsPerturbative(source, pertSymbols, allSymbols))
+        self.assertEqual(reference, isPerturbative(source, pertSymbols, allSymbols))
 
-    def test_bIsPerturbativeFalse(self):
+    def test_IsPerturbativeFalse(self):
         reference = False
         source = [-12.57, 0, 0]
         pertSymbols = {"lam11", "lam12", "lam12p"}
         allSymbols = ["lam11", "lam12", "lam12p"]
 
-        self.assertEqual(reference, bIsPerturbative(source, pertSymbols, allSymbols))
+        self.assertEqual(reference, isPerturbative(source, pertSymbols, allSymbols))
+
