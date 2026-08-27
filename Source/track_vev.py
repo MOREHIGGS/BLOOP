@@ -262,9 +262,17 @@ class TrackVEV:
     def findGlobalMinimum(self, params, minimumCandidates):
         """For physics reasons we only minimise the real part,
         for NLopt reasons we need to give a redunant grad arg"""
+
         def VeffWrapper(fields, grad):
             return np.real(
-                    self.evaluatePotential(fields, params)
+                    self.evaluatePotential(
+                        fields, 
+                        params,
+                        np.array(self.nloptInst.varLowerBounds, dtype = np.float64),
+                        np.array(self.nloptInst.varUpperBounds, dtype = np.float64),
+                        np.float64(self.nloptInst.absGlobalTol),
+                        np.float64(self.nloptInst.relGlobalTol),
+                    )
                 )
 
         bestResult = self.nloptInst.nloptGlobal(VeffWrapper, minimumCandidates[0])

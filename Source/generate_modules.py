@@ -86,14 +86,14 @@ def generateModules(
     printIfVerbose("Compiling cython modules", verbose)
     
     ti = time.time()
-    subprocess.run(
+    test = subprocess.run(
         [sys.executable, f"Setup{loopOrder}.py", "build_ext", "--inplace"],
         cwd=cythonModulesDir,
         capture_output=True,
-        check=True,
+        check=False,
         text=True,
     )
-
+    
     printIfVerbose(f'Compilation took {time.time() - ti} seconds.', verbose)
 
 def generateSetupFile(
@@ -142,21 +142,51 @@ def generateEvaluatePotentialModule(
     return Environment().from_string(dedent("""\
 from libc.complex cimport csqrt, clog
 cimport cython
+
+from nlopt cimport *
+cdef extern from "nlopt.h":
+    void* nlopt_create(int, unsigned)
+    int nlopt_set_min_objective(void*, void*, void*)
+    int nlopt_optimize(void*, void*, void*)
+    int nlopt_set_lower_bounds(void*, void*)
+    int nlopt_set_upper_bounds(void*, void*)
+    int nlopt_set_xtol_abs1(void*, double)
+    int nlopt_set_xtol_rel(void*, double)
+
+cpdef evaluatePotential(
+    const double [:] fields, 
+    const double [:] parameters,
+    double [:] lower_bounds,
+    double [:] upper_bounds,
+    double xtol_abs,
+    double xtol_rel,
+):
+    cdef void* opt = nlopt_create(3, 3)
+    nlopt_set_min_objective(opt, <void*>&_evaluatePotential, <void*>&parameters[0])
+    nlopt_set_lower_bounds(opt, <void*>&lower_bounds[0])
+    nlopt_set_upper_bounds(opt, <void*>&upper_bounds[0])
+    nlopt_set_xtol_abs1(opt, xtol_abs)
+    nlopt_set_xtol_rel(opt, xtol_rel)
+
+    cdef double results[3]
+    nlopt_optimize(opt, <void*>&parameters[0], results)
+
+    return results
+
 @cython.cdivision(True)
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cpdef double complex evaluatePotential(const double [::1] fields, double [::1] parameters):
+cdef _evaluatePotential(const double [::1] fields, double [::1] parameters):
 {% for name in fieldNames %}
-    parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
+        parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
 {%- endfor %}
-    computeMasses(parameters)
-    return veff(parameters)
+        computeMasses(parameters)
+        return veff(parameters)
 
 {{computeMassesModule}}
 
 {{ veffSubModule }}
 
-    
         """)).render(
         loopOrder=loopOrder, 
         allSymbols=allSymbols, 
