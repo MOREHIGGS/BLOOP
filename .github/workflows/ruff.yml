@@ -6,7 +6,6 @@ on:
 jobs:
   ruff:
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - name: Install Ruff
@@ -14,4 +13,4 @@ jobs:
       - name: ruff version 
         run: ruff --version
       - name: Run Ruff
-        run: python3 -m ruff check Source/ || exit 0
+        run: ruff check Source/
