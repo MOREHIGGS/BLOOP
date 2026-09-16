@@ -93,7 +93,9 @@ def generateModules(
         check=False,
         text=True,
     )
-    
+    if test.returncode:
+        print(test.stderr)
+        exit()
     printIfVerbose(f'Compilation took {time.time() - ti} seconds.', verbose)
 
 def generateSetupFile(
@@ -146,6 +148,7 @@ cimport cython
 from nlopt cimport *
 cdef extern from "nlopt.h":
     void* nlopt_create(int, unsigned)
+    void nlopt_destroy(void*)
     int nlopt_set_min_objective(void*, void*, void*)
     int nlopt_optimize(void*, void*, void*)
     int nlopt_set_lower_bounds(void*, void*)
@@ -153,7 +156,7 @@ cdef extern from "nlopt.h":
     int nlopt_set_xtol_abs1(void*, double)
     int nlopt_set_xtol_rel(void*, double)
 
-cpdef evaluatePotential(
+cpdef runNLopt(
     const double [:] fields, 
     const double [:] parameters,
     double [:] lower_bounds,
@@ -161,22 +164,31 @@ cpdef evaluatePotential(
     double xtol_abs,
     double xtol_rel,
 ):
-    cdef void* opt = nlopt_create(3, 3)
-    nlopt_set_min_objective(opt, <void*>&_evaluatePotential, <void*>&parameters[0])
+    cdef void* opt = nlopt_create(34, 3)
+    nlopt_set_min_objective(opt, <void*>&nloptPotential, <void*>&parameters[0])
     nlopt_set_lower_bounds(opt, <void*>&lower_bounds[0])
     nlopt_set_upper_bounds(opt, <void*>&upper_bounds[0])
     nlopt_set_xtol_abs1(opt, xtol_abs)
     nlopt_set_xtol_rel(opt, xtol_rel)
 
-    cdef double results[3]
-    nlopt_optimize(opt, <void*>&parameters[0], results)
-
-    return results
+    cdef double depth
+    nlopt_optimize(opt, <void*>&fields[0], &depth)
+    return depth
 
 @cython.cdivision(True)
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef _evaluatePotential(const double [::1] fields, double [::1] parameters):
+cdef double nloptPotential(unsigned int n, double* fields, double grad, double [::1] parameters ):
+{% for name in fieldNames %}
+        parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
+{%- endfor %}
+        computeMasses(parameters)
+        return veff(parameters).real
+
+@cython.cdivision(True)
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cpdef evaluatePotential(const double [::1] fields, double [::1] parameters):
 {% for name in fieldNames %}
         parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
 {%- endfor %}

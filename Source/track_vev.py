@@ -123,6 +123,7 @@ class TrackVEV:
                          )
 
         self.evaluatePotential = importlib.import_module(f"EvaluatePotential{loopOrder}").evaluatePotential
+        self.runNLopt = importlib.import_module(f"EvaluatePotential{loopOrder}").runNLopt
 
     def trackVEV(self, benchmark):
         minimizationResults = {
@@ -274,7 +275,16 @@ class TrackVEV:
                         np.float64(self.nloptInst.relGlobalTol),
                     )
                 )
-
+        print(self.runNLopt(
+            np.array(minimumCandidates[0],dtype=np.float64),
+            params,
+            np.array(self.nloptInst.varLowerBounds, dtype = np.float64),
+            np.array(self.nloptInst.varUpperBounds, dtype = np.float64),
+            np.float64(self.nloptInst.absGlobalTol),
+            np.float64(self.nloptInst.relGlobalTol),
+        )
+        )
+        exit()
         bestResult = self.nloptInst.nloptGlobal(VeffWrapper, minimumCandidates[0])
         if bestResult[2] < 0:
             return  f"NLopt is reporting following error: {self.nloptErrors[-bestResult[2]-1]}"
