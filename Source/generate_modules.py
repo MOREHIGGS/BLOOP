@@ -157,8 +157,8 @@ cdef extern from "nlopt.h":
     int nlopt_set_xtol_rel(void*, double)
 
 cpdef runNLopt(
-    const double [:] fields, 
-    const double [:] parameters,
+    const double [:] fields,
+    double [:] parameters,
     double [:] lower_bounds,
     double [:] upper_bounds,
     double xtol_abs,
@@ -173,17 +173,19 @@ cpdef runNLopt(
 
     cdef double depth
     nlopt_optimize(opt, <void*>&fields[0], &depth)
-    return depth
+    return fields[0],fields[1],fields[2], depth
+
 
 @cython.cdivision(True)
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef double nloptPotential(unsigned int n, double* fields, double grad, double [::1] parameters ):
+cdef double nloptPotential(unsigned int n, double *fields, double *grad, void *f_data) noexcept:
+    cdef double* parameters = <double*>f_data
 {% for name in fieldNames %}
-        parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
+    parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
 {%- endfor %}
-        computeMasses(parameters)
-        return veff(parameters).real
+    computeMasses(parameters)
+    return veff(parameters).real
 
 @cython.cdivision(True)
 @cython.boundscheck(False)
@@ -192,8 +194,8 @@ cpdef evaluatePotential(const double [::1] fields, double [::1] parameters):
 {% for name in fieldNames %}
         parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
 {%- endfor %}
-        computeMasses(parameters)
-        return veff(parameters)
+        #computeMasses(parameters)
+        #return veff(parameters)
 
 {{computeMassesModule}}
 
@@ -214,7 +216,7 @@ def generateVeffModule(veffExpressions, allSymbols):
 @cython.cdivision(True)
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef double complex veff(double [::1] params):
+cdef double complex veff(double *params):
 {%- for symbol in allSymbols %}
     cdef double {{ symbol }} = params[{{ loop.index0 }}]
 {%- endfor %}
@@ -305,7 +307,7 @@ from libc.math cimport sqrt
 @cython.cdivision(True)
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef void computeMasses(double [::1] params):
+cdef void computeMasses(double *params):
 {%- for symbol in allSymbols %}
     cdef double {{ symbol }} = params[{{ loop.index0 }}]
 {%- endfor %}
