@@ -266,11 +266,25 @@ class TrackVEV:
             return np.real(
                     self.evaluatePotential(fields, params)
                 )
-
         bestResult = self.nloptInst.nloptGlobal(VeffWrapper, minimumCandidates[0])
+        
+        #v3Range = np.linspace(0, 14, 200)
+        #potential = [VeffWrapper(np.array([1e-4, 1e-4, v3]), 0) for v3 in v3Range]
+        #potential = np.array(potential)
+        #potential -= potential[0]
+        #import matplotlib.pylab as plt
+        
+        #plt.plot(v3Range, potential)
+        #plt.yscale("log")
+        #plt.xlabel("v3 ($\\text{GeV}^{\\frac{1}{2}}$) (BGF)")
+        #plt.ylabel("V-$V_0$")
+        #plt.title("$10^{-6}$*V6")
+        #plt.savefig("Dim6/potentialPlot.png")
+        #exit()
         if bestResult[2] < 0:
             return  f"NLopt is reporting following error: {self.nloptErrors[-bestResult[2]-1]}"
-
+        #print(f"VEV location: {bestResult[0]}")
+        #input() 
         for candidate in minimumCandidates:
             result = self.nloptInst.nloptLocal(VeffWrapper, candidate)
             
@@ -279,7 +293,8 @@ class TrackVEV:
             
             if result[1] < bestResult[1]:
                 bestResult = result
-        
+        #print(bestResult[0])
+        #input() 
         return bestResult[0], self.evaluatePotential(bestResult[0], params)
    
 

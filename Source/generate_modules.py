@@ -69,7 +69,7 @@ def generateModules(
     cythonModulesDir.mkdir(exist_ok=True, parents=True)
     cythonModulesDir = str(cythonModulesDir)
     sys.path.insert(0, cythonModulesDir)
-
+    
     if (md5(evaluatePotentialModule.encode()).hexdigest() == getHash(f"{cythonModulesDir}/EvaluatePotential{loopOrder}.pyx") and
         md5(setupModule.encode()).hexdigest() == getHash(f"{cythonModulesDir}/Setup{loopOrder}.py") and
         importlib.util.find_spec(f"EvaluatePotential{loopOrder}") is not None):
@@ -86,14 +86,18 @@ def generateModules(
     printIfVerbose("Compiling cython modules", verbose)
     
     ti = time.time()
-    subprocess.run(
+    compileSubProcess = subprocess.run(
         [sys.executable, f"Setup{loopOrder}.py", "build_ext", "--inplace"],
         cwd=cythonModulesDir,
         capture_output=True,
-        check=True,
+        check=False,
         text=True,
     )
-
+    if compileSubProcess.returncode != 0:
+        print("Compilation failed:")
+        print(result.stderr)
+        raise RuntimeError("Cython build failed")
+    
     printIfVerbose(f'Compilation took {time.time() - ti} seconds.', verbose)
 
 def generateSetupFile(

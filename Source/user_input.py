@@ -280,6 +280,10 @@ class UserInput(argparse.ArgumentParser):
            action="store",
        )
        filesGroup.add_argument(
+           "--V6FilePath",
+           action="store",
+       )
+       filesGroup.add_argument(
            "--betaFunctions4DFilePath",
            action="store",
        )
