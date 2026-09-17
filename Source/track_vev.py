@@ -122,9 +122,10 @@ class TrackVEV:
                              self.allSymbols,
                          )
 
-        self.evaluatePotential = importlib.import_module(f"EvaluatePotential{loopOrder}").evaluatePotential
+        #self.evaluatePotential = importlib.import_module(f"EvaluatePotential{loopOrder}").evaluatePotential
         self.runNLoptLocal = importlib.import_module(f"EvaluatePotential{loopOrder}").runNLoptLocal
         self.runNLoptGlobal = importlib.import_module(f"EvaluatePotential{loopOrder}").runNLoptGlobal
+        self.findGlobalMinimumCython = importlib.import_module(f"EvaluatePotential{loopOrder}").findGlobalMinimum
 
     def trackVEV(self, benchmark):
         minimizationResults = {
@@ -211,10 +212,12 @@ class TrackVEV:
             
             ## Round needed because nlopt result sometimes fp out of bounds
             ## See https://github.com/stevengj/nlopt/issues/625
-            result =  self.findGlobalMinimum(
-                params, self.initialGuesses + [np.round(vevLocation, 8)]
+            result =  self.findGlobalMinimumCython(
+                np.array(self.initialGuesses + [np.round(vevLocation, 8)], dtype=np.float64), 
+                params
             )
-            
+            print(result)
+            exit()
             if isinstance(result, str):
                 minimizationResults["failureReason"] = result            
                 return minimizationResults
@@ -260,34 +263,6 @@ class TrackVEV:
         ).tolist()
 
         return minimizationResults
-    
-    def findGlobalMinimum(self, params, minimumCandidates):
-        """For physics reasons we only minimise the real part,
-        for NLopt reasons we need to give a redunant grad arg"""
-
-        bestResult = self.runNLoptGlobal(
-            np.array(minimumCandidates[0],dtype=np.float64),
-            params,
-        )
-        
-        if bestResult[2] < 0:
-            return  f"NLopt is reporting following error: {self.nloptErrors[-bestResult[2]-1]}"
-
-        for candidate in minimumCandidates:
-            result = self.runNLoptLocal(
-                np.array(candidate, dtype=np.float64),
-                params,
-            )
-            if result[2] < 0:
-                return f"NLopt is reporting following error: {self.nloptErrors[-result[2]-1]}"
-            
-            if result[1] < bestResult[1]:
-                bestResult = result
- 
-        return list(bestResult[0]), self.evaluatePotential(np.array(bestResult[0], dtype=np.float64), params)
-   
-
-
 
 class TrackVEVUnitTests(TestCase):
     def test_isPerturbativeTrue(self):

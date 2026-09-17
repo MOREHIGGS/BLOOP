@@ -172,6 +172,40 @@ cdef extern from "nlopt.h":
 @cython.cdivision(True)
 @cython.boundscheck(False)
 @cython.wraparound(False)
+cpdef findGlobalMinimum(
+    const double [:, ::1] initialGuesses,
+    double [::1] parameters,
+):
+    cdef double deepest
+    cdef double depth
+    cdef int resultCode
+    cdef int minIndex = 0
+    cdef int i
+    cdef list nloptErrors = [
+        "NLOPT_FAILURE",
+        "NLOPT_INVALID_ARGS",
+        "NLOPT_OUT_OF_MEMORY",
+        "NLOPT_ROUNDOFF_LIMITED",
+        "NLOPT_FORCED_STOP",
+    ]
+
+    deepest, resultCode = runNLoptGlobal(initialGuesses[0], parameters)
+
+    for i in range(1, initialGuesses.shape[0]):
+        depth, resultCode = runNLoptLocal(initialGuesses[i], parameters)
+        
+        if resultCode < 0:
+            return nloptErrors[-resultCode - 1]
+        
+        if depth < deepest:
+            minIndex = i
+            deepest = depth
+
+    return list(initialGuesses[minIndex]), evaluatePotential(&initialGuesses[minIndex,0], &parameters[0])
+
+@cython.cdivision(True)
+@cython.boundscheck(False)
+@cython.wraparound(False)
 cpdef runNLoptLocal(
     const double [:] fields,
     double [:] parameters,
@@ -197,7 +231,7 @@ cpdef runNLoptLocal(
     cdef int returnCode
     returnCode = nlopt_optimize(opt, <void*>&fields[0], &depth)
     nlopt_destroy(opt)
-    return fields, depth, returnCode
+    return depth, returnCode
 
 @cython.cdivision(True)
 @cython.boundscheck(False)
@@ -243,12 +277,12 @@ cdef double nloptPotential(unsigned int n, double *fields, double *grad, void *f
 @cython.cdivision(True)
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cpdef evaluatePotential(const double [::1] fields, double [::1] parameters):
+cdef evaluatePotential(const double *fields, double *parameters):
 {% for name in fieldNames %}
         parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
 {%- endfor %}
-        computeMasses(&parameters[0])
-        return veff(&parameters[0])
+        computeMasses(parameters)
+        return veff(parameters)
 
 {{computeMassesModule}}
 
