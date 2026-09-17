@@ -27,6 +27,7 @@ def generateModules(
     gccFlags,
     fieldNames,
     modelDirectory,
+    args,
 ):
     
     veffModule = generateVeffModule(
@@ -50,6 +51,12 @@ def generateModules(
         fieldNames,
         veffModule,
         computeMassesModule,
+        args.absLocalTolerance,
+        args.absGlobalTolerance,
+        args.relLocalTolerance,
+        args.relGlobalTolerance,
+        args.bgfLowerBounds,
+        args.bgfUpperBounds,
     )
     
     setupModule = generateSetupFile(
@@ -139,7 +146,13 @@ def generateEvaluatePotentialModule(
     allSymbols, 
     fieldNames, 
     veffSubModules, 
-    computeMassesModule
+    computeMassesModule,
+    absLocalTol,
+    absGlobalTol,
+    relLocalTol,
+    relGlobalTol,
+    lowerBounds,
+    upperBounds,
 ):
     return Environment().from_string(dedent("""\
 from libc.complex cimport csqrt, clog
@@ -156,25 +169,65 @@ cdef extern from "nlopt.h":
     int nlopt_set_xtol_abs1(void*, double)
     int nlopt_set_xtol_rel(void*, double)
 
-cpdef runNLopt(
+@cython.cdivision(True)
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cpdef runNLoptLocal(
     const double [:] fields,
     double [:] parameters,
-    double [:] lower_bounds,
-    double [:] upper_bounds,
-    double xtol_abs,
-    double xtol_rel,
 ):
+    cdef double upperBounds[3] 
+{% for bound in upperBounds %}
+    upperBounds[{{ loop.index0 }}] = {{ bound }}
+{%- endfor %}
+
+    cdef double lowerBounds[3] 
+{% for bound in lowerBounds %}
+    lowerBounds[{{ loop.index0 }}] = {{ bound }}
+{%- endfor %}
+
     cdef void* opt = nlopt_create(34, 3)
     nlopt_set_min_objective(opt, <void*>&nloptPotential, <void*>&parameters[0])
-    nlopt_set_lower_bounds(opt, <void*>&lower_bounds[0])
-    nlopt_set_upper_bounds(opt, <void*>&upper_bounds[0])
-    nlopt_set_xtol_abs1(opt, xtol_abs)
-    nlopt_set_xtol_rel(opt, xtol_rel)
+    nlopt_set_lower_bounds(opt, &lowerBounds[0])
+    nlopt_set_upper_bounds(opt, &upperBounds[0])
+    nlopt_set_xtol_abs1(opt, {{ absLocalTol }})
+    nlopt_set_xtol_rel(opt, {{ relLocalTol}})
 
     cdef double depth
-    nlopt_optimize(opt, <void*>&fields[0], &depth)
-    return fields[0],fields[1],fields[2], depth
+    cdef int returnCode
+    returnCode = nlopt_optimize(opt, <void*>&fields[0], &depth)
+    nlopt_destroy(opt)
+    return fields, depth, returnCode
 
+@cython.cdivision(True)
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cpdef runNLoptGlobal(
+    const double [:] fields,
+    double [:] parameters,
+):
+    cdef double upperBounds[3] 
+{% for bound in upperBounds %}
+    upperBounds[{{ loop.index0 }}] = {{ bound }}
+{%- endfor %}
+
+    cdef double lowerBounds[3] 
+{% for bound in lowerBounds %}
+    lowerBounds[{{ loop.index0 }}] = {{ bound }}
+{%- endfor %}
+
+    cdef void* opt = nlopt_create(3, 3)
+    nlopt_set_min_objective(opt, <void*>&nloptPotential, <void*>&parameters[0])
+    nlopt_set_lower_bounds(opt, &lowerBounds[0])
+    nlopt_set_upper_bounds(opt, &upperBounds[0])
+    nlopt_set_xtol_abs1(opt, {{ absGlobalTol }})
+    nlopt_set_xtol_rel(opt, {{ relGlobalTol}})
+
+    cdef double depth
+    cdef int returnCode
+    returnCode = nlopt_optimize(opt, <void*>&fields[0], &depth)
+    nlopt_destroy(opt)
+    return runNLoptLocal(fields, parameters)
 
 @cython.cdivision(True)
 @cython.boundscheck(False)
@@ -194,8 +247,8 @@ cpdef evaluatePotential(const double [::1] fields, double [::1] parameters):
 {% for name in fieldNames %}
         parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
 {%- endfor %}
-        #computeMasses(parameters)
-        #return veff(parameters)
+        computeMasses(&parameters[0])
+        return veff(&parameters[0])
 
 {{computeMassesModule}}
 
@@ -206,7 +259,13 @@ cpdef evaluatePotential(const double [::1] fields, double [::1] parameters):
         allSymbols=allSymbols, 
         fieldNames=fieldNames, 
         veffSubModule = veffSubModules, 
-        computeMassesModule = computeMassesModule
+        computeMassesModule = computeMassesModule,
+        absLocalTol = absLocalTol,
+        absGlobalTol = absGlobalTol,
+        relLocalTol = relLocalTol,
+        relGlobalTol = relGlobalTol,
+        lowerBounds = lowerBounds,
+        upperBounds = upperBounds,
         )
 
 def generateVeffModule(veffExpressions, allSymbols):

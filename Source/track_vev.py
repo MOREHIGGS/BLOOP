@@ -123,7 +123,8 @@ class TrackVEV:
                          )
 
         self.evaluatePotential = importlib.import_module(f"EvaluatePotential{loopOrder}").evaluatePotential
-        self.runNLopt = importlib.import_module(f"EvaluatePotential{loopOrder}").runNLopt
+        self.runNLoptLocal = importlib.import_module(f"EvaluatePotential{loopOrder}").runNLoptLocal
+        self.runNLoptGlobal = importlib.import_module(f"EvaluatePotential{loopOrder}").runNLoptGlobal
 
     def trackVEV(self, benchmark):
         minimizationResults = {
@@ -264,41 +265,26 @@ class TrackVEV:
         """For physics reasons we only minimise the real part,
         for NLopt reasons we need to give a redunant grad arg"""
 
-        def VeffWrapper(fields, grad):
-            return np.real(
-                    self.evaluatePotential(
-                        fields, 
-                        params,
-                        np.array(self.nloptInst.varLowerBounds, dtype = np.float64),
-                        np.array(self.nloptInst.varUpperBounds, dtype = np.float64),
-                        np.float64(self.nloptInst.absGlobalTol),
-                        np.float64(self.nloptInst.relGlobalTol),
-                    )
-                )
-        print(self.runNLopt(
+        bestResult = self.runNLoptGlobal(
             np.array(minimumCandidates[0],dtype=np.float64),
             params,
-            np.array(self.nloptInst.varLowerBounds, dtype = np.float64),
-            np.array(self.nloptInst.varUpperBounds, dtype = np.float64),
-            np.float64(self.nloptInst.absGlobalTol),
-            np.float64(self.nloptInst.relGlobalTol),
         )
-        )
-        exit()
-        bestResult = self.nloptInst.nloptGlobal(VeffWrapper, minimumCandidates[0])
+        
         if bestResult[2] < 0:
             return  f"NLopt is reporting following error: {self.nloptErrors[-bestResult[2]-1]}"
 
         for candidate in minimumCandidates:
-            result = self.nloptInst.nloptLocal(VeffWrapper, candidate)
-            
+            result = self.runNLoptLocal(
+                np.array(candidate, dtype=np.float64),
+                params,
+            )
             if result[2] < 0:
                 return f"NLopt is reporting following error: {self.nloptErrors[-result[2]-1]}"
             
             if result[1] < bestResult[1]:
                 bestResult = result
-        
-        return bestResult[0], self.evaluatePotential(bestResult[0], params)
+ 
+        return list(bestResult[0]), self.evaluatePotential(np.array(bestResult[0], dtype=np.float64), params)
    
 
 

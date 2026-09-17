@@ -120,6 +120,7 @@ def pythonise_DRalgo(args):
         args.gccFlags,
         [replaceGreekSymbols(name) for name in getLinesJSON(args.lagranianVariablesFilePath)["fieldSymbols"]],
         args.modelDirectory,
+        args,
     )
     
 
