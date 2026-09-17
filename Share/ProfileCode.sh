@@ -34,9 +34,9 @@ while [[ $# -gt 0 ]]; do
 done
 
 echo "Generating 50 random benchmarks and compiling modules at loop order $LOOPORDER"
-bloop --lastBenchmark 0 --profile --benchmarkType random --maxNumBenchmarks 50 --loopOrder $LOOPORDER --configFilePath $SCRIPT_DIR/../Run/Z2_3HDMConfigFile.json    || exit -1
+bloop --lastBenchmark 0 --profile --benchmarkType random --numBenchmarks 50 --loopOrder $LOOPORDER --configFilePath $SCRIPT_DIR/../Run/Z2_3HDMConfigFile.json    || exit -1
 echo "Profiling code"
-OMP_NUM_THREADS=1 python3 -m cProfile -o $OUTPUTFILE.pstats $SCRIPT_DIR/../Source/RunStages.py --profile --loopOrder $LOOPORDER --benchmarkType load --configFilePath $SCRIPT_DIR/../Run/Z2_3HDMConfigFile.json || exit -1
+OMP_NUM_THREADS=1 python3 -m cProfile -o $OUTPUTFILE.pstats $SCRIPT_DIR/../Source/run_stages.py --profile --loopOrder $LOOPORDER --benchmarkType load --configFilePath $SCRIPT_DIR/../Run/Z2_3HDMConfigFile.json || exit -1
 gprof2dot --colour-nodes-by-selftime -f pstats $OUTPUTFILE.pstats | \dot -Tsvg -o $OUTPUTFILE.svg || exit -1
 echo "Profile success, results stored in $OUTPUTFILE.svg"
 rm $OUTPUTFILE.pstats || exit -1
