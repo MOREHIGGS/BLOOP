@@ -171,7 +171,7 @@ cdef extern from "nlopt.h":
     int nlopt_set_xtol_rel(void*, double)
 
 cpdef findGlobalMinimum(
-    const double [:, ::1] initialGuesses,
+    double [:, ::1] initialGuesses,
     double [::1] parameters,
 ):
     cdef double deepest
@@ -199,10 +199,10 @@ cpdef findGlobalMinimum(
             minIndex = i
             deepest = depth
 
-    return list(initialGuesses[minIndex]), evaluatePotential(&initialGuesses[minIndex,0], &parameters[0])
+    return list(initialGuesses[minIndex]), evaluatePotential_C(&initialGuesses[minIndex,0], &parameters[0])
 
 cpdef runNLoptLocal(
-    const double [:] fields,
+    double [:] fields,
     double [:] parameters,
 ):
     cdef double upperBounds[3] 
@@ -216,7 +216,7 @@ cpdef runNLoptLocal(
 {%- endfor %}
 
     cdef void* opt = nlopt_create(34, 3)
-    nlopt_set_min_objective(opt, <void*>&nloptPotential, <void*>&parameters[0])
+    nlopt_set_min_objective(opt, <void*>&evaluatePotential_NLopt, <void*>&parameters[0])
     nlopt_set_lower_bounds(opt, &lowerBounds[0])
     nlopt_set_upper_bounds(opt, &upperBounds[0])
     nlopt_set_xtol_abs1(opt, {{ absLocalTol }})
@@ -228,8 +228,8 @@ cpdef runNLoptLocal(
     nlopt_destroy(opt)
     return depth, returnCode
 
-cpdef runNLoptGlobal(
-    const double [:] fields,
+cdef runNLoptGlobal(
+    double [:] fields,
     double [:] parameters,
 ):
     cdef double upperBounds[3] 
@@ -243,7 +243,7 @@ cpdef runNLoptGlobal(
 {%- endfor %}
 
     cdef void* opt = nlopt_create(3, 3)
-    nlopt_set_min_objective(opt, <void*>&nloptPotential, <void*>&parameters[0])
+    nlopt_set_min_objective(opt, <void*>&evaluatePotential_NLopt, <void*>&parameters[0])
     nlopt_set_lower_bounds(opt, &lowerBounds[0])
     nlopt_set_upper_bounds(opt, &upperBounds[0])
     nlopt_set_xtol_abs1(opt, {{ absGlobalTol }})
@@ -255,15 +255,13 @@ cpdef runNLoptGlobal(
     nlopt_destroy(opt)
     return runNLoptLocal(fields, parameters)
 
-cdef double nloptPotential(unsigned int n, double *fields, double *grad, void *f_data) noexcept:
-    cdef double* parameters = <double*>f_data
-{% for name in fieldNames %}
-    parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
-{%- endfor %}
-    computeMasses(parameters)
-    return veff(parameters).real
+cdef double evaluatePotential_NLopt(unsigned int n, double *fields, double *grad, void *parameters) noexcept:
+    return evaluatePotential_C(&fields[0], <double*>parameters).real
 
-cdef evaluatePotential(const double *fields, double *parameters):
+cpdef complex evaluatePotential_Python(double[::1] fields, double[::1] parameters):
+        return evaluatePotential_C(&fields[0], &parameters[0])
+
+cdef complex evaluatePotential_C(double *fields, double *parameters):
 {% for name in fieldNames %}
         parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
 {%- endfor %}

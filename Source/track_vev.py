@@ -114,7 +114,7 @@ class TrackVEV:
                              self.allSymbols,
                          )
 
-        #self.evaluatePotential = importlib.import_module(f"EvaluatePotential{loopOrder}").evaluatePotential
+        self.evaluatePotential = importlib.import_module(f"EvaluatePotential{loopOrder}").evaluatePotential_Python
         self.findGlobalMinimumCython = importlib.import_module(f"EvaluatePotential{loopOrder}").findGlobalMinimum
 
     def trackVEV(self, benchmark):
@@ -202,6 +202,7 @@ class TrackVEV:
             
             ## Round needed because nlopt result sometimes fp out of bounds
             ## See https://github.com/stevengj/nlopt/issues/625
+            
             result =  self.findGlobalMinimumCython(
                 np.array(self.initialGuesses + [np.round(vevLocation, 8)], dtype=np.float64), 
                 params
