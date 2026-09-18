@@ -131,6 +131,7 @@ def generateSetupFile(
                             "boundscheck": False,
                             "nonecheck":False,
                             "wraparound": False,
+                            "cdivision": True,
                             "profile": {{profile}},
                             }
                 ),
@@ -169,9 +170,6 @@ cdef extern from "nlopt.h":
     int nlopt_set_xtol_abs1(void*, double)
     int nlopt_set_xtol_rel(void*, double)
 
-@cython.cdivision(True)
-@cython.boundscheck(False)
-@cython.wraparound(False)
 cpdef findGlobalMinimum(
     const double [:, ::1] initialGuesses,
     double [::1] parameters,
@@ -203,9 +201,6 @@ cpdef findGlobalMinimum(
 
     return list(initialGuesses[minIndex]), evaluatePotential(&initialGuesses[minIndex,0], &parameters[0])
 
-@cython.cdivision(True)
-@cython.boundscheck(False)
-@cython.wraparound(False)
 cpdef runNLoptLocal(
     const double [:] fields,
     double [:] parameters,
@@ -233,9 +228,6 @@ cpdef runNLoptLocal(
     nlopt_destroy(opt)
     return depth, returnCode
 
-@cython.cdivision(True)
-@cython.boundscheck(False)
-@cython.wraparound(False)
 cpdef runNLoptGlobal(
     const double [:] fields,
     double [:] parameters,
@@ -263,9 +255,6 @@ cpdef runNLoptGlobal(
     nlopt_destroy(opt)
     return runNLoptLocal(fields, parameters)
 
-@cython.cdivision(True)
-@cython.boundscheck(False)
-@cython.wraparound(False)
 cdef double nloptPotential(unsigned int n, double *fields, double *grad, void *f_data) noexcept:
     cdef double* parameters = <double*>f_data
 {% for name in fieldNames %}
@@ -274,9 +263,6 @@ cdef double nloptPotential(unsigned int n, double *fields, double *grad, void *f
     computeMasses(parameters)
     return veff(parameters).real
 
-@cython.cdivision(True)
-@cython.boundscheck(False)
-@cython.wraparound(False)
 cdef evaluatePotential(const double *fields, double *parameters):
 {% for name in fieldNames %}
         parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
@@ -306,9 +292,6 @@ def generateVeffModule(veffExpressions, allSymbols):
     ## NOTE this is the one thing the can return complex
     veffExprs, subExprAssignment =  commonSubExprElimination(veffExpressions)
     return Environment().from_string(dedent("""\
-@cython.cdivision(True)
-@cython.boundscheck(False)
-@cython.wraparound(False)
 cdef double complex veff(double *params):
 {%- for symbol in allSymbols %}
     cdef double {{ symbol }} = params[{{ loop.index0 }}]
@@ -397,9 +380,6 @@ from scipy.linalg.cython_lapack cimport dsyevd
 from scipy.linalg.cython_blas cimport dgemm
 from libc.math cimport sqrt
 
-@cython.cdivision(True)
-@cython.boundscheck(False)
-@cython.wraparound(False)
 cdef void computeMasses(double *params):
 {%- for symbol in allSymbols %}
     cdef double {{ symbol }} = params[{{ loop.index0 }}]
