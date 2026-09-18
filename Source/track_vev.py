@@ -64,14 +64,6 @@ class TrackVEV:
         self.verbose = verbose
         self.TRange = TRange
         self.initialGuesses = initialGuesses
-        self.nloptInst = cNlopt( config=nloptConfig )
-        self.nloptErrors = [
-            "NLOPT_FAILURE",
-            "NLOPT_INVALID_ARGS",
-            "NLOPT_OUT_OF_MEMORY",
-            "NLOPT_ROUNDOFF_LIMITED",
-            "NLOPT_FORCED_STOP",
-        ]
         self.verbose = verbose
         
         self.allSymbols = pythonisedExpressions["allSymbols"]["allSymbols"]
@@ -123,8 +115,6 @@ class TrackVEV:
                          )
 
         #self.evaluatePotential = importlib.import_module(f"EvaluatePotential{loopOrder}").evaluatePotential
-        self.runNLoptLocal = importlib.import_module(f"EvaluatePotential{loopOrder}").runNLoptLocal
-        self.runNLoptGlobal = importlib.import_module(f"EvaluatePotential{loopOrder}").runNLoptGlobal
         self.findGlobalMinimumCython = importlib.import_module(f"EvaluatePotential{loopOrder}").findGlobalMinimum
 
     def trackVEV(self, benchmark):
@@ -216,8 +206,7 @@ class TrackVEV:
                 np.array(self.initialGuesses + [np.round(vevLocation, 8)], dtype=np.float64), 
                 params
             )
-            print(result)
-            exit()
+            
             if isinstance(result, str):
                 minimizationResults["failureReason"] = result            
                 return minimizationResults
