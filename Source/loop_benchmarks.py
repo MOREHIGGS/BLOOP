@@ -43,18 +43,8 @@ def loopBenchmarks(args):
 
     def streamResultsOut(resultsGenerator, outputFilePath):
         with open(outputFilePath, "w") as fp:
-            fp.write("[\n")
-            middle = False
+            json.dump(list(resultsGenerator), fp, indent=2)
 
-            for result in resultsGenerator:
-                if middle:
-                    fp.write(",\n")
-                json.dump(result, fp, indent=2)
-                middle = True
-
-            fp.write("\n]\n")
-
-    ## try needed because if doBenchmark errors it can cause BLOOP to hang
     def doBenchmarkWrapper(benchmark):
         ## Maybe make these explicit func args instead of pulling from outside func scope
         return doBenchmark(trackVEV, args, fieldNames, resultsDir, benchmark)
