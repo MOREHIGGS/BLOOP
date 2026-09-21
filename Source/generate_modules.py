@@ -182,9 +182,9 @@ def generateEvaluatePotentialModule(
         ):
             cdef double deepest
             cdef double depth
-            cdef int resultCode
-            cdef int minIndex = 0
             cdef int i
+            cdef double [:] vevLocation = initialGuesses[0].copy()
+            
             cdef list nloptErrors = [
                 "NLOPT_FAILURE",
                 "NLOPT_INVALID_ARGS",
@@ -192,74 +192,56 @@ def generateEvaluatePotentialModule(
                 "NLOPT_ROUNDOFF_LIMITED",
                 "NLOPT_FORCED_STOP",
             ]
+            
+            cdef double upperBounds[{{ numberOfFields }}] 
+        {% for bound in upperBounds %}
+            upperBounds[{{ loop.index0 }}] = {{ bound }}
+        {%- endfor %}
 
-            deepest, resultCode = runNLoptGlobal(initialGuesses[0], parameters)
+            cdef double lowerBounds[{{ numberOfFields }}] 
+        {% for bound in lowerBounds %}
+            lowerBounds[{{ loop.index0 }}] = {{ bound }}
+        {%- endfor %}
 
+            cdef void* optGlobal = nlopt_create({{ globalAlgorithm }}, {{ numberOfFields }})
+            nlopt_set_min_objective(optGlobal, <void*>&evaluatePotential_NLopt, <void*>&parameters[0])
+            nlopt_set_lower_bounds(optGlobal, &lowerBounds[0])
+            nlopt_set_upper_bounds(optGlobal, &upperBounds[0])
+            nlopt_set_xtol_abs1(optGlobal, {{ absGlobalTol }})
+            nlopt_set_xtol_rel(optGlobal, {{ relGlobalTol}})
+
+            cdef void* optLocal = nlopt_create({{ localAlgorithm }}, {{ numberOfFields }})
+            nlopt_set_min_objective(optLocal, <void*>&evaluatePotential_NLopt, <void*>&parameters[0])
+            nlopt_set_lower_bounds(optLocal, &lowerBounds[0])
+            nlopt_set_upper_bounds(optLocal, &upperBounds[0])
+            nlopt_set_xtol_abs1(optLocal, {{ absLocalTol }})
+            nlopt_set_xtol_rel(optLocal, {{ relLocalTol}})
+
+            
+            cdef int resultCode
+            resultCode = nlopt_optimize(optGlobal, <void*>&vevLocation[0], &deepest)
+            nlopt_destroy(optGlobal)
+            
+            if resultCode < 0:
+                return nloptErrors[-resultCode - 1]
+            
+            resultCode = nlopt_optimize(optLocal, <void*>&vevLocation[0], &deepest)
+
+            if resultCode < 0:
+                return nloptErrors[-resultCode - 1]
+                
             for i in range(1, initialGuesses.shape[0]):
-                depth, resultCode = runNLoptLocal(initialGuesses[i], parameters)
+                resultCode = nlopt_optimize(optLocal, <void*>&initialGuesses[i,0], &depth)
                 
                 if resultCode < 0:
                     return nloptErrors[-resultCode - 1]
                 
                 if depth < deepest:
-                    minIndex = i
+                    vevLocation = initialGuesses[i] 
                     deepest = depth
 
-            return list(initialGuesses[minIndex]), evaluatePotential_C(&initialGuesses[minIndex,0], &parameters[0])
-
-        cpdef runNLoptLocal(
-            double [:] fields,
-            double [:] parameters,
-        ):
-            cdef double upperBounds[{{ numberOfFields }}] 
-        {% for bound in upperBounds %}
-            upperBounds[{{ loop.index0 }}] = {{ bound }}
-        {%- endfor %}
-
-            cdef double lowerBounds[{{ numberOfFields }}] 
-        {% for bound in lowerBounds %}
-            lowerBounds[{{ loop.index0 }}] = {{ bound }}
-        {%- endfor %}
-
-            cdef void* opt = nlopt_create({{ localAlgorithm }}, {{ numberOfFields }})
-            nlopt_set_min_objective(opt, <void*>&evaluatePotential_NLopt, <void*>&parameters[0])
-            nlopt_set_lower_bounds(opt, &lowerBounds[0])
-            nlopt_set_upper_bounds(opt, &upperBounds[0])
-            nlopt_set_xtol_abs1(opt, {{ absLocalTol }})
-            nlopt_set_xtol_rel(opt, {{ relLocalTol}})
-
-            cdef double depth
-            cdef int returnCode
-            returnCode = nlopt_optimize(opt, <void*>&fields[0], &depth)
-            nlopt_destroy(opt)
-            return depth, returnCode
-
-        cdef runNLoptGlobal(
-            double [:] fields,
-            double [:] parameters,
-        ):
-            cdef double upperBounds[{{ numberOfFields }}] 
-        {% for bound in upperBounds %}
-            upperBounds[{{ loop.index0 }}] = {{ bound }}
-        {%- endfor %}
-
-            cdef double lowerBounds[{{ numberOfFields }}] 
-        {% for bound in lowerBounds %}
-            lowerBounds[{{ loop.index0 }}] = {{ bound }}
-        {%- endfor %}
-
-            cdef void* opt = nlopt_create({{ globalAlgorithm }}, {{ numberOfFields }})
-            nlopt_set_min_objective(opt, <void*>&evaluatePotential_NLopt, <void*>&parameters[0])
-            nlopt_set_lower_bounds(opt, &lowerBounds[0])
-            nlopt_set_upper_bounds(opt, &upperBounds[0])
-            nlopt_set_xtol_abs1(opt, {{ absGlobalTol }})
-            nlopt_set_xtol_rel(opt, {{ relGlobalTol}})
-
-            cdef double depth
-            cdef int returnCode
-            returnCode = nlopt_optimize(opt, <void*>&fields[0], &depth)
-            nlopt_destroy(opt)
-            return runNLoptLocal(fields, parameters)
+            nlopt_destroy(optLocal)
+            return list(vevLocation), evaluatePotential_C(&vevLocation[0], &parameters[0])
 
         cdef double evaluatePotential_NLopt(unsigned int n, double *fields, double *grad, void *parameters) noexcept:
             return evaluatePotential_C(&fields[0], <double*>parameters).real
