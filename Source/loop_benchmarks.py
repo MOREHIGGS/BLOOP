@@ -20,21 +20,19 @@ def loopBenchmarks(args):
         
     fieldNames = pythonisedExpressions["lagranianVariables"]["lagranianVariables"]["fieldSymbols"]
     
-    trackVEV = TrackVEV(tuple(_drange(args.TRangeStart, args.TRangeEnd, str(args.TRangeStepSize))),
-                     args.initialGuesses,
-                     args.verbose,
-                     pythonisedExpressions,
-                     args.loopOrder,
-                     args.correctVEV,
-                     {"nbrVars": len(fieldNames),
-                             "absGlobalTol": args.absGlobalTolerance,
-                             "relGlobalTol": args.relGlobalTolerance,
-                             "absLocalTol": args.absLocalTolerance,
-                             "relLocalTol": args.relLocalTolerance,
-                             "varLowerBounds": args.bgfLowerBounds,
-                             "varUpperBounds": args.bgfUpperBounds,
-                     },
-                     )
+    trackVEV = TrackVEV(
+        tuple(_drange(
+                args.TRangeStart, 
+                args.TRangeEnd, 
+                str(args.TRangeStepSize),
+            
+        )),
+        args.initialGuesses,
+        args.verbose,
+        pythonisedExpressions,
+        args.loopOrder,
+        args.correctVEV,
+    )
     
     def streamBenchmarksIn(path, firstBm, lastBm):
         with open(path, "r") as benchmarkFile:
