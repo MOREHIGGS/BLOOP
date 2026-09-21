@@ -7,7 +7,9 @@ import ijson
 import numpy as np
 from pathos.multiprocessing import Pool
 from tqdm import tqdm
+
 from track_vev import TrackVEV
+from utility import printIfVerbose
 
 
 def loopBenchmarks(args):
@@ -84,22 +86,19 @@ def doBenchmark(
     resultsDirectory,
     benchmark,
 ):
-    if args.verbose:
-        print(f"Starting benchmark: {benchmark['bmNumber']}")
+    printIfVerbose(f"Starting benchmark: {benchmark['bmNumber']}", args.verbose)
 
     minimizationResult = trackVEV.trackVEV(benchmark)
 
     filename = resultsDirectory/f"BM_{benchmark['bmNumber']}"
 
     if args.bSave:
-        if args.verbose:
-            print(f"Saving raw data of {benchmark['bmNumber']} to {filename}.json")
+        printIfVerbose(f"Saving raw data of {benchmark['bmNumber']} to {filename}.json", args.verbose)
         with open(f"{filename}.json", "w") as fp:
             fp.write(json.dumps(minimizationResult, indent=4))
             
     if args.bPlot:
-        if args.verbose:
-            print(f"Plotting {benchmark['bmNumber']}")
+        printIfVerbose(f"Plotting {benchmark['bmNumber']}", args.verbose)
 
         import_module(args.plotDataModule).plotData(minimizationResult, filename, fieldNames)
 
@@ -126,7 +125,6 @@ def processData(
     }
 
     if result["failureReason"]:
-        print(processedResult)
         return processedResult 
 
     allFieldValues = result["vevLocation"] / np.sqrt(result["T"])

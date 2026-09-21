@@ -6,6 +6,7 @@ import numpy as np
 import scipy
 from parsed_expression import ParsedExpression, ParsedExpressionSystem
 from pythonise_dralgo import replaceGreekSymbols
+from utility import printIfVerbose
 
 
 def isPerturbative(params, pertSymbols, allSymbols):
@@ -23,7 +24,6 @@ class TrackVEV:
              correctVEV,
         ):
         
-        self.verbose = verbose
         self.TRange = TRange
         self.initialGuesses = initialGuesses
         self.verbose = verbose
@@ -138,8 +138,7 @@ class TrackVEV:
         vevLocation = np.array(self.initialGuesses[0])
 
         for Tidx, T in enumerate(self.TRange):
-            if self.verbose:
-                print(f"Start of temp = {T} loop")
+            printIfVerbose(f"Start of temp = {T} loop", self.verbose)
             
             params = np.zeros(len(self.allSymbols), dtype="float64")
             params[self.allSymbols.index("T")] = T
@@ -202,8 +201,7 @@ class TrackVEV:
             
             ## TODO add a catch for bad behaviour e.g. dipping in and out symmetric 
             if np.all(np.abs(vevLocation) < 0.1):
-                if self.verbose:
-                    print(f"Symmetric phase found at temp {T}")
+                printIfVerbose(f"Symmetric phase found at temp {T}", self.verbose)
 
                 if counter == 3:
                     break
