@@ -7,6 +7,7 @@ from hashlib import md5
 from math import sqrt
 from pathlib import Path
 from textwrap import dedent
+import nlopt
 
 from jinja2 import Environment
 from utility import printIfVerbose
@@ -155,6 +156,10 @@ def generateEvaluatePotentialModule(
     lowerBounds,
     upperBounds,
 ):
+    globalAlgorithm = nlopt.GN_DIRECT_NOSCAL
+    localAlgorithm = nlopt.LN_BOBYQA
+    numberOfFields = len(fieldNames) 
+
     return Environment().from_string(dedent("""\
 from libc.complex cimport csqrt, clog
 cimport cython
@@ -205,17 +210,17 @@ cpdef runNLoptLocal(
     double [:] fields,
     double [:] parameters,
 ):
-    cdef double upperBounds[3] 
+    cdef double upperBounds[{{ numberOfFields }}] 
 {% for bound in upperBounds %}
     upperBounds[{{ loop.index0 }}] = {{ bound }}
 {%- endfor %}
 
-    cdef double lowerBounds[3] 
+    cdef double lowerBounds[{{ numberOfFields }}] 
 {% for bound in lowerBounds %}
     lowerBounds[{{ loop.index0 }}] = {{ bound }}
 {%- endfor %}
 
-    cdef void* opt = nlopt_create(34, 3)
+    cdef void* opt = nlopt_create({{ localAlgorithm }}, {{ numberOfFields }})
     nlopt_set_min_objective(opt, <void*>&evaluatePotential_NLopt, <void*>&parameters[0])
     nlopt_set_lower_bounds(opt, &lowerBounds[0])
     nlopt_set_upper_bounds(opt, &upperBounds[0])
@@ -232,17 +237,17 @@ cdef runNLoptGlobal(
     double [:] fields,
     double [:] parameters,
 ):
-    cdef double upperBounds[3] 
+    cdef double upperBounds[{{ numberOfFields }}] 
 {% for bound in upperBounds %}
     upperBounds[{{ loop.index0 }}] = {{ bound }}
 {%- endfor %}
 
-    cdef double lowerBounds[3] 
+    cdef double lowerBounds[{{ numberOfFields }}] 
 {% for bound in lowerBounds %}
     lowerBounds[{{ loop.index0 }}] = {{ bound }}
 {%- endfor %}
 
-    cdef void* opt = nlopt_create(3, 3)
+    cdef void* opt = nlopt_create({{ globalAlgorithm }}, {{ numberOfFields }})
     nlopt_set_min_objective(opt, <void*>&evaluatePotential_NLopt, <void*>&parameters[0])
     nlopt_set_lower_bounds(opt, &lowerBounds[0])
     nlopt_set_upper_bounds(opt, &upperBounds[0])
@@ -270,21 +275,9 @@ cdef complex evaluatePotential_C(double *fields, double *parameters):
 
 {{computeMassesModule}}
 
-{{ veffSubModule }}
+{{ veffSubModules }}
 
-        """)).render(
-        loopOrder=loopOrder, 
-        allSymbols=allSymbols, 
-        fieldNames=fieldNames, 
-        veffSubModule = veffSubModules, 
-        computeMassesModule = computeMassesModule,
-        absLocalTol = absLocalTol,
-        absGlobalTol = absGlobalTol,
-        relLocalTol = relLocalTol,
-        relGlobalTol = relGlobalTol,
-        lowerBounds = lowerBounds,
-        upperBounds = upperBounds,
-        )
+        """)).render(**locals())
 
 def generateVeffModule(veffExpressions, allSymbols):
     ## NOTE this is the one thing the can return complex
