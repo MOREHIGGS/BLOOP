@@ -226,7 +226,7 @@ class TrackVEV:
                 )   
 
                 if wrongVEV:
-                    minimizationResults["failureReason"] = f"At {T=} the vev is {vevLocation} which doesn't isn't the form set by correct VEV."
+                    minimizationResults["failureReason"] = f"At {T=} vev structure isn't the form set by correct VEV."
                     return minimizationResults
                    
             ## TODO only check last eigenvalue from each matrix as that is the largest 

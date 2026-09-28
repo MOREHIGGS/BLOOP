@@ -138,7 +138,6 @@ def processData(
     }
 
     if result["failureReason"]:
-        print(processedResult)
         return processedResult 
 
     allFieldValues = result["vevLocation"] / np.sqrt(result["T"])
