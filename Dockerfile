@@ -5,6 +5,8 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 RUN apt-get update && \
     apt-get install -y bash-completion && \
+    apt-get install libnlopt-dev -y && \
+
     if [ "$DEV" = "true" ] ; then apt-get install -y graphviz ; fi && \
     rm -rf /var/lib/apt/lists/*
 
