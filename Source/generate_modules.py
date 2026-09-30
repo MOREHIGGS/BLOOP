@@ -8,6 +8,7 @@ from math import sqrt
 from pathlib import Path
 from textwrap import dedent
 import nlopt
+import os
 
 from jinja2 import Environment
 from utility import printIfVerbose
@@ -78,7 +79,7 @@ def generateModules(
     cythonModulesDir.mkdir(exist_ok=True, parents=True)
     cythonModulesDir = str(cythonModulesDir)
     sys.path.insert(0, cythonModulesDir)
-
+    
     if (md5(evaluatePotentialModule.encode()).hexdigest() == getHash(f"{cythonModulesDir}/EvaluatePotential{loopOrder}.pyx") and
         md5(setupModule.encode()).hexdigest() == getHash(f"{cythonModulesDir}/Setup{loopOrder}.py") and
         importlib.util.find_spec(f"EvaluatePotential{loopOrder}") is not None):
@@ -115,7 +116,6 @@ def generateSetupFile(
     profile,
 ):
     gccFlags = [f"-{flag}" for flag in gccFlags]
-
     return Environment().from_string(dedent("""\
         #!/usr/bin/env python3
         # -*- coding: utf-8 -*-
@@ -125,7 +125,6 @@ def generateSetupFile(
             "EvaluatePotential{{loopOrder}}", 
             ["EvaluatePotential{{loopOrder}}.pyx"], 
             extra_compile_args = {{gccFlags}},
-            libraries = ["nlopt"],
         )]
         
         setup(
@@ -139,7 +138,7 @@ def generateSetupFile(
                         "wraparound": False,
                         "cdivision": True,
                         "profile": {{profile}},
-                        }
+                        },
             ),
         )
     """)).render(**locals())
@@ -166,7 +165,7 @@ def generateEvaluatePotentialModule(
         cimport cython
 
         from nlopt cimport *
-        cdef extern from "nlopt.h":
+        cdef extern: 
             void* nlopt_create(int, unsigned)
             void nlopt_destroy(void*)
             int nlopt_set_min_objective(void*, void*, void*)
