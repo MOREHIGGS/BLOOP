@@ -95,7 +95,7 @@ def generateModules(
     printIfVerbose("Compiling cython modules", verbose)
     
     ti = time.time()
-    test = subprocess.run(
+    compliation = subprocess.run(
         [sys.executable, f"Setup{loopOrder}.py", "build_ext", "--inplace"],
         cwd=cythonModulesDir,
         capture_output=True,
@@ -103,9 +103,9 @@ def generateModules(
         text=True,
     )
 
-    if test.returncode:
-        print(test.stderr)
-        exit()
+    if compliation.returncode:
+        print(compliation.stderr)
+        raise Exception("Compilation failed")
 
     printIfVerbose(f'Compilation took {time.time() - ti} seconds.', verbose)
 
