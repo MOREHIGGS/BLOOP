@@ -1,7 +1,10 @@
 import sys
 from collections import defaultdict
 from json import load
-
+import matplotlib
+## Turns off GUI which is expensive and not needed since we always save files
+## TODO document this and make it toggable 
+matplotlib.use('Agg')
 from matplotlib import pylab as plt
 
 plt.rcParams.update({"font.size": 12})
@@ -86,7 +89,6 @@ def summariseResults(args):
             "$T_c$", 
             resultsDir/f"{stripLatexFormating(axisLabels[0])}"
         )
-        
         for idx, bmInput in enumerate(bmInputList[1:], 1):
             saveHeatMap(
                 bmInputList[0], 
@@ -107,7 +109,7 @@ def summariseResults(args):
            )
 
 def saveHeatMap(x, y, c, xLabel, yLabel, fileName, norm=None):
-    plt.hexbin(x, y, C=c, gridsize=100, reduce_C_function=np.max)
+    plt.hexbin(x, y, C=c, gridsize=5, reduce_C_function=np.max)
     plt.xlabel(xLabel, labelpad=5)
     plt.ylabel(yLabel, labelpad=0)
     plt.colorbar(label="strength")
