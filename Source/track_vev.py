@@ -193,12 +193,12 @@ class TrackVEV:
                 params[self.allSymbols.index(key)] = spline(hardMatchingScale)
             
             if not np.all(self.bounded.evaluateUnordered(params)):
-                minimizationResults["failureReason"] = f"Failed a bounded from below condition."             
+                minimizationResults["failureReason"] = "Failed a bounded from below condition."             
                 return minimizationResults
 
                 
             if not isPerturbative(params, self.pertSymbols, self.allSymbols):
-                minimizationResults["failureReason"] = f"A coupling is larger than 4pi"            
+                minimizationResults["failureReason"] = "A coupling is larger than 4pi"            
                 return minimizationResults
 
             params = self.hardToSoft.evaluate(params)
@@ -226,7 +226,7 @@ class TrackVEV:
                 )   
 
                 if wrongVEV:
-                    minimizationResults["failureReason"] = f"At T start vev structure isn't the form set by correct VEV."
+                    minimizationResults["failureReason"] = "At T start vev structure isn't the form set by correct VEV."
                     return minimizationResults
                    
             ## TODO only check last eigenvalue from each matrix as that is the largest 
