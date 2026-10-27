@@ -95,7 +95,7 @@ def generateModules(
     )
     if compileSubProcess.returncode != 0:
         print("Compilation failed:")
-        print(result.stderr)
+        print(compileSubProcess.stderr)
         raise RuntimeError("Cython build failed")
     
     printIfVerbose(f'Compilation took {time.time() - ti} seconds.', verbose)
