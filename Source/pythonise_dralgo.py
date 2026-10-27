@@ -97,15 +97,14 @@ def pythonise_DRalgo(args):
         
     scalarPermutationMatrix = (splitExpressions(loadMatrices(args.scalarPermutationMatrixFilePath)[0]) 
         if args.scalarPermutationMatrixFilePath else "none")
+    
     veffExpressions = [
         replaceGreekSymbols(line)
         for veff in [args.veffLOFilePath, args.veffNLOFilePath] + (
         [args.veffNNLOFilePath] if args.loopOrder > 1 else [])
+        + ( [args.V6FilePath] if args.V6FilePath else [])
         for line in getLines(veff)
         ]
-    
-    if args.V6FilePath:
-        veffExpressions.append(replaceGreekSymbols(getLines(args.V6FilePath)[0]))
     
     generateModules(
         veffExpressions,
