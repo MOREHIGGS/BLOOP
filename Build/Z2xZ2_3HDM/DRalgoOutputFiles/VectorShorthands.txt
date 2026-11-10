@@ -1,0 +1,2 @@
+stW -> g1/sqrt((g1*g1) + (g2*g2))
+ctW -> g2/sqrt((g1*g1) + (g2*g2))
