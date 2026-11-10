@@ -233,10 +233,10 @@ class TrackVEV:
             violatedHardScale = False
             for idx in self.massIndices:
                 mass = sqrt(params[idx])
+                #print(mass/(np.pi*T))
                 if abs(mass.imag) < 1e-6 and mass.real > np.pi*T :
                     violatedHardScale = True
                     break
-            
             minimizationResults["T"].append(T)
             minimizationResults["vevDepthReal"].append(vevDepth.real)
             minimizationResults["vevDepthImag"].append(vevDepth.imag)
@@ -266,6 +266,10 @@ class TrackVEV:
             return np.real(
                     self.evaluatePotential(fields, params)
                 )
+        ## For Fab:
+        T = params[self.allSymbols.index("T")]
+        print(VeffWrapper(np.array([0.5*np.sqrt(T)]*3), 0))
+        
         bestResult = self.nloptInst.nloptGlobal(VeffWrapper, minimumCandidates[0])
         
         #v3Range = np.linspace(0, 14, 200)
