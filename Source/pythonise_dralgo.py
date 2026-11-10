@@ -102,9 +102,13 @@ def pythonise_DRalgo(args):
         replaceGreekSymbols(line)
         for veff in [args.veffLOFilePath, args.veffNLOFilePath] + (
         [args.veffNNLOFilePath] if args.loopOrder > 1 else [])
-        + ( [args.V6FilePath] if args.V6FilePath else [])
         for line in getLines(veff)
         ]
+    
+    if args.V6FilePath:
+        for line in getLines(args.V6FilePath):
+            #veffExpressions.append(replaceGreekSymbols(line + f"*1/(3.14*T)"))
+            veffExpressions.append(replaceGreekSymbols(line))
     
     generateModules(
         veffExpressions,
