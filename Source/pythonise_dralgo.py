@@ -105,10 +105,22 @@ def pythonise_DRalgo(args):
         for line in getLines(veff)
         ]
     
+    import re
+
+    EXCLUDED = {"v1", "v2", "v3"}
+
+    pattern = re.compile(r'(?<![\w.])[A-Za-z_]+\d+[A-Za-z]*(?!\w)')
+
+    def add_4d(match):
+        token = match.group(0)
+        if token in EXCLUDED or token.endswith("4D"):
+            return token
+        return f"{token}4D"
+
+
     if args.V6FilePath:
         for line in getLines(args.V6FilePath):
-            #veffExpressions.append(replaceGreekSymbols(line + f"*1/(3.14*T)"))
-            veffExpressions.append(replaceGreekSymbols(line))
+            veffExpressions.append(pattern.sub(add_4d, replaceGreekSymbols(line))) 
     
     generateModules(
         veffExpressions,

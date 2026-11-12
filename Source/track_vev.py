@@ -175,7 +175,18 @@ class TrackVEV:
             for idx, symbol in enumerate(self.allSymbols)
             if np.any(solvedBetaFunction.y[idx] != solvedBetaFunction.y[idx][0])
         }
+        
+        #import matplotlib.pylab as plt
+        #for i, data in enumerate(solvedBetaFunction.y):
+        #    if data[0] != data[-1] and abs(data[0]) < 2 and self.allSymbols[i][0] == "l":
+        #        plt.plot(muRange, data, label = self.allSymbols[i])
+         
 
+        #plt.xlabel("mu")
+        #plt.ylabel("Coupling")
+        #plt.legend(loc="best")    
+        #plt.savefig('test.png')
+        #exit()
         counter = 0
         ## Initialise vevLocation to feed into the minimisation algo so it can
         ## use the location oTidx ==0 and f the previous minimum as a guess for the next
@@ -191,14 +202,14 @@ class TrackVEV:
             hardMatchingScale = self.hardScale.evaluate(params)
             for key, spline in betaSpline4D.items():
                 params[self.allSymbols.index(key)] = spline(hardMatchingScale)
-            
+                params[self.allSymbols.index(key+"4D")] = spline(hardMatchingScale)
             if not np.all(self.bounded.evaluateUnordered(params)):
-                minimizationResults["failureReason"] = f"At {T=} one of the bounded condiditions isn't met."             
+                minimizationResults["failureReason"] = "Failed a bounded from below condition."             
                 return minimizationResults
 
                 
             if not isPerturbative(params, self.pertSymbols, self.allSymbols):
-                minimizationResults["failureReason"] = f"At {T=} and RGScale {hardMatchingScale} a coupling is larger than 4pi"            
+                minimizationResults["failureReason"] = "A coupling is larger than 4pi"            
                 return minimizationResults
 
             params = self.hardToSoft.evaluate(params)
@@ -226,17 +237,17 @@ class TrackVEV:
                 )   
 
                 if wrongVEV:
-                    minimizationResults["failureReason"] = f"At {T=} the vev is {vevLocation} which doesn't isn't the form set by correct VEV."
+                    minimizationResults["failureReason"] = "At T start vev structure isn't the form set by correct VEV."
                     return minimizationResults
                    
             ## TODO only check last eigenvalue from each matrix as that is the largest 
             violatedHardScale = False
             for idx in self.massIndices:
                 mass = sqrt(params[idx])
-                #print(mass/(np.pi*T))
                 if abs(mass.imag) < 1e-6 and mass.real > np.pi*T :
                     violatedHardScale = True
                     break
+            
             minimizationResults["T"].append(T)
             minimizationResults["vevDepthReal"].append(vevDepth.real)
             minimizationResults["vevDepthImag"].append(vevDepth.imag)
@@ -266,29 +277,11 @@ class TrackVEV:
             return np.real(
                     self.evaluatePotential(fields, params)
                 )
-        ## For Fab:
-        T = params[self.allSymbols.index("T")]
-        print(VeffWrapper(np.array([0.5*np.sqrt(T)]*3), 0))
-        
+
         bestResult = self.nloptInst.nloptGlobal(VeffWrapper, minimumCandidates[0])
-        
-        #v3Range = np.linspace(0, 14, 200)
-        #potential = [VeffWrapper(np.array([1e-4, 1e-4, v3]), 0) for v3 in v3Range]
-        #potential = np.array(potential)
-        #potential -= potential[0]
-        #import matplotlib.pylab as plt
-        
-        #plt.plot(v3Range, potential)
-        #plt.yscale("log")
-        #plt.xlabel("v3 ($\\text{GeV}^{\\frac{1}{2}}$) (BGF)")
-        #plt.ylabel("V-$V_0$")
-        #plt.title("$10^{-6}$*V6")
-        #plt.savefig("Dim6/potentialPlot.png")
-        #exit()
         if bestResult[2] < 0:
             return  f"NLopt is reporting following error: {self.nloptErrors[-bestResult[2]-1]}"
-        #print(f"VEV location: {bestResult[0]}")
-        #input() 
+
         for candidate in minimumCandidates:
             result = self.nloptInst.nloptLocal(VeffWrapper, candidate)
             
@@ -297,8 +290,7 @@ class TrackVEV:
             
             if result[1] < bestResult[1]:
                 bestResult = result
-        #print(bestResult[0])
-        #input() 
+        
         return bestResult[0], self.evaluatePotential(bestResult[0], params)
    
 
