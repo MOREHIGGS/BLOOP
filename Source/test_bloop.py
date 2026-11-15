@@ -4,6 +4,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from shutil import rmtree
 
 import pytest
 
@@ -41,20 +42,20 @@ def runTests():
                 '--gccFlags', "O1", "flto", "g",
                 '--configFilePath', f'{sourceDirectory}/../Run/Z2_3HDMConfigFile.json',
                 '--boundedConditionsFilePath', f'{modelDir}/BoundedConditions.txt',
-                '--allSymbolsFilePath', f'{modelDir}}/AllSymbols.txt',
-                '--veffLOFilePath', f'{modelDir}}/Veff_LO.txt',
-                '--veffNLOFilePath', f'{modelDir}}/Veff_NLO.txt',
-                '--veffNNLOFilePath', f'{modelDir}}/Veff_NNLO.txt',
-                '--betaFunctions4DFilePath', f'{modelDir}}/BetaFunctions4D.txt',
-                '--vectorMassesSquaredFilePath', f'{modelDir}}/VectorMasses.txt',
-                '--vectorShortHandsFilePath', f'{modelDir}}VectorShorthands.txt',
+                '--allSymbolsFilePath', f'{modelDir}/AllSymbols.txt',
+                '--veffLOFilePath', f'{modelDir}/Veff_LO.txt',
+                '--veffNLOFilePath', f'{modelDir}/Veff_NLO.txt',
+                '--veffNNLOFilePath', f'{modelDir}/Veff_NNLO.txt',
+                '--betaFunctions4DFilePath', f'{modelDir}/BetaFunctions4D.txt',
+                '--vectorMassesSquaredFilePath', f'{modelDir}/VectorMasses.txt',
+                '--vectorShortHandsFilePath', f'{modelDir}/VectorShorthands.txt',
                 '--hardToSoftFilePath', f'{modelDir}/HardToSoft.txt',
                 '--hardScaleFilePath', f'{modelDir}/HardScale.txt',
                 '--softScaleRGEFilePath', f'{modelDir}/SoftScaleRGE.txt',
                 '--softToUltraSoftFilePath', f'{modelDir}/SoftToUltraSoft.txt',
                 '--ultraSoftScaleRGEFilePath', f'{modelDir}/UltraSoftScaleRGE.txt',
-                '--scalarPermutationMatrixFilePath', f'{modelDir}ScalarPermutationMatrix.txt',
-                '--scalarRotationMatrixFilePath', f'{modelDir}ScalarRotationMatrix.txt',
+                '--scalarPermutationMatrixFilePath', f'{modelDir}/ScalarPermutationMatrix.txt',
+                '--scalarRotationMatrixFilePath', f'{modelDir}/ScalarRotationMatrix.txt',
                 '--scalarMassMatrixFilePath', f'{modelDir}/ScalarMassMatrix.txt',
                 '--lagranianVariablesFilePath', f'{modelDir}/LagranianSymbols.json',
                 '--scalarMassNamesFilePath', f'{modelDir}/ScalarMassNames.txt',
@@ -65,6 +66,7 @@ def runTests():
         )
 
         if integrationTest.returncode != 0:
+            rmtree(loopDirectory)
             sys.exit(
                 f"{loopOrder} integration test failed\n"
                 f"Error:\n{integrationTest.stderr}"
@@ -140,6 +142,7 @@ def runTests():
         print("\nSee (N)NLODiff.txt (in Run) for further details. \n")
         sys.exit(stdOut)
     
+    rmtree(loopDirectory)
     
 if __name__ == '__main__':
     runTests()
