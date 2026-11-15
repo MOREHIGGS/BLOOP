@@ -40,12 +40,6 @@ class UserInput(argparse.ArgumentParser):
             help="Bool: If activated code will print as it progresses",
         )
         configGroup.add_argument(
-            "--debug",
-            action="store_true",
-            default=False,
-            help="Bool: If activated code will print stacktrace/error and exit instead of trying to continue",
-        )
-        configGroup.add_argument(
             "--workers",
             action="store",
             default=1,
@@ -73,11 +67,6 @@ class UserInput(argparse.ArgumentParser):
         benchmarkGroup = self.add_argument_group('Benchmark Options')
         benchmarkGroup.add_argument = self.addArgumentNoMetaVar(benchmarkGroup)
        
-        benchmarkGroup.add_argument(
-            "--benchmarkFilePath",
-            action="store",
-            help="Str: File path (relative to --modelDirectory) used for saving benchmarks"
-        )
         benchmarkGroup.add_argument(
             "--benchmarkType",
             action="store",
@@ -237,13 +226,13 @@ class UserInput(argparse.ArgumentParser):
             action="store",
             default=0.6,
             type=float,
-            help="float: Lowest strength of phase transition which we will label as strong",
+            help="float: Lowest strength of phase transition which to label as strong",
         )
         outputGroup.add_argument(
             "--includeEFTBreak",
             action="store_true",
             default=False,
-            help="Bool: If activated include phase transitions where the validity of the EFT is in question (particle masses above the hard scale or non-neligable imaginary part of effective potential)",
+            help="Bool: If activated default plotting/Summary code will include phase transitions where the validity of the EFT is in question (particle masses above the hard scale or non-neligable imaginary part of effective potential)",
         )
         outputGroup.add_argument(
             "--summariseModule",
@@ -252,7 +241,7 @@ class UserInput(argparse.ArgumentParser):
             help="Str: File name of python module to use to summarise scan results - needs to have a function called summariseResults which takes in args",
         )
         ########################################################################
-        filesGroup = self.add_argument_group('Model File Paths', 'Give the path for your model directory (relative to Build), then all other files are relative to the model directory')
+        filesGroup = self.add_argument_group('Model File Paths', 'Give the paths  (relative to BLOOP) for your DRalgo output files')
         filesGroup.add_argument = self.addArgumentNoMetaVar(filesGroup)
         
         filesGroup.add_argument(
@@ -330,12 +319,6 @@ class UserInput(argparse.ArgumentParser):
             "--scalarMassNamesFilePath",
             action="store",
         )
-        filesGroup.add_argument(
-            "--pythonisedExpressionsFilePath",
-            action="store",
-            default="PythonisedExpressionsFile.json",
-        )
-
         argcomplete.autocomplete(self)
     
     ## Magic claude monkey patch to remove the metaVar that clutters --help

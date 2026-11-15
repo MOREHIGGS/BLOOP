@@ -24,7 +24,7 @@ def generateBenchmarks(args):
     if args.benchmarkType == "load":
         return 
      
-    (outputFilePath := Path(args.benchmarkFilePath)).parent.mkdir(exist_ok=True, parents=True)
+    (outputFilePath := Path(f"{args.resultsDirectory}/Benchmarks.json")).parent.mkdir(exist_ok=True, parents=True)
     
     if args.benchmarkType == "strongSubSet":
         with open(outputFilePath, "w") as fp:
