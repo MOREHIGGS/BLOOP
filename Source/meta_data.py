@@ -23,16 +23,16 @@ def writeMetaData(args):
                 "time (UTC)": dateTime[1],
                 "user": getpass.getuser(),
                 "host machine": socket.gethostname(),
-                **getGitInfo(args.debug),
+                **getGitInfo(),
                 "Python Version": platform.python_version(),
-                "pip packages":  getDependcies(args.debug),
+                "pip packages":  getDependcies(),
                 "command": " ".join(psutil.Process(os.getpid()).cmdline()),
             } | vars(args),
         fp,
         indent=2
         )
 
-def getGitInfo(debug):
+def getGitInfo():
     return {
         key: subprocess.run(
             command, 
@@ -47,7 +47,7 @@ def getGitInfo(debug):
     }
 
 
-def getDependcies(debug):
+def getDependcies():
     return subprocess.run(
         ["pip", "freeze"],
         capture_output=True,
