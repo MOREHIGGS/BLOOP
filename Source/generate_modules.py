@@ -7,9 +7,8 @@ from hashlib import md5
 from math import sqrt
 from pathlib import Path
 from textwrap import dedent
-import nlopt
-import os
 
+import nlopt
 from jinja2 import Environment
 from utility import printIfVerbose
 

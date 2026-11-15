@@ -1,7 +1,9 @@
 import sys
 from collections import defaultdict
 from json import load
+
 import matplotlib
+
 ## Turns off GUI which is expensive and not needed since we always save files
 ## TODO document this and make it toggable 
 matplotlib.use('Agg')

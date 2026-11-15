@@ -1,5 +1,7 @@
 from dataclasses import InitVar, dataclass
+
 import nlopt
+
 
 @dataclass(frozen=True)
 class cNlopt:

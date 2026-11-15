@@ -1,7 +1,7 @@
-from importlib import import_module
 import ctypes
 import importlib.util
 import sys
+from importlib import import_module
 
 from loop_benchmarks import loopBenchmarks
 from meta_data import writeMetaData
