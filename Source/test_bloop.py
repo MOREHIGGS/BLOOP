@@ -20,36 +20,63 @@ def runTests():
     stdOut = ""
     for idx, loopOrder in enumerate(["NLO", "NNLO"]):
         print(f"Running {loopOrder} integration test:")
-        loopDir = integrationTestsDirectory/f'{loopOrder}/'
-        for file in loopDir.glob('OutputResult/*'):
+
+        loopDirectory = f'{sourceDirectory}/../TestResults/{loopOrder}/'
+        Path(loopDirectory).mkdir(exist_ok=True, parents=True) 
+
+        for file in Path(loopDirectory).glob('OutputResult/*'):
             os.remove(file)
-        integrationTest = subprocess.run([
-            sys.executable,
-            f'{sourceDirectory}/run_stages.py',
-            '--loopOrder', f'{idx +1}', 
-            '--lastBenchmark', '3',
-            '--bSave',
-            '--resultsDirectory', f'../Share/IntegrationTests/{loopOrder}/OutputResult',
-            '--benchmarkFile', "../../Share/IntegrationTests/benchmarks.json",
-            '--TRangeStart', '90', 
-            '--TRangeStepSize', '1',
-            '--TRangeEnd', '200',
-            '--gccFlags', "O1", "flto", "g",
-            '--configFilePath', f'{sourceDirectory}/../Run/Z2_3HDMConfigFile.json'
-            ], 
+        integrationTest = subprocess.run(
+            [
+                sys.executable,
+                f'{sourceDirectory}/run_stages.py',
+                '--loopOrder', f'{idx +1}', 
+                '--lastBenchmark', '3',
+                '--bSave',
+                '--resultsDirectory', loopDirectory,
+                '--benchmarkFile', f'{sourceDirectory}/../Share/IntegrationTests/benchmarks.json',
+                '--TRangeStart', '90', 
+                '--TRangeStepSize', '1',
+                '--TRangeEnd', '200',
+                '--gccFlags', "O1", "flto", "g",
+                '--configFilePath', f'{sourceDirectory}/../Run/Z2_3HDMConfigFile.json',
+                '--boundedConditionsFilePath', f'{sourceDirectory}/../Build/Z2_3HDM/DRalgoOutputFiles/BoundedConditions.txt',
+                '--allSymbolsFilePath', f'{sourceDirectory}/../Build/Z2_3HDM/DRalgoOutputFiles/AllSymbols.txt',
+                '--veffLOFilePath', f'{sourceDirectory}/../Build/Z2_3HDM/DRalgoOutputFiles/Veff_LO.txt',
+                '--veffNLOFilePath', f'{sourceDirectory}/../Build/Z2_3HDM/DRalgoOutputFiles/Veff_NLO.txt',
+                '--veffNNLOFilePath', f'{sourceDirectory}/../Build/Z2_3HDM/DRalgoOutputFiles/Veff_NNLO.txt',
+                '--betaFunctions4DFilePath', f'{sourceDirectory}/../Build/Z2_3HDM/DRalgoOutputFiles/BetaFunctions4D.txt',
+                '--vectorMassesSquaredFilePath', f'{sourceDirectory}/../Build/Z2_3HDM/DRalgoOutputFiles/VectorMasses.txt',
+                '--vectorShortHandsFilePath', f'{sourceDirectory}/../Build/Z2_3HDM/DRalgoOutputFiles/VectorShorthands.txt',
+                '--hardToSoftFilePath', f'{sourceDirectory}/../Build/Z2_3HDM/DRalgoOutputFiles/HardToSoft.txt',
+                '--hardScaleFilePath', f'{sourceDirectory}/../Build/Z2_3HDM/DRalgoOutputFiles/HardScale.txt',
+                '--softScaleRGEFilePath', f'{sourceDirectory}/../Build/Z2_3HDM/DRalgoOutputFiles/SoftScaleRGE.txt',
+                '--softToUltraSoftFilePath', f'{sourceDirectory}/../Build/Z2_3HDM/DRalgoOutputFiles/SoftToUltraSoft.txt',
+                '--ultraSoftScaleRGEFilePath', f'{sourceDirectory}/../Build/Z2_3HDM/DRalgoOutputFiles/UltraSoftScaleRGE.txt',
+                '--scalarPermutationMatrixFilePath', f'{sourceDirectory}/../Build/Z2_3HDM/DRalgoOutputFiles/ScalarPermutationMatrix.txt',
+                '--scalarRotationMatrixFilePath', f'{sourceDirectory}/../Build/Z2_3HDM/DRalgoOutputFiles/ScalarRotationMatrix.txt',
+                '--scalarMassMatrixFilePath', f'{sourceDirectory}/../Build/Z2_3HDM/DRalgoOutputFiles/ScalarMassMatrix.txt',
+                '--lagranianVariablesFilePath', f'{sourceDirectory}/../Build/Z2_3HDM/DRalgoOutputFiles/LagranianSymbols.json',
+                '--scalarMassNamesFilePath', f'{sourceDirectory}/../Build/Z2_3HDM/DRalgoOutputFiles/ScalarMassNames.txt',
+                '--pythonisedExpressionsFilePath', f'{sourceDirectory}/../Build/Z2_3HDM/PythonisedExpressionsFile.json',
+            ],
             capture_output=True,
             check=False,
             text=True,
-            )
+        )
+
         if integrationTest.returncode != 0:
             sys.exit(
                 f"{loopOrder} integration test failed\n"
                 f"Error:\n{integrationTest.stderr}"
                 f"Error code: {integrationTest.returncode}\n"
             )
-        with open(loopDir/"OutputResult/ScanResults.json", "r") as fp:
+        with open(f"{loopDirectory}/scanResults.json", "r") as fp:
             scanResults = json.load(fp)
-        with open(loopDir/"ReferenceResult/ScanResults.json", "r") as fp:
+        with open(
+            f'{sourceDirectory}/../Share/IntegrationTests/{loopOrder}/ReferenceResult/ScanResults.json', 
+            "r",
+        ) as fp:
             scanResultsRef = json.load(fp)
         
         ## pytest.approx doesn't work with nested dicts so here's a partly AI
@@ -88,9 +115,13 @@ def runTests():
         )))
 
         for i in range(4):
-            with open(loopDir/f"OutputResult/BM_{i}.json", "r") as fp:
+            with open("{loopDirectory}/BM_{i}.json", "r") as fp:
                 bm = json.load(fp)
-            with open(loopDir/f"ReferenceResult/BM_{i}.json", "r") as fp:
+
+            with open(
+                f'{sourceDirectory}/../Share/IntegrationTests/{loopOrder}/ReferenceResult/BM_{i}.json', 
+                "r",
+            ) as fp:
                 bmRef = json.load(fp)
 
             if not isApproxEq(bm, bmRef, 1e-3, 5e-2):

@@ -8,19 +8,18 @@ from generate_modules import generateModules
 
 
 def pythonise_DRalgo(args):
-    moduleDirectory = Path(__file__).resolve().parent/"../Build"/args.modelDirectory 
     def loadMatrices(filePath):
-        with open(moduleDirectory/filePath, 'r') as file:
+        with open(filePath, 'r') as file:
             matrices = file.read()
     
         return [matrix.strip().split('\n') for matrix in matrices.strip().split('\n---\n')]
 
     def getLinesJSON(filePath):
-        with open(moduleDirectory/filePath, "r") as fp:
+        with open(filePath, "r") as fp:
             return json.load(fp)
 
     def getLines(filePath):
-        with open(moduleDirectory/filePath, "r") as fp:
+        with open(filePath, "r") as fp:
             return fp.read().splitlines()
 
     allSymbols = getLines(args.allSymbolsFilePath) + ["missing"]
@@ -92,7 +91,7 @@ def pythonise_DRalgo(args):
         expressionDict |= {"softToUltraSoft": "none", 
                            "ultraSoftRGE": "none"}
     
-    with open(moduleDirectory/args.pythonisedExpressionsFilePath, "w") as fp:
+    with open(args.pythonisedExpressionsFilePath, "w") as fp:
         json.dump(expressionDict, fp, indent=4)
         
     scalarPermutationMatrix = (splitExpressions(loadMatrices(args.scalarPermutationMatrixFilePath)[0]) 
@@ -119,7 +118,6 @@ def pythonise_DRalgo(args):
         splitExpressions(getLines(args.vectorShortHandsFilePath)),
         args.gccFlags,
         [replaceGreekSymbols(name) for name in getLinesJSON(args.lagranianVariablesFilePath)["fieldSymbols"]],
-        args.modelDirectory,
         args,
     ) < 0):
         return -1

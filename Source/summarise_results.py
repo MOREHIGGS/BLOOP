@@ -27,7 +27,7 @@ def summariseResults(args):
     bmNumberList = []
     resultsDir = Path(__file__).resolve().parent/f"../Run/{args.resultsDirectory}"
 
-    with open(resultsDir/f"{args.scanResultsName}.json","r") as fp:
+    with open(f"{args.resultsDirectory}/scanResults.json","r") as fp:
         data = load(fp)
 
     if len(data) == 0:

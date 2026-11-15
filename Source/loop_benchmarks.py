@@ -12,13 +12,11 @@ from utility import printIfVerbose
 
 
 def loopBenchmarks(args):
-    sourceDirectory = Path(__file__).resolve().parent
-    moduleDirectory = sourceDirectory/"../Build"/args.modelDirectory 
-    resultsDir = sourceDirectory/f"../Run/{args.resultsDirectory}"
-    resultsDir.mkdir(exist_ok=True, parents=True)   
-    with open(moduleDirectory/args.pythonisedExpressionsFilePath, "r") as fp:
+    Path(args.resultsDirectory).parent.mkdir(exist_ok=True, parents=True)   
+    with open(args.pythonisedExpressionsFilePath, "r") as fp:
         pythonisedExpressions = json.load(fp)
         
+    scanResultsPath = f"{args.resultsDirectory}/scanResults.json"
     fieldNames = pythonisedExpressions["lagranianVariables"]["lagranianVariables"]["fieldSymbols"]
     
     trackVEV = TrackVEV(
@@ -48,12 +46,12 @@ def loopBenchmarks(args):
 
     def doBenchmarkWrapper(benchmark):
         ## Maybe make these explicit func args instead of pulling from outside func scope
-        return doBenchmark(trackVEV, args, fieldNames, resultsDir, benchmark)
+        return doBenchmark(trackVEV, args, fieldNames, args.resultsDirectory, benchmark)
 
     benchmarkGenerator = streamBenchmarksIn(
-        moduleDirectory / args.benchmarkFilePath,
+        args.benchmarkFilePath,
         args.firstBenchmark,
-        args.lastBenchmark
+        args.lastBenchmark,
     )
 
     if args.workers > 1:
@@ -65,7 +63,7 @@ def loopBenchmarks(args):
 
             streamResultsOut(
                 resultsGenerator,
-                resultsDir / f"{args.scanResultsName}.json"
+                scanResultsPath,
             )
     else:
         resultsGenerator = (
@@ -75,7 +73,7 @@ def loopBenchmarks(args):
 
         streamResultsOut(
             resultsGenerator,
-            resultsDir / f"{args.scanResultsName}.json"
+            scanResultsPath,
         )
 
 def doBenchmark(
@@ -89,7 +87,7 @@ def doBenchmark(
 
     minimizationResult = trackVEV.trackVEV(benchmark)
 
-    filename = resultsDirectory/f"BM_{benchmark['bmNumber']}"
+    filename = f"{resultsDirectory}/BM_{benchmark['bmNumber']}"
 
     if args.bSave:
         printIfVerbose(f"Saving raw data of {benchmark['bmNumber']} to {filename}.json", args.verbose)

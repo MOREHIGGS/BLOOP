@@ -27,7 +27,6 @@ def generateModules(
     vectorShorthands,
     gccFlags,
     fieldNames,
-    modelDirectory,
     args,
 ):
     
@@ -74,9 +73,8 @@ def generateModules(
         except FileNotFoundError:
             return None
 
-    cythonModulesDir = Path(__file__).resolve().parent/"../Build"/modelDirectory/"CythonModules" 
-    cythonModulesDir.mkdir(exist_ok=True, parents=True)
-    cythonModulesDir = str(cythonModulesDir)
+    cythonModulesDir = args.buildDirectory
+    Path(cythonModulesDir).mkdir(exist_ok=True, parents=True)
     sys.path.insert(0, cythonModulesDir)
     
     if (md5(evaluatePotentialModule.encode()).hexdigest() == getHash(f"{cythonModulesDir}/EvaluatePotential{loopOrder}.pyx") and

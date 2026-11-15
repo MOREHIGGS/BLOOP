@@ -2,6 +2,7 @@ import argparse
 import json
 import multiprocessing
 from sys import exit, maxsize
+from pathlib import Path
 
 import argcomplete
 
@@ -75,7 +76,6 @@ class UserInput(argparse.ArgumentParser):
         benchmarkGroup.add_argument(
             "--benchmarkFilePath",
             action="store",
-            default="Benchmarks.json",
             help="Str: File path (relative to --modelDirectory) used for saving benchmarks"
         )
         benchmarkGroup.add_argument(
@@ -209,6 +209,12 @@ class UserInput(argparse.ArgumentParser):
             help="Str: Path (relative to Run) to directory to store output files",
         )      
         outputGroup.add_argument(
+            "--buildDirectory",
+            action="store",
+            default=f"{Path(__file__).resolve().parent}/../Build",
+            help="Str: Absolute path of the directory to store build artifacts",
+        )      
+        outputGroup.add_argument(
             "--bSave",
             action="store_true",
             default=False,
@@ -225,12 +231,6 @@ class UserInput(argparse.ArgumentParser):
             action="store",
             default="plot_data",
             help="Str: Module name of python module (living in Source) to generate plots, invoked by --bPlot"
-        )
-        outputGroup.add_argument(
-            "--scanResultsName",
-            action="store",
-            default="ScanResults",
-            help="Str: File name for the scan results (lives inside --resultsDirectory)",
         )
         outputGroup.add_argument(
             "--strengthCutOff",
@@ -255,10 +255,6 @@ class UserInput(argparse.ArgumentParser):
         filesGroup = self.add_argument_group('Model File Paths', 'Give the path for your model directory (relative to Build), then all other files are relative to the model directory')
         filesGroup.add_argument = self.addArgumentNoMetaVar(filesGroup)
         
-        filesGroup.add_argument(
-             "--modelDirectory",
-             action="store",
-        )      
         filesGroup.add_argument(
             "--boundedConditionsFilePath",
             action="store",
@@ -365,7 +361,7 @@ class UserInput(argparse.ArgumentParser):
                 print(
                     f"User config file has unexpected key(s):\n {unexpectedKeys},\nExiting"
                 )
-                exit()
+                return None
             self.set_defaults(**userConfig)
         args= super().parse_args()
         ## catching common mistake

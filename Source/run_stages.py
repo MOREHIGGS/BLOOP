@@ -12,7 +12,9 @@ from utility import printIfVerbose
 
 def main():
     args = UserInput().parse()
-    
+    if args is None:
+        return -1
+
     ## AI code that puts NLopt symbols into global name space
     ## Far from ideal but the only way we could make gcc and Python handle NLopt in Cython when BLOOP
     ## is PIP installed 
