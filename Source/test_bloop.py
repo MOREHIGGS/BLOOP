@@ -25,8 +25,8 @@ def runTests():
         loopDirectory = f'{sourceDirectory}/../TestResults/{loopOrder}/'
         Path(loopDirectory).mkdir(exist_ok=True, parents=True) 
 
-        for file in Path(loopDirectory).glob('*'):
-            os.remove(file)
+        rmtree(loopDirectory)
+        
         modelDir = f"{sourceDirectory}/../Build/Z2_3HDM/DRalgoOutputFiles"
         integrationTest = subprocess.run(
             [
@@ -66,7 +66,6 @@ def runTests():
         )
 
         if integrationTest.returncode != 0:
-            rmtree(loopDirectory)
             sys.exit(
                 f"{loopOrder} integration test failed\n"
                 f"Error:\n{integrationTest.stderr}"
@@ -142,7 +141,6 @@ def runTests():
         print("\nSee (N)NLODiff.txt (in Run) for further details. \n")
         sys.exit(stdOut)
     
-    rmtree(loopDirectory)
     
 if __name__ == '__main__':
     runTests()
