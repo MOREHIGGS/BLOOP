@@ -344,7 +344,7 @@ class UserInput(argparse.ArgumentParser):
     
     ## Magic claude monkey patch to remove the metaVar that clutters --help
     def addArgumentNoMetaVar(self, group):
-    original = group.add_argument
+        original = group.add_argument
         def customAddArgument(*args, **kwargs):
             if args and args[0].startswith("-") and kwargs.get("action") not in {"store_true", "store_false", "help", "version"}:
                 kwargs["metavar"] = ""
