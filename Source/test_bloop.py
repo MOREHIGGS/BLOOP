@@ -24,7 +24,7 @@ def runTests():
         loopDirectory = f'{sourceDirectory}/../TestResults/{loopOrder}/'
         Path(loopDirectory).mkdir(exist_ok=True, parents=True) 
 
-        for file in Path(loopDirectory).glob('OutputResult/*'):
+        for file in Path(loopDirectory).glob('*'):
             os.remove(file)
         integrationTest = subprocess.run(
             [

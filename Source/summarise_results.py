@@ -25,17 +25,11 @@ def summariseResults(args):
     bmInputList = []
     TcList = []
     bmNumberList = []
-    resultsDir = Path(__file__).resolve().parent/f"../Run/{args.resultsDirectory}"
 
     with open(f"{args.resultsDirectory}/scanResults.json","r") as fp:
         data = load(fp)
 
-    if len(data) == 0:
-        print(resultsDir/f"{args.scanResultsName} contains no data, exiting")
-        sys.exit()
-
     for result in data:
-
         if result["failureReason"]:
             failDict[result["failureReason"]] += 1
             continue
@@ -68,7 +62,7 @@ def summariseResults(args):
     bmInputList = np.transpose(bmInputList) 
     
     if len(strengthList) > 0:
-        with open(resultsDir/"Summary.txt", "w") as fp:
+        with open(f"{args.resultsDirectory}/Summary.txt", "w") as fp:
             fp.writelines(dedent(f"""\
                 Summary of the results: 
                 The total number of benchmarks is: {len(data)}, {len(strengthList)} of which are strong 
@@ -89,7 +83,7 @@ def summariseResults(args):
             strengthList, 
             axisLabels[0], 
             "$T_c$", 
-            resultsDir/f"{stripLatexFormating(axisLabels[0])}"
+            f"{args.resultsDirectory}/{stripLatexFormating(axisLabels[0])}"
         )
         for idx, bmInput in enumerate(bmInputList[1:], 1):
             saveHeatMap(
@@ -98,7 +92,7 @@ def summariseResults(args):
                 strengthList, 
                 axisLabels[0], 
                 axisLabels[idx], 
-                resultsDir/f"{stripLatexFormating(axisLabels[idx])}"
+                f"{args.resultsDirectory}/{stripLatexFormating(axisLabels[idx])}"
             )
         
             saveHeatMap(
@@ -107,7 +101,7 @@ def summariseResults(args):
                 strengthList, 
                 axisLabels[idx], 
                 "$T_c$", 
-                resultsDir/f"{stripLatexFormating(axisLabels[idx])}-Tc"
+                f"{args.resultsDirectory}/{stripLatexFormating(axisLabels[idx])}-Tc"
            )
 
 def saveHeatMap(x, y, c, xLabel, yLabel, fileName, norm=None):
