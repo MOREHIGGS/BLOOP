@@ -8,6 +8,7 @@ from math import sqrt
 from pathlib import Path
 from textwrap import dedent
 
+import nlopt
 from jinja2 import Environment
 from utility import printIfVerbose
 
@@ -27,12 +28,14 @@ def generateModules(
     gccFlags,
     fieldNames,
     modelDirectory,
+    args,
 ):
     
     veffModule = generateVeffModule(
         veffExpressions, 
         allSymbols
-        )
+    )
+
     computeMassesModule = generateComputeMassesModule(
         allSymbols,
         scalarMatricesExpression,
@@ -50,6 +53,12 @@ def generateModules(
         fieldNames,
         veffModule,
         computeMassesModule,
+        args.absLocalTolerance,
+        args.absGlobalTolerance,
+        args.relLocalTolerance,
+        args.relGlobalTolerance,
+        args.bgfLowerBounds,
+        args.bgfUpperBounds,
     )
     
     setupModule = generateSetupFile(
@@ -69,13 +78,13 @@ def generateModules(
     cythonModulesDir.mkdir(exist_ok=True, parents=True)
     cythonModulesDir = str(cythonModulesDir)
     sys.path.insert(0, cythonModulesDir)
-
+    
     if (md5(evaluatePotentialModule.encode()).hexdigest() == getHash(f"{cythonModulesDir}/EvaluatePotential{loopOrder}.pyx") and
         md5(setupModule.encode()).hexdigest() == getHash(f"{cythonModulesDir}/Setup{loopOrder}.py") and
         importlib.util.find_spec(f"EvaluatePotential{loopOrder}") is not None):
         
         printIfVerbose("Using previously compiled code", verbose)
-        return
+        return 0
     
     with open(f"{cythonModulesDir}/EvaluatePotential{loopOrder}.pyx", "w") as fp:
         fp.write(evaluatePotentialModule)
@@ -86,103 +95,190 @@ def generateModules(
     printIfVerbose("Compiling cython modules", verbose)
     
     ti = time.time()
-    subprocess.run(
+    compliation = subprocess.run(
         [sys.executable, f"Setup{loopOrder}.py", "build_ext", "--inplace"],
         cwd=cythonModulesDir,
         capture_output=True,
-        check=True,
+        check=False,
         text=True,
     )
 
+    if compliation.returncode:
+        print(compliation.stderr)
+        return -1
+
     printIfVerbose(f'Compilation took {time.time() - ti} seconds.', verbose)
+
+    return 0
 
 def generateSetupFile(
     loopOrder, 
     gccFlags,
     profile,
 ):
+    gccFlags = [f"-{flag}" for flag in gccFlags]
     return Environment().from_string(dedent("""\
-            #!/usr/bin/env python3
-            # -*- coding: utf-8 -*-
-            from setuptools import setup, Extension
-            from Cython.Build import cythonize
-            extensions = [Extension("EvaluatePotential{{loopOrder}}", ["EvaluatePotential{{loopOrder}}.pyx"], extra_compile_args = {{gccFlags}})]
-            
-            setup(
-                name="Veff_cython",
-                ext_modules = cythonize(
-                        extensions, 
-                        compiler_directives={
-                            "language_level": "3", 
-                            "boundscheck": False,
-                            "nonecheck":False,
-                            "wraparound": False,
-                            "profile": {{profile}},
-                            }
-                ),
-            )
-            """
-        )).render(loopOrder = loopOrder, 
-        gccFlags = [f"-{flag}" for flag in gccFlags],
-        profile = profile,
+        #!/usr/bin/env python3
+        # -*- coding: utf-8 -*-
+        from setuptools import setup, Extension
+        from Cython.Build import cythonize
+        extensions = [Extension(
+            "EvaluatePotential{{loopOrder}}", 
+            ["EvaluatePotential{{loopOrder}}.pyx"], 
+            extra_compile_args = {{gccFlags}},
+        )]
+        
+        setup(
+            name="Veff_cython",
+            ext_modules = cythonize(
+                    extensions, 
+                    compiler_directives={
+                        "language_level": "3", 
+                        "boundscheck": False,
+                        "nonecheck":False,
+                        "wraparound": False,
+                        "cdivision": True,
+                        "profile": {{profile}},
+                        },
+            ),
         )
+    """)).render(**locals())
     
 def generateEvaluatePotentialModule(
     loopOrder, 
     allSymbols, 
     fieldNames, 
     veffSubModules, 
-    computeMassesModule
+    computeMassesModule,
+    absLocalTol,
+    absGlobalTol,
+    relLocalTol,
+    relGlobalTol,
+    lowerBounds,
+    upperBounds,
 ):
+    globalAlgorithm = nlopt.GN_DIRECT_NOSCAL
+    localAlgorithm = nlopt.LN_BOBYQA
+    numberOfFields = len(fieldNames) 
+
     return Environment().from_string(dedent("""\
-from libc.complex cimport csqrt, clog
-cimport cython
-@cython.cdivision(True)
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cpdef double complex evaluatePotential(const double [::1] fields, double [::1] parameters):
-{% for name in fieldNames %}
-    parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
-{%- endfor %}
-    computeMasses(parameters)
-    return veff(parameters)
+        from libc.complex cimport csqrt, clog
+        cimport cython
 
-{{computeMassesModule}}
+        from nlopt cimport *
+        cdef extern: 
+            void* nlopt_create(int, unsigned)
+            void nlopt_destroy(void*)
+            int nlopt_set_min_objective(void*, void*, void*)
+            int nlopt_optimize(void*, void*, void*)
+            int nlopt_set_lower_bounds(void*, void*)
+            int nlopt_set_upper_bounds(void*, void*)
+            int nlopt_set_xtol_abs1(void*, double)
+            int nlopt_set_xtol_rel(void*, double)
 
-{{ veffSubModule }}
+        cpdef findGlobalMinimum(
+            double [:, ::1] initialGuesses,
+            double [::1] parameters,
+        ):
+            cdef double deepest
+            cdef double depth
+            cdef int i
+            cdef double [:] vevLocation = initialGuesses[0].copy()
+            
+            cdef list nloptErrors = [
+                "NLOPT_FAILURE",
+                "NLOPT_INVALID_ARGS",
+                "NLOPT_OUT_OF_MEMORY",
+                "NLOPT_ROUNDOFF_LIMITED",
+                "NLOPT_FORCED_STOP",
+            ]
+            
+            cdef double upperBounds[{{ numberOfFields }}] 
+        {% for bound in upperBounds %}
+            upperBounds[{{ loop.index0 }}] = {{ bound }}
+        {%- endfor %}
 
-    
-        """)).render(
-        loopOrder=loopOrder, 
-        allSymbols=allSymbols, 
-        fieldNames=fieldNames, 
-        veffSubModule = veffSubModules, 
-        computeMassesModule = computeMassesModule
-        )
+            cdef double lowerBounds[{{ numberOfFields }}] 
+        {% for bound in lowerBounds %}
+            lowerBounds[{{ loop.index0 }}] = {{ bound }}
+        {%- endfor %}
+
+            cdef void* optGlobal = nlopt_create({{ globalAlgorithm }}, {{ numberOfFields }})
+            nlopt_set_min_objective(optGlobal, <void*>&evaluatePotential_NLopt, <void*>&parameters[0])
+            nlopt_set_lower_bounds(optGlobal, &lowerBounds[0])
+            nlopt_set_upper_bounds(optGlobal, &upperBounds[0])
+            nlopt_set_xtol_abs1(optGlobal, {{ absGlobalTol }})
+            nlopt_set_xtol_rel(optGlobal, {{ relGlobalTol}})
+
+            cdef void* optLocal = nlopt_create({{ localAlgorithm }}, {{ numberOfFields }})
+            nlopt_set_min_objective(optLocal, <void*>&evaluatePotential_NLopt, <void*>&parameters[0])
+            nlopt_set_lower_bounds(optLocal, &lowerBounds[0])
+            nlopt_set_upper_bounds(optLocal, &upperBounds[0])
+            nlopt_set_xtol_abs1(optLocal, {{ absLocalTol }})
+            nlopt_set_xtol_rel(optLocal, {{ relLocalTol}})
+
+            
+            cdef int resultCode
+            resultCode = nlopt_optimize(optGlobal, <void*>&vevLocation[0], &deepest)
+            nlopt_destroy(optGlobal)
+            
+            if resultCode < 0:
+                return nloptErrors[-resultCode - 1]
+            
+            resultCode = nlopt_optimize(optLocal, <void*>&vevLocation[0], &deepest)
+
+            if resultCode < 0:
+                return nloptErrors[-resultCode - 1]
+                
+            for i in range(1, initialGuesses.shape[0]):
+                resultCode = nlopt_optimize(optLocal, <void*>&initialGuesses[i,0], &depth)
+                
+                if resultCode < 0:
+                    return nloptErrors[-resultCode - 1]
+                
+                if depth < deepest:
+                    vevLocation = initialGuesses[i] 
+                    deepest = depth
+
+            nlopt_destroy(optLocal)
+            return list(vevLocation), evaluatePotential_C(&vevLocation[0], &parameters[0])
+
+        cdef double evaluatePotential_NLopt(unsigned int n, double *fields, double *grad, void *parameters) noexcept:
+            return evaluatePotential_C(&fields[0], <double*>parameters).real
+
+        cpdef complex evaluatePotential_Python(double[::1] fields, double[::1] parameters):
+                return evaluatePotential_C(&fields[0], &parameters[0])
+
+        cdef complex evaluatePotential_C(double *fields, double *parameters):
+        {% for name in fieldNames %}
+                parameters[{{ allSymbols.index(name) }}] = fields[{{ loop.index0 }}]
+        {%- endfor %}
+                computeMasses(parameters)
+                return veff(parameters)
+
+        {{computeMassesModule}}
+
+        {{ veffSubModules }}
+    """)).render(**locals())
 
 def generateVeffModule(veffExpressions, allSymbols):
     ## NOTE this is the one thing the can return complex
-    veffExprs, subExprAssignment =  commonSubExprElimination(veffExpressions)
+    veffExprs, subExprAssignment = commonSubExprElimination(veffExpressions)
+
     return Environment().from_string(dedent("""\
-@cython.cdivision(True)
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cdef double complex veff(double [::1] params):
-{%- for symbol in allSymbols %}
-    cdef double {{ symbol }} = params[{{ loop.index0 }}]
-{%- endfor %}
-{%- for expr in subExprAssignment %}
-    {{expr}}
-{%- endfor %}
-    cdef double complex v = 0.0
-{%- for expr in veffExpressions %}
-    v+= {{expr}}
-{%- endfor %}
-    return  v
-    """)).render(allSymbols=allSymbols, 
-    veffExpressions=veffExprs,
-    subExprAssignment = subExprAssignment,
-    )
+        cdef double complex veff(double *params):
+        {%- for symbol in allSymbols %}
+            cdef double {{ symbol }} = params[{{ loop.index0 }}]
+        {%- endfor %}
+        {%- for expr in subExprAssignment %}
+            {{expr}}
+        {%- endfor %}
+            cdef double complex v = 0.0
+        {%- for expr in veffExprs %}
+            v+= {{expr}}
+        {%- endfor %}
+            return  v
+    """)).render(**locals())
 
 def commonSubExprElimination(veffExpressions):
     def findSubExpr(string, sub, start):
@@ -248,111 +344,100 @@ def generateComputeMassesModule(
                 break
             idxShift += n
 
+    bEigenVectors = 0 if loopOrder ==1 else 1
+
     return Environment().from_string(dedent("""\
-## DEV note: netlib.org hosts documention for lapack/blas
-## DEV note: REMINDER THAT FORTRAN IS TRANPOSE RELATIVE TO C
-from scipy.linalg.cython_lapack cimport dsyevd
-from scipy.linalg.cython_blas cimport dgemm
-from libc.math cimport sqrt
+        ## DEV note: netlib.org hosts documention for lapack/blas
+        ## DEV note: REMINDER THAT FORTRAN IS TRANPOSE RELATIVE TO C
+        from scipy.linalg.cython_lapack cimport dsyevd
+        from scipy.linalg.cython_blas cimport dgemm
+        from libc.math cimport sqrt
 
-@cython.cdivision(True)
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cdef void computeMasses(double [::1] params):
-{%- for symbol in allSymbols %}
-    cdef double {{ symbol }} = params[{{ loop.index0 }}]
-{%- endfor %}
-    cdef int info
-{%- for scalarMatrixExpressions in scalarMatricesExpressions %}
-    {%- set i = loop.index0 %}
-    {%- set n = scalarMassMatrixSizes[loop.index0] %}
-    cdef double scalarMM{{i}}[{{n}}][{{n}}]
-    cdef double eigenvalues{{ i }}[{{ n }}]
-    cdef int n{{ i }} = {{ n }}
-    cdef int lda{{ i }} =  {{ n }} 
-    cdef int lwork{{ i }} = {{1 + 6*n +2*n*n if bEigenVectors else 2*n+1}}
-    cdef int liwork{{ i }} = {{3+5*n if bEigenVectors else 1}} 
-    cdef double work{{ i }}[{{1 + 6*n +2*n*n if bEigenVectors else 2*n+1}}]
-    cdef int iwork{{ i }}[{{3+5*n if bEigenVectors else 1}}] 
-    ## TODO(?) check for NaN and inf 
-    {% for expression in scalarMatrixExpressions %}
-    scalarMM{{i}}{{expression.identifier}}= {{expression.expression}}
-    {% endfor %}
-    dsyevd({{"'V'" if bEigenVectors else "'N'"}}, 
-            'L', &n{{ i }},
-           &scalarMM{{ i }}[0][0], &lda{{ i }},
-           &eigenvalues{{ i }}[0],
-           &work{{ i }}[0], &lwork{{ i }},
-           &iwork{{ i }}[0], &liwork{{ i }},
-           &info)
-    
-    if info:
-        if info < 0: 
-            raise ValueError(f"Argument {-info} to dsyevd had an illegal value for scalarMassMatrix{{i}}")
-        else:
-            raise RuntimeError(f"dsyevd failed to converge for scalarMassMatrix{{i}} (info={info})")
-{%- endfor %}
-{%- if bEigenVectors %}
-    cdef int i = 0
-    cdef int j = 0
-
-    {% set n = scalarMassMatrixSizes|sum %}
-    cdef double eigenvectors[{{n}}][{{n}}]
-    for i in range({{n}}):
-        for j in range({{n}}):
-            {% set offset = namespace(value=0) %}
-            {% for size in scalarMassMatrixSizes %}
-            {% if loop.first %}if{% else %}elif{% endif %} 0<=i-{{offset.value}} < {{size}} and 0<=j-{{offset.value}} < {{size}}:
-                eigenvectors[i][j] = scalarMM{{loop.index0}}[i-{{offset.value}}][j-{{offset.value}}]
-            {% set offset.value = offset.value + size %}
+        cdef void computeMasses(double *params):
+        {%- for symbol in allSymbols %}
+            cdef double {{ symbol }} = params[{{ loop.index0 }}]
+        {%- endfor %}
+            cdef int info
+        {%- for scalarMatrixExpressions in scalarMatricesExpressions %}
+            {%- set i = loop.index0 %}
+            {%- set n = scalarMassMatrixSizes[loop.index0] %}
+            cdef double scalarMM{{i}}[{{n}}][{{n}}]
+            cdef double eigenvalues{{ i }}[{{ n }}]
+            cdef int n{{ i }} = {{ n }}
+            cdef int lda{{ i }} =  {{ n }} 
+            cdef int lwork{{ i }} = {{1 + 6*n +2*n*n if bEigenVectors else 2*n+1}}
+            cdef int liwork{{ i }} = {{3+5*n if bEigenVectors else 1}} 
+            cdef double work{{ i }}[{{1 + 6*n +2*n*n if bEigenVectors else 2*n+1}}]
+            cdef int iwork{{ i }}[{{3+5*n if bEigenVectors else 1}}] 
+            ## TODO(?) check for NaN and inf 
+            {% for expression in scalarMatrixExpressions %}
+            scalarMM{{i}}{{expression.identifier}}= {{expression.expression}}
             {% endfor %}
-            else:
-                eigenvectors[i][j] = 0
-{%- if not scalarPermutationMatrix == none %}
-    {% set n = scalarMassMatrixSizes|sum %}
-    cdef double scalarPermutationMatrix[{{n}}][{{n}}]
-    {% for expression in scalarPermutationMatrix %}
-    scalarPermutationMatrix{{expression.identifier}}= {{expression.expression}}
-    {%- endfor %}
-    cdef double permutatedEV[{{n}}][{{n}}]
-    cdef int n = {{n}}
-    cdef double alpha = 1.0
-    cdef double beta = 0.0 
-    dgemm('N', 'N', 
-          &n, &n, &n, &alpha,  
-          &scalarPermutationMatrix[0][0], &n,
-          &eigenvectors[0][0], &n,
-          &beta, &permutatedEV[0][0], &n)
-{%- endif %}
-##Tranpose taken symbolically here for zero overhead handling of fortran - c memory maps
+            dsyevd({{"'V'" if bEigenVectors else "'N'"}}, 
+                    'L', &n{{ i }},
+                   &scalarMM{{ i }}[0][0], &lda{{ i }},
+                   &eigenvalues{{ i }}[0],
+                   &work{{ i }}[0], &lwork{{ i }},
+                   &iwork{{ i }}[0], &liwork{{ i }},
+                   &info)
+            
+            if info:
+                if info < 0: 
+                    raise ValueError(f"Argument {-info} to dsyevd had an illegal value for scalarMassMatrix{{i}}")
+                else:
+                    raise RuntimeError(f"dsyevd failed to converge for scalarMassMatrix{{i}} (info={info})")
+        {%- endfor %}
+        {%- if bEigenVectors %}
+            cdef int i = 0
+            cdef int j = 0
 
-{%- for thing in scalarRotationMatrix %}
-{%- if thing.expression != '0.' %}
-    params[{{allSymbols.index( thing.expression )}}] = permutatedEV{{thing.identifier}}
-{%- endif %}
-{%- endfor %}
+            {% set n = scalarMassMatrixSizes|sum %}
+            cdef double eigenvectors[{{n}}][{{n}}]
+            for i in range({{n}}):
+                for j in range({{n}}):
+                    {% set offset = namespace(value=0) %}
+                    {% for size in scalarMassMatrixSizes %}
+                    {% if loop.first %}if{% else %}elif{% endif %} 0<=i-{{offset.value}} < {{size}} and 0<=j-{{offset.value}} < {{size}}:
+                        eigenvectors[i][j] = scalarMM{{loop.index0}}[i-{{offset.value}}][j-{{offset.value}}]
+                    {% set offset.value = offset.value + size %}
+                    {% endfor %}
+                    else:
+                        eigenvectors[i][j] = 0
+        {%- if not scalarPermutationMatrix == none %}
+            {% set n = scalarMassMatrixSizes|sum %}
+            cdef double scalarPermutationMatrix[{{n}}][{{n}}]
+            {% for expression in scalarPermutationMatrix %}
+            scalarPermutationMatrix{{expression.identifier}}= {{expression.expression}}
+            {%- endfor %}
+            cdef double permutatedEV[{{n}}][{{n}}]
+            cdef int n = {{n}}
+            cdef double alpha = 1.0
+            cdef double beta = 0.0 
+            dgemm('N', 'N', 
+                  &n, &n, &n, &alpha,  
+                  &scalarPermutationMatrix[0][0], &n,
+                  &eigenvectors[0][0], &n,
+                  &beta, &permutatedEV[0][0], &n)
+        {%- endif %}
 
-{%- endif %}
-{%- for symbol, localIdx, blockIdx in eigenvalueAssignment %}
-    params[{{allSymbols.index( symbol )}}] = eigenvalues{{ blockIdx }}[{{localIdx }}]
-{%- endfor %}
+        ##Tranpose taken symbolically here for zero overhead handling of fortran - c memory maps
+        {%- for thing in scalarRotationMatrix %}
+        {%- if thing.expression != '0.' %}
+            params[{{allSymbols.index( thing.expression )}}] = permutatedEV{{thing.identifier}}
+        {%- endif %}
+        {%- endfor %}
 
-{%- for expression in vectorMasses %}
-    params[{{allSymbols.index(expression.identifier)}}] = {{ expression.expression }}
-{%- endfor %}
+        {%- endif %}
+        {%- for symbol, localIdx, blockIdx in eigenvalueAssignment %}
+            params[{{allSymbols.index( symbol )}}] = eigenvalues{{ blockIdx }}[{{localIdx }}]
+        {%- endfor %}
 
-{%- for expression in vectorShorthands %}
-    params[{{allSymbols.index(expression.identifier)}}] = {{ expression.expression }}
-{%- endfor %}
-        """)).render(
-            allSymbols=allSymbols, 
-            scalarMatricesExpressions=scalarMatricesExpressions,
-            eigenvalueAssignment = eigenvalueAssignment,
-            scalarMassMatrixSizes = scalarMassMatrixSizes,
-            bEigenVectors = 0 if loopOrder ==1 else 1,
-            scalarPermutationMatrix = scalarPermutationMatrix,
-            scalarRotationMatrix = scalarRotationMatrix,
-            vectorMasses = vectorMasses,
-            vectorShorthands = vectorShorthands,
-            )
+        {%- for expression in vectorMasses %}
+            params[{{allSymbols.index(expression.identifier)}}] = {{ expression.expression }}
+        {%- endfor %}
+
+        {%- for expression in vectorShorthands %}
+            params[{{allSymbols.index(expression.identifier)}}] = {{ expression.expression }}
+        {%- endfor %}
+    """)).render(**locals())
 

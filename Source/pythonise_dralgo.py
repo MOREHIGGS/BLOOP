@@ -105,7 +105,7 @@ def pythonise_DRalgo(args):
         for line in getLines(veff)
         ]
 
-    generateModules(
+    if (generateModules(
         veffExpressions,
         args.verbose,
         args.loopOrder,
@@ -120,8 +120,11 @@ def pythonise_DRalgo(args):
         args.gccFlags,
         [replaceGreekSymbols(name) for name in getLinesJSON(args.lagranianVariablesFilePath)["fieldSymbols"]],
         args.modelDirectory,
-    )
-    
+        args,
+    ) < 0):
+        return -1
+
+    return 0
 
 
 def splitExpressionsArray(expressions, allSymbols):

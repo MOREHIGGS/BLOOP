@@ -5,6 +5,8 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 RUN apt-get update && \
     apt-get install -y bash-completion && \
+    apt-get install libnlopt-dev -y && \
+
     if [ "$DEV" = "true" ] ; then apt-get install -y graphviz ; fi && \
     rm -rf /var/lib/apt/lists/*
 
@@ -23,3 +25,6 @@ RUN chmod +x /usr/local/bin/bloop
 RUN register-python-argcomplete bloop > /etc/bash_completion.d/bloop
 
 RUN echo 'source /etc/bash_completion.d/python-argcomplete' >> /root/.bashrc
+RUN apt update -y
+RUN apt install -y libnlopt-dev
+

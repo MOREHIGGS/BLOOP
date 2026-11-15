@@ -1,13 +1,12 @@
 import importlib
 from cmath import sqrt
-from dataclasses import InitVar, dataclass
 from unittest import TestCase
 
-import nlopt
 import numpy as np
 import scipy
 from parsed_expression import ParsedExpression, ParsedExpressionSystem
 from pythonise_dralgo import replaceGreekSymbols
+from utility import printIfVerbose
 
 
 def isPerturbative(params, pertSymbols, allSymbols):
@@ -16,41 +15,6 @@ def isPerturbative(params, pertSymbols, allSymbols):
             return False 
     return True
 
-@dataclass(frozen=True)
-class cNlopt:
-    nbrVars: int = 0
-    varLowerBounds: tuple[float] = (0,)
-    varUpperBounds: tuple[float] = (0,)
-    absLocalTol: float = 0
-    relLocalTol: float = 0
-    absGlobalTol: float = 0
-    relGlobalTol: float = 0
-    config: InitVar[dict] = None
-
-    def __post_init__(self, config: dict):
-        if config:
-            self.__init__(**config)
-
-    def nloptGlobal(self, func: callable, initialGuess: list[float]):
-        opt = nlopt.opt(nlopt.GN_DIRECT_NOSCAL, self.nbrVars)
-        opt.set_min_objective(func)
-        opt.set_lower_bounds(self.varLowerBounds)
-        opt.set_upper_bounds(self.varUpperBounds)
-        opt.set_xtol_abs(self.absGlobalTol)
-        opt.set_xtol_rel(self.relGlobalTol)
-        opt.set_exceptions_enabled(False)
-        return self.nloptLocal(func, opt.optimize(initialGuess))
-
-    def nloptLocal(self, func: callable, initialGuess: list[float]):
-        opt = nlopt.opt(nlopt.LN_BOBYQA, self.nbrVars)
-        opt.set_min_objective(func)
-        opt.set_lower_bounds(self.varLowerBounds)
-        opt.set_upper_bounds(self.varUpperBounds)
-        opt.set_xtol_abs(self.absLocalTol)
-        opt.set_xtol_rel(self.relLocalTol)
-        opt.set_exceptions_enabled(False)
-        return opt.optimize(initialGuess), opt.last_optimum_value(), opt.last_optimize_result()
-
 class TrackVEV:
     def __init__(self, TRange,
              initialGuesses,
@@ -58,20 +22,10 @@ class TrackVEV:
              pythonisedExpressions,
              loopOrder,
              correctVEV,
-             nloptConfig,
         ):
         
-        self.verbose = verbose
         self.TRange = TRange
         self.initialGuesses = initialGuesses
-        self.nloptInst = cNlopt( config=nloptConfig )
-        self.nloptErrors = [
-            "NLOPT_FAILURE",
-            "NLOPT_INVALID_ARGS",
-            "NLOPT_OUT_OF_MEMORY",
-            "NLOPT_ROUNDOFF_LIMITED",
-            "NLOPT_FORCED_STOP",
-        ]
         self.verbose = verbose
         
         self.allSymbols = pythonisedExpressions["allSymbols"]["allSymbols"]
@@ -122,7 +76,8 @@ class TrackVEV:
                              self.allSymbols,
                          )
 
-        self.evaluatePotential = importlib.import_module(f"EvaluatePotential{loopOrder}").evaluatePotential
+        self.evaluatePotential = importlib.import_module(f"EvaluatePotential{loopOrder}").evaluatePotential_Python
+        self.findGlobalMinimumCython = importlib.import_module(f"EvaluatePotential{loopOrder}").findGlobalMinimum
 
     def trackVEV(self, benchmark):
         minimizationResults = {
@@ -183,8 +138,7 @@ class TrackVEV:
         vevLocation = np.array(self.initialGuesses[0])
 
         for Tidx, T in enumerate(self.TRange):
-            if self.verbose:
-                print(f"Start of temp = {T} loop")
+            printIfVerbose(f"Start of temp = {T} loop", self.verbose)
             
             params = np.zeros(len(self.allSymbols), dtype="float64")
             params[self.allSymbols.index("T")] = T
@@ -209,8 +163,10 @@ class TrackVEV:
             
             ## Round needed because nlopt result sometimes fp out of bounds
             ## See https://github.com/stevengj/nlopt/issues/625
-            result =  self.findGlobalMinimum(
-                params, self.initialGuesses + [np.round(vevLocation, 8)]
+            
+            result =  self.findGlobalMinimumCython(
+                np.array(self.initialGuesses + [np.round(vevLocation, 8)], dtype=np.float64), 
+                params
             )
             
             if isinstance(result, str):
@@ -245,8 +201,7 @@ class TrackVEV:
             
             ## TODO add a catch for bad behaviour e.g. dipping in and out symmetric 
             if np.all(np.abs(vevLocation) < 0.1):
-                if self.verbose:
-                    print(f"Symmetric phase found at temp {T}")
+                printIfVerbose(f"Symmetric phase found at temp {T}", self.verbose)
 
                 if counter == 3:
                     break
@@ -258,32 +213,6 @@ class TrackVEV:
         ).tolist()
 
         return minimizationResults
-    
-    def findGlobalMinimum(self, params, minimumCandidates):
-        """For physics reasons we only minimise the real part,
-        for NLopt reasons we need to give a redunant grad arg"""
-        def VeffWrapper(fields, grad):
-            return np.real(
-                    self.evaluatePotential(fields, params)
-                )
-
-        bestResult = self.nloptInst.nloptGlobal(VeffWrapper, minimumCandidates[0])
-        if bestResult[2] < 0:
-            return  f"NLopt is reporting following error: {self.nloptErrors[-bestResult[2]-1]}"
-
-        for candidate in minimumCandidates:
-            result = self.nloptInst.nloptLocal(VeffWrapper, candidate)
-            
-            if result[2] < 0:
-                return f"NLopt is reporting following error: {self.nloptErrors[-result[2]-1]}"
-            
-            if result[1] < bestResult[1]:
-                bestResult = result
-        
-        return bestResult[0], self.evaluatePotential(bestResult[0], params)
-   
-
-
 
 class TrackVEVUnitTests(TestCase):
     def test_isPerturbativeTrue(self):

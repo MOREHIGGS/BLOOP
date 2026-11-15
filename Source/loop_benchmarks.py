@@ -8,6 +8,7 @@ import numpy as np
 from pathos.multiprocessing import Pool
 from tqdm import tqdm
 from track_vev import TrackVEV
+from utility import printIfVerbose
 
 
 def loopBenchmarks(args):
@@ -20,21 +21,19 @@ def loopBenchmarks(args):
         
     fieldNames = pythonisedExpressions["lagranianVariables"]["lagranianVariables"]["fieldSymbols"]
     
-    trackVEV = TrackVEV(tuple(_drange(args.TRangeStart, args.TRangeEnd, str(args.TRangeStepSize))),
-                     args.initialGuesses,
-                     args.verbose,
-                     pythonisedExpressions,
-                     args.loopOrder,
-                     args.correctVEV,
-                     {"nbrVars": len(fieldNames),
-                             "absGlobalTol": args.absGlobalTolerance,
-                             "relGlobalTol": args.relGlobalTolerance,
-                             "absLocalTol": args.absLocalTolerance,
-                             "relLocalTol": args.relLocalTolerance,
-                             "varLowerBounds": args.bgfLowerBounds,
-                             "varUpperBounds": args.bgfUpperBounds,
-                     },
-                     )
+    trackVEV = TrackVEV(
+        tuple(_drange(
+                args.TRangeStart, 
+                args.TRangeEnd, 
+                str(args.TRangeStepSize),
+            
+        )),
+        args.initialGuesses,
+        args.verbose,
+        pythonisedExpressions,
+        args.loopOrder,
+        args.correctVEV,
+    )
     
     def streamBenchmarksIn(path, firstBm, lastBm):
         with open(path, "r") as benchmarkFile:
@@ -45,18 +44,8 @@ def loopBenchmarks(args):
 
     def streamResultsOut(resultsGenerator, outputFilePath):
         with open(outputFilePath, "w") as fp:
-            fp.write("[\n")
-            middle = False
+            json.dump(list(resultsGenerator), fp, indent=2)
 
-            for result in resultsGenerator:
-                if middle:
-                    fp.write(",\n")
-                json.dump(result, fp, indent=2)
-                middle = True
-
-            fp.write("\n]\n")
-
-    ## try needed because if doBenchmark errors it can cause BLOOP to hang
     def doBenchmarkWrapper(benchmark):
         ## Maybe make these explicit func args instead of pulling from outside func scope
         return doBenchmark(trackVEV, args, fieldNames, resultsDir, benchmark)
@@ -96,22 +85,19 @@ def doBenchmark(
     resultsDirectory,
     benchmark,
 ):
-    if args.verbose:
-        print(f"Starting benchmark: {benchmark['bmNumber']}")
+    printIfVerbose(f"Starting benchmark: {benchmark['bmNumber']}", args.verbose)
 
     minimizationResult = trackVEV.trackVEV(benchmark)
 
     filename = resultsDirectory/f"BM_{benchmark['bmNumber']}"
 
     if args.bSave:
-        if args.verbose:
-            print(f"Saving raw data of {benchmark['bmNumber']} to {filename}.json")
+        printIfVerbose(f"Saving raw data of {benchmark['bmNumber']} to {filename}.json", args.verbose)
         with open(f"{filename}.json", "w") as fp:
             fp.write(json.dumps(minimizationResult, indent=4))
             
     if args.bPlot:
-        if args.verbose:
-            print(f"Plotting {benchmark['bmNumber']}")
+        printIfVerbose(f"Plotting {benchmark['bmNumber']}", args.verbose)
 
         import_module(args.plotDataModule).plotData(minimizationResult, filename, fieldNames)
 

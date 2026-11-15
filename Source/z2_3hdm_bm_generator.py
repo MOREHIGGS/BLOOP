@@ -11,7 +11,7 @@ import numpy as np
 import pdg
 import pytest
 from scipy.constants import physical_constants as constants
-from track_vev import cNlopt
+from utility import cNlopt
 
 ## Connecting is expensive so just do it once in global space to avoid passing it around
 api = pdg.connect()
@@ -506,3 +506,4 @@ class BmGeneratorUnitTests(TestCase):
             )
         except AssertionError:
             pytest.xfail("Fermi constant from Scipy isn't what we expect")
+
