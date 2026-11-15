@@ -85,7 +85,7 @@ def generateModules(
         importlib.util.find_spec(f"EvaluatePotential{loopOrder}") is not None):
         
         printIfVerbose("Using previously compiled code", verbose)
-        return
+        return 0
     
     with open(f"{cythonModulesDir}/EvaluatePotential{loopOrder}.pyx", "w") as fp:
         fp.write(evaluatePotentialModule)
@@ -106,9 +106,11 @@ def generateModules(
 
     if compliation.returncode:
         print(compliation.stderr)
-        raise Exception("Compilation failed")
+        return -1
 
     printIfVerbose(f'Compilation took {time.time() - ti} seconds.', verbose)
+
+    return 0
 
 def generateSetupFile(
     loopOrder, 

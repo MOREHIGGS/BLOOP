@@ -1,6 +1,7 @@
 from importlib import import_module
 import ctypes
 import importlib.util
+import sys
 
 from loop_benchmarks import loopBenchmarks
 from meta_data import writeMetaData
@@ -21,7 +22,8 @@ def main():
     writeMetaData(args)
     
     printIfVerbose("Pythonise DRalgo stage started", args.verbose)
-    pythonise_DRalgo(args)
+    if (pythonise_DRalgo(args) < 0):
+        return -1
     
     printIfVerbose("Benchmark generation stage started", args.verbose)
     import_module(args.bmGeneratorModule).generateBenchmarks(args)
@@ -32,5 +34,9 @@ def main():
     printIfVerbose("Summarise Results stage started", args.verbose)
     import_module(args.summariseModule).summariseResults(args)
 
+    return 0
+
+
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
+
