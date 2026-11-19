@@ -1,7 +1,7 @@
 import argparse
 import json
 import multiprocessing
-from sys import exit, maxsize
+from sys import maxsize
 from pathlib import Path
 
 import argcomplete

@@ -1,6 +1,5 @@
 import difflib
 import json
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -11,7 +10,6 @@ import pytest
 
 def runTests():
     sourceDirectory = Path(__file__).resolve().parent
-    integrationTestsDirectory = sourceDirectory/"../Share/IntegrationTests"
     unitResult = pytest.main([f"{sourceDirectory}/py_test_unit_tests.py", "-rx"])
 
     if unitResult != 0:

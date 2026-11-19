@@ -1,7 +1,6 @@
 import getpass
 import json
 import os
-import pathlib
 import platform
 import socket
 import subprocess

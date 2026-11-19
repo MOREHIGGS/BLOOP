@@ -1,19 +1,15 @@
-import sys
 from collections import defaultdict
 from json import load
-
 import matplotlib
+from textwrap import dedent
+import numpy as np
+from matplotlib import pylab as plt
+
 
 ## Turns off GUI which is expensive and not needed since we always save files
 ## TODO document this and make it toggable 
 matplotlib.use('Agg')
-from matplotlib import pylab as plt
-
 plt.rcParams.update({"font.size": 12})
-from pathlib import Path
-from textwrap import dedent
-
-import numpy as np
 
 
 def summariseResults(args):
