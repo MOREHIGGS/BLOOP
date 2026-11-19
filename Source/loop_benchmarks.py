@@ -18,7 +18,7 @@ def loopBenchmarks(args):
     with open(f"{args.buildDirectory}/pythonisedExpressions.json", "r") as fp:
         pythonisedExpressions = json.load(fp)
         
-    scanResultsPath = f"{args.resultsDirectory}/scanResults.json"
+    scanResultsPath = f"{args.resultsDirectory}/ScanResults.json"
     fieldNames = pythonisedExpressions["lagranianVariables"]["lagranianVariables"]["fieldSymbols"]
     
     trackVEV = TrackVEV(

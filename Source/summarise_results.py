@@ -26,7 +26,7 @@ def summariseResults(args):
     TcList = []
     bmNumberList = []
 
-    with open(f"{args.resultsDirectory}/scanResults.json","r") as fp:
+    with open(f"{args.resultsDirectory}/ScanResults.json","r") as fp:
         data = load(fp)
 
     for result in data:

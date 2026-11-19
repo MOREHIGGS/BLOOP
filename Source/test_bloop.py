@@ -22,10 +22,11 @@ def runTests():
     for idx, loopOrder in enumerate(["NLO", "NNLO"]):
         print(f"Running {loopOrder} integration test:")
 
-        loopDirectory = f'{sourceDirectory}/../TestResults/{loopOrder}/'
-        Path(loopDirectory).mkdir(exist_ok=True, parents=True) 
+        loopOutDirectory = f'{sourceDirectory}/../Share/IntegrationTests/{loopOrder}-Out/'
+        loopRefDirectory = f'{sourceDirectory}/../Share/IntegrationTests/{loopOrder}-Ref/'
+        Path(loopOutDirectory).mkdir(exist_ok=True, parents=True) 
 
-        rmtree(loopDirectory)
+        rmtree(loopOutDirectory)
         
         modelDir = f"{sourceDirectory}/../Build/Z2_3HDM/DRalgoOutputFiles"
         integrationTest = subprocess.run(
@@ -35,7 +36,7 @@ def runTests():
                 '--loopOrder', f'{idx +1}', 
                 '--lastBenchmark', '3',
                 '--bSave',
-                '--resultsDirectory', loopDirectory,
+                '--resultsDirectory', loopOutDirectory,
                 '--TRangeStart', '90', 
                 '--TRangeStepSize', '1',
                 '--TRangeEnd', '200',
@@ -71,29 +72,11 @@ def runTests():
                 f"Error:\n{integrationTest.stderr}"
                 f"Error code: {integrationTest.returncode}\n"
             )
-        with open(f"{loopDirectory}/scanResults.json", "r") as fp:
-            scanResults = json.load(fp)
-        with open(
-            f'{sourceDirectory}/../Share/IntegrationTests/{loopOrder}/ReferenceResult/ScanResults.json', 
-            "r",
-        ) as fp:
-            scanResultsRef = json.load(fp)
-        
-        ## pytest.approx doesn't work with nested dicts so here's a partly AI
-        ## written function to unpack the nested dicts and do the comparisons
-        def isApproxEq(data, ref, relTol, absTol):
-            if isinstance(ref, dict):
-                if data.keys() != ref.keys():
-                    return False
-                return all(isApproxEq(data[k], ref[k], relTol, absTol) for k in ref)
-            
-            elif isinstance(ref, (list, tuple)):
-                if len(data) != len(ref):
-                    return False
-                return all(isApproxEq(a, e, relTol, absTol) for a, e in zip(data, ref))
-            
-            else:
-                return data == pytest.approx(ref, relTol, absTol)
+        with open(f"{loopOutDirectory}/ScanResults.json", "r") as file:
+            scanResults = json.load(file)
+
+        with open(f'{loopRefDirectory}/ScanResults.json', "r") as file:
+            scanResultsRef = json.load(file)
         
         if isApproxEq(scanResults, scanResultsRef, 0, 0):
             print(f"Summary of results at {loopOrder} matches references exactly")
@@ -105,9 +88,9 @@ def runTests():
 
         stdOut += f"Summary of results at {loopOrder} is outside the tolerance of the solver"  
         
-        with open(sourceDirectory/f"../Run/{loopOrder}Diff.txt", "w") as fp:
-            fp.write("Summary diff:")
-            fp.write("".join(difflib.unified_diff(
+        with open(sourceDirectory/f"../Run/{loopOrder}Diff.txt", "w") as file:
+            file.write("Summary diff:")
+            file.write("".join(difflib.unified_diff(
             json.dumps(scanResults, indent=2).splitlines(keepends=True),
             json.dumps(scanResultsRef, indent=2).splitlines(keepends=True),
             fromfile='output',
@@ -115,21 +98,21 @@ def runTests():
         )))
 
         for i in range(4):
-            with open("{loopDirectory}/BM_{i}.json", "r") as fp:
-                bm = json.load(fp)
+            with open("{loopOutDirectory}/BM_{i}.json", "r") as file:
+                bm = json.load(file)
 
             with open(
-                f'{sourceDirectory}/../Share/IntegrationTests/{loopOrder}/ReferenceResult/BM_{i}.json', 
+                f'{loopRefDirectory}/BM_{i}.json', 
                 "r",
-            ) as fp:
-                bmRef = json.load(fp)
+            ) as file:
+                bmRef = json.load(file)
 
             if not isApproxEq(bm, bmRef, 1e-3, 5e-2):
                 stdOut += f"{loopOrder}: BM{i} is outside tol solver  \n"
     
-            with open(sourceDirectory/f"../Run/{loopOrder}Diff.txt", "a") as fp:
-                fp.write(f"BM{i} diff:\n")
-                fp.write("".join(difflib.unified_diff(
+            with open(sourceDirectory/f"../Run/{loopOrder}Diff.txt", "a") as file:
+                file.write(f"BM{i} diff:\n")
+                file.write("".join(difflib.unified_diff(
                 json.dumps(bm, indent=2).splitlines(keepends=True),
                 json.dumps(bmRef, indent=2).splitlines(keepends=True),
                 fromfile='output',
@@ -141,6 +124,21 @@ def runTests():
         print("\nSee (N)NLODiff.txt (in Run) for further details. \n")
         sys.exit(stdOut)
     
+## pytest.approx doesn't work with nested dicts so here's a partly AI
+## written function to unpack the nested dicts and do the comparisons
+def isApproxEq(data, ref, relTol, absTol):
+    if isinstance(ref, dict):
+        if data.keys() != ref.keys():
+            return False
+        return all(isApproxEq(data[k], ref[k], relTol, absTol) for k in ref)
+    
+    elif isinstance(ref, (list, tuple)):
+        if len(data) != len(ref):
+            return False
+        return all(isApproxEq(a, e, relTol, absTol) for a, e in zip(data, ref))
+    
+    else:
+        return data == pytest.approx(ref, relTol, absTol)
     
 if __name__ == '__main__':
     runTests()
