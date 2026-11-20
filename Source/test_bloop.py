@@ -20,8 +20,8 @@ def runTests():
     for idx, loopOrder in enumerate(["NLO", "NNLO"]):
         print(f"Running {loopOrder} integration test:")
 
-        loopOutDirectory = f'{sourceDirectory}/../Share/IntegrationTests/{loopOrder}-Out/'
-        loopRefDirectory = f'{sourceDirectory}/../Share/IntegrationTests/{loopOrder}-Ref/'
+        loopOutDirectory = f'{sourceDirectory}/../Share/IntegrationTests/{loopOrder}-Out'
+        loopRefDirectory = f'{sourceDirectory}/../Share/IntegrationTests/{loopOrder}-Ref'
         Path(loopOutDirectory).mkdir(exist_ok=True, parents=True) 
 
         rmtree(loopOutDirectory)
@@ -63,7 +63,7 @@ def runTests():
             check=False,
             text=True,
         )
-
+        
         if integrationTest.returncode != 0:
             sys.exit(
                 f"{loopOrder} integration test failed\n"
