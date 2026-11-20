@@ -2,7 +2,10 @@ import ctypes
 import importlib.util
 import sys
 from importlib import import_module
+from pathlib import Path
 
+## Pip install broken without this since __init__ got removed
+sys.path.insert(0, str(Path(__file__).parent))
 from loop_benchmarks import loopBenchmarks
 from meta_data import writeMetaData
 from pythonise_dralgo import pythonise_DRalgo
@@ -12,7 +15,8 @@ from utility import printIfVerbose
 
 def main():
     args = UserInput().parse()
-    
+    if args is None:
+        return -1
     ## AI code that puts NLopt symbols into global name space
     ## Far from ideal but the only way we could make gcc and Python handle NLopt in Cython when BLOOP
     ## is PIP installed 
