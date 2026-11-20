@@ -26,7 +26,7 @@ def runTests():
 
         rmtree(loopOutDirectory)
         
-        modelDir = f"Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles"
+        modelDir = "Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles"
         integrationTest = subprocess.run(
             [
                 sys.executable,
@@ -35,6 +35,7 @@ def runTests():
                 '--lastBenchmark', '3',
                 '--bSave',
                 '--resultsDirectory', loopOutDirectory,
+                '--buildDirectory', "Build-Z2-3HDM-IT",
                 '--TRangeStart', '90', 
                 '--TRangeStepSize', '1',
                 '--TRangeEnd', '200',

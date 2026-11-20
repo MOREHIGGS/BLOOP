@@ -347,10 +347,13 @@ class UserInput(argparse.ArgumentParser):
                 return None
             self.set_defaults(**userConfig)
         args= super().parse_args()
+        ## Maybe move these lines to function to seperate?
         ## catching common mistake
         args.plotDataModule = self.removePyExtension(args.plotDataModule)
         args.bmGeneratorModule = self.removePyExtension(args.bmGeneratorModule)
         args.summariseModule = self.removePyExtension(args.summariseModule)
+        
+        Path(args.buildDirectory).mkdir(exist_ok=True, parents=True)
         
         BLOOPDir = str(Path(__file__).resolve().parent)+"/../"
 
