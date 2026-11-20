@@ -13,12 +13,12 @@ class UserInput(argparse.ArgumentParser):
 
         configGroup = self.add_argument_group('Configuration options')
         configGroup.add_argument = self.addArgumentNoMetaVar(configGroup)
-       
+        BLOOPDir = str(Path(__file__).resolve().parent)+"/../"
         configGroup.add_argument(
             "--configFilePath",
             action="store",
             type=str,
-            help="Str: Path (relative to cwd) to load cmd line args from json ",
+            help="Str: Path (relative to CWD) to load cmd line args from json ",
         )
         configGroup.add_argument(
             "--gccFlags",
@@ -200,7 +200,7 @@ class UserInput(argparse.ArgumentParser):
         outputGroup.add_argument(
             "--buildDirectory",
             action="store",
-            default=f"{Path(__file__).resolve().parent}/../Build",
+            default=f"{BLOOPDir}Build",
             help="Str: Absolute path of the directory to store build artifacts",
         )      
         outputGroup.add_argument(
@@ -351,6 +351,12 @@ class UserInput(argparse.ArgumentParser):
         args.plotDataModule = self.removePyExtension(args.plotDataModule)
         args.bmGeneratorModule = self.removePyExtension(args.bmGeneratorModule)
         args.summariseModule = self.removePyExtension(args.summariseModule)
+        
+        BLOOPDir = str(Path(__file__).resolve().parent)+"/../"
+
+        for key, value in vars(args).items(): 
+            if key.endswith("FilePath"):
+                setattr(args, key,  BLOOPDir+f"{value}") 
         return args
         
 
