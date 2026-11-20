@@ -15,7 +15,7 @@ def loopBenchmarks(args):
     Path(args.resultsDirectory).parent.mkdir(exist_ok=True, parents=True)   
     ## We should probably pass that directly to here instead of loading now that 
     ## we don't have stages but this will become redunant anyway soon
-    with open(f"{args.buildDirectory}/pythonisedExpressions.json", "r") as fp:
+    with open(f"{args.buildDirectoryFilePath}/pythonisedExpressions.json", "r") as fp:
         pythonisedExpressions = json.load(fp)
         
     scanResultsPath = f"{args.resultsDirectory}/ScanResults.json"

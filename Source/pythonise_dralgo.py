@@ -90,7 +90,7 @@ def pythonise_DRalgo(args):
         expressionDict |= {"softToUltraSoft": "none", 
                            "ultraSoftRGE": "none"}
     
-    with open(f"{args.buildDirectory}/pythonisedExpressions.json", "w") as fp:
+    with open(f"{args.buildDirectoryFilePath}/pythonisedExpressions.json", "w") as fp:
         json.dump(expressionDict, fp, indent=4)
         
     scalarPermutationMatrix = (splitExpressions(loadMatrices(args.scalarPermutationMatrixFilePath)[0]) 

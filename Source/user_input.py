@@ -2,7 +2,7 @@ import argparse
 import json
 import multiprocessing
 from pathlib import Path
-from sys import maxsize
+from sys import maxsize, path
 
 import argcomplete
 
@@ -198,7 +198,7 @@ class UserInput(argparse.ArgumentParser):
             help="Str: Path (relative to Run) to directory to store output files",
         )      
         outputGroup.add_argument(
-            "--buildDirectory",
+            "--buildDirectoryFilePath",
             action="store",
             default=f"{BLOOPDir}Build",
             help="Str: Absolute path of the directory to store build artifacts",
@@ -353,13 +353,15 @@ class UserInput(argparse.ArgumentParser):
         args.bmGeneratorModule = self.removePyExtension(args.bmGeneratorModule)
         args.summariseModule = self.removePyExtension(args.summariseModule)
         
-        Path(args.buildDirectory).mkdir(exist_ok=True, parents=True)
         
         BLOOPDir = str(Path(__file__).resolve().parent)+"/../"
-
         for key, value in vars(args).items(): 
             if key.endswith("FilePath"):
+                
                 setattr(args, key,  BLOOPDir+f"{value}") 
+        
+        Path(args.buildDirectoryFilePath).mkdir(exist_ok=True, parents=True)
+        path.insert(0, args.buildDirectoryFilePath)
         return args
         
 

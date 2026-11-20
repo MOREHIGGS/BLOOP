@@ -35,7 +35,7 @@ def runTests():
                 '--lastBenchmark', '3',
                 '--bSave',
                 '--resultsDirectory', loopOutDirectory,
-                '--buildDirectory', "Build-Z2-3HDM-IT",
+                '--buildDirectoryFilePath', "Build-Z2-3HDM-IT",
                 '--TRangeStart', '90', 
                 '--TRangeStepSize', '1',
                 '--TRangeEnd', '200',
@@ -118,7 +118,7 @@ def runTests():
                 tofile='reference'
             )))
 
-
+    rmtree(str(sourceDirectory/"../Build-Z2-3HDM-IT"))
     if stdOut:
         print("\nSee (N)NLODiff.txt (in Run) for further details. \n")
         sys.exit(stdOut)
