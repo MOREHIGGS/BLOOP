@@ -2,8 +2,8 @@ import ctypes
 import importlib.util
 import sys
 from importlib import import_module
-
 from pathlib import Path
+
 ## Pip install broken without this since __init__ got removed
 sys.path.insert(0, str(Path(__file__).parent))
 from loop_benchmarks import loopBenchmarks
