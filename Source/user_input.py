@@ -13,7 +13,7 @@ class UserInput(argparse.ArgumentParser):
 
         configGroup = self.add_argument_group('Configuration options')
         configGroup.add_argument = self.addArgumentNoMetaVar(configGroup)
-        BLOOPDir = str(Path(__file__).resolve().parent)+"/../"
+        str(Path(__file__).resolve().parent)+"/../"
         configGroup.add_argument(
             "--configFilePath",
             action="store",

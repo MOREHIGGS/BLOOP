@@ -27,7 +27,7 @@ def runTests():
         loopRefDirectory = f'{sourceDirectory}/../Share/IntegrationTests/{loopOrder}-Ref'
         Path(loopOutDirectory).mkdir(exist_ok=True, parents=True) 
 
-        modelDir = f"Share/Z2_3HDM"
+        modelDir = "Share/Z2_3HDM"
 
         integrationTest = subprocess.run(
             [
