@@ -16,16 +16,17 @@ def runTests():
         print("Unit tests failed. Skipping integration tests.")
         sys.exit(unitResult)
 
+    rmtree(str(sourceDirectory/"../Run-Z2-3HDM-IT"), ignore_errors = True)
+    rmtree(str(sourceDirectory/"../Build-Z2-3HDM-IT"), ignore_errors = True)
+
     stdOut = ""
     for idx, loopOrder in enumerate(["NLO", "NNLO"]):
         print(f"Running {loopOrder} integration test:")
 
-        loopOutDirectory = f'{sourceDirectory}/../Share/IntegrationTests/{loopOrder}-Out'
+        loopOutDirectory = f'{sourceDirectory}/../Run-Z2-3HDM-IT/IntegrationTests/{loopOrder}-Out'
         loopRefDirectory = f'{sourceDirectory}/../Share/IntegrationTests/{loopOrder}-Ref'
         Path(loopOutDirectory).mkdir(exist_ok=True, parents=True) 
 
-        rmtree(loopOutDirectory)
-        
         modelDir = "Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles"
         integrationTest = subprocess.run(
             [
@@ -40,7 +41,7 @@ def runTests():
                 '--TRangeStepSize', '1',
                 '--TRangeEnd', '200',
                 '--gccFlags', "O1", "flto", "g",
-                '--configFilePath', f'{sourceDirectory}/../Run/Z2_3HDMConfigFile.json',
+                '--configFilePath', f'{sourceDirectory}/../Run-Z2-3HDM-IT/Z2_3HDMConfigFile.json',
                 '--boundedConditionsFilePath', f'{modelDir}/BoundedConditions.txt',
                 '--allSymbolsFilePath', f'{modelDir}/AllSymbols.txt',
                 '--veffLOFilePath', f'{modelDir}/Veff_LO.txt',
@@ -87,7 +88,7 @@ def runTests():
 
         stdOut += f"Summary of results at {loopOrder} is outside the tolerance of the solver"  
         
-        with open(sourceDirectory/f"../Run/{loopOrder}Diff.txt", "w") as file:
+        with open(sourceDirectory/f"../Run-Z2-3HDM-IT/{loopOrder}Diff.txt", "w") as file:
             file.write("Summary diff:")
             file.write("".join(difflib.unified_diff(
             json.dumps(scanResults, indent=2).splitlines(keepends=True),
@@ -109,7 +110,7 @@ def runTests():
             if not isApproxEq(bm, bmRef, 1e-3, 5e-2):
                 stdOut += f"{loopOrder}: BM{i} is outside tol solver  \n"
     
-            with open(sourceDirectory/f"../Run/{loopOrder}Diff.txt", "a") as file:
+            with open(sourceDirectory/f"../Run-Z2-3HDM-IT/{loopOrder}Diff.txt", "a") as file:
                 file.write(f"BM{i} diff:\n")
                 file.write("".join(difflib.unified_diff(
                 json.dumps(bm, indent=2).splitlines(keepends=True),
@@ -118,7 +119,6 @@ def runTests():
                 tofile='reference'
             )))
 
-    rmtree(str(sourceDirectory/"../Build-Z2-3HDM-IT"))
     if stdOut:
         print("\nSee (N)NLODiff.txt (in Run) for further details. \n")
         sys.exit(stdOut)
