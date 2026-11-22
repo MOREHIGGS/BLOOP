@@ -200,7 +200,7 @@ class UserInput(argparse.ArgumentParser):
         outputGroup.add_argument(
             "--buildDirectoryFilePath",
             action="store",
-            default=f"{BLOOPDir}Build",
+            default="Build",
             help="Str: Absolute path of the directory to store build artifacts",
         )      
         outputGroup.add_argument(
