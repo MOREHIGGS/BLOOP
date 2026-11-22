@@ -85,8 +85,8 @@ def generateModules(
         fp.write(evaluatePotentialModule)
     
     with open(f"{cythonModulesDir}/Setup{loopOrder}.py", "w") as fp:
-        print(f"{cythonModulesDir}/Setup{loopOrder}.py")
         fp.write(setupModule)
+    
     printIfVerbose("Compiling cython modules", verbose)
     
     ti = time.time()

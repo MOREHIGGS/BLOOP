@@ -1,0 +1,36 @@
+{
+"boundedConditionsFilePath": "Share/Z2_3HDM/BoundedConditions.txt",
+"allSymbolsFilePath": "Share/Z2_3HDM/AllSymbols.txt",
+"veffLOFilePath":"Share/Z2_3HDM/Veff_LO.txt",
+"veffNLOFilePath":"Share/Z2_3HDM/Veff_NLO.txt",
+"veffNNLOFilePath":"Share/Z2_3HDM/Veff_NNLO.txt",
+"betaFunctions4DFilePath":"Share/Z2_3HDM/BetaFunctions4D.txt",
+"vectorMassesSquaredFilePath":"Share/Z2_3HDM/VectorMasses.txt",
+"vectorShortHandsFilePath":"Share/Z2_3HDM/VectorShorthands.txt",
+"hardToSoftFilePath":"Share/Z2_3HDM/HardToSoft.txt",
+"hardScaleFilePath":"Share/Z2_3HDM/HardScale.txt",
+"softScaleRGEFilePath":"Share/Z2_3HDM/SoftScaleRGE.txt",
+"softToUltraSoftFilePath":"Share/Z2_3HDM/SoftToUltraSoft.txt",
+"ultraSoftScaleRGEFilePath": "Share/Z2_3HDM/UltraSoftScaleRGE.txt",
+"scalarPermutationMatrixFilePath":"Share/Z2_3HDM/ScalarPermutationMatrix.txt",
+"scalarRotationMatrixFilePath":"Share/Z2_3HDM/ScalarRotationMatrix.txt",
+"scalarMassMatrixFilePath":"Share/Z2_3HDM/ScalarMassMatrix.txt",
+"lagranianVariablesFilePath":"Share/Z2_3HDM/LagranianSymbols.json",
+"scalarMassNamesFilePath":"Share/Z2_3HDM/ScalarMassNames.txt",
+"bmGeneratorModule": "z2_3hdm_bm_generator",
+"bgfLowerBounds": [-60, 1e-4, 1e-4],
+"bgfUpperBounds": [60, 60, 60],
+"initialGuesses":[
+    [0.1, 0.1, 0.1],
+    [5, 5, 5],
+    [-5, 5, 5],
+    [0.1, 0.1, 10],
+    [0.1, 0.1, 20],
+    [40, 40, 40],
+    [-40, 40, 40],
+    [59, 59, 59],
+    [-59, 59, 59]
+],
+"benchmarkType": "handPicked"
+}
+
