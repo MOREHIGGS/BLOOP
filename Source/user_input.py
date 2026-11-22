@@ -360,8 +360,6 @@ class UserInput(argparse.ArgumentParser):
                 
                 setattr(args, key,  BLOOPDir+f"{value}") 
         
-        Path(args.buildDirectoryFilePath).mkdir(exist_ok=True, parents=True)
-        path.insert(0, args.buildDirectoryFilePath)
         return args
         
 
