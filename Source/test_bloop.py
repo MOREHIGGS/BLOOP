@@ -27,7 +27,8 @@ def runTests():
         loopRefDirectory = f'{sourceDirectory}/../Share/IntegrationTests/{loopOrder}-Ref'
         Path(loopOutDirectory).mkdir(exist_ok=True, parents=True) 
 
-        modelDir = "Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles"
+        modelDir = f"Share/Z2_3HDM"
+
         integrationTest = subprocess.run(
             [
                 sys.executable,
