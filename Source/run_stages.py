@@ -4,7 +4,10 @@ import sys
 from importlib import import_module
 from pathlib import Path
 
-from loop_benchmarks import loopBenchmarks
+## GitHub pip CI fails without this --can't repo
+#sys.path.insert(0, str(Path(__file__).parent))
+
+from Source.loop_benchmarks import loopBenchmarks
 from meta_data import writeMetaData
 from pythonise_dralgo import pythonise_DRalgo
 from user_input import UserInput
