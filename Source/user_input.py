@@ -147,14 +147,14 @@ class UserInput(argparse.ArgumentParser):
             "--bgfUpperBounds",
             nargs="*",
             action="store",
-            type=list,
+            type=float,
             help="List[float]: Sets the upper bound on background fields for NLOPT",
         )
         nloptGroup.add_argument(
             "--initialGuesses",
             nargs="*",
-            action="store",
-            type=list,
+            action="append",
+            type=float,
             help="List[List[float]]: Initial values of background fields to be given to local minimisation routine in NLOPT",
         )
         nloptGroup.add_argument(

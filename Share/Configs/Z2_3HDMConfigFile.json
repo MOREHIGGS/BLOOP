@@ -16,22 +16,7 @@
 "scalarRotationMatrixFilePath":"Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles/ScalarRotationMatrix.txt",
 "scalarMassMatrixFilePath":"Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles/ScalarMassMatrix.txt",
 "lagranianVariablesFilePath":"Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles/LagranianSymbols.json",
-"scalarMassNamesFilePath":"Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles/ScalarMassNames.txt",
-"bmGeneratorModule": "z2_3hdm_bm_generator",
-"bgfLowerBounds": [-60, 1e-4, 1e-4],
-"bgfUpperBounds": [60, 60, 60],
-"initialGuesses":[
-    [0.1, 0.1, 0.1],
-    [5, 5, 5],
-    [-5, 5, 5],
-    [0.1, 0.1, 10],
-    [0.1, 0.1, 20],
-    [40, 40, 40],
-    [-40, 40, 40],
-    [59, 59, 59],
-    [-59, 59, 59]
-],
-"benchmarkType": "handPicked"
+"scalarMassNamesFilePath":"Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles/ScalarMassNames.txt"
 }
 
 
