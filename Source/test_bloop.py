@@ -41,7 +41,6 @@ def runTests():
                 '--TRangeStepSize', '1',
                 '--TRangeEnd', '200',
                 '--gccFlags', "O1", "flto", "g",
-                '--configFilePath', f'{sourceDirectory}/../Run-Z2-3HDM-IT/Z2_3HDMConfigFile.json',
                 '--boundedConditionsFilePath', f'{modelDir}/BoundedConditions.txt',
                 '--allSymbolsFilePath', f'{modelDir}/AllSymbols.txt',
                 '--veffLOFilePath', f'{modelDir}/Veff_LO.txt',
