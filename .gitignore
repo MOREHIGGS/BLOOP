@@ -1,12 +1,11 @@
 __pycache__/
-build/
 
 .vscode/
 *.code-workspace
 *.spyproject
 
 **/OutputResult/*
-Build/*
+Build*
 Testing
 .version.py
 Share/DRalgoScripts/*

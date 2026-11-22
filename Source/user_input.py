@@ -1,7 +1,8 @@
 import argparse
 import json
 import multiprocessing
-from sys import exit, maxsize
+from pathlib import Path
+from sys import maxsize
 
 import argcomplete
 
@@ -12,12 +13,12 @@ class UserInput(argparse.ArgumentParser):
 
         configGroup = self.add_argument_group('Configuration options')
         configGroup.add_argument = self.addArgumentNoMetaVar(configGroup)
-       
+        BLOOPDir = str(Path(__file__).resolve().parent)+"/../"
         configGroup.add_argument(
             "--configFilePath",
             action="store",
             type=str,
-            help="Str: Path (relative to cwd) to load cmd line args from json ",
+            help="Str: Path (relative to CWD) to load cmd line args from json ",
         )
         configGroup.add_argument(
             "--gccFlags",
@@ -37,12 +38,6 @@ class UserInput(argparse.ArgumentParser):
             action="store_true",
             default=False,
             help="Bool: If activated code will print as it progresses",
-        )
-        configGroup.add_argument(
-            "--debug",
-            action="store_true",
-            default=False,
-            help="Bool: If activated code will print stacktrace/error and exit instead of trying to continue",
         )
         configGroup.add_argument(
             "--workers",
@@ -72,12 +67,6 @@ class UserInput(argparse.ArgumentParser):
         benchmarkGroup = self.add_argument_group('Benchmark Options')
         benchmarkGroup.add_argument = self.addArgumentNoMetaVar(benchmarkGroup)
        
-        benchmarkGroup.add_argument(
-            "--benchmarkFilePath",
-            action="store",
-            default="Benchmarks.json",
-            help="Str: File path (relative to --modelDirectory) used for saving benchmarks"
-        )
         benchmarkGroup.add_argument(
             "--benchmarkType",
             action="store",
@@ -158,14 +147,14 @@ class UserInput(argparse.ArgumentParser):
             "--bgfUpperBounds",
             nargs="*",
             action="store",
-            type=list,
+            type=float,
             help="List[float]: Sets the upper bound on background fields for NLOPT",
         )
         nloptGroup.add_argument(
             "--initialGuesses",
             nargs="*",
-            action="store",
-            type=list,
+            action="append",
+            type=float,
             help="List[List[float]]: Initial values of background fields to be given to local minimisation routine in NLOPT",
         )
         nloptGroup.add_argument(
@@ -209,6 +198,12 @@ class UserInput(argparse.ArgumentParser):
             help="Str: Path (relative to Run) to directory to store output files",
         )      
         outputGroup.add_argument(
+            "--buildDirectoryFilePath",
+            action="store",
+            default=f"{BLOOPDir}Build",
+            help="Str: Absolute path of the directory to store build artifacts",
+        )      
+        outputGroup.add_argument(
             "--bSave",
             action="store_true",
             default=False,
@@ -227,23 +222,17 @@ class UserInput(argparse.ArgumentParser):
             help="Str: Module name of python module (living in Source) to generate plots, invoked by --bPlot"
         )
         outputGroup.add_argument(
-            "--scanResultsName",
-            action="store",
-            default="ScanResults",
-            help="Str: File name for the scan results (lives inside --resultsDirectory)",
-        )
-        outputGroup.add_argument(
             "--strengthCutOff",
             action="store",
             default=0.6,
             type=float,
-            help="float: Lowest strength of phase transition which we will label as strong",
+            help="float: Lowest strength of phase transition which to label as strong",
         )
         outputGroup.add_argument(
             "--includeEFTBreak",
             action="store_true",
             default=False,
-            help="Bool: If activated include phase transitions where the validity of the EFT is in question (particle masses above the hard scale or non-neligable imaginary part of effective potential)",
+            help="Bool: If activated default plotting/Summary code will include phase transitions where the validity of the EFT is in question (particle masses above the hard scale or non-neligable imaginary part of effective potential)",
         )
         outputGroup.add_argument(
             "--summariseModule",
@@ -252,13 +241,9 @@ class UserInput(argparse.ArgumentParser):
             help="Str: File name of python module to use to summarise scan results - needs to have a function called summariseResults which takes in args",
         )
         ########################################################################
-        filesGroup = self.add_argument_group('Model File Paths', 'Give the path for your model directory (relative to Build), then all other files are relative to the model directory')
+        filesGroup = self.add_argument_group('Model File Paths', 'Give the paths  (relative to BLOOP) for your DRalgo output files')
         filesGroup.add_argument = self.addArgumentNoMetaVar(filesGroup)
         
-        filesGroup.add_argument(
-             "--modelDirectory",
-             action="store",
-        )      
         filesGroup.add_argument(
             "--boundedConditionsFilePath",
             action="store",
@@ -334,12 +319,6 @@ class UserInput(argparse.ArgumentParser):
             "--scalarMassNamesFilePath",
             action="store",
         )
-        filesGroup.add_argument(
-            "--pythonisedExpressionsFilePath",
-            action="store",
-            default="PythonisedExpressionsFile.json",
-        )
-
         argcomplete.autocomplete(self)
     
     ## Magic claude monkey patch to remove the metaVar that clutters --help
@@ -365,13 +344,22 @@ class UserInput(argparse.ArgumentParser):
                 print(
                     f"User config file has unexpected key(s):\n {unexpectedKeys},\nExiting"
                 )
-                exit()
+                return None
             self.set_defaults(**userConfig)
         args= super().parse_args()
+        ## Maybe move these lines to function to seperate?
         ## catching common mistake
         args.plotDataModule = self.removePyExtension(args.plotDataModule)
         args.bmGeneratorModule = self.removePyExtension(args.bmGeneratorModule)
         args.summariseModule = self.removePyExtension(args.summariseModule)
+        
+        
+        BLOOPDir = str(Path(__file__).resolve().parent)+"/../"
+        for key, value in vars(args).items(): 
+            if key.endswith("FilePath"):
+                
+                setattr(args, key,  BLOOPDir+f"{value}") 
+        
         return args
         
 

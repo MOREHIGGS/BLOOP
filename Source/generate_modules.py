@@ -5,7 +5,6 @@ import time
 from collections import defaultdict
 from hashlib import md5
 from math import sqrt
-from pathlib import Path
 from textwrap import dedent
 
 import nlopt
@@ -27,7 +26,6 @@ def generateModules(
     vectorShorthands,
     gccFlags,
     fieldNames,
-    modelDirectory,
     args,
 ):
     
@@ -74,10 +72,7 @@ def generateModules(
         except FileNotFoundError:
             return None
 
-    cythonModulesDir = Path(__file__).resolve().parent/"../Build"/modelDirectory/"CythonModules" 
-    cythonModulesDir.mkdir(exist_ok=True, parents=True)
-    cythonModulesDir = str(cythonModulesDir)
-    sys.path.insert(0, cythonModulesDir)
+    cythonModulesDir = args.buildDirectoryFilePath
     
     if (md5(evaluatePotentialModule.encode()).hexdigest() == getHash(f"{cythonModulesDir}/EvaluatePotential{loopOrder}.pyx") and
         md5(setupModule.encode()).hexdigest() == getHash(f"{cythonModulesDir}/Setup{loopOrder}.py") and
@@ -90,8 +85,8 @@ def generateModules(
         fp.write(evaluatePotentialModule)
     
     with open(f"{cythonModulesDir}/Setup{loopOrder}.py", "w") as fp:
+        print(f"{cythonModulesDir}/Setup{loopOrder}.py")
         fp.write(setupModule)
-    
     printIfVerbose("Compiling cython modules", verbose)
     
     ti = time.time()

@@ -1,0 +1,36 @@
+{
+"boundedConditionsFilePath": "Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles/BoundedConditions.txt",
+"allSymbolsFilePath": "Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles/AllSymbols.txt",
+"veffLOFilePath":"Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles/Veff_LO.txt",
+"veffNLOFilePath":"Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles/Veff_NLO.txt",
+"veffNNLOFilePath":"Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles/Veff_NNLO.txt",
+"betaFunctions4DFilePath":"Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles/BetaFunctions4D.txt",
+"vectorMassesSquaredFilePath":"Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles/VectorMasses.txt",
+"vectorShortHandsFilePath":"Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles/VectorShorthands.txt",
+"hardToSoftFilePath":"Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles/HardToSoft.txt",
+"hardScaleFilePath":"Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles/HardScale.txt",
+"softScaleRGEFilePath":"Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles/SoftScaleRGE.txt",
+"softToUltraSoftFilePath":"Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles/SoftToUltraSoft.txt",
+"ultraSoftScaleRGEFilePath": "Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles/UltraSoftScaleRGE.txt",
+"scalarPermutationMatrixFilePath":"Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles/ScalarPermutationMatrix.txt",
+"scalarRotationMatrixFilePath":"Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles/ScalarRotationMatrix.txt",
+"scalarMassMatrixFilePath":"Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles/ScalarMassMatrix.txt",
+"lagranianVariablesFilePath":"Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles/LagranianSymbols.json",
+"scalarMassNamesFilePath":"Share/DRalgoModelFiles/Z2_3HDM/DRalgoOutputFiles/ScalarMassNames.txt",
+"bmGeneratorModule": "z2_3hdm_bm_generator",
+"bgfLowerBounds": [-60, 1e-4, 1e-4],
+"bgfUpperBounds": [60, 60, 60],
+"initialGuesses":[
+    [0.1, 0.1, 0.1],
+    [5, 5, 5],
+    [-5, 5, 5],
+    [0.1, 0.1, 10],
+    [0.1, 0.1, 20],
+    [40, 40, 40],
+    [-40, 40, 40],
+    [59, 59, 59],
+    [-59, 59, 59]
+],
+"benchmarkType": "handPicked"
+}
+
