@@ -3,7 +3,7 @@ import re
 import unicodedata
 from unittest import TestCase
 
-from generate_modules import generateModules
+from Source.generate_modules import generateModules
 
 
 def pythonise_DRalgo(args):

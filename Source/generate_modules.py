@@ -9,7 +9,7 @@ from textwrap import dedent
 
 import nlopt
 from jinja2 import Environment
-from utility import printIfVerbose
+from Source.utility import printIfVerbose
 
 
 def generateModules(

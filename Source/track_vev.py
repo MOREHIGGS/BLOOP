@@ -4,9 +4,9 @@ from unittest import TestCase
 
 import numpy as np
 import scipy
-from parsed_expression import ParsedExpression, ParsedExpressionSystem
-from pythonise_dralgo import replaceGreekSymbols
-from utility import printIfVerbose
+from Source.parsed_expression import ParsedExpression, ParsedExpressionSystem
+from Source.pythonise_dralgo import replaceGreekSymbols
+from Source.utility import printIfVerbose
 
 
 def isPerturbative(params, pertSymbols, allSymbols):

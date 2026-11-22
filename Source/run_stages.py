@@ -8,10 +8,10 @@ from pathlib import Path
 #sys.path.insert(0, str(Path(__file__).parent))
 
 from Source.loop_benchmarks import loopBenchmarks
-from meta_data import writeMetaData
-from pythonise_dralgo import pythonise_DRalgo
-from user_input import UserInput
-from utility import printIfVerbose
+from Source.meta_data import writeMetaData
+from Source.pythonise_dralgo import pythonise_DRalgo
+from Source.user_input import UserInput
+from Source.utility import printIfVerbose
 
 
 def main():

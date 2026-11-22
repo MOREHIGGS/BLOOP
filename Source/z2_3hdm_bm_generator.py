@@ -11,7 +11,7 @@ import numpy as np
 import pdg
 import pytest
 from scipy.constants import physical_constants as constants
-from utility import cNlopt
+from Source.utility import cNlopt
 
 ## Connecting is expensive so just do it once in global space to avoid passing it around
 api = pdg.connect()
