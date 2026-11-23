@@ -19,6 +19,12 @@ def main():
     if args is None:
         return -1
     
+    ## Make file paths relative from BLOOP 
+    BLOOPDir = str(Path(__file__).resolve().parent.parent)+"/"
+    for key, value in vars(args).items(): 
+        if key.endswith("FilePath") and value:
+            setattr(args, key,  BLOOPDir+f"{value}") 
+    
     # Ensure cython build directory exists and that python modules within it are
     # importable
     Path(args.buildDirectoryFilePath).mkdir(exist_ok=True, parents=True)
@@ -28,12 +34,6 @@ def main():
     for key, value in vars(args).items(): 
         if key.endswith("Module") and value:
             setattr(args, key,  f"{value.removesuffix('.py')}")
-    
-    ## Make file paths relative from BLOOP 
-    BLOOPDir = str(Path(__file__).resolve().parent.parent)+"/"
-    for key, value in vars(args).items(): 
-        if key.endswith("FilePath") and value:
-            setattr(args, key,  BLOOPDir+f"{value}") 
     
     ## AI code that puts NLopt symbols into global name space
     ## Far from ideal but the only way we could make gcc and Python 
