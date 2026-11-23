@@ -14,18 +14,30 @@ from utility import printIfVerbose
 
 
 def main():
+    
     args = UserInput().parse()
     if args is None:
         return -1
     
+    ## Make file paths relative from BLOOP 
+    BLOOPDir = str(Path(__file__).resolve().parent.parent)+"/"
+    for key, value in vars(args).items(): 
+        if key.endswith("FilePath") and value:
+            setattr(args, key,  BLOOPDir+f"{value}") 
+    
     # Ensure cython build directory exists and that python modules within it are
-    # importable.
+    # importable
     Path(args.buildDirectoryFilePath).mkdir(exist_ok=True, parents=True)
     sys.path.insert(0, args.buildDirectoryFilePath)
 
+    ## Catching common mistake
+    for key, value in vars(args).items(): 
+        if key.endswith("Module") and value:
+            setattr(args, key,  f"{value.removesuffix('.py')}")
+    
     ## AI code that puts NLopt symbols into global name space
-    ## Far from ideal but the only way we could make gcc and Python handle NLopt in Cython when BLOOP
-    ## is PIP installed 
+    ## Far from ideal but the only way we could make gcc and Python 
+    ## handle NLopt in Cython when BLOOP is PIP installed 
     ctypes.CDLL(importlib.util.find_spec("nlopt._nlopt").origin, mode=ctypes.RTLD_GLOBAL)
     
     printIfVerbose("Meta data stage started", args.verbose)
